@@ -54,6 +54,17 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     /** The Start tap that belongs to the open window, captured when it opened. */
     private var pendingStart: Instant? = null
 
+    private val _loaded = MutableStateFlow(store !is SqliteStore)
+    /** False until the database has been read once, so onboarding never flashes. */
+    val loaded: StateFlow<Boolean> = _loaded.asStateFlow()
+
+    init {
+        if (store is SqliteStore) perform {
+            store.load()
+            _loaded.value = true
+        }
+    }
+
     fun tick() { _now.value = clock() }
 
     private val zone: ZoneId get() = ZoneId.systemDefault()

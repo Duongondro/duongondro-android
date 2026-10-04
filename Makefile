@@ -7,7 +7,7 @@ export JAVA_HOME := $(STUDIO_JBR)
 endif
 GRADLE := ./gradlew --console=plain
 
-.PHONY: test core-test build install release
+.PHONY: test core-test device-test build install release
 
 core-test:            ## Core unit and conformance tests on the JVM (no emulator)
 	$(GRADLE) :core:test
@@ -17,6 +17,9 @@ test: core-test       ## Everything that runs without an emulator
 
 build:                ## Debug APK (dirty tree allowed; shows -dirty in Settings)
 	$(GRADLE) :app:assembleDebug
+
+device-test:          ## Instrumented tests on the running emulator (storage)
+	$(GRADLE) :app:connectedDebugAndroidTest
 
 install: build        ## Install the debug APK on the running emulator
 	$(GRADLE) :app:installDebug

@@ -31,12 +31,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import app.duongondro.core.Catalogue
-import app.duongondro.core.TrackedPractice
 import app.duongondro.model.AppModel
-import app.duongondro.model.InMemoryStore
-import app.duongondro.model.Preferences
-import app.duongondro.model.Snapshot
+import app.duongondro.model.SqliteStore
+import app.duongondro.ui.onboarding.OnboardingScreen
 import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.SettingsScreen
@@ -47,7 +44,7 @@ class MainActivity : ComponentActivity() {
     private val model: AppModel by viewModels {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = AppModel(starterStore()) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = AppModel(SqliteStore(applicationContext)) as T
         }
     }
 
@@ -83,20 +80,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** Stand-in until Room storage and onboarding land: Dorje Sempa and Chenrezig in memory. */
-private fun starterStore(): InMemoryStore {
-    val pick = { id: String -> Catalogue.builtIn.first { it.id == id } }
-    return InMemoryStore(
-        Snapshot(
-            practices = listOf(
-                TrackedPractice(pick("dorje-sempa"), sortOrder = 0),
-                TrackedPractice(pick("chenrezig"), wantsStreakOnly = true, sortOrder = 1),
-            ),
-            preferences = Preferences(onboarded = true, finishedShortRefuge = true),
-        )
-    )
-}
-
 private object Routes {
     const val TODAY = "today"
     const val SETTINGS = "settings"
@@ -106,6 +89,17 @@ private object Routes {
 
 @Composable
 fun App(model: AppModel) {
+    val loaded by model.loaded.collectAsStateWithLifecycle()
+    val snapshot by model.snapshot.collectAsStateWithLifecycle()
+    when {
+        !loaded -> Unit
+        !snapshot.preferences.onboarded -> OnboardingScreen(model)
+        else -> Home(model)
+    }
+}
+
+@Composable
+private fun Home(model: AppModel) {
     val nav = rememberNavController()
     val prompt by model.afterMidnight.collectAsStateWithLifecycle()
     Scaffold(bottomBar = { BottomBar(nav) }) { padding ->
