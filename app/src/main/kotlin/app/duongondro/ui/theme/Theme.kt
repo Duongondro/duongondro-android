@@ -114,6 +114,7 @@ fun DuongondroTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable 
             surfaceContainer = c.card, surfaceContainerHigh = c.card, surfaceContainerLow = c.card,
             onSurfaceVariant = c.muted, outline = c.cardBorder, outlineVariant = c.cardBorder, error = c.destructive,
             secondaryContainer = c.streakCard, onSecondaryContainer = c.accent, surfaceVariant = c.cardBorder,
+            surfaceContainerHighest = c.cardBorder,
         )
     } else {
         lightColorScheme(
@@ -122,6 +123,7 @@ fun DuongondroTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable 
             surfaceContainer = c.card, surfaceContainerHigh = c.card, surfaceContainerLow = c.card,
             onSurfaceVariant = c.muted, outline = c.cardBorder, outlineVariant = c.cardBorder, error = c.destructive,
             secondaryContainer = c.streakCard, onSecondaryContainer = c.accent, surfaceVariant = c.cardBorder,
+            surfaceContainerHighest = c.cardBorder,
         )
     }
     CompositionLocalProvider(LocalColors provides c) {
