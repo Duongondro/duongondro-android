@@ -19,12 +19,22 @@ class CoreTest {
         assertTrue("short-refuge" in beginner)
         assertFalse("dorje-sempa" in beginner)
         assertFalse("8th-karmapa" in beginner)
+        assertTrue("16th-karmapa" in beginner)
         val inNgondro = Catalogue.available(finishedNgondro = false, finishedShortRefuge = true).map { it.id }
         assertTrue("mandala" in inNgondro)
         assertFalse("8th-karmapa" in inNgondro)
         val done = Catalogue.available(finishedNgondro = true, finishedShortRefuge = true).map { it.id }
         assertTrue("8th-karmapa" in done)
         assertTrue("repeat rounds stay available", "dorje-sempa" in done)
+    }
+
+    @Test fun karmapaMeditationsStartStreakOnly() {
+        val byId = Catalogue.builtIn.associateBy { it.id }
+        assertTrue(byId.getValue("16th-karmapa").streakOnlyByDefault)
+        assertNull(byId.getValue("16th-karmapa").target)
+        assertTrue(byId.getValue("8th-karmapa").streakOnlyByDefault)
+        assertFalse(byId.getValue("chenrezig").streakOnlyByDefault)
+        assertFalse(byId.getValue("dorje-sempa").streakOnlyByDefault)
     }
 
     @Test fun ngondroIsNeverStreakOnly() {

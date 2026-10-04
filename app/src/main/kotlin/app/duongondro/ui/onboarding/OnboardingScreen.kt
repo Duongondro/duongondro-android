@@ -138,7 +138,7 @@ class OnboardingFlow : ViewModel() {
 
     fun toggle(p: Practice) {
         val i = chosen.indexOfFirst { it.practice.id == p.id }
-        if (i >= 0) chosen.removeAt(i) else chosen += Chosen(p, streakOnly = p.id == "8th-karmapa")
+        if (i >= 0) chosen.removeAt(i) else chosen += Chosen(p, streakOnly = p.streakOnlyByDefault)
     }
 
     /** After the path questions, drop choices the answers no longer allow. */

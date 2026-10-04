@@ -295,7 +295,7 @@ private fun AddPracticeDialog(model: AppModel, close: () -> Unit) {
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.m)) {
                 options.forEach { p ->
-                    PracticeName(p, modifier = Modifier.fillMaxWidth().clickable { add(TrackedPractice(p, wantsStreakOnly = p.id == "8th-karmapa")) })
+                    PracticeName(p, modifier = Modifier.fillMaxWidth().clickable { add(TrackedPractice(p, wantsStreakOnly = p.streakOnlyByDefault)) })
                 }
                 Row(Modifier.fillMaxWidth().clickable { custom = true }, verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Add, contentDescription = null, tint = Theme.colors.accent)
