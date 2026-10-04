@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "duongondro-android"
-include(":core")
+include(":core", ":app")
