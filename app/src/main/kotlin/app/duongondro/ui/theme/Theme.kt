@@ -34,6 +34,8 @@ data class DuongondroColors(
     val streakCard: Color,
     /** Streak flames are gold, never orange. */
     val flame: Color,
+    /** Streak numbers as text: gold only reads on dark, so burgundy in light mode. */
+    val flameText: Color,
     val destructive: Color,
     /** Welcome: warm off-white with a burgundy button, or near-black burgundy with a gold one. */
     val welcomeGround: Color,
@@ -43,14 +45,14 @@ data class DuongondroColors(
 private val Light = DuongondroColors(
     accent = Color(0xFF7A1F2E), onAccent = Color(0xFFFFFFFF), gold = Color(0xFFD4A72C),
     ground = Color(0xFFF7F3F1), card = Color(0xFFFFFFFF), cardBorder = Color(0xFFEDE4E6),
-    muted = Color(0xFF6B5A60), streakCard = Color(0xFFF6E9EB), flame = Color(0xFFC9952B),
+    muted = Color(0xFF6B5A60), streakCard = Color(0xFFF6E9EB), flame = Color(0xFFC9952B), flameText = Color(0xFF7A1F2E),
     destructive = Color(0xFFB3261E), welcomeGround = Color(0xFFF7F3F1), welcomePrimary = Color(0xFF7A1F2E),
 )
 
 private val Dark = DuongondroColors(
     accent = Color(0xFFE8909C), onAccent = Color(0xFF120A0C), gold = Color(0xFFE3B341),
     ground = Color(0xFF120A0C), card = Color(0xFF2B1C20), cardBorder = Color(0xFF46323A),
-    muted = Color(0xFFC2B2B7), streakCard = Color(0xFF4A1C27), flame = Color(0xFFE3B341),
+    muted = Color(0xFFC2B2B7), streakCard = Color(0xFF4A1C27), flame = Color(0xFFE3B341), flameText = Color(0xFFE3B341),
     destructive = Color(0xFFF2827A), welcomeGround = Color(0xFF1E0C11), welcomePrimary = Color(0xFFE3B341),
 )
 
@@ -71,6 +73,8 @@ object Space {
 object Radius {
     val small = 4.dp
     val card = 6.dp
+    /** Dialogs and sheets, as iOS sheets (12 pt). */
+    val sheet = 12.dp
 }
 
 private val shapes = Shapes(
@@ -78,6 +82,7 @@ private val shapes = Shapes(
     small = RoundedCornerShape(Radius.small),
     medium = RoundedCornerShape(Radius.card),
     large = RoundedCornerShape(Radius.card),
+    extraLarge = RoundedCornerShape(Radius.sheet),
 )
 
 /** IBM Plex Sans SemiBold/Bold for headings and big numbers; the system font for prose. */

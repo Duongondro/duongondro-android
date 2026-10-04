@@ -114,7 +114,7 @@ private fun PracticeRow(p: TrackedPractice, snapshot: Snapshot, streak: Streak.R
             val label = pluralStringResource(R.plurals.days, streak.current, streak.current)
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics { contentDescription = label }) {
                 Icon(painterResource(R.drawable.ic_flame), contentDescription = null, tint = Theme.colors.flame)
-                Text("${streak.current}", style = MaterialTheme.typography.titleMedium, color = Theme.colors.flame)
+                Text("${streak.current}", style = MaterialTheme.typography.titleMedium, color = Theme.colors.flameText)
             }
         }
         Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)

@@ -139,4 +139,7 @@
     <string name="contributors">Contributors</string>
     <string name="contributors_footer">Everyone with a commit in the app, server, design or iOS repositories, most commits first. Generated from git history when this build was made.</string>
     <string name="licences">Licences</string>
+    <string name="storage_error">Something could not be saved</string>
+    <string name="previous_round">Previous round</string>
+    <string name="next_round">Next round</string>
 </resources>

@@ -23,7 +23,10 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * The local SQLite database, with the same plain-SQL schema as the iOS app.
+ * The local SQLite database: the iOS app's tables and columns, in plain SQL.
+ * Two storage details differ and need aligning before sync: times are Unix
+ * milliseconds here (DATETIME text on iOS), and preferences are columns here
+ * (one JSON row on iOS).
  * Every write goes through here and re-reads the snapshot, so the UI never
  * shows a state the database does not hold. Excluded from cloud backups and
  * device transfer (data_extraction_rules.xml): it holds plaintext counts.
@@ -81,7 +84,15 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
             db.execSQL("DELETE FROM practices")
             db.execSQL("DELETE FROM preferences")
         }
-        withContext(Dispatchers.IO) { lock.withLock { helper.writableDatabase.execSQL("VACUUM") } }
+        withContext(Dispatchers.IO) {
+            lock.withLock {
+                val db = helper.writableDatabase
+                db.execSQL("VACUUM")
+                // VACUUM in WAL mode writes into the WAL; fold it into the file and
+                // truncate it, so no old page survives in either.
+                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+            }
+        }
     }
 
     /** One transaction, then a fresh snapshot. */
@@ -99,23 +110,31 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
         }
     }
 
+    /**
+     * Update, then insert if nothing matched. Not `ON CONFLICT DO UPDATE`, which
+     * needs SQLite 3.24 (API 28 and 29 ship 3.22), and not REPLACE, which would
+     * delete the row and cascade to its sessions.
+     */
     private fun upsert(db: SQLiteDatabase, p: TrackedPractice) {
         val q = p.practice
-        db.execSQL(
-            """
-            INSERT INTO practices (id, name, second_name, grp, target, streak_only_allowed, streak_only,
-                                   mala_size, is_custom, opening_count, archived, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT (id) DO UPDATE SET
-                name = excluded.name, second_name = excluded.second_name, grp = excluded.grp,
-                target = excluded.target, streak_only_allowed = excluded.streak_only_allowed,
-                streak_only = excluded.streak_only, mala_size = excluded.mala_size,
-                is_custom = excluded.is_custom, opening_count = excluded.opening_count,
-                archived = excluded.archived, sort_order = excluded.sort_order, dirty = 1
-            """.trimIndent(),
-            arrayOf<Any?>(q.id, q.name, q.secondName, q.group.wire, q.target, q.streakOnlyAllowed.bit, p.streakOnly.bit,
-                q.malaSize, q.isCustom.bit, p.openingCount, p.archived.bit, p.sortOrder),
-        )
+        val values = ContentValues().apply {
+            put("name", q.name)
+            put("second_name", q.secondName)
+            put("grp", q.group.wire)
+            put("target", q.target)
+            put("streak_only_allowed", q.streakOnlyAllowed)
+            put("streak_only", p.streakOnly)
+            put("mala_size", q.malaSize)
+            put("is_custom", q.isCustom)
+            put("opening_count", p.openingCount)
+            put("archived", p.archived)
+            put("sort_order", p.sortOrder)
+            put("dirty", 1)
+        }
+        if (db.update("practices", values, "id = ?", arrayOf(q.id)) == 0) {
+            values.put("id", q.id)
+            db.insertOrThrow("practices", null, values)
+        }
     }
 
     private fun savePreferences(db: SQLiteDatabase, p: Preferences) {
@@ -176,6 +195,8 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
         override fun onConfigure(db: SQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
             db.enableWriteAheadLogging()
+            // Deleted content is overwritten with zeros, not left in free pages.
+            db.rawQuery("PRAGMA secure_delete = ON", null).use { it.moveToFirst() }
         }
 
         /**

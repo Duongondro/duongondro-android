@@ -49,10 +49,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.duongondro.R
 import app.duongondro.core.Catalogue
@@ -169,7 +171,11 @@ class OnboardingFlow : ViewModel() {
 }
 
 @Composable
-fun OnboardingScreen(model: AppModel, flow: OnboardingFlow = viewModel()) {
+fun OnboardingScreen(model: AppModel) {
+    // Keyed by the purge generation: after "Delete everything" a fresh flow
+    // starts at Welcome, holding none of the answers that were just deleted.
+    val generation by model.generation.collectAsStateWithLifecycle()
+    val flow: OnboardingFlow = viewModel(key = "onboarding-$generation")
     BackHandler(enabled = flow.canGoBack) { flow.back() }
     val ground = if (flow.step == Step.Welcome) Theme.colors.welcomeGround else Theme.colors.ground
     Column(Modifier.fillMaxSize().background(ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
@@ -340,8 +346,12 @@ private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
                 if (c.showsRound) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.round_n, c.round), Modifier.weight(1f))
-                        TextButton(onClick = { update { it.copy(round = maxOf(1, it.round - 1)) } }) { Text("−") }
-                        TextButton(onClick = { update { it.copy(round = minOf(99, it.round + 1)) } }) { Text("+") }
+                        val previous = stringResource(R.string.previous_round)
+                        val next = stringResource(R.string.next_round)
+                        TextButton(onClick = { update { it.copy(round = maxOf(1, it.round - 1)) } },
+                            modifier = Modifier.semantics { contentDescription = previous }) { Text("−") }
+                        TextButton(onClick = { update { it.copy(round = minOf(99, it.round + 1)) } },
+                            modifier = Modifier.semantics { contentDescription = next }) { Text("+") }
                     }
                 } else if (c.practice.target != null) {
                     TextButton(onClick = { update { it.copy(showsRound = true) } }) { Text(stringResource(R.string.later_round)) }

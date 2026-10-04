@@ -37,7 +37,6 @@ import app.duongondro.R
 import app.duongondro.data.Covers
 import app.duongondro.data.DataExport
 import app.duongondro.data.Exports
-import app.duongondro.data.Purge
 import app.duongondro.model.AppModel
 import app.duongondro.ui.card
 import app.duongondro.ui.theme.Space
@@ -111,7 +110,7 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
             modifier = Modifier.fillMaxWidth())
         Button(
-            onClick = { scope.launch { try { Purge.run(context, model) } catch (e: Exception) { failure = e.message ?: e.toString() } } },
+            onClick = { model.purge(context) { failure = it } },
             enabled = typed.trim().equals(word, ignoreCase = true),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(containerColor = Theme.colors.destructive, contentColor = Theme.colors.onAccent),

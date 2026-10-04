@@ -17,6 +17,7 @@ import app.duongondro.MainActivity
 import app.duongondro.R
 import app.duongondro.core.Streak
 import app.duongondro.core.civilDate
+import app.duongondro.core.parseCivilDate
 import app.duongondro.core.headline
 import app.duongondro.model.Snapshot
 import app.duongondro.model.SqliteStore
@@ -36,6 +37,20 @@ import java.time.ZoneId
 object Reminders {
     private const val CHANNEL = "streak-at-risk"
     private const val EXTRA_BODY = "body"
+    private const val EXTRA_DAY = "day"
+    internal const val DAY = EXTRA_DAY
+
+    /**
+     * The app's own language: AppCompat applies a per-app locale only to
+     * activities before API 33, and these strings are built in receivers too.
+     */
+    private fun localized(context: Context): Context {
+        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty) return context
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocales(android.os.LocaleList.forLanguageTags(locales.toLanguageTags()))
+        return context.createConfigurationContext(config)
+    }
 
     fun reschedule(context: Context, snapshot: Snapshot, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
         val alarms = context.getSystemService(AlarmManager::class.java) ?: return
@@ -52,33 +67,37 @@ object Reminders {
             if (!fire.isAfter(now)) continue
             // The streak as it will stand then: tomorrow's is alive only if today gets logged.
             val streak = Streak.headline(snapshot.sessions, snapshot.seeds, fire, zone).current
-            val body = if (streak > 0) {
-                context.resources.getQuantityString(R.plurals.reminder_streak_ends, streak, streak)
-            } else context.getString(R.string.reminder_short_session)
-            alarms.set(AlarmManager.RTC_WAKEUP, fire.toEpochMilli(), intent(context, day, body))
+            val res = localized(context).resources
+            val body = if (streak > 0) res.getQuantityString(R.plurals.reminder_streak_ends, streak, streak)
+                       else res.getString(R.string.reminder_short_session)
+            // Inexact, but allowed while idle so Doze cannot push it to another day;
+            // the receiver drops it if that happens anyway.
+            alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fire.toEpochMilli(), intent(context, day, body))
         }
     }
 
     private fun intent(context: Context, day: LocalDate, body: String?): PendingIntent {
-        val i = Intent(context, ReminderReceiver::class.java).putExtra(EXTRA_BODY, body)
+        val i = Intent(context, ReminderReceiver::class.java).putExtra(EXTRA_BODY, body).putExtra(EXTRA_DAY, day.toString())
         return PendingIntent.getBroadcast(context, day.toEpochDay().toInt(), i,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
+    /** Permission on 13+, and notifications not switched off for the app on any version. */
     fun canNotify(context: Context): Boolean =
-        Build.VERSION.SDK_INT < 33 ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        (Build.VERSION.SDK_INT < 33 ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) &&
+            NotificationManagerCompat.from(context).areNotificationsEnabled()
 
     internal fun post(context: Context, body: String) {
         if (!canNotify(context)) return
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, context.getString(R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT))
+            NotificationChannel(CHANNEL, localized(context).getString(R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT))
         val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_flame)
-            .setContentTitle(context.getString(R.string.reminder_title))
+            .setContentTitle(localized(context).getString(R.string.reminder_title))
             .setContentText(body)
             .setContentIntent(open)
             .setAutoCancel(true)
@@ -91,6 +110,9 @@ object Reminders {
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // A reminder that Doze delivered on a later day is stale: its streak already ended.
+        val day = intent.getStringExtra(Reminders.DAY)?.let { parseCivilDate(it) }
+        if (day != null && day != civilDate(Instant.now(), ZoneId.systemDefault())) return
         Reminders.post(context, intent.getStringExtra(Reminders.BODY) ?: context.getString(R.string.reminder_short_session))
     }
 }

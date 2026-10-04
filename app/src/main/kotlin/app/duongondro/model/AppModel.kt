@@ -60,11 +60,38 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     /** False until the database has been read once, so onboarding never flashes. */
     val loaded: StateFlow<Boolean> = _loaded.asStateFlow()
 
+    private val _generation = MutableStateFlow(0)
+    /** Bumped by "Delete everything", so onboarding starts again from Welcome with no old answers. */
+    val generation: StateFlow<Int> = _generation.asStateFlow()
+
     init {
-        if (store is SqliteStore) perform {
-            store.load()
+        if (store is SqliteStore) viewModelScope.launch {
+            // Shown either way: a failed read must not leave a blank screen.
+            try { store.load() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
             _loaded.value = true
         }
+    }
+
+    /**
+     * Runs the purge in the model's scope: the screen that asked is torn down
+     * as soon as the rows are gone, and the purge must still finish.
+     */
+    fun purge(context: android.content.Context, onFailure: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                app.duongondro.data.Purge.run(context.applicationContext, this@AppModel)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                onFailure(e.message ?: e.toString())
+            } finally {
+                _generation.value += 1
+            }
+        }
+    }
+
+    override fun onCleared() {
+        (store as? SqliteStore)?.close()
     }
 
     fun tick() { _now.value = clock() }
@@ -127,9 +154,10 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
         val startedAt = SessionStart.estimate(p.openedAt, tapped, SessionStart.timedLengths(snapshot.value.sessions))
         val session = Session(practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
             startExact = tapped != null, zoneId = zone.id, loggedAt = p.openedAt)
-        if (tapped != null && _started.value[p.practiceId] == tapped) _started.value = _started.value - p.practiceId
         perform {
             store.insert(session)
+            // Only once written; a Start tapped during the window stays for the next session.
+            if (tapped != null && _started.value[p.practiceId] == tapped) _started.value = _started.value - p.practiceId
             AfterMidnight.check(session)?.let { _afterMidnight.value = AfterMidnightPrompt(session, it) }
         }
     }

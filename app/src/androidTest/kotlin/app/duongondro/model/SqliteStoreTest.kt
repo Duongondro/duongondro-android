@@ -83,12 +83,11 @@ class SqliteStoreTest {
         store.eraseAll()
         assertEquals(Snapshot(), store.snapshot.value)
         assertNull(store.snapshot.value.seedOf("mandala"))
-        store.close()
+        // Scanned while the store is open: closing would checkpoint and hide a WAL left behind.
         val path = context.getDatabasePath(name).path
         for (suffix in listOf("", "-wal")) {
             val f = File(path + suffix)
             if (f.exists()) assertTrue("no trace in $suffix", !String(f.readBytes(), Charsets.ISO_8859_1).contains("mandala"))
         }
-        store = SqliteStore(context, name)
     }
 }

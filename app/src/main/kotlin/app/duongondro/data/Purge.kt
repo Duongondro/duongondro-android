@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import app.duongondro.model.AppModel
 import app.duongondro.reminders.Reminders
+import kotlinx.coroutines.CancellationException
 import java.io.File
 import java.security.KeyStore
 
@@ -18,7 +19,7 @@ object Purge {
     suspend fun run(context: Context, model: AppModel) {
         model.discardInFlight()
         var failure: Throwable? = null
-        try { model.store.eraseAll() } catch (e: Exception) { failure = e }
+        try { model.store.eraseAll() } catch (e: CancellationException) { throw e } catch (e: Exception) { failure = e }
         try { deleteKeystoreEntries() } catch (e: Exception) { failure = failure ?: e }
         listOf(Exports.folder(context), Covers.folder(context)).forEach { it.deleteRecursively() }
         Reminders.reschedule(context, model.snapshot.value)

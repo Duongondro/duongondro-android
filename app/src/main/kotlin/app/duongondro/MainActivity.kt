@@ -10,7 +10,9 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -93,7 +95,9 @@ class MainActivity : AppCompatActivity() {
     /** A session in its undo window is written before the process can be killed. */
     override fun onStop() {
         unregisterReceiver(timeChanged)
-        model.commitPending()
+        // Rotation or a language switch recreates the activity; the ViewModel
+        // keeps the undo window alive through it, so only commit when leaving.
+        if (!isChangingConfigurations) model.commitPending()
         super.onStop()
     }
 }
@@ -116,6 +120,7 @@ private object Routes {
 fun App(model: AppModel) {
     val loaded by model.loaded.collectAsStateWithLifecycle()
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
+    StorageErrorDialog(model)
     when {
         !loaded -> Unit
         !snapshot.preferences.onboarded -> OnboardingScreen(model)
@@ -151,6 +156,20 @@ private fun Home(model: AppModel) {
         }
     }
     prompt?.let { AfterMidnightDialog(it, model) }
+}
+
+/** Says plainly when something could not be saved, instead of losing it quietly. */
+@Composable
+private fun StorageErrorDialog(model: AppModel) {
+    val error by model.storageError.collectAsStateWithLifecycle()
+    error?.let {
+        AlertDialog(
+            onDismissRequest = { model.dismissStorageError() },
+            title = { Text(stringResource(R.string.storage_error)) },
+            text = { Text(it) },
+            confirmButton = { TextButton(onClick = { model.dismissStorageError() }) { Text(stringResource(R.string.ok)) } },
+        )
+    }
 }
 
 @Composable

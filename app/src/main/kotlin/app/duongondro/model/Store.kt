@@ -45,7 +45,7 @@ interface Store {
     suspend fun eraseAll()
 }
 
-/** For previews and tests, and until the Room store lands. */
+/** For previews and tests. */
 class InMemoryStore(initial: Snapshot = Snapshot()) : Store {
     private val state = MutableStateFlow(initial)
     override val snapshot: StateFlow<Snapshot> = state.asStateFlow()

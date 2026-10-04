@@ -38,7 +38,13 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import kotlinx.coroutines.delay
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -172,7 +178,12 @@ fun SwitchRow(title: String, detail: String?, checked: Boolean, onChange: (Boole
 private fun ReminderRows(model: AppModel, minutes: Int?) {
     val context = LocalContext.current
     var allowed by remember { mutableStateOf(Reminders.canNotify(context)) }
-    val ask = rememberNotificationPermission { allowed = it }
+    // Re-checked on return, since the user may change it in system Settings.
+    LifecycleResumeEffect(Unit) {
+        allowed = Reminders.canNotify(context)
+        onPauseOrDispose { }
+    }
+    val ask = rememberNotificationPermission { allowed = Reminders.canNotify(context) }
     var picking by remember { mutableStateOf(false) }
     SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null) { on ->
         model.updatePreferences { it.copy(reminderMinutes = if (on) 20 * 60 else null) }
@@ -304,8 +315,9 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
     val save = { q: TrackedPractice -> model.save(q) }
     Page(p.practice.name, back) {
         if (p.practice.isCustom) {
-            OutlinedTextField(p.practice.name, { v -> if (v.isNotBlank()) save(p.copy(practice = p.practice.copy(name = v))) },
-                label = { Text(stringResource(R.string.name)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            DebouncedField(p.practice.name, stringResource(R.string.name), numeric = false) { v ->
+                if (v.isNotBlank()) save(p.copy(practice = p.practice.copy(name = v.trim())))
+            }
         } else {
             PracticeName(p.practice, modifier = Modifier.fillMaxWidth().card())
         }
@@ -319,13 +331,9 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
         if (!p.streakOnly) {
             SectionTitle(stringResource(R.string.counting))
             Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-                OutlinedTextField(
-                    value = p.practice.target?.toString().orEmpty(),
-                    onValueChange = { v -> save(p.copy(practice = p.practice.copy(target = v.filter { it in '0'..'9' }.take(9).toIntOrNull()?.takeIf { it > 0 }))) },
-                    label = { Text(stringResource(R.string.target_per_round)) }, singleLine = true,
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                DebouncedField(p.practice.target?.toString().orEmpty(), stringResource(R.string.target_per_round), numeric = true) { v ->
+                    save(p.copy(practice = p.practice.copy(target = v.filter { it in '0'..'9' }.take(9).toIntOrNull()?.takeIf { it > 0 })))
+                }
                 Text(stringResource(R.string.mala_counts_as))
                 MalaPicker(p.practice.malaSize, snapshot.preferences.malaSize) { v -> save(p.copy(practice = p.practice.copy(malaSize = v))) }
             }
@@ -338,6 +346,27 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
             Text(stringResource(R.string.archive_detail), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
         }
     }
+}
+
+/**
+ * Typing stays in local state, so the cursor never jumps and a field can be
+ * emptied to retype; the value is saved half a second after the last change,
+ * one write instead of one per keystroke.
+ */
+@Composable
+private fun DebouncedField(initial: String, label: String, numeric: Boolean, save: (String) -> Unit) {
+    var text by rememberSaveable { mutableStateOf(initial) }
+    LaunchedEffect(text) {
+        if (text == initial) return@LaunchedEffect
+        delay(500)
+        save(text)
+    }
+    OutlinedTextField(
+        text, { text = if (numeric) it.filter { c -> c in '0'..'9' }.take(9) else it },
+        label = { Text(label) }, singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = if (numeric) KeyboardType.Number else KeyboardType.Text),
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable
@@ -375,7 +404,7 @@ private fun About(openContributors: () -> Unit, openLicences: () -> Unit) {
             Modifier.fillMaxWidth().combinedClickable(
                 onClick = {
                     if (revision != "unknown") {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android/commit/$revision".toUri()))
+                        context.openUrl(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android/commit/$revision".toUri()))
                     }
                 },
                 onLongClick = { scope.launch { clipboard.setClipEntry(ClipData.newPlainText("commit", revision).toClipEntry()) } },
@@ -386,7 +415,7 @@ private fun About(openContributors: () -> Unit, openLicences: () -> Unit) {
             Text(short, color = Theme.colors.muted)
         }
         Row(Modifier.fillMaxWidth().clickable {
-            context.startActivity(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android".toUri()))
+            context.openUrl(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android".toUri()))
         }) {
             Text(stringResource(R.string.source_code), Modifier.weight(1f), color = Theme.colors.accent)
             Text("BSD-3-Clause", color = Theme.colors.muted)
@@ -430,11 +459,16 @@ fun LicencesScreen(back: () -> Unit) {
     Page(stringResource(R.string.licences), back) {
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
             entries.forEach { (name, licence, url) ->
-                Column(Modifier.fillMaxWidth().clickable { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) }) {
+                Column(Modifier.fillMaxWidth().clickable { context.openUrl(Intent(Intent.ACTION_VIEW, url.toUri())) }) {
                     Text(name)
                     Text(licence, style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
                 }
             }
         }
     }
+}
+
+/** Opens a link; a phone with no browser shows nothing rather than crashing. */
+private fun android.content.Context.openUrl(intent: Intent) {
+    runCatching { startActivity(intent) }
 }

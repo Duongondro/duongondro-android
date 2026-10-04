@@ -82,7 +82,7 @@ object DataExport {
     internal fun practiceJson(s: Snapshot, appVersion: String, now: Instant): String {
         val p = s.preferences
         val file = PracticeFile(
-            exportedAt = now.toString(), appVersion = appVersion,
+            exportedAt = now.iso(), appVersion = appVersion,
             preferences = PreferencesOut(p.malaSize, p.finishedShortRefuge, p.finishedNgondro, p.reminderMinutes, p.discreetNotifications),
             practices = s.practices.map { t ->
                 val r = t.rounds(s.sessions)
@@ -91,8 +91,8 @@ object DataExport {
                     t.openingCount, t.lifetime(s.sessions), r?.round, r?.inRound)
             },
             sessions = s.sessions.map { x ->
-                SessionOut(x.id.toString(), x.practiceId, x.amount, x.startedAt.toString(), x.startExact, x.zoneId,
-                    x.day.toString(), x.chosenDay != null, x.loggedAt.toString())
+                SessionOut(x.id.toString(), x.practiceId, x.amount, x.startedAt.iso(), x.startExact, x.zoneId,
+                    x.day.toString(), x.chosenDay != null, x.loggedAt.iso())
             },
             streakSeeds = s.seeds.map { SeedOut(it.practiceId, it.days, it.longest, it.lastDay.toString(), it.zoneId) },
         )
@@ -127,4 +127,7 @@ object DataExport {
             appendLine("  Your own cover photos, which never left the phone.")
         }
     }
+
+    /** Whole-second ISO 8601 in UTC, as the iOS export writes it. */
+    private fun Instant.iso(): String = truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString()
 }
