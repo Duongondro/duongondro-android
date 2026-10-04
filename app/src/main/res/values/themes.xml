@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Only the window behind Compose; everything else is Theme.kt. -->
-    <style name="Theme.Duongondro" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Duongondro" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/ground</item>
     </style>
     <color name="ground">#F7F3F1</color>

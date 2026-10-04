@@ -91,4 +91,21 @@
     <string name="your_own_practice">Your own practice</string>
     <string name="name">Name</string>
     <string name="target_optional">Target (optional)</string>
+
+    <!-- Settings -->
+    <string name="section_practices">Practices</string>
+    <string name="add_practice">Add a practice</string>
+    <string name="archived_n">Archived (%1$d)</string>
+    <string name="archived">Archived</string>
+    <string name="language">Language</string>
+    <string name="system_default">System default</string>
+    <string name="discreet">Discreet notifications</string>
+    <string name="discreet_detail">Lock screens say “A friend practised” instead of the practice.</string>
+    <string name="target_per_round">Target per round</string>
+    <string name="mala_default">Default (%1$d)</string>
+    <string name="streak_only_kept">Counts logged so far are kept.</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Show on Today again</string>
+    <string name="archive_detail">Archiving hides the practice from Today and keeps its counts and history.</string>
+    <string name="counting">Counting</string>
 </resources>

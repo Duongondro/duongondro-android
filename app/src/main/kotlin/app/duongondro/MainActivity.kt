@@ -3,7 +3,7 @@ package app.duongondro
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -36,11 +36,13 @@ import app.duongondro.model.SqliteStore
 import app.duongondro.ui.onboarding.OnboardingScreen
 import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
+import app.duongondro.ui.settings.ArchivedScreen
+import app.duongondro.ui.settings.PracticeSettingsScreen
 import app.duongondro.ui.settings.SettingsScreen
 import app.duongondro.ui.theme.DuongondroTheme
 import app.duongondro.ui.today.TodayScreen
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val model: AppModel by viewModels {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -84,7 +86,10 @@ private object Routes {
     const val TODAY = "today"
     const val SETTINGS = "settings"
     const val PRACTICE = "practice/{id}"
+    const val PRACTICE_SETTINGS = "settings/practice/{id}"
+    const val ARCHIVED = "settings/archived"
     fun practice(id: String) = "practice/$id"
+    fun practiceSettings(id: String) = "settings/practice/$id"
 }
 
 @Composable
@@ -105,7 +110,15 @@ private fun Home(model: AppModel) {
     Scaffold(bottomBar = { BottomBar(nav) }) { padding ->
         NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding)) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
-            composable(Routes.SETTINGS) { SettingsScreen(model) }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }, openArchived = { nav.navigate(Routes.ARCHIVED) })
+            }
+            composable(Routes.PRACTICE_SETTINGS) { entry ->
+                PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+            }
+            composable(Routes.ARCHIVED) {
+                ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
+            }
             composable(Routes.PRACTICE) { entry ->
                 PracticeScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
@@ -127,7 +140,7 @@ private fun BottomBar(nav: NavHostController) {
             colors = navColors(),
         )
         NavigationBarItem(
-            selected = route == Routes.SETTINGS,
+            selected = route?.startsWith("settings") == true,
             onClick = { nav.navigate(Routes.SETTINGS) { popUpTo(Routes.TODAY); launchSingleTop = true } },
             icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
             label = { Text(stringResource(R.string.tab_settings)) },
