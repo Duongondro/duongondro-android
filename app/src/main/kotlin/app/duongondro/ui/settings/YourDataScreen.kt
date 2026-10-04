@@ -38,7 +38,12 @@ import app.duongondro.data.Covers
 import app.duongondro.data.DataExport
 import app.duongondro.data.Exports
 import app.duongondro.model.AppModel
+import app.duongondro.ui.CardSection
+import app.duongondro.ui.FilledAction
 import app.duongondro.ui.card
+import app.duongondro.ui.theme.Size
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.font.FontWeight
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import kotlinx.coroutines.Dispatchers
@@ -55,8 +60,8 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
     val scope = rememberCoroutineScope()
     var failure by remember { mutableStateOf<String?>(null) }
     Page(stringResource(R.string.section_your_data), back) {
-        Column(Modifier.fillMaxWidth().card()) {
-            Row(Modifier.fillMaxWidth().clickable {
+        CardSection(footer = stringResource(R.string.export_footer)) {
+            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable {
                 scope.launch {
                     try {
                         // Anything still in the undo window belongs in the export.
@@ -74,21 +79,20 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                         failure = e.message ?: e.toString()
                     }
                 }
-            }, verticalAlignment = Alignment.CenterVertically) {
+            }.padding(horizontal = Space.l), horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Share, contentDescription = null, tint = Theme.colors.accent)
-                Text(stringResource(R.string.export_all), color = Theme.colors.accent, modifier = Modifier.padding(start = Space.s))
+                Text(stringResource(R.string.export_all), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.accent)
             }
         }
-        Text(stringResource(R.string.export_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
-        Column(Modifier.fillMaxWidth().card()) {
-            Row(Modifier.fillMaxWidth().clickable(onClick = openDelete), verticalAlignment = Alignment.CenterVertically) {
+        CardSection(footer = stringResource(R.string.delete_footer)) {
+            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(onClick = openDelete).padding(horizontal = Space.l),
+                horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Delete, contentDescription = null, tint = Theme.colors.destructive)
-                Text(stringResource(R.string.delete_everything), color = Theme.colors.destructive,
-                    modifier = Modifier.weight(1f).padding(start = Space.s))
+                Text(stringResource(R.string.delete_everything), Modifier.weight(1f), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold),
+                    color = Theme.colors.destructive)
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
             }
         }
-        Text(stringResource(R.string.delete_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
     }
     failure?.let { ErrorDialog(stringResource(R.string.export_failed), it) { failure = null } }
 }
@@ -109,13 +113,9 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
             modifier = Modifier.fillMaxWidth())
-        Button(
-            onClick = { model.purge(context) { failure = it } },
-            enabled = typed.trim().equals(word, ignoreCase = true),
-            shape = MaterialTheme.shapes.medium,
-            colors = ButtonDefaults.buttonColors(containerColor = Theme.colors.destructive, contentColor = Theme.colors.onAccent),
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text(stringResource(R.string.delete_everything)) }
+        FilledAction(stringResource(R.string.delete_everything), fill = Theme.colors.destructive, enabled = typed.trim().equals(word, ignoreCase = true)) {
+            model.purge(context) { failure = it }
+        }
     }
     failure?.let { ErrorDialog(stringResource(R.string.could_not_delete), it) { failure = null } }
 }

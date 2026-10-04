@@ -8,8 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
@@ -45,7 +43,8 @@ import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
-import app.duongondro.ui.settings.ContributorsScreen
+import app.duongondro.ui.settings.AboutScreen
+import app.duongondro.ui.settings.PracticeListScreen
 import app.duongondro.ui.settings.DeleteEverythingScreen
 import app.duongondro.ui.settings.LicencesScreen
 import app.duongondro.ui.settings.SettingsScreen
@@ -106,11 +105,12 @@ private object Routes {
     const val TODAY = "today"
     const val SETTINGS = "settings"
     const val PRACTICE = "practice/{id}"
+    const val PRACTICES = "settings/practices"
     const val PRACTICE_SETTINGS = "settings/practice/{id}"
     const val ARCHIVED = "settings/archived"
     const val YOUR_DATA = "settings/data"
     const val DELETE = "settings/data/delete"
-    const val CONTRIBUTORS = "settings/contributors"
+    const val ABOUT = "settings/about"
     const val LICENCES = "settings/licences"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
@@ -132,20 +132,26 @@ fun App(model: AppModel) {
 private fun Home(model: AppModel) {
     val nav = rememberNavController()
     val prompt by model.afterMidnight.collectAsStateWithLifecycle()
-    Scaffold(bottomBar = { BottomBar(nav) }) { padding ->
+    val entry by nav.currentBackStackEntryAsState()
+    // The practice screen is full screen: the +mala button owns the bottom edge.
+    val onPractice = entry?.destination?.route == Routes.PRACTICE
+    Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!onPractice) BottomBar(nav) }) { padding ->
         NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding)) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
             composable(Routes.SETTINGS) {
-                SettingsScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }, openArchived = { nav.navigate(Routes.ARCHIVED) },
-                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openContributors = { nav.navigate(Routes.CONTRIBUTORS) },
-                    openLicences = { nav.navigate(Routes.LICENCES) })
+                SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
+                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) })
+            }
+            composable(Routes.PRACTICES) {
+                PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
+                    openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
             }
             composable(Routes.PRACTICE_SETTINGS) { entry ->
                 PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
             composable(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
             composable(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
-            composable(Routes.CONTRIBUTORS) { ContributorsScreen { nav.popBackStack() } }
+            composable(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
             composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
@@ -176,18 +182,18 @@ private fun StorageErrorDialog(model: AppModel) {
 private fun BottomBar(nav: NavHostController) {
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route
-    NavigationBar {
+    NavigationBar(containerColor = Theme.colors.card, contentColor = Theme.colors.muted) {
         NavigationBarItem(
-            selected = route == Routes.TODAY || route == Routes.PRACTICE,
+            selected = route == Routes.TODAY,
             onClick = { nav.navigate(Routes.TODAY) { popUpTo(Routes.TODAY) { inclusive = true }; launchSingleTop = true } },
-            icon = { Icon(painterResource(R.drawable.ic_flame), contentDescription = null) },
+            icon = { Icon(painterResource(R.drawable.ic_today), contentDescription = null) },
             label = { Text(stringResource(R.string.tab_today)) },
             colors = navColors(),
         )
         NavigationBarItem(
             selected = route?.startsWith("settings") == true,
             onClick = { nav.navigate(Routes.SETTINGS) { popUpTo(Routes.TODAY); launchSingleTop = true } },
-            icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+            icon = { Icon(painterResource(R.drawable.ic_you), contentDescription = null) },
             label = { Text(stringResource(R.string.tab_settings)) },
             colors = navColors(),
         )

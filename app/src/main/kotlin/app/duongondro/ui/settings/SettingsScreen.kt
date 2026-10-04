@@ -56,6 +56,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import app.duongondro.ui.CardSection
+import app.duongondro.ui.ListRow
+import app.duongondro.ui.OutlinedAction
+import app.duongondro.ui.RowDivider
+import app.duongondro.ui.timePickerColors
+import app.duongondro.ui.theme.Size
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -84,97 +100,121 @@ private const val SHOW_LANGUAGE = false
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
 
 @Composable
-fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit, openYourData: () -> Unit,
-                   openContributors: () -> Unit, openLicences: () -> Unit) {
+fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
-    Page(stringResource(R.string.settings)) {
-        SectionTitle(stringResource(R.string.section_practices))
-        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            snapshot.activePractices.forEach { p ->
-                Row(Modifier.fillMaxWidth().clickable { openPractice(p.id) }, verticalAlignment = Alignment.CenterVertically) {
-                    PracticeName(p.practice, modifier = Modifier.weight(1f))
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
-                }
-                HorizontalDivider(color = Theme.colors.cardBorder)
-            }
-            Row(Modifier.fillMaxWidth().clickable { adding = true }, verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Add, contentDescription = null, tint = Theme.colors.accent)
-                Text(stringResource(R.string.add_practice), color = Theme.colors.accent, modifier = Modifier.padding(start = Space.s))
-            }
-            val archived = snapshot.practices.count { it.archived }
-            if (archived > 0) {
-                Row(Modifier.fillMaxWidth().clickable(onClick = openArchived), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.archived_n, archived), Modifier.weight(1f))
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
-                }
-            }
+    Column(
+        Modifier.fillMaxSize().background(Theme.colors.ground).verticalScroll(rememberScrollState())
+            .padding(horizontal = Space.xl).padding(top = Space.l, bottom = Space.xl),
+        verticalArrangement = Arrangement.spacedBy(Space.l),
+    ) {
+        Text(stringResource(R.string.settings), style = Theme.type.largeTitle, color = Theme.colors.ink, modifier = Modifier.padding(horizontal = Space.xs))
+        CardSection(stringResource(R.string.section_practices)) {
+            ListRow(stringResource(R.string.your_practices), detail = "${snapshot.activePractices.size}", chevron = true, onClick = openPractices)
+            RowDivider()
+            ListRow(stringResource(R.string.add_practice), titleColor = Theme.colors.accent, semibold = true, onClick = { adding = true })
         }
 
-        SectionTitle(stringResource(R.string.section_general))
-        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+        CardSection(stringResource(R.string.section_general)) {
             // Hidden until the translations exist: only English works so far.
             if (SHOW_LANGUAGE) {
                 LanguageRow()
-                HorizontalDivider(color = Theme.colors.cardBorder)
+                RowDivider()
             }
-            Text(stringResource(R.string.mala_counts_as))
-            MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
-            HorizontalDivider(color = Theme.colors.cardBorder)
+            Column(Modifier.fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                Text(stringResource(R.string.mala_counts_as), style = Theme.type.body, color = Theme.colors.ink)
+                MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
+            }
+            RowDivider()
             ReminderRows(model, snapshot.preferences.reminderMinutes)
-            HorizontalDivider(color = Theme.colors.cardBorder)
-            SwitchRow(stringResource(R.string.discreet), stringResource(R.string.discreet_detail), snapshot.preferences.discreetNotifications) { v ->
+            RowDivider()
+            SwitchRow(stringResource(R.string.discreet), stringResource(R.string.discreet_detail), snapshot.preferences.discreetNotifications,
+                Modifier.padding(horizontal = Space.l, vertical = Space.s)) { v ->
                 model.updatePreferences { it.copy(discreetNotifications = v) }
             }
         }
 
-        SectionTitle(stringResource(R.string.section_your_data))
-        Row(Modifier.fillMaxWidth().clickable(onClick = openYourData).card(), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.export_and_delete), Modifier.weight(1f))
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
+        CardSection(stringResource(R.string.section_your_data)) {
+            ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)
         }
 
-        SectionTitle(stringResource(R.string.section_about))
-        About(openContributors, openLicences)
+        AboutSection(openAbout)
     }
     if (adding) AddPracticeDialog(model) { adding = false }
 }
 
-/** A scrolling settings page on the warm ground, with an optional back arrow. */
+/** The practices, with the archived ones behind a row. */
 @Composable
-fun Page(title: String, back: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit) {
-    Column(Modifier.fillMaxSize().background(Theme.colors.ground)) {
-        back?.let { IconButton(onClick = it, modifier = Modifier.padding(Space.xs)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-        } }
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = Space.xl).padding(bottom = Space.xxl),
-            verticalArrangement = Arrangement.spacedBy(Space.s),
-        ) {
-            Text(title, style = if (back == null) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(vertical = Space.s))
-            content()
+fun PracticeListScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit, back: () -> Unit) {
+    val snapshot by model.snapshot.collectAsStateWithLifecycle()
+    Page(stringResource(R.string.your_practices), back) {
+        CardSection {
+            val archived = snapshot.practices.count { it.archived }
+            snapshot.activePractices.forEachIndexed { i, p ->
+                if (i > 0) RowDivider()
+                PracticeRow(p, openPractice)
+            }
+            if (archived > 0) {
+                if (snapshot.activePractices.isNotEmpty()) RowDivider()
+                ListRow(stringResource(R.string.archived_n, archived), chevron = true, onClick = openArchived)
+            }
         }
+    }
+}
+
+@Composable
+private fun PracticeRow(p: TrackedPractice, open: (String) -> Unit) {
+    Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable { open(p.id) }.padding(horizontal = Space.l, vertical = Space.s),
+        verticalAlignment = Alignment.CenterVertically) {
+        PracticeName(p.practice, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
+    }
+}
+
+/** A title bar with a back arrow and the title centred. */
+@Composable
+fun TopBar(title: String, back: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = Space.xs, vertical = Space.xs), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = back) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
+        }
+        Text(title, Modifier.weight(1f), style = Theme.type.button, color = Theme.colors.ink, textAlign = TextAlign.Center, maxLines = 1)
+        Spacer(Modifier.size(Size.minTap))
+    }
+}
+
+/** A scrolling page on the warm ground under a title bar with a back arrow. */
+@Composable
+fun Page(title: String, back: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    Column(Modifier.fillMaxSize().background(Theme.colors.ground)) {
+        TopBar(title, back)
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = Space.xl).padding(top = Space.s, bottom = Space.xxl),
+            verticalArrangement = Arrangement.spacedBy(Space.l),
+            content = content,
+        )
     }
 }
 
 @Composable
 fun SectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleSmall, color = Theme.colors.muted, modifier = Modifier.padding(top = Space.m))
+    Text(text.uppercase(), style = Theme.type.caps, color = Theme.colors.muted, modifier = Modifier.padding(horizontal = Space.l))
 }
 
 @Composable
-fun SwitchRow(title: String, detail: String?, checked: Boolean, onChange: (Boolean) -> Unit) {
+fun SwitchRow(title: String, detail: String?, checked: Boolean, modifier: Modifier = Modifier, onChange: (Boolean) -> Unit) {
     // The whole row toggles, so the label is a target too and TalkBack reads one control.
     Row(
-        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        modifier.fillMaxWidth().heightIn(min = Size.minTap).toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f).padding(end = Space.m)) {
-            Text(title)
-            detail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted) }
+            Text(title, style = Theme.type.body, color = Theme.colors.ink)
+            detail?.let { Text(it, style = Theme.type.footnote, color = Theme.colors.muted) }
         }
-        Switch(checked, onCheckedChange = null)
+        Switch(checked, onCheckedChange = null, colors = SwitchDefaults.colors(
+            checkedTrackColor = Theme.colors.accent, checkedThumbColor = Theme.colors.onAccent, checkedBorderColor = Theme.colors.accent,
+            uncheckedTrackColor = Theme.colors.softFill, uncheckedThumbColor = Theme.colors.card, uncheckedBorderColor = Theme.colors.inputBorder))
     }
 }
 
@@ -191,22 +231,21 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
     }
     val ask = rememberNotificationPermission { allowed = Reminders.canNotify(context) }
     var picking by remember { mutableStateOf(false) }
-    SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null) { on ->
+    SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null, Modifier.padding(horizontal = Space.l, vertical = Space.s)) { on ->
         model.updatePreferences { it.copy(reminderMinutes = if (on) 20 * 60 else null) }
         if (on && !allowed) ask()
     }
     if (minutes != null) {
         val time = LocalTime.of(minutes / 60, minutes % 60)
-        Row(Modifier.fillMaxWidth().clickable { picking = true }, verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.time), Modifier.weight(1f))
-            Text(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time), color = Theme.colors.muted)
-        }
-        if (!allowed) Text(stringResource(R.string.notifications_off), style = MaterialTheme.typography.bodySmall, color = Theme.colors.destructive)
+        RowDivider()
+        ListRow(stringResource(R.string.time), detail = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time), onClick = { picking = true })
+        if (!allowed) Text(stringResource(R.string.notifications_off), style = Theme.type.footnote, color = Theme.colors.destructive,
+            modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s))
         if (picking) {
             val state = rememberTimePickerState(time.hour, time.minute)
             AlertDialog(
                 onDismissRequest = { picking = false },
-                text = { TimePicker(state) },
+                text = { TimePicker(state, colors = timePickerColors()) },
                 confirmButton = {
                     TextButton(onClick = {
                         picking = false
@@ -230,7 +269,11 @@ private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         options.forEachIndexed { i, (value, label) ->
             SegmentedButton(selected = selected == value, onClick = { pick(value) },
-                shape = SegmentedButtonDefaults.itemShape(i, options.size, MaterialTheme.shapes.small)) { Text(label) }
+                shape = SegmentedButtonDefaults.itemShape(i, options.size, MaterialTheme.shapes.small),
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = Theme.colors.accent, activeContentColor = Theme.colors.onAccent, activeBorderColor = Theme.colors.accent,
+                    inactiveContainerColor = Theme.colors.softFill, inactiveContentColor = Theme.colors.soft, inactiveBorderColor = Theme.colors.softFill),
+                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold)) }
         }
     }
 }
@@ -244,10 +287,7 @@ private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
 private fun LanguageRow() {
     var open by remember { mutableStateOf(false) }
     val current = AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)?.language
-    Row(Modifier.fillMaxWidth().clickable { open = true }, verticalAlignment = Alignment.CenterVertically) {
-        Text(stringResource(R.string.language), Modifier.weight(1f))
-        Text(current?.let(::nativeName) ?: stringResource(R.string.system_default), color = Theme.colors.muted)
-    }
+    ListRow(stringResource(R.string.language), detail = current?.let(::nativeName) ?: stringResource(R.string.system_default), chevron = true, onClick = { open = true })
     if (open) {
         AlertDialog(
             onDismissRequest = { open = false },
@@ -379,14 +419,21 @@ private fun DebouncedField(initial: String, label: String, numeric: Boolean, sav
 fun ArchivedScreen(model: AppModel, openPractice: (String) -> Unit, back: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     Page(stringResource(R.string.archived), back) {
-        snapshot.practices.filter { it.archived }.forEach { p ->
-            Row(Modifier.fillMaxWidth().clickable { openPractice(p.id) }.card(), verticalAlignment = Alignment.CenterVertically) {
-                PracticeName(p.practice, modifier = Modifier.weight(1f))
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
+        CardSection {
+            snapshot.practices.filter { it.archived }.forEachIndexed { i, p ->
+                if (i > 0) RowDivider()
+                PracticeRow(p, openPractice)
             }
         }
     }
 }
+
+private val shortRevision: String get() {
+    val revision = BuildConfig.GIT_REVISION
+    return (if (revision == "unknown") revision else revision.take(7)) + if (BuildConfig.GIT_DIRTY) "-dirty" else ""
+}
+
+private const val REPOSITORY = "https://github.com/Duongondro/duongondro-android"
 
 /**
  * What is running, so anyone can match the app to its source: version, the
@@ -395,48 +442,35 @@ fun ArchivedScreen(model: AppModel, openPractice: (String) -> Unit, back: () -> 
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun About(openContributors: () -> Unit, openLicences: () -> Unit) {
+private fun AboutSection(openAbout: () -> Unit) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val revision = BuildConfig.GIT_REVISION
-    val short = (if (revision == "unknown") revision else revision.take(7)) + if (BuildConfig.GIT_DIRTY) "-dirty" else ""
-    Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        Row(Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.version), Modifier.weight(1f))
-            Text("${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})", color = Theme.colors.muted)
-        }
+    CardSection(stringResource(R.string.section_about), stringResource(R.string.source_footer)) {
+        ListRow(stringResource(R.string.version), detail = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        RowDivider()
         Row(
-            Modifier.fillMaxWidth().combinedClickable(
+            Modifier.fillMaxWidth().heightIn(min = Size.minTap).combinedClickable(
                 onClick = {
-                    if (revision != "unknown") {
-                        context.openUrl(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android/commit/$revision".toUri()))
-                    }
+                    if (revision != "unknown") context.openUrl(Intent(Intent.ACTION_VIEW, "$REPOSITORY/commit/$revision".toUri()))
                 },
                 onLongClick = { scope.launch { clipboard.setClipEntry(ClipData.newPlainText("commit", revision).toClipEntry()) } },
-            ),
-            verticalAlignment = Alignment.CenterVertically,
+            ).padding(horizontal = Space.l),
+            horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(stringResource(R.string.source), Modifier.weight(1f))
-            Text(short, color = Theme.colors.muted)
+            Text(stringResource(R.string.source), Modifier.weight(1f).padding(vertical = Space.s), style = Theme.type.body, color = Theme.colors.ink)
+            Text(shortRevision, style = Theme.type.mono, color = Theme.colors.accent)
+            Icon(painterResource(R.drawable.ic_open), contentDescription = null, tint = Theme.colors.muted, modifier = Modifier.size(Space.l))
         }
-        Row(Modifier.fillMaxWidth().clickable {
-            context.openUrl(Intent(Intent.ACTION_VIEW, "https://github.com/Duongondro/duongondro-android".toUri()))
-        }) {
-            Text(stringResource(R.string.source_code), Modifier.weight(1f), color = Theme.colors.accent)
-            Text("BSD-3-Clause", color = Theme.colors.muted)
-        }
-        listOf(R.string.contributors to openContributors, R.string.licences to openLicences).forEach { (label, open) ->
-            Row(Modifier.fillMaxWidth().clickable(onClick = open), verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(label), Modifier.weight(1f))
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
-            }
-        }
+        RowDivider()
+        ListRow(stringResource(R.string.about_and_contributors), chevron = true, onClick = openAbout)
     }
 }
 
+/** About and contributors: the name, what is running, the humans who made it. */
 @Composable
-fun ContributorsScreen(back: () -> Unit) {
+fun AboutScreen(openLicences: () -> Unit, back: () -> Unit) {
     val context = LocalContext.current
     val names = remember {
         runCatching {
@@ -444,11 +478,37 @@ fun ContributorsScreen(back: () -> Unit) {
             kotlinx.serialization.json.Json.decodeFromString<List<String>>(text)
         }.getOrDefault(emptyList())
     }
-    Page(stringResource(R.string.contributors), back) {
-        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            names.forEach { Text(it) }
+    Column(Modifier.fillMaxSize().background(Theme.colors.ground)) {
+        TopBar(stringResource(R.string.section_about), back)
+        Column(
+            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = Space.xl),
+            verticalArrangement = Arrangement.spacedBy(Space.l),
+        ) {
+            Column(Modifier.fillMaxWidth().padding(top = Space.xl), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Space.s - Space.xxs)) {
+                Text(stringResource(R.string.app_name), style = Theme.type.pageTitle, color = Theme.colors.accent)
+                Text(buildAnnotatedString {
+                    append("${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · ")
+                    withStyle(SpanStyle(fontFamily = Theme.type.mono.fontFamily, color = Theme.colors.accent)) { append(shortRevision) }
+                }, style = Theme.type.subtitle, color = Theme.colors.muted, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.about_tagline), style = Theme.type.secondary, color = Theme.colors.muted, textAlign = TextAlign.Center)
+            }
+            if (names.isNotEmpty()) {
+                CardSection(stringResource(R.string.made_by), stringResource(R.string.contributors_footer)) {
+                    names.forEachIndexed { i, name ->
+                        if (i > 0) RowDivider()
+                        ListRow(name)
+                    }
+                }
+            }
         }
-        Text(stringResource(R.string.contributors_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
+        Row(Modifier.fillMaxWidth().padding(horizontal = Space.xl).padding(top = Space.m, bottom = Space.xl),
+            horizontalArrangement = Arrangement.spacedBy(Space.m - Space.xxs)) {
+            OutlinedAction(stringResource(R.string.source_code), Modifier.weight(1f), height = Size.aboutButton) {
+                context.openUrl(Intent(Intent.ACTION_VIEW, REPOSITORY.toUri()))
+            }
+            OutlinedAction(stringResource(R.string.licences), Modifier.weight(1f), height = Size.aboutButton, onClick = openLicences)
+        }
     }
 }
 
@@ -463,16 +523,19 @@ fun LicencesScreen(back: () -> Unit) {
         Triple("IBM Plex Sans", "SIL Open Font License 1.1", "https://github.com/IBM/plex/blob/master/LICENSE.txt"),
     )
     Page(stringResource(R.string.licences), back) {
-        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            entries.forEach { (name, licence, url) ->
-                Column(Modifier.fillMaxWidth().clickable { context.openUrl(Intent(Intent.ACTION_VIEW, url.toUri())) }) {
-                    Text(name)
-                    Text(licence, style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
+        CardSection {
+            entries.forEachIndexed { i, (name, licence, url) ->
+                if (i > 0) RowDivider()
+                Column(Modifier.fillMaxWidth().clickable { context.openUrl(Intent(Intent.ACTION_VIEW, url.toUri())) }
+                    .padding(horizontal = Space.l, vertical = Space.s)) {
+                    Text(name, style = Theme.type.body, color = Theme.colors.ink)
+                    Text(licence, style = Theme.type.footnote, color = Theme.colors.muted)
                 }
             }
         }
     }
 }
+
 
 /** Opens a link; a phone with no browser shows nothing rather than crashing. */
 private fun android.content.Context.openUrl(intent: Intent) {

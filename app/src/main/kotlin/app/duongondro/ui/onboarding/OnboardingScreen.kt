@@ -1,11 +1,16 @@
 package app.duongondro.ui.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,22 +19,25 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -50,9 +58,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,9 +80,15 @@ import app.duongondro.core.civilDate
 import app.duongondro.model.AppModel
 import app.duongondro.model.Preferences
 import app.duongondro.reminders.rememberNotificationPermission
-import app.duongondro.ui.PracticeName
+import app.duongondro.ui.CardSection
+import app.duongondro.ui.FilledAction
+import app.duongondro.ui.OutlinedAction
+import app.duongondro.ui.RowDivider
+import app.duongondro.ui.timePickerColors
 import app.duongondro.ui.card
 import app.duongondro.ui.settings.SwitchRow
+import app.duongondro.ui.theme.Radius
+import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import java.time.Instant
@@ -170,6 +190,17 @@ class OnboardingFlow : ViewModel() {
     }
 }
 
+/** Which of the five progress dashes a step reaches. */
+private val Step.dashes: Int get() = when (this) {
+    Step.Welcome, Step.FinishedNgondro -> 1
+    Step.FinishedShortRefuge -> 2
+    Step.Practices -> 3
+    is Step.Counts, Step.Mala -> 4
+    Step.Reminder, Step.Door -> 5
+}
+
+private const val DASHES = 5
+
 @Composable
 fun OnboardingScreen(model: AppModel) {
     // Keyed by the purge generation: after "Delete everything" a fresh flow
@@ -179,17 +210,13 @@ fun OnboardingScreen(model: AppModel) {
     BackHandler(enabled = flow.canGoBack) { flow.back() }
     val ground = if (flow.step == Step.Welcome) Theme.colors.welcomeGround else Theme.colors.ground
     Column(Modifier.fillMaxSize().background(ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
-        if (flow.canGoBack) {
-            IconButton(onClick = { flow.back() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-            }
-        }
+        if (flow.step != Step.Welcome) StepTopBar(flow)
         when (val step = flow.step) {
             Step.Welcome -> Welcome(flow)
-            Step.FinishedNgondro -> YesNo(stringResource(R.string.q_finished_ngondro),
+            Step.FinishedNgondro -> YesNo(stringResource(R.string.q_finished_ngondro), stringResource(R.string.q_finished_ngondro_detail),
                 yes = { flow.finishedNgondro = true; flow.finishedShortRefuge = true; flow.pruneToAvailable(); flow.go(Step.Practices) },
                 no = { flow.finishedNgondro = false; flow.go(Step.FinishedShortRefuge) })
-            Step.FinishedShortRefuge -> YesNo(stringResource(R.string.q_finished_short_refuge),
+            Step.FinishedShortRefuge -> YesNo(stringResource(R.string.q_finished_short_refuge), stringResource(R.string.q_finished_short_refuge_detail),
                 yes = { flow.finishedShortRefuge = true; flow.pruneToAvailable(); flow.go(Step.Practices) },
                 no = { flow.finishedShortRefuge = false; flow.pruneToAvailable(); flow.go(Step.Practices) })
             Step.Practices -> Practices(flow)
@@ -203,91 +230,132 @@ fun OnboardingScreen(model: AppModel) {
     }
 }
 
+/** A back arrow on the left, five progress dashes centred. */
 @Composable
-private fun Header(title: String, detail: String? = null) {
-    Column(Modifier.padding(top = Space.l, bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        Text(title, style = MaterialTheme.typography.headlineMedium)
-        detail?.let { Text(it, color = Theme.colors.muted) }
+private fun StepTopBar(flow: OnboardingFlow) {
+    val reached = flow.step.dashes
+    val label = stringResource(R.string.step_n_of_m, reached, DASHES)
+    Row(Modifier.fillMaxWidth().padding(top = Space.s), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(Size.minTap)) {
+            IconButton(onClick = { flow.back() }, enabled = flow.canGoBack, modifier = Modifier.fillMaxSize()) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
+            }
+        }
+        Row(Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = label },
+            horizontalArrangement = Arrangement.spacedBy(Space.dash, Alignment.CenterHorizontally)) {
+            repeat(DASHES) { n ->
+                Box(Modifier.size(Size.stepDashWidth, Size.stepDashHeight)
+                    .background(if (n < reached) Theme.colors.accent else Theme.colors.inputBorder, RoundedCornerShape(Radius.dash)))
+            }
+        }
+        Spacer(Modifier.size(Size.minTap))
+    }
+}
+
+/** A screen title, as large as a question, with a line of detail under it. */
+@Composable
+private fun Header(title: String, detail: String? = null, style: TextStyle = Theme.type.header) {
+    Column(Modifier.padding(top = Space.s, bottom = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        Text(title, style = style, color = Theme.colors.ink)
+        detail?.let { Text(it, style = Theme.type.secondary, color = Theme.colors.muted) }
     }
 }
 
 @Composable
-private fun Primary(text: String, fill: Color = Theme.colors.accent, enabled: Boolean = true, onClick: () -> Unit) {
-    Button(
-        onClick = onClick, enabled = enabled, shape = MaterialTheme.shapes.medium,
-        colors = ButtonDefaults.buttonColors(containerColor = fill, contentColor = Theme.colors.onAccent),
-        modifier = Modifier.fillMaxWidth().heightIn(min = Space.button),
-    ) { Text(text, style = MaterialTheme.typography.titleMedium) }
-}
-
-@Composable
-private fun Secondary(text: String, onClick: () -> Unit) {
-    FilledTonalButton(
-        onClick = onClick, shape = MaterialTheme.shapes.medium,
-        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Theme.colors.streakCard, contentColor = Theme.colors.accent),
-        modifier = Modifier.fillMaxWidth().heightIn(min = Space.button),
-    ) { Text(text, style = MaterialTheme.typography.titleMedium) }
+private fun Primary(text: String, enabled: Boolean = true, onClick: () -> Unit) {
+    FilledAction(text, enabled = enabled, onClick = onClick)
 }
 
 @Composable
 private fun ColumnScope.Welcome(flow: OnboardingFlow) {
     Spacer(Modifier.weight(1f))
-    Icon(painterResource(R.drawable.ic_flame), contentDescription = null, tint = Theme.colors.accent, modifier = Modifier.size(Space.bigButton))
-    Text(stringResource(R.string.app_name), style = MaterialTheme.typography.displayMedium, color = Theme.colors.accent)
-    Text(stringResource(R.string.welcome_line), style = MaterialTheme.typography.titleLarge.copy(fontFamily = MaterialTheme.typography.bodyLarge.fontFamily),
-        color = Theme.colors.muted, modifier = Modifier.padding(top = Space.m))
+    Image(painterResource(R.drawable.emblem), contentDescription = null, modifier = Modifier.width(Size.emblem).align(Alignment.CenterHorizontally))
+    Column(Modifier.padding(top = Space.xxl).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Space.m)) {
+        Text(stringResource(R.string.app_name), style = Theme.type.welcomeTitle, color = Theme.colors.welcomeTitle, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.welcome_tagline), style = Theme.type.body.copy(fontSize = 18.sp, lineHeight = 25.sp),
+            color = Theme.colors.welcomeSoft, textAlign = TextAlign.Center)
+        Text(stringResource(R.string.welcome_encrypted), style = Theme.type.subtitle.copy(fontWeight = FontWeight.SemiBold),
+            color = Theme.colors.welcomeGoldText, textAlign = TextAlign.Center)
+    }
     Spacer(Modifier.weight(1f))
     Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         val pick = { d: Door -> flow.door = d; flow.go(Step.FinishedNgondro) }
-        Primary(stringResource(R.string.door_invite), fill = Theme.colors.welcomePrimary) { pick(Door.Invite) }
-        Secondary(stringResource(R.string.door_just_me)) { pick(Door.JustMe) }
-        Secondary(stringResource(R.string.door_account)) { pick(Door.ExistingAccount) }
+        FilledAction(stringResource(R.string.door_invite), fill = Theme.colors.welcomePrimary, ink = Theme.colors.welcomePrimaryInk) { pick(Door.Invite) }
+        OutlinedAction(stringResource(R.string.door_just_me), tint = Theme.colors.welcomeOutlineInk, height = Size.button,
+            border = Theme.colors.welcomeOutline, container = Color.Transparent) { pick(Door.JustMe) }
+        TextButton(onClick = { pick(Door.ExistingAccount) }, modifier = Modifier.fillMaxWidth().heightIn(min = Size.minTap),
+            colors = ButtonDefaults.textButtonColors(contentColor = Theme.colors.welcomeSoft)) {
+            Text(stringResource(R.string.door_account), style = Theme.type.subtitle.copy(fontWeight = FontWeight.SemiBold, textDecoration = TextDecoration.Underline))
+        }
+    }
+}
+
+/** A yes/no question, centred in the screen, answered by tapping. */
+@Composable
+private fun ColumnScope.YesNo(title: String, detail: String, yes: () -> Unit, no: () -> Unit) {
+    Spacer(Modifier.weight(1f))
+    Text(title, style = Theme.type.question, color = Theme.colors.ink)
+    Text(detail, style = Theme.type.lead, color = Theme.colors.soft, modifier = Modifier.padding(top = Space.l))
+    Spacer(Modifier.weight(1f))
+    Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+        FilledAction(stringResource(R.string.yes), height = Size.answer, onClick = yes)
+        OutlinedAction(stringResource(R.string.no), height = Size.answer, onClick = no)
     }
 }
 
 @Composable
-private fun YesNo(title: String, yes: () -> Unit, no: () -> Unit) {
-    Header(title)
-    Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        Secondary(stringResource(R.string.yes), yes)
-        Secondary(stringResource(R.string.no), no)
+private fun ColumnScope.Choice(title: String, detail: String, options: List<Int>, pick: (Int) -> Unit) {
+    Spacer(Modifier.weight(1f))
+    Text(title, style = Theme.type.question, color = Theme.colors.ink)
+    Text(detail, style = Theme.type.lead, color = Theme.colors.soft, modifier = Modifier.padding(top = Space.l))
+    Spacer(Modifier.weight(1f))
+    Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+        options.forEachIndexed { i, v ->
+            if (i == 0) FilledAction("$v", height = Size.answer) { pick(v) } else OutlinedAction("$v", height = Size.answer) { pick(v) }
+        }
     }
 }
 
-@Composable
-private fun Choice(title: String, detail: String, options: List<Int>, pick: (Int) -> Unit) {
-    Header(title, detail)
-    Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        options.forEach { Secondary("$it") { pick(it) } }
-    }
-}
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.Practices(flow: OnboardingFlow) {
     var addingCustom by remember { mutableStateOf(false) }
     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.s)) {
         Header(stringResource(R.string.q_daily), stringResource(R.string.q_daily_detail))
-        (flow.available + flow.chosen.map { it.practice }.filter { it.isCustom }).forEach { p ->
-            val i = flow.chosen.indexOfFirst { it.practice.id == p.id }
-            Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        CardSection {
+            val all = flow.available + flow.chosen.map { it.practice }.filter { it.isCustom }
+            all.forEach { p ->
+                val i = flow.chosen.indexOfFirst { it.practice.id == p.id }
+                val on = i >= 0
                 Row(
-                    Modifier.fillMaxWidth().semantics { selected = i >= 0 }.clickable { flow.toggle(p) },
-                    horizontalArrangement = Arrangement.spacedBy(Space.m), verticalAlignment = Alignment.CenterVertically,
+                    Modifier.fillMaxWidth().heightIn(min = Size.minTap).toggleable(value = on, role = Role.Checkbox) { flow.toggle(p) }
+                        .padding(start = Space.s, end = Space.l),
+                    horizontalArrangement = Arrangement.spacedBy(Space.xs), verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (i >= 0) Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = Theme.colors.accent)
-                    else Icon(painterResource(R.drawable.ic_circle), contentDescription = null, tint = Theme.colors.muted)
-                    PracticeName(p)
-                }
-                if (i >= 0 && p.streakOnlyAllowed) {
-                    SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen[i].streakOnly) {
-                        flow.chosen[i] = flow.chosen[i].copy(streakOnly = it)
+                    Checkbox(on, onCheckedChange = null, modifier = Modifier.padding(Space.m),
+                        colors = CheckboxDefaults.colors(checkedColor = Theme.colors.accent, checkmarkColor = Theme.colors.onAccent,
+                            uncheckedColor = Theme.colors.inputBorder))
+                    FlowRow(Modifier.weight(1f).padding(vertical = Space.xs), horizontalArrangement = Arrangement.spacedBy(Space.s),
+                        verticalArrangement = Arrangement.Center, itemVerticalAlignment = Alignment.CenterVertically) {
+                        Text(p.name, style = Theme.type.body.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal), color = Theme.colors.ink)
+                        p.secondName?.let { Text(it, style = Theme.type.secondary, color = Theme.colors.muted) }
                     }
                 }
+                if (on && p.streakOnlyAllowed) {
+                    Box(Modifier.padding(start = Size.minTap + Space.s, end = Space.l, bottom = Space.s)) {
+                        SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen[i].streakOnly) {
+                            flow.chosen[i] = flow.chosen[i].copy(streakOnly = it)
+                        }
+                    }
+                }
+                RowDivider()
             }
-        }
-        TextButton(onClick = { addingCustom = true }) {
-            Icon(Icons.Filled.Add, contentDescription = null)
-            Text(stringResource(R.string.add_your_own), Modifier.padding(start = Space.s))
+            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable { addingCustom = true }.padding(horizontal = Space.l),
+                horizontalArrangement = Arrangement.spacedBy(Space.m), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Add, contentDescription = null, tint = Theme.colors.accent, modifier = Modifier.size(Size.checkbox))
+                Text(stringResource(R.string.add_your_own), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.accent)
+            }
         }
     }
     Column(Modifier.padding(vertical = Space.l)) {
@@ -331,48 +399,65 @@ fun CustomPracticeDialog(onDismiss: () -> Unit, onAdd: (Practice, Boolean) -> Un
     )
 }
 
-/** One screen per chosen practice: count so far, later round, streak, longest. */
+/** One screen per chosen practice: so far, streak and when last practised, an optional later round and longest streak. */
 @Composable
 private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
     val c = flow.chosen.getOrNull(index) ?: return
     val update = { f: (Chosen) -> Chosen -> flow.chosen[index] = f(flow.chosen[index]) }
-    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        Text(stringResource(R.string.practice_n_of_m, index + 1, flow.chosen.size), color = Theme.colors.muted,
-            modifier = Modifier.padding(top = Space.l))
-        PracticeName(c.practice, modifier = Modifier.fillMaxWidth().card())
-        if (!c.streakOnly) {
-            Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                NumberField(stringResource(R.string.count_so_far), c.countSoFar) { v -> update { it.copy(countSoFar = v) } }
-                if (c.showsRound) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.round_n, c.round), Modifier.weight(1f))
-                        val previous = stringResource(R.string.previous_round)
-                        val next = stringResource(R.string.next_round)
-                        TextButton(onClick = { update { it.copy(round = maxOf(1, it.round - 1)) } },
-                            modifier = Modifier.semantics { contentDescription = previous }) { Text("−") }
-                        TextButton(onClick = { update { it.copy(round = minOf(99, it.round + 1)) } },
-                            modifier = Modifier.semantics { contentDescription = next }) { Text("+") }
-                    }
-                } else if (c.practice.target != null) {
-                    TextButton(onClick = { update { it.copy(showsRound = true) } }) { Text(stringResource(R.string.later_round)) }
+    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
+        Text(stringResource(R.string.practice_n_of_m, index + 1, flow.chosen.size), style = Theme.type.secondary.copy(fontWeight = FontWeight.Bold),
+            color = Theme.colors.muted, modifier = Modifier.padding(top = Space.s))
+        Text(stringResource(R.string.where_are_you, c.practice.name), style = Theme.type.questionSmall, color = Theme.colors.ink)
+        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                if (!c.streakOnly) {
+                    NumberField(stringResource(R.string.count_so_far), c.countSoFar, Modifier.weight(1f)) { v -> update { it.copy(countSoFar = v) } }
                 }
+                NumberField(stringResource(R.string.current_streak_days), c.streak, Modifier.weight(1f)) { v -> update { it.copy(streak = v) } }
             }
-            Text(stringResource(R.string.count_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
-        }
-        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            NumberField(stringResource(R.string.current_streak_days), c.streak) { v -> update { it.copy(streak = v) } }
             if (c.streak > 0) {
-                Text(stringResource(R.string.last_practised), style = MaterialTheme.typography.bodyMedium)
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    listOf(true to R.string.today, false to R.string.yesterday).forEachIndexed { i, (value, label) ->
-                        SegmentedButton(selected = c.lastWasToday == value, onClick = { update { it.copy(lastWasToday = value) } },
-                            shape = SegmentedButtonDefaults.itemShape(i, 2, MaterialTheme.shapes.small)) { Text(stringResource(label)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(Space.m - Space.xxs), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.last_practised), style = Theme.type.secondary, color = Theme.colors.soft)
+                    SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
+                        listOf(true to R.string.today, false to R.string.yesterday).forEachIndexed { i, (value, label) ->
+                            SegmentedButton(selected = c.lastWasToday == value, onClick = { update { it.copy(lastWasToday = value) } },
+                                shape = SegmentedButtonDefaults.itemShape(i, 2, MaterialTheme.shapes.small),
+                                colors = SegmentedButtonDefaults.colors(
+                                    activeContainerColor = Theme.colors.accent, activeContentColor = Theme.colors.onAccent,
+                                    activeBorderColor = Theme.colors.accent, inactiveContainerColor = Theme.colors.softFill,
+                                    inactiveContentColor = Theme.colors.soft, inactiveBorderColor = Theme.colors.softFill),
+                                icon = {}) { Text(stringResource(label), style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold)) }
+                        }
                     }
                 }
-                NumberField(stringResource(R.string.longest_optional), c.longest ?: 0) { v -> update { it.copy(longest = v.takeIf { it > 0 }) } }
             }
         }
-        Text(stringResource(R.string.seed_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
+        if (!c.streakOnly) {
+            if (c.showsRound) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.round_n, c.round), Modifier.weight(1f), style = Theme.type.body, color = Theme.colors.soft)
+                    val previous = stringResource(R.string.previous_round)
+                    val next = stringResource(R.string.next_round)
+                    TextButton(onClick = { update { it.copy(round = maxOf(1, it.round - 1)) } },
+                        modifier = Modifier.semantics { contentDescription = previous }) { Text("−") }
+                    TextButton(onClick = { update { it.copy(round = minOf(99, it.round + 1)) } },
+                        modifier = Modifier.semantics { contentDescription = next }) { Text("+") }
+                }
+            } else if (c.practice.target != null) {
+                TextButton(onClick = { update { it.copy(showsRound = true) } }, modifier = Modifier.heightIn(min = Size.minTap),
+                    contentPadding = PaddingValues(0.dp)) {
+                    Text(stringResource(R.string.later_round),
+                        style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold, textDecoration = TextDecoration.Underline), color = Theme.colors.accent)
+                }
+            }
+        }
+        if (c.streak > 0) {
+            NumberField(stringResource(R.string.longest_optional), c.longest ?: 0, Modifier.fillMaxWidth()) { v -> update { it.copy(longest = v.takeIf { it > 0 }) } }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            if (!c.streakOnly) Text(stringResource(R.string.count_footer), style = Theme.type.footnote, color = Theme.colors.muted)
+            Text(stringResource(R.string.seed_footer), style = Theme.type.footnote, color = Theme.colors.muted)
+        }
     }
     Column(Modifier.padding(vertical = Space.l)) {
         Primary(stringResource(R.string.continue_)) {
@@ -381,16 +466,24 @@ private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
     }
 }
 
-/** A whole-number field that shows empty for 0 and keeps ASCII digits only. */
+/** A labelled whole-number box that shows empty for 0 and keeps ASCII digits only. */
 @Composable
-private fun NumberField(label: String, value: Int, onChange: (Int) -> Unit) {
-    OutlinedTextField(
-        value = if (value == 0) "" else value.toString(),
-        onValueChange = { onChange(it.digits() ?: 0) },
-        label = { Text(label) }, placeholder = { Text("0") }, singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth(),
-    )
+private fun NumberField(label: String, value: Int, modifier: Modifier = Modifier, onChange: (Int) -> Unit) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(Space.s - Space.xxs)) {
+        Text(label, style = Theme.type.footnote.copy(fontWeight = FontWeight.Bold), color = Theme.colors.soft)
+        OutlinedTextField(
+            value = if (value == 0) "" else value.toString(),
+            onValueChange = { onChange(it.digits() ?: 0) },
+            placeholder = { Text("0", style = Theme.type.field) }, singleLine = true,
+            textStyle = Theme.type.field,
+            shape = MaterialTheme.shapes.small,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Theme.colors.accent, unfocusedBorderColor = Theme.colors.inputBorder,
+                focusedTextColor = Theme.colors.ink, unfocusedTextColor = Theme.colors.ink),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth().heightIn(min = Size.field).semantics { contentDescription = label },
+        )
+    }
 }
 
 private fun String.digits(): Int? = filter { it in '0'..'9' }.take(9).toIntOrNull()
@@ -402,7 +495,7 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
     val state = rememberTimePickerState(initial.hour, initial.minute)
     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
         Header(stringResource(R.string.q_reminder), stringResource(R.string.q_reminder_detail))
-        TimePicker(state)
+        TimePicker(state, colors = timePickerColors())
     }
     val time = LocalTime.of(state.hour, state.minute)
     // Asked with the reason on screen; a refusal still keeps the time for later.
@@ -412,7 +505,7 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
             flow.reminder = time
             askPermission()
         }
-        Secondary(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Door) }
+        OutlinedAction(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Door) }
     }
 }
 

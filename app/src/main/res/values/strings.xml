@@ -3,24 +3,39 @@
     <string name="app_name" translatable="false">Duongöndro</string>
 
     <string name="tab_today">Today</string>
-    <string name="tab_settings">Settings</string>
+    <string name="tab_settings">You</string>
+    <string name="daily_practices">Daily practices</string>
 
     <plurals name="days">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
-    <plurals name="longest_days">
-        <item quantity="one">· longest %d day</item>
-        <item quantity="other">· longest %d days</item>
-    </plurals>
-    <string name="practise_before_end">Practise before %1$s ends</string>
+    <string name="streak_longest">Practice streak · longest %1$d</string>
     <string name="any_practice_starts">Any practice today starts a streak.</string>
     <string name="done_today">Done today</string>
     <string name="not_yet_today">Not yet today</string>
     <string name="streak_only">Streak only</string>
-    <string name="round_progress">Round %1$d · %2$s of %3$s</string>
-    <string name="in_total">%1$s in total</string>
-    <string name="in_all_rounds">%1$s in all rounds</string>
+    <string name="status_done">done today</string>
+    <string name="status_not_yet">not yet today</string>
+    <string name="status_progress">%1$s of %2$s</string>
+    <string name="status_round">round %1$d · %2$s of %3$s</string>
+    <string name="status_total">%1$s in total</string>
+    <string name="header_round">round %1$d</string>
+    <string name="header_lifetime">%1$s lifetime</string>
+    <string name="header_streak_only">streak only</string>
+    <string name="of_target">of %1$s</string>
+    <string name="today_amount">Today %1$s</string>
+    <plurals name="today_malas">
+        <item quantity="one">Today %1$s · %2$d mala</item>
+        <item quantity="other">Today %1$s · %2$d malas</item>
+    </plurals>
+    <string name="longest_n">Longest %1$d</string>
+    <string name="custom">+ Custom</string>
+    <string name="history">History</string>
+    <string name="history_empty">Nothing logged yet.</string>
+    <string name="total">Total</string>
+    <string name="done_session">done</string>
+    <string name="started_cancel">Started %1$s. Tap to cancel.</string>
 
     <string name="start">Start</string>
     <string name="started_at">Started %1$s</string>
@@ -38,10 +53,11 @@
     <string name="practice_gone">This practice is gone.</string>
     <string name="back">Back</string>
 
-    <string name="counted_for">Counted for %1$s</string>
-    <string name="started_around">You started around %1$s.</string>
-    <string name="count_instead">Count it for %1$s instead</string>
-    <string name="keep_day">Keep %1$s</string>
+    <string name="logged_amount">Logged %1$s</string>
+    <string name="after_midnight_body">Counted for %1$s: you started around %2$s, before midnight. Your streak is safe.</string>
+    <string name="after_midnight_hint">Tap Start next time and the app knows exactly.</string>
+    <string name="count_for">Count for</string>
+    <string name="done">Done</string>
 
     <string name="settings">Settings</string>
     <string name="section_general">General</string>
@@ -53,25 +69,30 @@
     <string name="source_code">Source code</string>
 
     <!-- Onboarding -->
-    <string name="welcome_line">Count your practice. Keep your streak. Let your friends nag.</string>
+    <string name="welcome_tagline">Track your meditation practice together with your friends.</string>
+    <string name="welcome_encrypted">End-to-end encrypted and fully open source.</string>
     <string name="door_invite">I have an invite</string>
     <string name="door_just_me">Just me, on this phone</string>
     <string name="door_account">I already have an account</string>
     <string name="q_finished_ngondro">Have you finished ngöndro?</string>
+    <string name="q_finished_ngondro_detail">All four parts, 111,111 each. Repeat rounds come later.</string>
     <string name="q_finished_short_refuge">Have you finished short refuge?</string>
+    <string name="q_finished_short_refuge_detail">The short refuge meditation you do before starting ngöndro.</string>
     <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="q_daily">Which practices do you do daily?</string>
-    <string name="q_daily_detail">Pick as many as you like. You can add more later in Settings.</string>
+    <string name="no">Not yet</string>
+    <string name="q_daily">Which do you practise daily?</string>
+    <string name="q_daily_detail">Pick as many as you do.</string>
     <string name="streak_only_switch">Streak only, no count</string>
     <string name="add_your_own">Add your own</string>
     <string name="continue_">Continue</string>
-    <string name="practice_n_of_m">Practice %1$d of %2$d</string>
-    <string name="count_so_far">Count so far</string>
+    <string name="practice_n_of_m">%1$d of %2$d practices</string>
+    <string name="where_are_you">Where are you with %1$s?</string>
+    <string name="step_n_of_m">Step %1$d of %2$d</string>
+    <string name="count_so_far">So far</string>
     <string name="later_round">I\'m doing a later round</string>
     <string name="round_n">Round %1$d</string>
     <string name="count_footer">From paper or a spreadsheet; rough is fine.</string>
-    <string name="current_streak_days">Current streak, in days</string>
+    <string name="current_streak_days">Streak, days</string>
     <string name="last_practised">Last practised</string>
     <string name="today">Today</string>
     <string name="yesterday">Yesterday</string>
@@ -137,7 +158,12 @@
     <string name="could_not_delete">Could not delete</string>
 
     <string name="contributors">Contributors</string>
-    <string name="contributors_footer">Everyone with a commit in the app, server, design or iOS repositories, most commits first. Generated from git history when this build was made.</string>
+    <string name="contributors_footer">Everyone who committed to the app, server, design or Android repositories, most commits first. Generated from the git history when the app is built.</string>
+    <string name="made_by">Made by</string>
+    <string name="about_and_contributors">About and contributors</string>
+    <string name="about_tagline">End-to-end encrypted and fully open source.</string>
+    <string name="your_practices">Your practices</string>
+    <string name="source_footer">Tap Source to open this exact commit on GitHub.</string>
     <string name="licences">Licences</string>
     <string name="storage_error">Something could not be saved</string>
     <string name="previous_round">Previous round</string>
