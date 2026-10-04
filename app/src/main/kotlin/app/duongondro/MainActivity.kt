@@ -43,7 +43,9 @@ import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
+import app.duongondro.ui.settings.ContributorsScreen
 import app.duongondro.ui.settings.DeleteEverythingScreen
+import app.duongondro.ui.settings.LicencesScreen
 import app.duongondro.ui.settings.SettingsScreen
 import app.duongondro.ui.settings.YourDataScreen
 import app.duongondro.ui.theme.DuongondroTheme
@@ -104,6 +106,8 @@ private object Routes {
     const val ARCHIVED = "settings/archived"
     const val YOUR_DATA = "settings/data"
     const val DELETE = "settings/data/delete"
+    const val CONTRIBUTORS = "settings/contributors"
+    const val LICENCES = "settings/licences"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
 }
@@ -128,13 +132,16 @@ private fun Home(model: AppModel) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
             composable(Routes.SETTINGS) {
                 SettingsScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }, openArchived = { nav.navigate(Routes.ARCHIVED) },
-                    openYourData = { nav.navigate(Routes.YOUR_DATA) })
+                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openContributors = { nav.navigate(Routes.CONTRIBUTORS) },
+                    openLicences = { nav.navigate(Routes.LICENCES) })
             }
             composable(Routes.PRACTICE_SETTINGS) { entry ->
                 PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
             composable(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
             composable(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
+            composable(Routes.CONTRIBUTORS) { ContributorsScreen { nav.popBackStack() } }
+            composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
             }

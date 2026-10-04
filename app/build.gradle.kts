@@ -1,4 +1,6 @@
 import org.gradle.api.GradleException
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
 plugins {
     alias(libs.plugins.android.application)
@@ -63,6 +65,34 @@ val checkCleanTree = tasks.register("checkCleanTree") {
     }
 }
 tasks.matching { it.name.matches(Regex("(pre|bundle|assemble)Release.*")) }.configureEach { dependsOn(checkCleanTree) }
+
+/** Contributors.json from git history at build time; the About screen works offline. */
+abstract class ContributorsTask @Inject constructor(private val exec: ExecOperations) : DefaultTask() {
+    @get:InputFile abstract val script: RegularFileProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+
+    init { outputs.upToDateWhen { false } } // history changes with every commit anywhere
+
+    @TaskAction fun run() {
+        val out = outputDir.get().asFile.apply { mkdirs() }.resolve("contributors.json")
+        out.outputStream().use { stream ->
+            exec.exec {
+                commandLine("sh", script.get().asFile.path)
+                standardOutput = stream
+            }
+        }
+    }
+}
+
+val contributors = tasks.register<ContributorsTask>("contributors") {
+    script.set(rootProject.layout.projectDirectory.file("Scripts/contributors.sh"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(contributors, ContributorsTask::outputDir)
+    }
+}
 
 dependencies {
     implementation(project(":core"))

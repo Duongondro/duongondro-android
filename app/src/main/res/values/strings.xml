@@ -135,4 +135,8 @@
     <string name="delete_word" translatable="true">delete</string>
     <string name="type_to_confirm">Type “%1$s” to confirm</string>
     <string name="could_not_delete">Could not delete</string>
+
+    <string name="contributors">Contributors</string>
+    <string name="contributors_footer">Everyone with a commit in the app, server, design or iOS repositories, most commits first. Generated from git history when this build was made.</string>
+    <string name="licences">Licences</string>
 </resources>

@@ -75,7 +75,8 @@ import app.duongondro.reminders.rememberNotificationPermission
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
 
 @Composable
-fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit, openYourData: () -> Unit) {
+fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit, openYourData: () -> Unit,
+                   openContributors: () -> Unit, openLicences: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
     Page(stringResource(R.string.settings)) {
@@ -122,7 +123,7 @@ fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived
         }
 
         SectionTitle(stringResource(R.string.section_about))
-        About()
+        About(openContributors, openLicences)
     }
     if (adding) AddPracticeDialog(model) { adding = false }
 }
@@ -359,7 +360,7 @@ fun ArchivedScreen(model: AppModel, openPractice: (String) -> Unit, back: () -> 
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun About() {
+private fun About(openContributors: () -> Unit, openLicences: () -> Unit) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
@@ -389,6 +390,51 @@ private fun About() {
         }) {
             Text(stringResource(R.string.source_code), Modifier.weight(1f), color = Theme.colors.accent)
             Text("BSD-3-Clause", color = Theme.colors.muted)
+        }
+        listOf(R.string.contributors to openContributors, R.string.licences to openLicences).forEach { (label, open) ->
+            Row(Modifier.fillMaxWidth().clickable(onClick = open), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(label), Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
+            }
+        }
+    }
+}
+
+@Composable
+fun ContributorsScreen(back: () -> Unit) {
+    val context = LocalContext.current
+    val names = remember {
+        runCatching {
+            val text = context.assets.open("contributors.json").bufferedReader().readText()
+            kotlinx.serialization.json.Json.decodeFromString<List<String>>(text)
+        }.getOrDefault(emptyList())
+    }
+    Page(stringResource(R.string.contributors), back) {
+        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+            names.forEach { Text(it) }
+        }
+        Text(stringResource(R.string.contributors_footer), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
+    }
+}
+
+@Composable
+fun LicencesScreen(back: () -> Unit) {
+    val context = LocalContext.current
+    val entries = listOf(
+        Triple("Duongöndro for Android", "BSD-3-Clause", "https://github.com/Duongondro/duongondro-android/blob/main/LICENSE"),
+        Triple("AndroidX, Jetpack Compose, Material 3", "Apache-2.0", "https://www.apache.org/licenses/LICENSE-2.0"),
+        Triple("Kotlin, kotlinx.serialization", "Apache-2.0", "https://www.apache.org/licenses/LICENSE-2.0"),
+        Triple("Material Symbols", "Apache-2.0", "https://github.com/google/material-design-icons/blob/master/LICENSE"),
+        Triple("IBM Plex Sans", "SIL Open Font License 1.1", "https://github.com/IBM/plex/blob/master/LICENSE.txt"),
+    )
+    Page(stringResource(R.string.licences), back) {
+        Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+            entries.forEach { (name, licence, url) ->
+                Column(Modifier.fillMaxWidth().clickable { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) }) {
+                    Text(name)
+                    Text(licence, style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
+                }
+            }
         }
     }
 }
