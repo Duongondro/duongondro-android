@@ -77,6 +77,9 @@ import java.util.Locale
 import app.duongondro.reminders.Reminders
 import app.duongondro.reminders.rememberNotificationPermission
 
+/** The language picker waits for the translations; only English exists yet. */
+private const val SHOW_LANGUAGE = false
+
 /** The eight launch languages (design: Localisation). */
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
 
@@ -110,8 +113,11 @@ fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived
 
         SectionTitle(stringResource(R.string.section_general))
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            LanguageRow()
-            HorizontalDivider(color = Theme.colors.cardBorder)
+            // Hidden until the translations exist: only English works so far.
+            if (SHOW_LANGUAGE) {
+                LanguageRow()
+                HorizontalDivider(color = Theme.colors.cardBorder)
+            }
             Text(stringResource(R.string.mala_counts_as))
             MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
             HorizontalDivider(color = Theme.colors.cardBorder)
