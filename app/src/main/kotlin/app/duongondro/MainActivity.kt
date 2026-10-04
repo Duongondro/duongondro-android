@@ -23,7 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import app.duongondro.reminders.Reminders
+import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -61,11 +66,18 @@ class MainActivity : AppCompatActivity() {
         setContent {
             DuongondroTheme { App(model) }
         }
+        // Reminders follow the data: a session logged today cancels today's.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.snapshot.collect { Reminders.reschedule(this@MainActivity, it) }
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         model.tick()
+        Reminders.reschedule(this, model.snapshot.value)
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_DATE_CHANGED)
             addAction(Intent.ACTION_TIME_CHANGED)

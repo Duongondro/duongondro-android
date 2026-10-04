@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -21,6 +22,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,7 +64,12 @@ import app.duongondro.ui.onboarding.CustomPracticeDialog
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
+import app.duongondro.reminders.Reminders
+import app.duongondro.reminders.rememberNotificationPermission
 
 /** The eight launch languages (design: Localisation). */
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
@@ -99,6 +108,8 @@ fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived
             Text(stringResource(R.string.mala_counts_as))
             MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
             HorizontalDivider(color = Theme.colors.cardBorder)
+            ReminderRows(model, snapshot.preferences.reminderMinutes)
+            HorizontalDivider(color = Theme.colors.cardBorder)
             SwitchRow(stringResource(R.string.discreet), stringResource(R.string.discreet_detail), snapshot.preferences.discreetNotifications) { v ->
                 model.updatePreferences { it.copy(discreetNotifications = v) }
             }
@@ -135,12 +146,52 @@ fun SectionTitle(text: String) {
 
 @Composable
 fun SwitchRow(title: String, detail: String?, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    // The whole row toggles, so the label is a target too and TalkBack reads one control.
+    Row(
+        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Column(Modifier.weight(1f).padding(end = Space.m)) {
             Text(title)
             detail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted) }
         }
-        Switch(checked, onChange)
+        Switch(checked, onCheckedChange = null)
+    }
+}
+
+/** The evening streak-at-risk reminder: on or off, and its time. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReminderRows(model: AppModel, minutes: Int?) {
+    val context = LocalContext.current
+    var allowed by remember { mutableStateOf(Reminders.canNotify(context)) }
+    val ask = rememberNotificationPermission { allowed = it }
+    var picking by remember { mutableStateOf(false) }
+    SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null) { on ->
+        model.updatePreferences { it.copy(reminderMinutes = if (on) 20 * 60 else null) }
+        if (on && !allowed) ask()
+    }
+    if (minutes != null) {
+        val time = LocalTime.of(minutes / 60, minutes % 60)
+        Row(Modifier.fillMaxWidth().clickable { picking = true }, verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.time), Modifier.weight(1f))
+            Text(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time), color = Theme.colors.muted)
+        }
+        if (!allowed) Text(stringResource(R.string.notifications_off), style = MaterialTheme.typography.bodySmall, color = Theme.colors.destructive)
+        if (picking) {
+            val state = rememberTimePickerState(time.hour, time.minute)
+            AlertDialog(
+                onDismissRequest = { picking = false },
+                text = { TimePicker(state) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        picking = false
+                        model.updatePreferences { it.copy(reminderMinutes = state.hour * 60 + state.minute) }
+                    }) { Text(stringResource(R.string.ok)) }
+                },
+                dismissButton = { TextButton(onClick = { picking = false }) { Text(stringResource(R.string.cancel)) } },
+            )
+        }
     }
 }
 

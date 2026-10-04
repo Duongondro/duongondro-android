@@ -108,4 +108,17 @@
     <string name="unarchive">Show on Today again</string>
     <string name="archive_detail">Archiving hides the practice from Today and keeps its counts and history.</string>
     <string name="counting">Counting</string>
+
+    <!-- Reminders -->
+    <string name="reminder_channel">Streak at risk</string>
+    <string name="reminder_title">Nothing logged today</string>
+    <plurals name="reminder_streak_ends">
+        <item quantity="one">Your streak of %d day ends at midnight.</item>
+        <item quantity="other">Your streak of %d days ends at midnight.</item>
+    </plurals>
+    <string name="reminder_short_session">A short session still counts.</string>
+    <string name="evening_reminder">Evening reminder</string>
+    <string name="time">Time</string>
+    <string name="ok">OK</string>
+    <string name="notifications_off">Notifications are off for this app, so the reminder cannot show.</string>
 </resources>

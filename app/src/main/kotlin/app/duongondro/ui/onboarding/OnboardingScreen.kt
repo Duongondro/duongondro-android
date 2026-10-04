@@ -33,7 +33,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -64,8 +63,10 @@ import app.duongondro.core.TrackedPractice
 import app.duongondro.core.civilDate
 import app.duongondro.model.AppModel
 import app.duongondro.model.Preferences
+import app.duongondro.reminders.rememberNotificationPermission
 import app.duongondro.ui.PracticeName
 import app.duongondro.ui.card
+import app.duongondro.ui.settings.SwitchRow
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import java.time.Instant
@@ -272,9 +273,8 @@ private fun ColumnScope.Practices(flow: OnboardingFlow) {
                     PracticeName(p)
                 }
                 if (i >= 0 && p.streakOnlyAllowed) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.streak_only_switch), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                        Switch(flow.chosen[i].streakOnly, { flow.chosen[i] = flow.chosen[i].copy(streakOnly = it) })
+                    SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen[i].streakOnly) {
+                        flow.chosen[i] = flow.chosen[i].copy(streakOnly = it)
                     }
                 }
             }
@@ -307,10 +307,7 @@ fun CustomPracticeDialog(onDismiss: () -> Unit, onAdd: (Practice, Boolean) -> Un
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
                 OutlinedTextField(name, { name = it }, label = { Text(stringResource(R.string.name)) }, singleLine = true)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.streak_only_switch), Modifier.weight(1f))
-                    Switch(streakOnly, { streakOnly = it })
-                }
+                SwitchRow(stringResource(R.string.streak_only_switch), null, streakOnly) { streakOnly = it }
                 if (!streakOnly) {
                     OutlinedTextField(target, { target = it }, label = { Text(stringResource(R.string.target_optional)) }, singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
@@ -398,9 +395,12 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
         TimePicker(state)
     }
     val time = LocalTime.of(state.hour, state.minute)
+    // Asked with the reason on screen; a refusal still keeps the time for later.
+    val askPermission = rememberNotificationPermission { flow.go(Step.Door) }
     Column(Modifier.padding(vertical = Space.l), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         Primary(stringResource(R.string.remind_at_time, DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time))) {
-            flow.reminder = time; flow.go(Step.Door)
+            flow.reminder = time
+            askPermission()
         }
         Secondary(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Door) }
     }
