@@ -43,7 +43,9 @@ import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
+import app.duongondro.ui.settings.DeleteEverythingScreen
 import app.duongondro.ui.settings.SettingsScreen
+import app.duongondro.ui.settings.YourDataScreen
 import app.duongondro.ui.theme.DuongondroTheme
 import app.duongondro.ui.today.TodayScreen
 
@@ -100,6 +102,8 @@ private object Routes {
     const val PRACTICE = "practice/{id}"
     const val PRACTICE_SETTINGS = "settings/practice/{id}"
     const val ARCHIVED = "settings/archived"
+    const val YOUR_DATA = "settings/data"
+    const val DELETE = "settings/data/delete"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
 }
@@ -123,11 +127,14 @@ private fun Home(model: AppModel) {
         NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding)) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
             composable(Routes.SETTINGS) {
-                SettingsScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }, openArchived = { nav.navigate(Routes.ARCHIVED) })
+                SettingsScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }, openArchived = { nav.navigate(Routes.ARCHIVED) },
+                    openYourData = { nav.navigate(Routes.YOUR_DATA) })
             }
             composable(Routes.PRACTICE_SETTINGS) { entry ->
                 PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
+            composable(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
+            composable(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
             }

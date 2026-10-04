@@ -3,6 +3,7 @@ import org.gradle.api.GradleException
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // Build identity (design: Settings and build identity): the commit this build
@@ -73,6 +74,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.compose.ui)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui.tooling.preview)

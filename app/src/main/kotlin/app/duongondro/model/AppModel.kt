@@ -50,6 +50,8 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     /** Bumped on returning to the foreground and at a new day, so "today" re-renders. */
     val now: StateFlow<Instant> = _now.asStateFlow()
 
+    /** Writes in flight; declared before init, which already writes. */
+    private val writes = mutableListOf<Job>()
     private var closeJob: Job? = null
     /** The Start tap that belongs to the open window, captured when it opened. */
     private var pendingStart: Instant? = null
@@ -132,6 +134,21 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
         }
     }
 
+    /** Commits the pending session and waits for the write, for the export. */
+    suspend fun commitPendingNow() {
+        commitPending()
+        writes.lastOrNull()?.join()
+    }
+
+    /** Drops the undo window and Start timers without writing anything. */
+    fun discardInFlight() {
+        closeJob?.cancel()
+        _pending.value = null
+        pendingStart = null
+        _started.value = emptyMap()
+        _afterMidnight.value = null
+    }
+
     fun choose(day: LocalDate, prompt: AfterMidnightPrompt) {
         val startDay = civilDate(prompt.session.startedAt, prompt.session.zone)
         _afterMidnight.value = null
@@ -159,8 +176,10 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     fun updatePreferences(change: (Preferences) -> Preferences) = perform { store.save(change(snapshot.value.preferences)) }
 
     fun perform(write: suspend () -> Unit) {
-        viewModelScope.launch {
+        val job = viewModelScope.launch {
             try { write() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
         }
+        writes.removeAll { it.isCompleted }
+        writes += job
     }
 }

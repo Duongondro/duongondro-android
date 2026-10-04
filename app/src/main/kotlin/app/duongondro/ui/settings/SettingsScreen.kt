@@ -75,7 +75,7 @@ import app.duongondro.reminders.rememberNotificationPermission
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
 
 @Composable
-fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit) {
+fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived: () -> Unit, openYourData: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
     Page(stringResource(R.string.settings)) {
@@ -113,6 +113,12 @@ fun SettingsScreen(model: AppModel, openPractice: (String) -> Unit, openArchived
             SwitchRow(stringResource(R.string.discreet), stringResource(R.string.discreet_detail), snapshot.preferences.discreetNotifications) { v ->
                 model.updatePreferences { it.copy(discreetNotifications = v) }
             }
+        }
+
+        SectionTitle(stringResource(R.string.section_your_data))
+        Row(Modifier.fillMaxWidth().clickable(onClick = openYourData).card(), verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.export_and_delete), Modifier.weight(1f))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
         }
 
         SectionTitle(stringResource(R.string.section_about))

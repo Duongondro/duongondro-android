@@ -121,4 +121,18 @@
     <string name="time">Time</string>
     <string name="ok">OK</string>
     <string name="notifications_off">Notifications are off for this app, so the reminder cannot show.</string>
+
+    <!-- Your data -->
+    <string name="section_your_data">Your data</string>
+    <string name="export_and_delete">Export and delete</string>
+    <string name="export_all">Export all my data</string>
+    <string name="export_footer">One ZIP with every practice, session and streak, readable without this app.</string>
+    <string name="export_failed">Export failed</string>
+    <string name="delete_everything">Delete everything</string>
+    <string name="delete_footer">Removes all your data from this phone. It cannot be undone.</string>
+    <string name="delete_explainer">This deletes every practice, session and streak on this phone, your reminders and any keys the app holds, then returns to the start.</string>
+    <string name="export_first">Export first if you want a copy.</string>
+    <string name="delete_word" translatable="true">delete</string>
+    <string name="type_to_confirm">Type “%1$s” to confirm</string>
+    <string name="could_not_delete">Could not delete</string>
 </resources>
