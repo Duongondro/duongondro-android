@@ -70,10 +70,10 @@
     <string name="door_invite">У меня есть приглашение</string>
     <string name="door_just_me">Только я, на этом телефоне</string>
     <string name="door_account">У меня уже есть аккаунт</string>
-    <string name="q_finished_ngondro">Вы уже завершили ngöndro?</string>
+    <string name="q_finished_ngondro">Вы уже завершили нёндро?</string>
     <string name="q_finished_ngondro_detail">Все четыре части, по 111 111 в каждой. Повторные круги — позже.</string>
     <string name="q_finished_short_refuge">Вы уже завершили медитацию Прибежища?</string>
-    <string name="q_finished_short_refuge_detail">Медитация Прибежища, которую вы делаете перед началом ngöndro.</string>
+    <string name="q_finished_short_refuge_detail">Медитация Прибежища, которую вы делаете перед началом нёндро.</string>
     <string name="yes">Да</string>
     <string name="no">Ещё нет</string>
     <string name="q_daily">Какие практики вы делаете каждый день?</string>
