@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Сегодня</string>
-    <string name="tab_settings">Вы</string>
+    <string name="tab_settings">Профиль</string>
     <string name="daily_practices">Ежедневные практики</string>
     <plurals name="days">
         <item quantity="one">%d день</item>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Dziś</string>
-    <string name="tab_settings">Ty</string>
+    <string name="tab_settings">Profil</string>
     <string name="daily_practices">Praktyki codzienne</string>
 
     <plurals name="days">

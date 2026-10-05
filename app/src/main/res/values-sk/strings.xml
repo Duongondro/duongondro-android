@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Dnes</string>
-    <string name="tab_settings">Ty</string>
+    <string name="tab_settings">Profil</string>
     <string name="daily_practices">Denné cvičenia</string>
     <plurals name="days">
         <item quantity="one">%d deň</item>
