@@ -72,8 +72,8 @@
     <string name="door_account">Už mám účet</string>
     <string name="q_finished_ngondro">Dokončil(a) si ngöndro?</string>
     <string name="q_finished_ngondro_detail">Všetky štyri časti, každá 111 111. Opakované kolá prídu neskôr.</string>
-    <string name="q_finished_short_refuge">Dokončil(a) si Short refuge?</string>
-    <string name="q_finished_short_refuge_detail">Meditácia Short refuge, ktorú robíš pred začiatkom ngöndro.</string>
+    <string name="q_finished_short_refuge">Dokončil(a) si meditáciu útočiska?</string>
+    <string name="q_finished_short_refuge_detail">Meditácia útočiska, ktorú robíš pred začiatkom ngöndro.</string>
     <string name="yes">Áno</string>
     <string name="no">Ešte nie</string>
     <string name="q_daily">Ktoré cvičíš denne?</string>
