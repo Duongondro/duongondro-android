@@ -76,9 +76,9 @@
     <string name="door_invite">Mam zaproszenie</string>
     <string name="door_just_me">Tylko ja, na tym telefonie</string>
     <string name="door_account">Mam już konto</string>
-    <string name="q_finished_ngondro">Czy ngöndro masz już za sobą?</string>
+    <string name="q_finished_ngondro">Czy ukończyłeś/aś ngöndro?</string>
     <string name="q_finished_ngondro_detail">Wszystkie cztery części, po 111 111 każda. Kolejne rundy dopiero później.</string>
-    <string name="q_finished_short_refuge">Czy Short refuge masz już za sobą?</string>
+    <string name="q_finished_short_refuge">Czy ukończyłeś/aś Medytację Schronienia?</string>
     <string name="q_finished_short_refuge_detail">Medytacja Short refuge, którą wykonuje się przed rozpoczęciem ngöndro.</string>
     <string name="yes">Tak</string>
     <string name="no">Jeszcze nie</string>
