@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import app.duongondro.core.Catalogue
 import app.duongondro.core.Practice
 import app.duongondro.core.PracticeGroup
+import app.duongondro.core.Gender
 import app.duongondro.core.Session
 import app.duongondro.core.StreakSeed
 import app.duongondro.core.TrackedPractice
@@ -147,6 +148,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
             put("mala_size", p.malaSize)
             put("reminder_minutes", p.reminderMinutes)
             put("discreet_notifications", p.discreetNotifications)
+            put("gender", p.gender?.wire)
         }, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
@@ -184,6 +186,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
                 onboarded = c.int("onboarded") == 1, finishedShortRefuge = c.int("finished_short_refuge") == 1,
                 finishedNgondro = c.int("finished_ngondro") == 1, malaSize = c.int("mala_size") ?: 108,
                 reminderMinutes = c.int("reminder_minutes"), discreetNotifications = c.int("discreet_notifications") == 1,
+                gender = Gender.fromWire(c.str("gender")),
             )
         }.firstOrNull() ?: Preferences()
         return Snapshot(practices, sessions, seeds, prefs)
@@ -196,7 +199,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
 
     fun close() = helper.close()
 
-    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 1) {
+    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 2) {
         override fun onConfigure(db: SQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
             db.enableWriteAheadLogging()
@@ -261,9 +264,13 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
                     discreet_notifications INTEGER NOT NULL
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
+            onUpgrade(db, 1, 2)
         }
 
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+            // 2: grammatical gender (design: Localisation › Grammatical gender).
+            if (oldVersion < 2) db.execSQL("ALTER TABLE preferences ADD COLUMN gender TEXT")
+        }
     }
 }
 

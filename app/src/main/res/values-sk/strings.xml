@@ -116,6 +116,12 @@
     <string name="system_default">Predvolené systémom</string>
     <string name="discreet">Nenápadné oznámenia</string>
     <string name="discreet_detail">Zamknutá obrazovka namiesto cvičenia ukáže „Priateľ cvičil“.</string>
+    <string name="gender">Pohlavie</string>
+    <string name="gender_not_given">Neuvedené</string>
+    <string name="gender_male">Muž</string>
+    <string name="gender_female">Žena</string>
+    <string name="gender_nonbinary">Nebinárna osoba</string>
+    <string name="gender_detail">Nepovinné. Poľština, čeština, slovenčina, ruština a ukrajinčina podľa neho ohýbajú slová o tebe, v tomto telefóne aj u tvojich priateľov. Bez neho sa použijú neutrálne tvary.</string>
     <string name="target_per_round">Cieľ na kolo</string>
     <string name="mala_default">Predvolené (%1$d)</string>
     <string name="streak_only_kept">Doterajšie zaznamenané počty zostanú zachované.</string>

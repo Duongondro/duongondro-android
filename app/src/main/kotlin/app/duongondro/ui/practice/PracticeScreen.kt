@@ -70,11 +70,13 @@ import app.duongondro.model.AppModel
 import app.duongondro.ui.Bar
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.FilledAction
+import app.duongondro.ui.GenderedString
 import app.duongondro.ui.ListRow
 import app.duongondro.ui.OutlinedAction
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.SoftAction
 import app.duongondro.ui.grouped
+import app.duongondro.ui.stringResource
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
@@ -398,7 +400,8 @@ fun AfterMidnightDialog(prompt: AfterMidnightPrompt, model: AppModel) {
     var picked by remember(prompt) { mutableStateOf(sheet.countedFor) }
     val counted = sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
     val time = prompt.session.loggedAt.shortTime(zone)
-    val body = stringResource(R.string.after_midnight_body, counted, sheet.startedAround.shortTime(zone))
+    val gender = model.snapshot.collectAsStateWithLifecycle().value.preferences.gender
+    val body = stringResource(GenderedString.AfterMidnightBody, gender, counted, sheet.startedAround.shortTime(zone))
     val bolded = buildAnnotatedString {
         val at = body.indexOf(counted)
         if (at < 0) append(body) else {

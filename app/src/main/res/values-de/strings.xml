@@ -120,6 +120,12 @@
     <string name="system_default">Systemstandard</string>
     <string name="discreet">Diskrete Mitteilungen</string>
     <string name="discreet_detail">Auf dem Sperrbildschirm steht „Ein Freund hat geübt“ statt der Übung.</string>
+    <string name="gender">Geschlecht</string>
+    <string name="gender_not_given">Keine Angabe</string>
+    <string name="gender_male">Männlich</string>
+    <string name="gender_female">Weiblich</string>
+    <string name="gender_nonbinary">Nichtbinär</string>
+    <string name="gender_detail">Freiwillig. Polnisch, Tschechisch, Slowakisch, Russisch und Ukrainisch beugen damit Wörter über dich, auf diesem Telefon und auf denen deiner Freunde. Ohne Angabe gelten neutrale Formen.</string>
     <string name="target_per_round">Ziel pro Runde</string>
     <string name="mala_default">Standard (%1$d)</string>
     <string name="streak_only_kept">Bisher erfasste Zählungen bleiben erhalten.</string>

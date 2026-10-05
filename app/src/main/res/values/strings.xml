@@ -122,6 +122,12 @@
     <string name="system_default">System default</string>
     <string name="discreet">Discreet notifications</string>
     <string name="discreet_detail">Lock screens say “A friend practised” instead of the practice.</string>
+    <string name="gender">Gender</string>
+    <string name="gender_not_given">Not given</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_nonbinary">Non-binary</string>
+    <string name="gender_detail">Optional. Polish, Czech, Slovak, Russian and Ukrainian use it to conjugate words about you, on this phone and your friends\'. Without it, they use neutral forms.</string>
     <string name="target_per_round">Target per round</string>
     <string name="mala_default">Default (%1$d)</string>
     <string name="streak_only_kept">Counts logged so far are kept.</string>

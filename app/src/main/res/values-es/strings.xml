@@ -123,6 +123,12 @@
     <string name="system_default">Predeterminado del sistema</string>
     <string name="discreet">Notificaciones discretas</string>
     <string name="discreet_detail">La pantalla de bloqueo dice “Un amigo practicó” en lugar de nombrar la práctica.</string>
+    <string name="gender">Género</string>
+    <string name="gender_not_given">Sin indicar</string>
+    <string name="gender_male">Masculino</string>
+    <string name="gender_female">Femenino</string>
+    <string name="gender_nonbinary">No binario</string>
+    <string name="gender_detail">Opcional. El polaco, el checo, el eslovaco, el ruso y el ucraniano lo usan para conjugar las palabras sobre ti, en este teléfono y en los de tus amigos. Sin él, usan formas neutras.</string>
     <string name="target_per_round">Objetivo por ronda</string>
     <string name="mala_default">Predeterminado (%1$d)</string>
     <string name="streak_only_kept">Los conteos registrados hasta ahora se conservan.</string>

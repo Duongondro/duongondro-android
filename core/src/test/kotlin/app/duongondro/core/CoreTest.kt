@@ -136,4 +136,11 @@ class CoreTest {
         assertEquals("public streaks count tracked days only", 1, r.currentTracked)
         assertEquals(100, r.longest)
     }
+
+    @Test fun genderTravelsAsTheServerSpellsIt() {
+        assertEquals(listOf("male", "female", "nonbinary"), Gender.entries.map { it.wire })
+        assertEquals(Gender.Female, Gender.fromWire("female"))
+        assertNull(Gender.fromWire(null))
+        assertNull(Gender.fromWire("other"))
+    }
 }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="after_midnight_body_male">Započítáno na %1$s: začal jsi kolem %2$s, před půlnocí. Tvá série je v bezpečí.</string>
+    <string name="after_midnight_body_female">Započítáno na %1$s: začala jsi kolem %2$s, před půlnocí. Tvá série je v bezpečí.</string>
+</resources>

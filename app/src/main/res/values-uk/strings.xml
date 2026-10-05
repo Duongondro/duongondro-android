@@ -125,6 +125,12 @@
     <string name="system_default">Типово для системи</string>
     <string name="discreet">Непомітні сповіщення</string>
     <string name="discreet_detail">На екрані блокування буде «Друг виконав практику» замість назви практики.</string>
+    <string name="gender">Стать</string>
+    <string name="gender_not_given">Не вказано</string>
+    <string name="gender_male">Чоловіча</string>
+    <string name="gender_female">Жіноча</string>
+    <string name="gender_nonbinary">Небінарна</string>
+    <string name="gender_detail">Необов’язково. Польська, чеська, словацька, російська й українська узгоджують за нею слова про вас — на цьому телефоні й у ваших друзів. Без неї використовуються нейтральні форми.</string>
     <string name="target_per_round">Ціль на коло</string>
     <string name="mala_default">Типово (%1$d)</string>
     <string name="streak_only_kept">Уже записані кількості залишаються.</string>

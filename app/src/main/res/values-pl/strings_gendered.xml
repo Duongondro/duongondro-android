@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="after_midnight_body_male">Zaliczone na %1$s: zacząłeś około %2$s, przed północą. Twoja seria jest bezpieczna.</string>
+    <string name="after_midnight_body_female">Zaliczone na %1$s: zaczęłaś około %2$s, przed północą. Twoja seria jest bezpieczna.</string>
+</resources>

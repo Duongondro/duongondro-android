@@ -116,6 +116,12 @@
     <string name="system_default">Как в системе</string>
     <string name="discreet">Неприметные уведомления</string>
     <string name="discreet_detail">На экране блокировки будет «Друг практиковал» вместо названия практики.</string>
+    <string name="gender">Пол</string>
+    <string name="gender_not_given">Не указан</string>
+    <string name="gender_male">Мужской</string>
+    <string name="gender_female">Женский</string>
+    <string name="gender_nonbinary">Небинарный</string>
+    <string name="gender_detail">Необязательно. В польском, чешском, словацком, русском и украинском по нему согласуются слова о вас — на этом телефоне и у ваших друзей. Без него используются нейтральные формы.</string>
     <string name="target_per_round">Цель на круг</string>
     <string name="mala_default">По умолчанию (%1$d)</string>
     <string name="streak_only_kept">Уже записанные счётчики сохраняются.</string>

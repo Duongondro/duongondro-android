@@ -112,6 +112,12 @@
     <string name="system_default">Rendszer alapértelmezése</string>
     <string name="discreet">Diszkrét értesítések</string>
     <string name="discreet_detail">A zárolt képernyőn a gyakorlat helyett az áll: „Egy barát gyakorolt”.</string>
+    <string name="gender">Nem</string>
+    <string name="gender_not_given">Nincs megadva</string>
+    <string name="gender_male">Férfi</string>
+    <string name="gender_female">Nő</string>
+    <string name="gender_nonbinary">Nem bináris</string>
+    <string name="gender_detail">Nem kötelező. A lengyel, cseh, szlovák, orosz és ukrán nyelv ez alapján ragozza a rólad szóló szavakat, ezen a telefonon és a barátaidén is. Enélkül semleges alakokat használnak.</string>
     <string name="target_per_round">Cél körönként</string>
     <string name="mala_default">Alapértelmezett (%1$d)</string>
     <string name="streak_only_kept">Az eddig rögzített számok megmaradnak.</string>

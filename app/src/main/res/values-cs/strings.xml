@@ -116,6 +116,12 @@
     <string name="system_default">Výchozí nastavení systému</string>
     <string name="discreet">Nenápadná oznámení</string>
     <string name="discreet_detail">Zamčená obrazovka ukáže „Přítel praktikoval“ místo názvu praktiky.</string>
+    <string name="gender">Pohlaví</string>
+    <string name="gender_not_given">Neuvedeno</string>
+    <string name="gender_male">Muž</string>
+    <string name="gender_female">Žena</string>
+    <string name="gender_nonbinary">Nebinární osoba</string>
+    <string name="gender_detail">Nepovinné. Polština, čeština, slovenština, ruština a ukrajinština podle něj ohýbají slova o tobě, v tomto telefonu i u tvých přátel. Bez něj se použijí neutrální tvary.</string>
     <string name="target_per_round">Cíl na kolo</string>
     <string name="mala_default">Výchozí (%1$d)</string>
     <string name="streak_only_kept">Dosud zapsané počty zůstanou zachované.</string>

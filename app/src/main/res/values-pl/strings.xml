@@ -124,6 +124,12 @@
     <string name="system_default">Domyślny systemowy</string>
     <string name="discreet">Dyskretne powiadomienia</string>
     <string name="discreet_detail">Ekran blokady pokazuje „Przyjaciel praktykował” zamiast nazwy praktyki.</string>
+    <string name="gender">Płeć</string>
+    <string name="gender_not_given">Nie podano</string>
+    <string name="gender_male">Mężczyzna</string>
+    <string name="gender_female">Kobieta</string>
+    <string name="gender_nonbinary">Osoba niebinarna</string>
+    <string name="gender_detail">Opcjonalne. Polski, czeski, słowacki, rosyjski i ukraiński odmieniają według niej słowa o Tobie, na tym telefonie i u Twoich przyjaciół. Bez niej używane są formy neutralne.</string>
     <string name="target_per_round">Cel na rundę</string>
     <string name="mala_default">Domyślnie (%1$d)</string>
     <string name="streak_only_kept">Dotychczasowe liczby zostają zachowane.</string>

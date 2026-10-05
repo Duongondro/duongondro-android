@@ -79,6 +79,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.BuildConfig
 import app.duongondro.R
 import app.duongondro.core.Catalogue
+import app.duongondro.core.Gender
 import app.duongondro.core.TrackedPractice
 import app.duongondro.model.AppModel
 import app.duongondro.ui.PracticeName
@@ -122,6 +123,8 @@ fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () 
                 LanguageRow()
                 RowDivider()
             }
+            GenderRow(snapshot.preferences.gender) { g -> model.updatePreferences { it.copy(gender = g) } }
+            RowDivider()
             Column(Modifier.fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.s)) {
                 Text(stringResource(R.string.mala_counts_as), style = Theme.type.body, color = Theme.colors.ink)
                 MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
@@ -308,6 +311,40 @@ private fun LanguageRow() {
                             Text(code?.let(::nativeName) ?: stringResource(R.string.system_default), Modifier.padding(start = Space.s))
                         }
                     }
+                }
+            },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+}
+
+/**
+ * Optional grammatical gender, only for conjugating in the Slavic languages (design:
+ * Localisation › Grammatical gender); kept on the phone until accounts arrive here.
+ */
+@Composable
+private fun GenderRow(current: Gender?, choose: (Gender?) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    val options = listOf(null to R.string.gender_not_given, Gender.Male to R.string.gender_male,
+        Gender.Female to R.string.gender_female, Gender.Nonbinary to R.string.gender_nonbinary)
+    ListRow(stringResource(R.string.gender), detail = stringResource(options.first { it.first == current }.second), chevron = true,
+        onClick = { open = true })
+    if (open) {
+        AlertDialog(
+            onDismissRequest = { open = false },
+            title = { Text(stringResource(R.string.gender)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                    options.forEach { (gender, label) ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable(role = Role.RadioButton) { open = false; choose(gender) },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = current == gender, onClick = null)
+                            Text(stringResource(label), Modifier.padding(start = Space.s))
+                        }
+                    }
+                    Text(stringResource(R.string.gender_detail), style = Theme.type.secondary, color = Theme.colors.muted)
                 }
             },
             confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel)) } },
