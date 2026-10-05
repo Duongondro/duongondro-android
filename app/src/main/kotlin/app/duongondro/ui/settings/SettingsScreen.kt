@@ -1,6 +1,7 @@
 package app.duongondro.ui.settings
 
 import android.content.ClipData
+import androidx.compose.ui.platform.LocalConfiguration
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -94,7 +95,7 @@ import app.duongondro.reminders.Reminders
 import app.duongondro.reminders.rememberNotificationPermission
 
 /** The language picker waits for the translations; only English exists yet. */
-private const val SHOW_LANGUAGE = false
+private const val SHOW_LANGUAGE = true
 
 /** The eight launch languages (design: Localisation). */
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
@@ -238,7 +239,7 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
     if (minutes != null) {
         val time = LocalTime.of(minutes / 60, minutes % 60)
         RowDivider()
-        ListRow(stringResource(R.string.time), detail = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time), onClick = { picking = true })
+        ListRow(stringResource(R.string.time), detail = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(LocalConfiguration.current.locales[0]).format(time), onClick = { picking = true })
         if (!allowed) Text(stringResource(R.string.notifications_off), style = Theme.type.footnote, color = Theme.colors.destructive,
             modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s))
         if (picking) {

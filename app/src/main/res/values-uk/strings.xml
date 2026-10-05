@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tab_today">Сьогодні</string>
+    <string name="tab_settings">Ви</string>
+    <string name="daily_practices">Щоденні практики</string>
+
+    <plurals name="days">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дні</item>
+        <item quantity="many">%d днів</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
+    <string name="streak_longest">Серія практики · найдовша %1$d</string>
+    <string name="any_practice_starts">Будь-яка практика сьогодні розпочинає серію.</string>
+    <string name="done_today">Виконано сьогодні</string>
+    <string name="not_yet_today">Сьогодні ще ні</string>
+    <string name="streak_only">Лише серія</string>
+    <string name="status_done">виконано сьогодні</string>
+    <string name="status_not_yet">сьогодні ще ні</string>
+    <string name="status_progress">%1$s з %2$s</string>
+    <string name="status_round">коло %1$d · %2$s з %3$s</string>
+    <string name="status_total">Разом: %1$s</string>
+    <string name="header_round">коло %1$d</string>
+    <string name="header_lifetime">%1$s за весь час</string>
+    <string name="header_streak_only">лише серія</string>
+    <string name="of_target">з %1$s</string>
+    <string name="today_amount">Сьогодні %1$s</string>
+    <plurals name="today_malas">
+        <item quantity="one">Сьогодні %1$s · %2$d мала</item>
+        <item quantity="few">Сьогодні %1$s · %2$d мали</item>
+        <item quantity="many">Сьогодні %1$s · %2$d мал</item>
+        <item quantity="other">Сьогодні %1$s · %2$d мали</item>
+    </plurals>
+    <string name="longest_n">Найдовша %1$d</string>
+    <string name="custom">+ Інше</string>
+    <string name="history">Історія</string>
+    <string name="history_empty">Поки нічого не записано.</string>
+    <string name="total">Усього</string>
+    <string name="done_session">виконано</string>
+    <string name="started_cancel">Розпочато %1$s. Торкніться, щоб скасувати.</string>
+
+    <string name="start">Почати</string>
+    <string name="started_at">Розпочато %1$s</string>
+    <string name="cancel">Скасувати</string>
+    <string name="add_amount">Додати іншу кількість</string>
+    <string name="amount">Кількість</string>
+    <string name="add">Додати</string>
+    <string name="added">Додано %1$s</string>
+    <string name="marked_done">Позначено виконаним</string>
+    <string name="undo">Скасувати</string>
+    <string name="mark_today_done">Позначити сьогодні виконаним</string>
+    <string name="add_one_mala">Додати одну малу, %1$d</string>
+    <string name="announce_added">Додано %1$s. Можна скасувати.</string>
+    <string name="announce_done">Позначено виконаним. Можна скасувати.</string>
+    <string name="practice_gone">Цієї практики більше немає.</string>
+    <string name="back">Назад</string>
+
+    <string name="logged_amount">Записано %1$s</string>
+    <string name="after_midnight_body">Зараховано за %1$s: ви почали близько %2$s, до опівночі. Ваша серія в безпеці.</string>
+    <string name="after_midnight_hint">Наступного разу торкніться «Почати», і застосунок знатиме точно.</string>
+    <string name="count_for">Кількість за</string>
+    <string name="done">Готово</string>
+
+    <string name="settings">Налаштування</string>
+    <string name="section_general">Загальне</string>
+    <string name="mala_counts_as">Одна мала — це</string>
+    <string name="section_about">Про застосунок</string>
+    <string name="version">Версія</string>
+    <string name="source">Джерело</string>
+    <string name="copied">Скопійовано</string>
+    <string name="source_code">Вихідний код</string>
+
+    <!-- Onboarding -->
+    <string name="welcome_tagline">Ведіть облік медитаційної практики разом із друзями.</string>
+    <string name="welcome_encrypted">Наскрізне шифрування та повністю відкритий код.</string>
+    <string name="door_invite">У мене є запрошення</string>
+    <string name="door_just_me">Лише я, на цьому телефоні</string>
+    <string name="door_account">У мене вже є обліковий запис</string>
+    <string name="q_finished_ngondro">Ви завершили ngöndro?</string>
+    <string name="q_finished_ngondro_detail">Усі чотири частини, по 111 111. Повторні кола — пізніше.</string>
+    <string name="q_finished_short_refuge">Ви завершили Short refuge?</string>
+    <string name="q_finished_short_refuge_detail">Медитація Short refuge, яку виконують перед початком ngöndro.</string>
+    <string name="yes">Так</string>
+    <string name="no">Ще ні</string>
+    <string name="q_daily">Які з них ви практикуєте щодня?</string>
+    <string name="q_daily_detail">Оберіть усі, які ви виконуєте.</string>
+    <string name="streak_only_switch">Лише серія, без кількості</string>
+    <string name="add_your_own">Додати свою</string>
+    <string name="continue_">Далі</string>
+    <string name="practice_n_of_m">%1$d з %2$d практик</string>
+    <string name="where_are_you">На якому етапі ви з %1$s?</string>
+    <string name="step_n_of_m">Крок %1$d з %2$d</string>
+    <string name="count_so_far">Досі</string>
+    <string name="later_round">Я на одному з наступних кіл</string>
+    <string name="round_n">Коло %1$d</string>
+    <string name="count_footer">З паперу чи таблиці; приблизно — теж добре.</string>
+    <string name="current_streak_days">Серія, днів</string>
+    <string name="last_practised">Остання практика</string>
+    <string name="today">Сьогодні</string>
+    <string name="yesterday">Учора</string>
+    <string name="longest_optional">Найдовша серія (необов’язково)</string>
+    <string name="seed_footer">Ваша попередня серія враховується на вашому екрані «Сьогодні». Друзі бачать лише дні, відстежені в застосунку.</string>
+    <string name="q_mala">Скільки зараховується за одну малу?</string>
+    <string name="q_mala_detail">Учителі радять по-різному. Для кожної практики це можна змінити пізніше в налаштуваннях.</string>
+    <string name="q_reminder">Коли вам нагадати?</string>
+    <string name="q_reminder_detail">Вечірнє нагадування, коли серії загрожує обрив. Його планує сам телефон, і нічого з нього не виходить.</string>
+    <string name="remind_at_time">Нагадати о %1$s</string>
+    <string name="no_reminders">Без нагадувань</string>
+    <string name="local_title">Усе залишається на цьому телефоні</string>
+    <string name="local_detail">Без облікового запису й без мережі. Зареєструватися можна пізніше, і все збережеться.</string>
+    <string name="no_accounts_title">Облікові записи ще не готові</string>
+    <string name="no_accounts_detail">У цій збірці немає сервера. Ваша практика зберігається на цьому телефоні, а з’єднання з друзями з’явиться пізніше.</string>
+    <string name="start_practising">Почати практику</string>
+    <string name="your_own_practice">Ваша власна практика</string>
+    <string name="name">Ім’я</string>
+    <string name="target_optional">Ціль (необов’язково)</string>
+
+    <!-- Settings -->
+    <string name="section_practices">Практики</string>
+    <string name="add_practice">Додати практику</string>
+    <string name="archived_n">В архіві (%1$d)</string>
+    <string name="archived">В архіві</string>
+    <string name="language">Мова</string>
+    <string name="system_default">Типово для системи</string>
+    <string name="discreet">Непомітні сповіщення</string>
+    <string name="discreet_detail">На екрані блокування буде «Друг виконав практику» замість назви практики.</string>
+    <string name="target_per_round">Ціль на коло</string>
+    <string name="mala_default">Типово (%1$d)</string>
+    <string name="streak_only_kept">Уже записані кількості залишаються.</string>
+    <string name="archive">В архів</string>
+    <string name="unarchive">Знову показувати в «Сьогодні»</string>
+    <string name="archive_detail">Архівація ховає практику із «Сьогодні», але зберігає її кількості та історію.</string>
+    <string name="counting">Підрахунок</string>
+
+    <!-- Reminders -->
+    <string name="reminder_channel">Серія під загрозою</string>
+    <string name="reminder_title">Сьогодні нічого не записано</string>
+    <plurals name="reminder_streak_ends">
+        <item quantity="one">Ваша серія з %d дня закінчиться опівночі.</item>
+        <item quantity="few">Ваша серія з %d днів закінчиться опівночі.</item>
+        <item quantity="many">Ваша серія з %d днів закінчиться опівночі.</item>
+        <item quantity="other">Ваша серія з %d дня закінчиться опівночі.</item>
+    </plurals>
+    <string name="reminder_short_session">Навіть коротка практика зараховується.</string>
+    <string name="evening_reminder">Вечірнє нагадування</string>
+    <string name="time">Час</string>
+    <string name="ok">OK</string>
+    <string name="notifications_off">Сповіщення для цього застосунку вимкнено, тому нагадування не з’явиться.</string>
+
+    <!-- Your data -->
+    <string name="section_your_data">Ваші дані</string>
+    <string name="export_and_delete">Експорт і видалення</string>
+    <string name="export_all">Експортувати всі мої дані</string>
+    <string name="export_footer">Один ZIP з усіма практиками, сесіями та серіями; його можна прочитати й без цього застосунку.</string>
+    <string name="export_failed">Не вдалося експортувати</string>
+    <string name="delete_everything">Видалити все</string>
+    <string name="delete_footer">Видаляє всі ваші дані з цього телефона. Це неможливо скасувати.</string>
+    <string name="delete_explainer">Це видалить усі практики, сесії та серії на цьому телефоні, ваші нагадування й усі ключі, які зберігає застосунок, а потім поверне вас на початок.</string>
+    <string name="export_first">Спершу експортуйте, якщо хочете мати копію.</string>
+    <string name="delete_word">видалити</string>
+    <string name="type_to_confirm">Введіть «%1$s» для підтвердження</string>
+    <string name="could_not_delete">Не вдалося видалити</string>
+
+    <string name="contributors">Учасники</string>
+    <string name="contributors_footer">Усі, хто робив коміти в репозиторії застосунку, сервера, дизайну чи Android; спершу ті, хто зробив найбільше комітів. Створюється з історії git під час збірки застосунку.</string>
+    <string name="made_by">Створили</string>
+    <string name="about_and_contributors">Про застосунок і учасників</string>
+    <string name="about_tagline">Наскрізне шифрування та повністю відкритий код.</string>
+    <string name="your_practices">Ваші практики</string>
+    <string name="source_footer">Торкніться «Джерело», щоб відкрити цей коміт на GitHub.</string>
+    <string name="licences">Ліцензії</string>
+    <string name="storage_error">Дещо не вдалося зберегти</string>
+    <string name="previous_round">Попереднє коло</string>
+    <string name="next_round">Наступне коло</string>
+</resources>
