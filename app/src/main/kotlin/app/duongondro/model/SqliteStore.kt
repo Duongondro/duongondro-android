@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import app.duongondro.core.Catalogue
 import app.duongondro.core.Practice
 import app.duongondro.core.PracticeGroup
 import app.duongondro.core.Session
