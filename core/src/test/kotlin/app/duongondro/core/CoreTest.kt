@@ -32,6 +32,7 @@ class CoreTest {
 
     @Test fun karmapaMeditationsStartStreakOnly() {
         val byId = Catalogue.builtIn.associateBy { it.id }
+        assertFalse("short refuge is always counted", byId.getValue("short-refuge").streakOnlyAllowed)
         assertTrue(byId.getValue("16th-karmapa").streakOnlyByDefault)
         assertNull(byId.getValue("16th-karmapa").target)
         assertTrue(byId.getValue("8th-karmapa").streakOnlyByDefault)

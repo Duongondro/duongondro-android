@@ -151,13 +151,17 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
 
     private fun read(db: SQLiteDatabase): Snapshot {
         val practices = db.rawQuery("SELECT * FROM practices ORDER BY sort_order, id", null).all { c ->
+            val stored = Practice(
+                id = c.str("id")!!, name = c.str("name")!!, secondName = c.str("second_name"),
+                group = PracticeGroup.entries.firstOrNull { it.wire == c.str("grp") } ?: PracticeGroup.AnyTime,
+                target = c.int("target"), allowStreakOnly = c.int("streak_only_allowed") == 1,
+                malaSize = c.int("mala_size"), isCustom = c.int("is_custom") == 1,
+            )
+            // Whether a built-in may be streak-only follows the catalogue, so a change
+            // in an update reaches practices already tracked.
+            val current = Catalogue.builtIn.firstOrNull { it.id == stored.id && !stored.isCustom }
             TrackedPractice(
-                Practice(
-                    id = c.str("id")!!, name = c.str("name")!!, secondName = c.str("second_name"),
-                    group = PracticeGroup.entries.firstOrNull { it.wire == c.str("grp") } ?: PracticeGroup.AnyTime,
-                    target = c.int("target"), allowStreakOnly = c.int("streak_only_allowed") == 1,
-                    malaSize = c.int("mala_size"), isCustom = c.int("is_custom") == 1,
-                ),
+                if (current == null) stored else stored.copy(allowStreakOnly = current.streakOnlyAllowed),
                 wantsStreakOnly = c.int("streak_only") == 1, openingCount = c.int("opening_count") ?: 0,
                 archived = c.int("archived") == 1, sortOrder = c.int("sort_order") ?: 0,
             )

@@ -36,7 +36,7 @@ data class Practice(
 
 object Catalogue {
     val builtIn: List<Practice> = listOf(
-        Practice("short-refuge", "Short refuge", null, PracticeGroup.BeforeNgondro, 11_111, true),
+        Practice("short-refuge", "Short refuge", null, PracticeGroup.BeforeNgondro, 11_111, false),
         Practice("refuge", "Refuge and the Enlightened Attitude", "Prostrations", PracticeGroup.Ngondro, 111_111, false),
         Practice("dorje-sempa", "Dorje Sempa", "Diamond Mind", PracticeGroup.Ngondro, 111_111, false),
         Practice("mandala", "Mandala offering", null, PracticeGroup.Ngondro, 111_111, false),
