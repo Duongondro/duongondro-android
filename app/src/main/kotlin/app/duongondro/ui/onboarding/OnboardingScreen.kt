@@ -1,6 +1,7 @@
 package app.duongondro.ui.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -501,7 +502,7 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
     // Asked with the reason on screen; a refusal still keeps the time for later.
     val askPermission = rememberNotificationPermission { flow.go(Step.Door) }
     Column(Modifier.padding(vertical = Space.l), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        Primary(stringResource(R.string.remind_at_time, DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(time))) {
+        Primary(stringResource(R.string.remind_at_time, DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(LocalConfiguration.current.locales[0]).format(time))) {
             flow.reminder = time
             askPermission()
         }

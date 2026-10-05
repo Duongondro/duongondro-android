@@ -1,6 +1,7 @@
 package app.duongondro.ui.practice
 
 import android.text.format.DateFormat
+import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -395,7 +396,7 @@ fun AfterMidnightDialog(prompt: AfterMidnightPrompt, model: AppModel) {
     val zone = prompt.session.zone
     val days = listOf(sheet.countedFor, sheet.alternative).sorted()
     var picked by remember(prompt) { mutableStateOf(sheet.countedFor) }
-    val counted = sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault())
+    val counted = sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
     val time = prompt.session.loggedAt.shortTime(zone)
     val body = stringResource(R.string.after_midnight_body, counted, sheet.startedAround.shortTime(zone))
     val bolded = buildAnnotatedString {
