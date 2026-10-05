@@ -42,7 +42,7 @@ object Catalogue {
         Practice("mandala", "Mandala offering", null, PracticeGroup.Ngondro, 111_111, false),
         Practice("guru-yoga", "Meditation on the Lama", "Guru Yoga", PracticeGroup.Ngondro, 111_111, false),
         Practice("8th-karmapa", "8th Karmapa Meditation", null, PracticeGroup.AfterNgondro, null, true),
-        Practice("16th-karmapa", "Meditation on the 16th Karmapa", null, PracticeGroup.AnyTime, null, true),
+        Practice("16th-karmapa", "16th Karmapa Meditation", null, PracticeGroup.AnyTime, null, true),
         Practice("chenrezig", "Chenrezig", "Loving Eyes", PracticeGroup.AnyTime, 1_000_000, true),
         Practice("amitabha", "Amitabha", "Meditation on the Buddha of Limitless Light", PracticeGroup.AnyTime, 500_000, true),
     )
