@@ -54,7 +54,8 @@ object Catalogue {
                 PracticeGroup.AnyTime -> true
                 PracticeGroup.AfterNgondro -> finishedNgondro
                 PracticeGroup.Ngondro -> finishedNgondro || finishedShortRefuge
-                PracticeGroup.BeforeNgondro -> !finishedNgondro && !finishedShortRefuge
+                // Short refuge stays open to everyone: we don't judge.
+                PracticeGroup.BeforeNgondro -> true
             }
         }
 }

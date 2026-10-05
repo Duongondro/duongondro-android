@@ -23,9 +23,11 @@ class CoreTest {
         val inNgondro = Catalogue.available(finishedNgondro = false, finishedShortRefuge = true).map { it.id }
         assertTrue("mandala" in inNgondro)
         assertFalse("8th-karmapa" in inNgondro)
+        assertTrue("short refuge stays open", "short-refuge" in inNgondro)
         val done = Catalogue.available(finishedNgondro = true, finishedShortRefuge = true).map { it.id }
         assertTrue("8th-karmapa" in done)
         assertTrue("repeat rounds stay available", "dorje-sempa" in done)
+        assertTrue("short-refuge" in done)
     }
 
     @Test fun karmapaMeditationsStartStreakOnly() {
