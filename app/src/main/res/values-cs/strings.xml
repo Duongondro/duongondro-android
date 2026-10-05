@@ -36,8 +36,6 @@
     <string name="history_empty">Zatím nic nezapsáno.</string>
     <string name="total">Celkem</string>
     <string name="done_session">hotovo</string>
-    <string name="started_cancel">Zahájeno %1$s. Klepnutím zrušíš.</string>
-    <string name="start">Začít</string>
     <string name="started_at">Zahájeno %1$s</string>
     <string name="cancel">Zrušit</string>
     <string name="add_amount">Přidat další množství</string>
@@ -45,6 +43,8 @@
     <string name="add">Přidat</string>
     <string name="added">Přidáno: %1$s</string>
     <string name="marked_done">Označeno jako hotové</string>
+    <string name="counted_for">Započítáno na den: %1$s</string>
+    <string name="started_after_midnight">Začal(a) jsem po půlnoci</string>
     <string name="undo">Vrátit</string>
     <string name="mark_today_done">Označit dnešek jako hotový</string>
     <string name="add_one_mala">Přidat jednu malu, %1$d</string>
@@ -53,9 +53,6 @@
     <string name="practice_gone">Tato praktika už neexistuje.</string>
     <string name="back">Zpět</string>
     <string name="logged_amount">Zapsáno: %1$s</string>
-    <string name="after_midnight_body">Započítáno na %1$s: začátek byl kolem %2$s, před půlnocí. Tvá série je v bezpečí.</string>
-    <string name="after_midnight_hint">Příště klepni na Začít a aplikace to bude vědět přesně.</string>
-    <string name="count_for">Započítat na</string>
     <string name="done">Hotovo</string>
     <string name="settings">Nastavení</string>
     <string name="section_general">Obecné</string>

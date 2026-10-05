@@ -36,8 +36,6 @@
     <string name="history_empty">Zatiaľ nič nezaznamenané.</string>
     <string name="total">Celkovo</string>
     <string name="done_session">hotovo</string>
-    <string name="started_cancel">Začaté o %1$s. Ťuknutím zrušíš.</string>
-    <string name="start">Začať</string>
     <string name="started_at">Začaté o %1$s</string>
     <string name="cancel">Zrušiť</string>
     <string name="add_amount">Pridať ďalšie množstvo</string>
@@ -45,6 +43,8 @@
     <string name="add">Pridať</string>
     <string name="added">Pridané: %1$s</string>
     <string name="marked_done">Označené ako hotové</string>
+    <string name="counted_for">Započítané na deň: %1$s</string>
+    <string name="started_after_midnight">Začal(a) som po polnoci</string>
     <string name="undo">Späť</string>
     <string name="mark_today_done">Označiť dnešok ako hotový</string>
     <string name="add_one_mala">Pridať jednu malu, %1$d</string>
@@ -53,9 +53,6 @@
     <string name="practice_gone">Toto cvičenie už neexistuje.</string>
     <string name="back">Späť</string>
     <string name="logged_amount">Zaznamenané: %1$s</string>
-    <string name="after_midnight_body">Započítané na %1$s: začal(a) si okolo %2$s, pred polnocou. Tvoja séria je v bezpečí.</string>
-    <string name="after_midnight_hint">Nabudúce ťukni na Začať a aplikácia bude vedieť presne.</string>
-    <string name="count_for">Započítať na</string>
     <string name="done">Hotovo</string>
     <string name="settings">Nastavenia</string>
     <string name="section_general">Všeobecné</string>

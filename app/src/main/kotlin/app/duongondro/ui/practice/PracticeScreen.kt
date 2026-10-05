@@ -52,12 +52,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.R
@@ -100,7 +97,6 @@ import java.util.Locale
 fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     val pending by model.pending.collectAsStateWithLifecycle()
-    val started by model.started.collectAsStateWithLifecycle()
     val now by model.now.collectAsStateWithLifecycle()
     val practice = snapshot.practices.firstOrNull { it.id == practiceId }
     val view = LocalView.current
@@ -145,7 +141,6 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
             }
             Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                 if (!practice.streakOnly) OutlinedAction(stringResource(R.string.custom), Modifier.weight(1f), height = Size.secondary) { askAmount = true }
-                StartButton(started[practice.id], Modifier.weight(1f), { model.start(practice.id) }, { model.cancelStart(practice.id) })
                 SoftAction(stringResource(R.string.history), Modifier.weight(1f)) { showHistory = true }
             }
         }
@@ -226,32 +221,6 @@ private fun StreakOnlyStatus(current: Int, longest: Int, done: Boolean) {
         Text(stringResource(if (done) R.string.done_today else R.string.not_yet_today), style = Theme.type.secondary, color = Theme.colors.muted)
         if (longest > current) Text(stringResource(R.string.longest_n, longest), style = Theme.type.secondary, color = Theme.colors.muted)
     }
-}
-
-/** Start records the exact start, so the session needs no estimate. Once started it shows the running time; a tap cancels. */
-@Composable
-private fun StartButton(started: Instant?, modifier: Modifier, onStart: () -> Unit, onCancel: () -> Unit) {
-    if (started == null) {
-        OutlinedAction(stringResource(R.string.start), modifier, height = Size.secondary, onClick = onStart)
-    } else {
-        val elapsed by produceState(Duration.between(started, Instant.now()), started) {
-            while (true) {
-                value = Duration.between(started, Instant.now())
-                delay(1000)
-            }
-        }
-        val label = stringResource(R.string.started_cancel, started.shortTime())
-        OutlinedAction(elapsed.clock(), modifier.semantics { contentDescription = label }, height = Size.secondary, onClick = onCancel)
-    }
-}
-
-/** 4:07, or 1:04:07 past the hour. */
-private fun Duration.clock(): String {
-    val total = maxOf(0L, seconds)
-    val h = total / 3600
-    val m = total % 3600 / 60
-    val s = total % 60
-    return if (h > 0) String.format(Locale.getDefault(), "%d:%02d:%02d", h, m, s) else String.format(Locale.getDefault(), "%d:%02d", m, s)
 }
 
 /** "Added 108 · Undo" on an inverted strip, with a ring that empties as the window closes. */
@@ -382,71 +351,26 @@ private fun LocalDate.formatDay(): String {
     return DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale).format(this)
 }
 
-/** "Sunday 4": the weekday and day of the month, for the after-midnight choice. */
-private fun LocalDate.weekdayAndDay(): String {
-    return "${dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault())} $dayOfMonth"
-}
-
 /**
- * The after-midnight sheet: "Logged 108", which day it counted for, and a
- * two-way choice. Done applies the choice; dismissing keeps what was counted.
+ * The after-midnight sheet (design: Social › Which day a session counts for): the
+ * day the session counted for, OK, or the one alternative. Dismissing keeps it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AfterMidnightDialog(prompt: AfterMidnightPrompt, model: AppModel) {
-    val sheet = prompt.sheet
     val zone = prompt.session.zone
-    val days = listOf(sheet.countedFor, sheet.alternative).sorted()
-    var picked by remember(prompt) { mutableStateOf(sheet.countedFor) }
-    val counted = sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
-    val time = prompt.session.loggedAt.shortTime(zone)
+    val counted = prompt.sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
+    val logged = if (prompt.session.amount > 0) stringResource(R.string.logged_amount, prompt.session.amount.grouped())
+        else stringResource(R.string.marked_done)
     val gender = model.snapshot.collectAsStateWithLifecycle().value.preferences.gender
-    val body = stringResource(GenderedString.AfterMidnightBody, gender, counted, sheet.startedAround.shortTime(zone))
-    val bolded = buildAnnotatedString {
-        val at = body.indexOf(counted)
-        if (at < 0) append(body) else {
-            append(body.substring(0, at))
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Theme.colors.ink)) { append(counted) }
-            append(body.substring(at + counted.length))
-        }
-    }
     ModalBottomSheet(onDismissRequest = { model.dismissAfterMidnight() }, containerColor = Theme.colors.card) {
         Column(Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                Text(
-                    if (prompt.session.amount > 0) stringResource(R.string.logged_amount, prompt.session.amount.grouped())
-                    else stringResource(R.string.marked_done),
-                    style = Theme.type.sheetTitle,
-                )
-                Text(time, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.muted)
+            Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                Text(stringResource(R.string.counted_for, counted), style = Theme.type.sheetTitle)
+                Text("$logged · ${prompt.session.loggedAt.shortTime(zone)}", style = Theme.type.secondary, color = Theme.colors.muted)
             }
-            Text(bolded, style = Theme.type.lead, color = Theme.colors.soft)
-            Choice(days.map { it to it.weekdayAndDay() }, picked, stringResource(R.string.count_for)) { picked = it }
-            Text(stringResource(R.string.after_midnight_hint), style = Theme.type.footnote, color = Theme.colors.muted)
-            SoftAction(stringResource(R.string.done)) {
-                if (picked == sheet.countedFor) model.dismissAfterMidnight() else model.choose(picked, prompt)
-            }
-        }
-    }
-}
-
-/** A two-way choice on a soft track, the selected side filled. */
-@Composable
-private fun Choice(options: List<Pair<LocalDate, String>>, selected: LocalDate, description: String, pick: (LocalDate) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().background(Theme.colors.softFill, MaterialTheme.shapes.medium).padding(Space.xs)
-            .semantics { contentDescription = description },
-        horizontalArrangement = Arrangement.spacedBy(Space.xs),
-    ) {
-        options.forEach { (day, label) ->
-            val on = day == selected
-            Button(
-                onClick = { pick(day) }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = Size.field),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (on) Theme.colors.accent else androidx.compose.ui.graphics.Color.Transparent,
-                    contentColor = if (on) Theme.colors.onAccent else Theme.colors.soft,
-                ),
-            ) { Text(label, style = Theme.type.body.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.SemiBold), maxLines = 1) }
+            FilledAction(stringResource(R.string.ok)) { model.dismissAfterMidnight() }
+            SoftAction(stringResource(GenderedString.StartedAfterMidnight, gender)) { model.choose(prompt.sheet.alternative, prompt) }
         }
     }
 }

@@ -38,9 +38,7 @@
     <string name="history_empty">Поки нічого не записано.</string>
     <string name="total">Усього</string>
     <string name="done_session">виконано</string>
-    <string name="started_cancel">Розпочато %1$s. Торкніться, щоб скасувати.</string>
 
-    <string name="start">Почати</string>
     <string name="started_at">Розпочато %1$s</string>
     <string name="cancel">Скасувати</string>
     <string name="add_amount">Додати іншу кількість</string>
@@ -48,6 +46,8 @@
     <string name="add">Додати</string>
     <string name="added">Додано %1$s</string>
     <string name="marked_done">Позначено виконаним</string>
+    <string name="counted_for">Зараховано за день: %1$s</string>
+    <string name="started_after_midnight">Я почав(-ла) після опівночі</string>
     <string name="undo">Скасувати</string>
     <string name="mark_today_done">Позначити сьогодні виконаним</string>
     <string name="add_one_mala">Додати одну малу, %1$d</string>
@@ -57,9 +57,6 @@
     <string name="back">Назад</string>
 
     <string name="logged_amount">Записано %1$s</string>
-    <string name="after_midnight_body">Зараховано за %1$s: ви почали близько %2$s, до опівночі. Ваша серія в безпеці.</string>
-    <string name="after_midnight_hint">Наступного разу торкніться «Почати», і застосунок знатиме точно.</string>
-    <string name="count_for">Кількість за</string>
     <string name="done">Готово</string>
 
     <string name="settings">Налаштування</string>

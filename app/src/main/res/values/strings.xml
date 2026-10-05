@@ -35,9 +35,7 @@
     <string name="history_empty">Nothing logged yet.</string>
     <string name="total">Total</string>
     <string name="done_session">done</string>
-    <string name="started_cancel">Started %1$s. Tap to cancel.</string>
 
-    <string name="start">Start</string>
     <string name="started_at">Started %1$s</string>
     <string name="cancel">Cancel</string>
     <string name="add_amount">Add another amount</string>
@@ -45,6 +43,8 @@
     <string name="add">Add</string>
     <string name="added">Added %1$s</string>
     <string name="marked_done">Marked done</string>
+    <string name="counted_for">Counted for %1$s</string>
+    <string name="started_after_midnight">I started after midnight</string>
     <string name="undo">Undo</string>
     <string name="mark_today_done">Mark today done</string>
     <string name="add_one_mala">Add one mala, %1$d</string>
@@ -54,9 +54,6 @@
     <string name="back">Back</string>
 
     <string name="logged_amount">Logged %1$s</string>
-    <string name="after_midnight_body">Counted for %1$s: you started around %2$s, before midnight. Your streak is safe.</string>
-    <string name="after_midnight_hint">Tap Start next time and the app knows exactly.</string>
-    <string name="count_for">Count for</string>
     <string name="done">Done</string>
 
     <string name="settings">Settings</string>

@@ -36,9 +36,7 @@
     <string name="history_empty">Aún no hay nada registrado.</string>
     <string name="total">Total</string>
     <string name="done_session">hecho</string>
-    <string name="started_cancel">Iniciado a las %1$s. Toca para cancelar.</string>
 
-    <string name="start">Iniciar</string>
     <string name="started_at">Iniciado a las %1$s</string>
     <string name="cancel">Cancelar</string>
     <string name="add_amount">Añadir otra cantidad</string>
@@ -46,6 +44,8 @@
     <string name="add">Añadir</string>
     <string name="added">Se añadió %1$s</string>
     <string name="marked_done">Marcado como hecho</string>
+    <string name="counted_for">Contado para el %1$s</string>
+    <string name="started_after_midnight">Empecé después de medianoche</string>
     <string name="undo">Deshacer</string>
     <string name="mark_today_done">Marcar hoy como hecho</string>
     <string name="add_one_mala">Añadir una mala, %1$d</string>
@@ -55,9 +55,6 @@
     <string name="back">Atrás</string>
 
     <string name="logged_amount">Se registró %1$s</string>
-    <string name="after_midnight_body">Contado para %1$s: empezaste alrededor de las %2$s, antes de medianoche. Tu racha está a salvo.</string>
-    <string name="after_midnight_hint">Toca Iniciar la próxima vez y la app lo sabrá con exactitud.</string>
-    <string name="count_for">Contar para</string>
     <string name="done">Listo</string>
 
     <string name="settings">Ajustes</string>

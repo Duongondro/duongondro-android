@@ -37,9 +37,7 @@
     <string name="history_empty">Nic jeszcze nie zapisano.</string>
     <string name="total">Razem</string>
     <string name="done_session">zrobione</string>
-    <string name="started_cancel">Rozpoczęto %1$s. Dotknij, aby anulować.</string>
 
-    <string name="start">Start</string>
     <string name="started_at">Rozpoczęto %1$s</string>
     <string name="cancel">Anuluj</string>
     <string name="add_amount">Dodaj inną ilość</string>
@@ -47,6 +45,8 @@
     <string name="add">Dodaj</string>
     <string name="added">Dodano %1$s</string>
     <string name="marked_done">Oznaczono jako zrobione</string>
+    <string name="counted_for">Zaliczone na dzień: %1$s</string>
+    <string name="started_after_midnight">Zacząłem/zaczęłam po północy</string>
     <string name="undo">Cofnij</string>
     <string name="mark_today_done">Oznacz dziś jako zrobione</string>
     <string name="add_one_mala">Dodaj jedną malę, %1$d</string>
@@ -56,9 +56,6 @@
     <string name="back">Wstecz</string>
 
     <string name="logged_amount">Zapisano %1$s</string>
-    <string name="after_midnight_body">Zaliczone na %1$s: sesja zaczęła się około %2$s, przed północą. Twoja seria jest bezpieczna.</string>
-    <string name="after_midnight_hint">Następnym razem dotknij Start, a aplikacja będzie wiedzieć dokładnie.</string>
-    <string name="count_for">Zalicz na</string>
     <string name="done">Gotowe</string>
 
     <string name="settings">Ustawienia</string>

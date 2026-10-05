@@ -14,9 +14,9 @@ import app.duongondro.core.Gender
  * conjugate falls back to its own neutral form, never to English.
  */
 enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int, @StringRes val female: Int) {
-    AfterMidnightBody(R.string.after_midnight_body, R.string.after_midnight_body_male, R.string.after_midnight_body_female),
     FinishedNgondro(R.string.q_finished_ngondro, R.string.q_finished_ngondro_male, R.string.q_finished_ngondro_female),
-    FinishedShortRefuge(R.string.q_finished_short_refuge, R.string.q_finished_short_refuge_male, R.string.q_finished_short_refuge_female);
+    FinishedShortRefuge(R.string.q_finished_short_refuge, R.string.q_finished_short_refuge_male, R.string.q_finished_short_refuge_female),
+    StartedAfterMidnight(R.string.started_after_midnight, R.string.started_after_midnight_male, R.string.started_after_midnight_female);
 
     @StringRes
     fun id(gender: Gender?): Int = when (gender) {
