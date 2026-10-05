@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="tab_today">Hoy</string>
+    <string name="tab_settings">Tú</string>
+    <string name="daily_practices">Prácticas diarias</string>
+
+    <plurals name="days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <string name="streak_longest">Racha de práctica · máxima %1$d</string>
+    <string name="any_practice_starts">Cualquier práctica hoy inicia una racha.</string>
+    <string name="done_today">Hecho hoy</string>
+    <string name="not_yet_today">Aún no hoy</string>
+    <string name="streak_only">Solo racha</string>
+    <string name="status_done">hecho hoy</string>
+    <string name="status_not_yet">aún no hoy</string>
+    <string name="status_progress">%1$s de %2$s</string>
+    <string name="status_round">ronda %1$d · %2$s de %3$s</string>
+    <string name="status_total">%1$s en total</string>
+    <string name="header_round">ronda %1$d</string>
+    <string name="header_lifetime">%1$s en toda la vida</string>
+    <string name="header_streak_only">solo racha</string>
+    <string name="of_target">de %1$s</string>
+    <string name="today_amount">Hoy %1$s</string>
+    <plurals name="today_malas">
+        <item quantity="one">Hoy %1$s · %2$d mala</item>
+        <item quantity="many">Hoy %1$s · %2$d malas</item>
+        <item quantity="other">Hoy %1$s · %2$d malas</item>
+    </plurals>
+    <string name="longest_n">Máxima %1$d</string>
+    <string name="custom">+ Otra</string>
+    <string name="history">Historial</string>
+    <string name="history_empty">Aún no hay nada registrado.</string>
+    <string name="total">Total</string>
+    <string name="done_session">hecho</string>
+    <string name="started_cancel">Iniciado a las %1$s. Toca para cancelar.</string>
+
+    <string name="start">Iniciar</string>
+    <string name="started_at">Iniciado a las %1$s</string>
+    <string name="cancel">Cancelar</string>
+    <string name="add_amount">Añadir otra cantidad</string>
+    <string name="amount">Cantidad</string>
+    <string name="add">Añadir</string>
+    <string name="added">Se añadió %1$s</string>
+    <string name="marked_done">Marcado como hecho</string>
+    <string name="undo">Deshacer</string>
+    <string name="mark_today_done">Marcar hoy como hecho</string>
+    <string name="add_one_mala">Añadir una mala, %1$d</string>
+    <string name="announce_added">Se añadió %1$s. Puedes deshacerlo.</string>
+    <string name="announce_done">Marcado como hecho. Puedes deshacerlo.</string>
+    <string name="practice_gone">Esta práctica ya no existe.</string>
+    <string name="back">Atrás</string>
+
+    <string name="logged_amount">Se registró %1$s</string>
+    <string name="after_midnight_body">Contado para %1$s: empezaste alrededor de las %2$s, antes de medianoche. Tu racha está a salvo.</string>
+    <string name="after_midnight_hint">Toca Iniciar la próxima vez y la app lo sabrá con exactitud.</string>
+    <string name="count_for">Contar para</string>
+    <string name="done">Listo</string>
+
+    <string name="settings">Ajustes</string>
+    <string name="section_general">General</string>
+    <string name="mala_counts_as">Una mala cuenta como</string>
+    <string name="section_about">Acerca de</string>
+    <string name="version">Versión</string>
+    <string name="source">Fuente</string>
+    <string name="copied">Copiado</string>
+    <string name="source_code">Código fuente</string>
+
+    <!-- Onboarding -->
+    <string name="welcome_tagline">Lleva el registro de tu práctica de meditación junto con tus amigos.</string>
+    <string name="welcome_encrypted">Cifrado de extremo a extremo y totalmente de código abierto.</string>
+    <string name="door_invite">Tengo una invitación</string>
+    <string name="door_just_me">Solo yo, en este teléfono</string>
+    <string name="door_account">Ya tengo una cuenta</string>
+    <string name="q_finished_ngondro">¿Ya terminaste el ngöndro?</string>
+    <string name="q_finished_ngondro_detail">Las cuatro partes, 111,111 cada una. Las rondas de repetición vienen después.</string>
+    <string name="q_finished_short_refuge">¿Ya terminaste el Short refuge?</string>
+    <string name="q_finished_short_refuge_detail">La meditación de Short refuge que haces antes de empezar el ngöndro.</string>
+    <string name="yes">Sí</string>
+    <string name="no">Todavía no</string>
+    <string name="q_daily">¿Cuáles practicas a diario?</string>
+    <string name="q_daily_detail">Elige todas las que practiques.</string>
+    <string name="streak_only_switch">Solo la racha, sin conteo</string>
+    <string name="add_your_own">Añade la tuya</string>
+    <string name="continue_">Continuar</string>
+    <string name="practice_n_of_m">%1$d de %2$d prácticas</string>
+    <string name="where_are_you">¿Cómo vas con %1$s?</string>
+    <string name="step_n_of_m">Paso %1$d de %2$d</string>
+    <string name="count_so_far">Hasta ahora</string>
+    <string name="later_round">Voy en una ronda posterior</string>
+    <string name="round_n">Ronda %1$d</string>
+    <string name="count_footer">De un cuaderno o una hoja de cálculo; un número aproximado está bien.</string>
+    <string name="current_streak_days">Racha, días</string>
+    <string name="last_practised">Última práctica</string>
+    <string name="today">Hoy</string>
+    <string name="yesterday">Ayer</string>
+    <string name="longest_optional">Racha más larga (opcional)</string>
+    <string name="seed_footer">Tu racha hasta ahora cuenta en tu propia pantalla de Hoy. Tus amigos solo ven los días registrados en la app.</string>
+    <string name="q_mala">¿Cuánto cuenta una mala?</string>
+    <string name="q_mala_detail">Los maestros no coinciden. Cada práctica puede cambiarlo después en Ajustes.</string>
+    <string name="q_reminder">¿Cuándo quieres que te recordemos?</string>
+    <string name="q_reminder_detail">Un recordatorio por la tarde cuando tu racha está en riesgo. Se programa en este teléfono; nada sale de él.</string>
+    <string name="remind_at_time">Recordarme a las %1$s</string>
+    <string name="no_reminders">Sin recordatorios</string>
+    <string name="local_title">Todo se queda en este teléfono</string>
+    <string name="local_detail">Sin cuenta y sin red. Puedes registrarte después y conservar todo.</string>
+    <string name="no_accounts_title">Las cuentas todavía no están listas</string>
+    <string name="no_accounts_detail">Esta versión no tiene servidor. Tu práctica se guarda en este teléfono y, al unirte con amigos, se tomará de ahí más adelante.</string>
+    <string name="start_practising">Empezar a practicar</string>
+    <string name="your_own_practice">Tu propia práctica</string>
+    <string name="name">Nombre</string>
+    <string name="target_optional">Objetivo (opcional)</string>
+
+    <!-- Settings -->
+    <string name="section_practices">Prácticas</string>
+    <string name="add_practice">Añadir una práctica</string>
+    <string name="archived_n">Archivadas (%1$d)</string>
+    <string name="archived">Archivadas</string>
+    <string name="language">Idioma</string>
+    <string name="system_default">Predeterminado del sistema</string>
+    <string name="discreet">Notificaciones discretas</string>
+    <string name="discreet_detail">La pantalla de bloqueo dice “Un amigo practicó” en lugar de nombrar la práctica.</string>
+    <string name="target_per_round">Objetivo por ronda</string>
+    <string name="mala_default">Predeterminado (%1$d)</string>
+    <string name="streak_only_kept">Los conteos registrados hasta ahora se conservan.</string>
+    <string name="archive">Archivar</string>
+    <string name="unarchive">Volver a mostrar en Hoy</string>
+    <string name="archive_detail">Al archivar, la práctica deja de verse en Hoy, pero se conservan sus conteos y su historial.</string>
+    <string name="counting">Conteo</string>
+
+    <!-- Reminders -->
+    <string name="reminder_channel">Racha en riesgo</string>
+    <string name="reminder_title">Nada registrado hoy</string>
+    <plurals name="reminder_streak_ends">
+        <item quantity="one">Tu racha de %d día termina a medianoche.</item>
+        <item quantity="many">Tu racha de %d días termina a medianoche.</item>
+        <item quantity="other">Tu racha de %d días termina a medianoche.</item>
+    </plurals>
+    <string name="reminder_short_session">Una sesión corta también cuenta.</string>
+    <string name="evening_reminder">Recordatorio de la tarde</string>
+    <string name="time">Hora</string>
+    <string name="ok">OK</string>
+    <string name="notifications_off">Las notificaciones están desactivadas para esta app, así que el recordatorio no puede mostrarse.</string>
+
+    <!-- Your data -->
+    <string name="section_your_data">Tus datos</string>
+    <string name="export_and_delete">Exportar y eliminar</string>
+    <string name="export_all">Exportar todos mis datos</string>
+    <string name="export_footer">Un ZIP con todas tus prácticas, sesiones y rachas, que se puede leer sin esta app.</string>
+    <string name="export_failed">Falló la exportación</string>
+    <string name="delete_everything">Eliminar todo</string>
+    <string name="delete_footer">Elimina todos tus datos de este teléfono. No se puede deshacer.</string>
+    <string name="delete_explainer">Esto elimina todas las prácticas, sesiones y rachas de este teléfono, tus recordatorios y las claves que guarda la app, y luego vuelve al inicio.</string>
+    <string name="export_first">Exporta primero si quieres una copia.</string>
+    <string name="delete_word">eliminar</string>
+    <string name="type_to_confirm">Escribe “%1$s” para confirmar</string>
+    <string name="could_not_delete">No se pudo eliminar</string>
+
+    <string name="contributors">Colaboradores</string>
+    <string name="contributors_footer">Todas las personas que hicieron commits en los repositorios de la app, el servidor, el diseño o Android, empezando por quien más hizo. Se genera a partir del historial de git al compilar la app.</string>
+    <string name="made_by">Hecho por</string>
+    <string name="about_and_contributors">Acerca de y colaboradores</string>
+    <string name="about_tagline">Cifrado de extremo a extremo y totalmente de código abierto.</string>
+    <string name="your_practices">Tus prácticas</string>
+    <string name="source_footer">Toca Fuente para abrir este commit exacto en GitHub.</string>
+    <string name="licences">Licencias</string>
+    <string name="storage_error">Algo no se pudo guardar</string>
+    <string name="previous_round">Ronda anterior</string>
+    <string name="next_round">Ronda siguiente</string>
+
+</resources>

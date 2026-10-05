@@ -97,8 +97,8 @@ import app.duongondro.reminders.rememberNotificationPermission
 /** The language picker waits for the translations; only English exists yet. */
 private const val SHOW_LANGUAGE = true
 
-/** The eight launch languages (design: Localisation). */
-private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu")
+/** The nine launch languages (design: Localisation). */
+private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es")
 
 @Composable
 fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit) {
