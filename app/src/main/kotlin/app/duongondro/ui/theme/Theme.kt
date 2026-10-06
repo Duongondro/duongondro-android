@@ -68,6 +68,8 @@ data class DuongondroColors(
     val welcomeGoldText: Color,
     val welcomeOutline: Color,
     val welcomeOutlineInk: Color,
+    /** The 1 dp border of outlined buttons beside a filled one. */
+    val buttonOutline: Color,
 )
 
 private val Light = DuongondroColors(
@@ -79,7 +81,8 @@ private val Light = DuongondroColors(
     inputBorder = Color(0xFFDCCDD1), track = Color(0xFFF1E4E6), hero = Color(0xFF7A1F2E), heroInk = Color(0xFFFFFFFF),
     toast = Color(0xFF22151A), toastInk = Color(0xFFFFFFFF), toastTrack = Color(0xFF5A4A4F),
     welcomePrimaryInk = Color(0xFFFFFFFF), welcomeTitle = Color(0xFF7A1F2E), welcomeSoft = Color(0xFF4E3F44),
-    welcomeGoldText = Color(0xFF7A5410), welcomeOutline = Color(0xFF7A1F2E), welcomeOutlineInk = Color(0xFF7A1F2E),
+    welcomeGoldText = Color(0xFF7A5410), welcomeOutline = Color(0xFF8A777D), welcomeOutlineInk = Color(0xFF7A1F2E),
+    buttonOutline = Color(0xFF8A777D),
 )
 
 private val Dark = DuongondroColors(
@@ -92,6 +95,7 @@ private val Dark = DuongondroColors(
     toast = Color(0xFFF4ECEE), toastInk = Color(0xFF22151A), toastTrack = Color(0xFFC9B9BD),
     welcomePrimaryInk = Color(0xFF2A1A06), welcomeTitle = Color(0xFFFFFFFF), welcomeSoft = Color(0xFFE9D7DB),
     welcomeGoldText = Color(0xFFE3B341), welcomeOutline = Color(0xFF6E4A54), welcomeOutlineInk = Color(0xFFFFFFFF),
+    buttonOutline = Color(0xFF8A777D),
 )
 
 /** Spacing steps and fixed sizes, so composables carry no layout literals. */
@@ -135,6 +139,13 @@ object Size {
     val ring = 22.dp
     val ringStroke = 3.dp
     val checkbox = 20.dp
+    /** The account steps' progress bar and the 1 dp outline of buttons. */
+    val progressWidth = 160.dp
+    val hairline = 1.dp
+    val inputBorder = 2.dp
+    /** The disc behind the passkey glyph. */
+    val badge = 96.dp
+    val badgeIcon = 48.dp
 }
 
 /** Material 3 with a custom shape scale: 4 dp small components, 6 dp buttons, cards and the FAB. */
@@ -199,6 +210,13 @@ data class DuongondroType(
     val secondary: TextStyle,
     val footnote: TextStyle,
     val mono: TextStyle,
+    /** Titles of the account steps, a size under a question. */
+    val screenTitle: TextStyle,
+    /** The small label above a field. */
+    val label: TextStyle,
+    val input: TextStyle,
+    /** Codes people copy by hand: the recovery code. */
+    val code: TextStyle,
 )
 
 private fun heading(size: Int, tracking: Double = 0.0, lineHeight: Double? = null) = TextStyle(
@@ -223,11 +241,15 @@ private val type = DuongondroType(
     button = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.Bold),
     caps = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp),
     body = TextStyle(fontSize = 16.sp),
-    lead = TextStyle(fontSize = 16.sp, lineHeight = 23.sp),
+    lead = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),
     subtitle = TextStyle(fontSize = 15.sp),
     secondary = TextStyle(fontSize = 14.sp),
     footnote = TextStyle(fontSize = 13.sp, lineHeight = 18.sp),
     mono = TextStyle(fontSize = 15.sp, fontFamily = FontFamily.Monospace),
+    screenTitle = heading(34, lineHeight = 1.1),
+    label = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium),
+    input = TextStyle(fontSize = 17.sp),
+    code = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace, letterSpacing = 1.sp),
 )
 
 val LocalColors = staticCompositionLocalOf { Light }

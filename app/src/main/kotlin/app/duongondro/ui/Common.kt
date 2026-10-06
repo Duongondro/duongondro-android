@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,15 +93,26 @@ fun FilledAction(
 @Composable
 fun OutlinedAction(
     text: String, modifier: Modifier = Modifier, tint: Color = Theme.colors.accent, height: Dp = Size.button,
-    fillWidth: Boolean = true, border: Color = tint, container: Color = Theme.colors.card, onClick: () -> Unit,
+    fillWidth: Boolean = true, border: Color = tint, container: Color = Theme.colors.card,
+    borderWidth: Dp = Space.xxs, onClick: () -> Unit,
 ) {
     OutlinedButton(
         onClick = onClick, shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.outlinedButtonColors(containerColor = container, contentColor = tint),
-        border = BorderStroke(Space.xxs, border),
+        border = BorderStroke(borderWidth, border),
         contentPadding = PaddingValues(horizontal = Space.s),
         modifier = (if (fillWidth) modifier.fillMaxWidth() else modifier).heightIn(min = height),
     ) { Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1) }
+}
+
+/** The least action on a screen: text only, 48 dp tall, wrapping rather than truncating long translations. */
+@Composable
+fun TextAction(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick, shape = CircleShape,
+        colors = ButtonDefaults.textButtonColors(contentColor = Theme.colors.accent),
+        modifier = modifier.fillMaxWidth().heightIn(min = Size.minTap),
+    ) { Text(text, style = Theme.type.button.copy(fontSize = Theme.type.subtitle.fontSize), textAlign = TextAlign.Center) }
 }
 
 @Composable

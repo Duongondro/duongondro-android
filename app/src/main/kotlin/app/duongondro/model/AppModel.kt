@@ -2,6 +2,8 @@ package app.duongondro.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.duongondro.account.AccountService
+import app.duongondro.account.defaultAccountService
 import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
@@ -29,7 +31,12 @@ data class AfterMidnightPrompt(val session: Session, val sheet: AfterMidnight)
  * What the UI shows, from the store, plus the in-memory state that must never
  * reach it early: the undo window and running Start timers.
  */
-class AppModel(val store: Store, private val clock: () -> Instant = Instant::now) : ViewModel() {
+class AppModel(
+    val store: Store,
+    private val clock: () -> Instant = Instant::now,
+    /** Every server or key operation of onboarding; the fake in debug builds. */
+    val accounts: AccountService = defaultAccountService(),
+) : ViewModel() {
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
     private val _pending = MutableStateFlow<PendingLog?>(null)
@@ -63,6 +70,18 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     private val _generation = MutableStateFlow(0)
     /** Bumped by "Delete everything", so onboarding starts again from Welcome with no old answers. */
     val generation: StateFlow<Int> = _generation.asStateFlow()
+
+    private val _inviteCode = MutableStateFlow<String?>(null)
+    /** An invitation code from a link opened before onboarding; kept so the invitation screen is skipped. */
+    val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
+
+    private val _signInCode = MutableStateFlow<String?>(null)
+    /** The code carried by a sign-in link opened on this phone; the Check your email screen takes it. */
+    val signInCode: StateFlow<String?> = _signInCode.asStateFlow()
+
+    fun openedInvite(code: String) { _inviteCode.value = code }
+    fun openedSignIn(code: String) { _signInCode.value = code }
+    fun usedSignInCode() { _signInCode.value = null }
 
     init {
         if (store is SqliteStore) viewModelScope.launch {

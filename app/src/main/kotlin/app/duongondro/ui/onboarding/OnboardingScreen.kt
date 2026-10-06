@@ -72,6 +72,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.duongondro.R
+import app.duongondro.account.Gender
+import app.duongondro.ui.Bar
+import androidx.compose.ui.draw.clip
 import app.duongondro.core.Catalogue
 import app.duongondro.core.Practice
 import app.duongondro.core.PracticeGroup
@@ -100,8 +103,6 @@ import java.time.format.FormatStyle
 import java.util.Locale
 import java.util.UUID
 
-enum class Door { Invite, JustMe, ExistingAccount }
-
 sealed interface Step {
     data object Welcome : Step
     data object FinishedNgondro : Step
@@ -110,7 +111,19 @@ sealed interface Step {
     data class Counts(val index: Int) : Step
     data object Mala : Step
     data object Reminder : Step
-    data object Door : Step
+    /** "Keep it on this phone, or online?" */
+    data object Where : Step
+    data object Invite : Step
+    data object Consent : Step
+    data object Email : Step
+    data object CheckEmail : Step
+    data object Username : Step
+    data object Name : Step
+    data object Gender : Step
+    data object Passkey : Step
+    data object Recovery : Step
+    /** "Welcome back": sign in with a passkey or an emailed link. */
+    data object SignIn : Step
 }
 
 /** What the user said about one chosen practice. */
@@ -135,12 +148,23 @@ class OnboardingFlow : ViewModel() {
         private set
     private val history = mutableListOf<Step>()
 
-    var door by mutableStateOf(Door.JustMe)
     var finishedNgondro by mutableStateOf(false)
     var finishedShortRefuge by mutableStateOf(false)
     val chosen = mutableStateListOf<Chosen>()
     var malaSize by mutableStateOf(108)
     var reminder by mutableStateOf<LocalTime?>(LocalTime.of(20, 0))
+
+    /** True after "I already have an account": the email steps then sign in rather than sign up. */
+    var signingIn by mutableStateOf(false)
+    /** The invitation code, from a link opened earlier or typed in. */
+    var inviteCode by mutableStateOf("")
+    var consented by mutableStateOf(false)
+    var email by mutableStateOf("")
+    var username by mutableStateOf("")
+    var displayName by mutableStateOf("")
+    var gender by mutableStateOf<Gender?>(null)
+    /** Fetched once, so going back and forward shows the same code. */
+    var recoveryCode by mutableStateOf<String?>(null)
 
     val canGoBack: Boolean get() = history.isNotEmpty()
 
@@ -191,16 +215,21 @@ class OnboardingFlow : ViewModel() {
     }
 }
 
-/** Which of the five progress dashes a step reaches. */
-private val Step.dashes: Int get() = when (this) {
-    Step.Welcome, Step.FinishedNgondro -> 1
-    Step.FinishedShortRefuge -> 2
-    Step.Practices -> 3
-    is Step.Counts, Step.Mala -> 4
-    Step.Reminder, Step.Door -> 5
+/** How far along the bar a step is, and out of how many: five practice questions, then three account steps. */
+private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
+    Step.FinishedNgondro -> 1 to PRACTICE_STEPS
+    Step.FinishedShortRefuge -> 2 to PRACTICE_STEPS
+    Step.Practices -> 3 to PRACTICE_STEPS
+    is Step.Counts, Step.Mala -> 4 to PRACTICE_STEPS
+    Step.Reminder -> 5 to PRACTICE_STEPS
+    Step.Email, Step.CheckEmail, Step.Username -> if (signingIn) null else 1 to ACCOUNT_STEPS
+    Step.Name -> 2 to ACCOUNT_STEPS
+    Step.Gender -> 3 to ACCOUNT_STEPS
+    else -> null
 }
 
-private const val DASHES = 5
+private const val PRACTICE_STEPS = 5
+private const val ACCOUNT_STEPS = 3
 
 @Composable
 fun OnboardingScreen(model: AppModel) {
@@ -226,27 +255,37 @@ fun OnboardingScreen(model: AppModel) {
                 flow.malaSize = it; flow.go(Step.Reminder)
             }
             Step.Reminder -> Reminder(flow)
-            Step.Door -> DoorStep(flow) { flow.finish(model) }
+            Step.Where -> WhereStep(flow, model)
+            Step.Invite -> InviteStep(flow, model.accounts) { flow.finish(model) }
+            Step.Consent -> ConsentStep(flow)
+            Step.Email -> EmailStep(flow, model.accounts)
+            Step.CheckEmail -> CheckEmailStep(flow, model) { flow.finish(model) }
+            Step.Username -> UsernameStep(flow)
+            Step.Name -> NameStep(flow)
+            Step.Gender -> GenderStep(flow, model.accounts)
+            Step.Passkey -> PasskeyStep(flow, model.accounts)
+            Step.Recovery -> RecoveryStep(flow, model.accounts) { flow.finish(model) }
+            Step.SignIn -> SignInStep(flow, model.accounts) { flow.finish(model) }
         }
     }
 }
 
-/** A back arrow on the left, five progress dashes centred. */
+/** A back arrow on the left, the progress bar centred where the step has one. */
 @Composable
 private fun StepTopBar(flow: OnboardingFlow) {
-    val reached = flow.step.dashes
-    val label = stringResource(R.string.step_n_of_m, reached, DASHES)
+    val progress = flow.step.progress(flow.signingIn)
     Row(Modifier.fillMaxWidth().padding(top = Space.s), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(Size.minTap)) {
             IconButton(onClick = { flow.back() }, enabled = flow.canGoBack, modifier = Modifier.fillMaxSize()) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
             }
         }
-        Row(Modifier.weight(1f).semantics(mergeDescendants = true) { contentDescription = label },
-            horizontalArrangement = Arrangement.spacedBy(Space.dash, Alignment.CenterHorizontally)) {
-            repeat(DASHES) { n ->
-                Box(Modifier.size(Size.stepDashWidth, Size.stepDashHeight)
-                    .background(if (n < reached) Theme.colors.accent else Theme.colors.inputBorder, RoundedCornerShape(Radius.dash)))
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            progress?.let { (reached, total) ->
+                val label = if (total == ACCOUNT_STEPS) stringResource(R.string.account_step_n_of_m, reached, total)
+                else stringResource(R.string.step_n_of_m, reached, total)
+                Bar(reached.toFloat() / total, Size.stepDashHeight,
+                    Modifier.width(Size.progressWidth).clip(RoundedCornerShape(Radius.dash)).semantics { contentDescription = label })
             }
         }
         Spacer(Modifier.size(Size.minTap))
@@ -281,13 +320,14 @@ private fun ColumnScope.Welcome(flow: OnboardingFlow) {
     }
     Spacer(Modifier.weight(1f))
     Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        val pick = { d: Door -> flow.door = d; flow.go(Step.FinishedNgondro) }
-        FilledAction(stringResource(R.string.door_invite), fill = Theme.colors.welcomePrimary, ink = Theme.colors.welcomePrimaryInk) { pick(Door.Invite) }
-        OutlinedAction(stringResource(R.string.door_just_me), tint = Theme.colors.welcomeOutlineInk, height = Size.button,
-            border = Theme.colors.welcomeOutline, container = Color.Transparent) { pick(Door.JustMe) }
-        TextButton(onClick = { pick(Door.ExistingAccount) }, modifier = Modifier.fillMaxWidth().heightIn(min = Size.minTap),
-            colors = ButtonDefaults.textButtonColors(contentColor = Theme.colors.welcomeSoft)) {
-            Text(stringResource(R.string.door_account), style = Theme.type.subtitle.copy(fontWeight = FontWeight.SemiBold, textDecoration = TextDecoration.Underline))
+        FilledAction(stringResource(R.string.get_started), fill = Theme.colors.welcomePrimary, ink = Theme.colors.welcomePrimaryInk) {
+            flow.signingIn = false
+            flow.go(Step.FinishedNgondro)
+        }
+        OutlinedAction(stringResource(R.string.have_account), tint = Theme.colors.welcomeOutlineInk, height = Size.button,
+            border = Theme.colors.welcomeOutline, borderWidth = Size.hairline, container = Color.Transparent) {
+            flow.signingIn = true
+            flow.go(Step.SignIn)
         }
     }
 }
@@ -301,7 +341,8 @@ private fun ColumnScope.YesNo(title: String, detail: String, yes: () -> Unit, no
     Spacer(Modifier.weight(1f))
     Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         FilledAction(stringResource(R.string.yes), height = Size.answer, onClick = yes)
-        OutlinedAction(stringResource(R.string.no), height = Size.answer, onClick = no)
+        OutlinedAction(stringResource(R.string.no), height = Size.answer, border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
+            container = Color.Transparent, onClick = no)
     }
 }
 
@@ -313,7 +354,8 @@ private fun ColumnScope.Choice(title: String, detail: String, options: List<Int>
     Spacer(Modifier.weight(1f))
     Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         options.forEachIndexed { i, v ->
-            if (i == 0) FilledAction("$v", height = Size.answer) { pick(v) } else OutlinedAction("$v", height = Size.answer) { pick(v) }
+            if (i == 0) FilledAction("$v", height = Size.answer) { pick(v) } else OutlinedAction("$v", height = Size.answer, border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
+                container = Color.Transparent) { pick(v) }
         }
     }
 }
@@ -500,25 +542,12 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
     }
     val time = LocalTime.of(state.hour, state.minute)
     // Asked with the reason on screen; a refusal still keeps the time for later.
-    val askPermission = rememberNotificationPermission { flow.go(Step.Door) }
+    val askPermission = rememberNotificationPermission { flow.go(Step.Where) }
     Column(Modifier.padding(vertical = Space.l), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         Primary(stringResource(R.string.remind_at_time, DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(LocalConfiguration.current.locales[0]).format(time))) {
             flow.reminder = time
             askPermission()
         }
-        OutlinedAction(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Door) }
+        OutlinedAction(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Where) }
     }
 }
-
-/**
- * Where the doors part. Accounts and friends need the server (phase 3); until
- * then every door ends in local mode, said plainly rather than faked.
- */
-@Composable
-private fun ColumnScope.DoorStep(flow: OnboardingFlow, finish: () -> Unit) {
-    if (flow.door == Door.JustMe) Header(stringResource(R.string.local_title), stringResource(R.string.local_detail))
-    else Header(stringResource(R.string.no_accounts_title), stringResource(R.string.no_accounts_detail))
-    Spacer(Modifier.weight(1f))
-    Column(Modifier.padding(vertical = Space.l)) { Primary(stringResource(R.string.start_practising), onClick = finish) }
-}
-

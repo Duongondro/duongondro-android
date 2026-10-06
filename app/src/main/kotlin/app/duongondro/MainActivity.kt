@@ -27,6 +27,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import app.duongondro.account.Crockford
 import app.duongondro.reminders.Reminders
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
@@ -71,11 +72,28 @@ class MainActivity : AppCompatActivity() {
         setContent {
             DuongondroTheme { App(model) }
         }
+        handleLink(intent)
         // Reminders follow the data: a session logged today cancels today's.
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.snapshot.collect { Reminders.reschedule(this@MainActivity, it) }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleLink(intent)
+    }
+
+    /** https://duongondro.app/invite/<24 characters> and https://duongondro.app/signin/<8 characters>. */
+    private fun handleLink(intent: Intent?) {
+        val uri = intent?.data ?: return
+        val kind = uri.pathSegments.firstOrNull()
+        val last = uri.lastPathSegment ?: uri.getQueryParameter("code") ?: return
+        when (kind) {
+            "invite" -> Crockford.normalise(last, Crockford.INVITE_LENGTH).takeIf { it.length == Crockford.INVITE_LENGTH }?.let(model::openedInvite)
+            "signin" -> Crockford.normalise(last, Crockford.SIGN_IN_LENGTH).takeIf { it.length == Crockford.SIGN_IN_LENGTH }?.let(model::openedSignIn)
         }
     }
 
