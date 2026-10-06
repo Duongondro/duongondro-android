@@ -159,7 +159,9 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         val info = KeyFactory.getInstance(key.algorithm, KEYSTORE).getKeySpec(key, KeyInfo::class.java)
         return when (info.securityLevel) {
             KeyProperties.SECURITY_LEVEL_STRONGBOX -> Tier.HARDWARE
-            KeyProperties.SECURITY_LEVEL_TRUSTED_ENVIRONMENT -> Tier.TEE
+            // Secure hardware the platform cannot name more precisely.
+            KeyProperties.SECURITY_LEVEL_TRUSTED_ENVIRONMENT, KeyProperties.SECURITY_LEVEL_UNKNOWN_SECURE -> Tier.TEE
+            // SECURITY_LEVEL_SOFTWARE and SECURITY_LEVEL_UNKNOWN.
             else -> Tier.SOFTWARE
         }
     }
