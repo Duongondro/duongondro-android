@@ -4,11 +4,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import app.duongondro.core.crypto.E2EE
 import app.duongondro.core.crypto.SoftwareDeviceKey
+import app.duongondro.core.crypto.Tier
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
@@ -27,6 +29,23 @@ class KeystoreDeviceKeysTest {
         val made = keys.currentOrCreate()
         assertFalse("this emulator's Keystore should do ECDH", made.fellBack)
         assertEquals(E2EE.PUBLIC_KEY_SIZE, made.key.publicKey.size)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Keystore ECDH from API 31, in secure hardware unless the Keystore
+            // itself is software (an emulator's is): the tier is what it reports.
+            val store = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            val key = store.getKey(name, null) as java.security.PrivateKey
+            val level = java.security.KeyFactory.getInstance(key.algorithm, "AndroidKeyStore")
+                .getKeySpec(key, android.security.keystore.KeyInfo::class.java).securityLevel
+            val expected = when (level) {
+                android.security.keystore.KeyProperties.SECURITY_LEVEL_STRONGBOX -> setOf(Tier.HARDWARE)
+                android.security.keystore.KeyProperties.SECURITY_LEVEL_SOFTWARE,
+                android.security.keystore.KeyProperties.SECURITY_LEVEL_UNKNOWN -> setOf(Tier.SOFTWARE)
+                else -> setOf(Tier.TEE)
+            }
+            assertTrue("security level $level, tier ${made.key.tier}", made.key.tier in expected)
+        } else {
+            assertEquals(Tier.SOFTWARE, made.key.tier)
+        }
         val again = keys.currentOrCreate().key
         assertArrayEquals(made.key.publicKey, again.publicKey)
         assertEquals(made.key.tier, again.tier)
