@@ -15,6 +15,7 @@ dependencies {
     // whose platform lacks Ed25519 until API 33. Tink would need two artifacts
     // (tink for this JVM module, tink-android for the app) and hides nonces.
     implementation(libs.bouncycastle.prov)
+    // Statement payloads and sealed sessions are parsed from JSON.
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.serialization.json)
 }

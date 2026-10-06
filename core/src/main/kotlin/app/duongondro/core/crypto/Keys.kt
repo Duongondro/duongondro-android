@@ -45,6 +45,35 @@ class DeviceKey(val agreement: DeviceKeyAgreement, val tier: Tier) {
     val publicKey: ByteArray get() = agreement.publicKey
 }
 
+/**
+ * Where this device's key lives: the Android Keystore in the app (StrongBox,
+ * then the TEE, then a software key sealed by a Keystore AES key), memory in
+ * tests. A key is created only when none is stored: an unreadable store is an
+ * error, never a reason to make a new key, since wraps already name the old one.
+ */
+interface DeviceKeyStore {
+    /** The stored key, or null when this device has none yet. */
+    fun current(): DeviceKey?
+
+    /**
+     * The stored key, or a new one in the strongest tier that works. `fellBack`
+     * says hardware existed but refused to make a key, which the app reports.
+     */
+    fun currentOrCreate(): Created
+
+    class Created(val key: DeviceKey, val fellBack: Boolean)
+}
+
+/** A [DeviceKeyStore] in memory, with software keys: tests, and previews. */
+class MemoryDeviceKeyStore(private val tier: Tier = Tier.SOFTWARE) : DeviceKeyStore {
+    private var key: DeviceKey? = null
+
+    @Synchronized override fun current(): DeviceKey? = key
+
+    @Synchronized override fun currentOrCreate(): DeviceKeyStore.Created =
+        DeviceKeyStore.Created(key ?: DeviceKey(SoftwareDeviceKey.generate(), tier).also { key = it }, fellBack = false)
+}
+
 /** A key on the glowie curve held in memory: ephemeral wrap keys, tests, and the software tier's arithmetic. */
 class SoftwareDeviceKey private constructor(private val d: BigInteger) : DeviceKeyAgreement {
     override val publicKey: ByteArray = P256.domain.g.multiply(d).normalize().getEncoded(false)
