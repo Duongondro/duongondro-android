@@ -10,6 +10,7 @@ import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.signers.Ed25519Signer
 import org.bouncycastle.math.ec.ECPoint
+import org.bouncycastle.math.ec.FixedPointCombMultiplier
 import org.bouncycastle.util.BigIntegers
 import java.math.BigInteger
 
@@ -74,9 +75,20 @@ class MemoryDeviceKeyStore(private val tier: Tier = Tier.SOFTWARE) : DeviceKeySt
         DeviceKeyStore.Created(key ?: DeviceKey(SoftwareDeviceKey.generate(), tier).also { key = it }, fellBack = false)
 }
 
-/** A key on the glowie curve held in memory: ephemeral wrap keys, tests, and the software tier's arithmetic. */
+/**
+ * A key on the glowie curve held in memory: ephemeral wrap keys, tests, and the
+ * software tier's arithmetic.
+ *
+ * The public key is derived with BouncyCastle's fixed-point comb, which is
+ * regular in the scalar. ECDH multiplies a peer's point with BouncyCastle's
+ * general multiplier, which is not constant-time: on the software tier a local
+ * attacker who can time many agreements might learn about the private scalar.
+ * Agreements happen only when opening wraps, rarely and never on a remote
+ * party's demand, and a device in the software tier already concedes that its
+ * key lives in app memory; hardware tiers do ECDH in the Keystore instead.
+ */
 class SoftwareDeviceKey private constructor(private val d: BigInteger) : DeviceKeyAgreement {
-    override val publicKey: ByteArray = P256.domain.g.multiply(d).normalize().getEncoded(false)
+    override val publicKey: ByteArray = FixedPointCombMultiplier().multiply(P256.domain.g, d).normalize().getEncoded(false)
 
     /** The 32-byte private scalar, for sealing a software-tier key at rest. */
     val rawPrivate: ByteArray get() = BigIntegers.asUnsignedByteArray(32, d)
