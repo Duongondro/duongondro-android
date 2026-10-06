@@ -8,6 +8,7 @@ import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
@@ -16,7 +17,9 @@ import java.util.UUID
 @RunWith(AndroidJUnit4::class)
 class KeystoreDeviceKeysTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
-    private val keys = KeystoreDeviceKeys(context, "test-device-key-${System.nanoTime()}")
+    private val name = "test-device-key-${System.nanoTime()}"
+    private val keys = KeystoreDeviceKeys(context, name)
+    private val prefs get() = context.getSharedPreferences(name, android.content.Context.MODE_PRIVATE)
 
     @After fun tearDown() = keys.delete()
 
@@ -39,5 +42,19 @@ class KeystoreDeviceKeysTest {
         // Agreement matches the software implementation from the other side.
         val peer = SoftwareDeviceKey.generate()
         assertArrayEquals(peer.sharedSecret(key.publicKey), key.agreement.sharedSecret(peer.publicKey))
+    }
+
+    /** A lost record never makes a new key: it is rebuilt from the Keystore, or the read fails. */
+    @Test fun aLostRecordIsNotAReasonForANewKey() {
+        val made = keys.currentOrCreate().key
+        prefs.edit().clear().commit()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            assertArrayEquals(made.publicKey, keys.currentOrCreate().key.publicKey)
+            assertEquals(made.tier, keys.current()!!.tier)
+        } else {
+            assertThrows(IllegalStateException::class.java) { keys.currentOrCreate() }
+        }
+        prefs.edit().putString("tier", "quantum").commit()
+        assertThrows(IllegalStateException::class.java) { keys.currentOrCreate() }
     }
 }

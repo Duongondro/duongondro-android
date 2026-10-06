@@ -54,17 +54,45 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
     private val ecAlias = name
     private val aesAlias = "$name-seal"
 
+    /**
+     * The stored key, or null only when neither a record nor a Keystore key
+     * exists. A record that does not read, or a Keystore key without a record
+     * that cannot be rebuilt, throws: the key is never replaced because a read
+     * failed (SharedPreferences reads a corrupt file as empty, for one).
+     */
     @Synchronized
     override fun current(): DeviceKey? {
-        val tier = prefs.getString(TIER, null)?.let(Tier::of) ?: return null
+        val tierText = prefs.getString(TIER, null)
         val sealed = prefs.getString(SEALED, null)
+        val store = keyStore()
+        if (tierText == null) {
+            if (sealed != null) throw IllegalStateException("the sealed device key has no tier")
+            if (store.containsAlias(ecAlias)) return rebuildRecord(store)
+            if (store.containsAlias(aesAlias)) {
+                throw IllegalStateException("the device key's sealing key exists but its sealed key is gone")
+            }
+            return null
+        }
+        val tier = Tier.of(tierText) ?: throw IllegalStateException("unreadable device key tier: $tierText")
         return if (sealed != null) {
             DeviceKey(SoftwareDeviceKey.fromRaw(unseal(Base64.decode(sealed, Base64.NO_WRAP))), tier)
         } else {
-            val entry = keyStore().getEntry(ecAlias, null) as? KeyStore.PrivateKeyEntry
+            val entry = store.getEntry(ecAlias, null) as? KeyStore.PrivateKeyEntry
                 ?: throw IllegalStateException("the device key record exists but the Keystore has no key")
             DeviceKey(KeystoreAgreement(entry.privateKey, entry.certificate.publicKey as ECPublicKey), tier)
         }
+    }
+
+    /** A Keystore key whose record was lost: the record is rebuilt from the key's KeyInfo. */
+    private fun rebuildRecord(store: KeyStore): DeviceKey {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            throw IllegalStateException("a Keystore device key without a record, below API 31")
+        }
+        val entry = store.getEntry(ecAlias, null) as? KeyStore.PrivateKeyEntry
+            ?: throw IllegalStateException("the Keystore's device key entry does not read")
+        val tier = tierOf(entry.privateKey)
+        check(prefs.edit().putString(TIER, tier.raw).remove(SEALED).commit()) { "could not store the device key record" }
+        return DeviceKey(KeystoreAgreement(entry.privateKey, entry.certificate.publicKey as ECPublicKey), tier)
     }
 
     @Synchronized
@@ -79,26 +107,34 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         return DeviceKeyStore.Created(createSoftware(), fellBack)
     }
 
-    /** A Keystore ECDH key that passes a self-agreement, or null (and nothing left behind). */
+    /**
+     * A Keystore ECDH key that passes a self-agreement, or null. Only ever called
+     * when [current] found no key under the alias, so on failure the only entry
+     * it removes is the one this call just made.
+     */
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun createInKeystore(strongBox: Boolean): DeviceKey? = try {
-        val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE)
-        generator.initialize(
-            KeyGenParameterSpec.Builder(ecAlias, KeyProperties.PURPOSE_AGREE_KEY)
-                .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
-                .setIsStrongBoxBacked(strongBox)
-                .build(),
-        )
-        val pair = generator.generateKeyPair()
-        val agreement = KeystoreAgreement(pair.private, pair.public as ECPublicKey)
-        // Some vendors' Keystores make the key but fail the agreement.
-        check(agreement.sharedSecret(agreement.publicKey).size == 32)
-        val tier = tierOf(pair.private)
-        prefs.edit().putString(TIER, tier.raw).remove(SEALED).commit().also { check(it) }
-        DeviceKey(agreement, tier)
-    } catch (e: Exception) {
-        runCatching { keyStore().deleteEntry(ecAlias) }
-        null
+    private fun createInKeystore(strongBox: Boolean): DeviceKey? {
+        check(!keyStore().containsAlias(ecAlias)) { "refusing to replace an existing device key" }
+        return try {
+            val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE)
+            generator.initialize(
+                KeyGenParameterSpec.Builder(ecAlias, KeyProperties.PURPOSE_AGREE_KEY)
+                    .setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
+                    .setIsStrongBoxBacked(strongBox)
+                    .build(),
+            )
+            val pair = generator.generateKeyPair()
+            val agreement = KeystoreAgreement(pair.private, pair.public as ECPublicKey)
+            // Some vendors' Keystores make the key but fail the agreement.
+            check(agreement.sharedSecret(agreement.publicKey).size == 32)
+            val tier = tierOf(pair.private)
+            check(prefs.edit().putString(TIER, tier.raw).remove(SEALED).commit()) { "could not store the device key record" }
+            DeviceKey(agreement, tier)
+        } catch (e: Exception) {
+            // Only this call's own key can be here: the alias was empty above.
+            runCatching { keyStore().deleteEntry(ecAlias) }
+            null
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -112,6 +148,7 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
     }
 
     private fun createSoftware(): DeviceKey {
+        check(!keyStore().containsAlias(aesAlias)) { "refusing to replace an existing sealed device key" }
         val key = SoftwareDeviceKey.generate()
         val sealed = seal(key.rawPrivate)
         prefs.edit()
