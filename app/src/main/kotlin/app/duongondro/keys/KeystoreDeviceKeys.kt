@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import app.duongondro.core.crypto.DeviceKey
 import app.duongondro.core.crypto.DeviceKeyAgreement
 import app.duongondro.core.crypto.DeviceKeyStore
+import app.duongondro.core.crypto.E2EE
 import app.duongondro.core.crypto.SoftwareDeviceKey
 import app.duongondro.core.crypto.Tier
 import app.duongondro.core.crypto.isValidDevicePublicKey
@@ -222,7 +223,7 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         override val publicKey: ByteArray = uncompressed(public)
 
         override fun sharedSecret(peerPublicKey: ByteArray): ByteArray {
-            require(isValidDevicePublicKey(peerPublicKey)) { "not a public key on the glowie curve" }
+            if (!isValidDevicePublicKey(peerPublicKey)) throw E2EE.Error(E2EE.Failure.KEY)
             val agreement = KeyAgreement.getInstance("ECDH", KEYSTORE)
             agreement.init(key)
             agreement.doPhase(peerKey(peerPublicKey, public.params), true)
