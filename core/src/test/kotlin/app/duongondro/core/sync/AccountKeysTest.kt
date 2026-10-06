@@ -89,9 +89,10 @@ class AccountKeysTest {
         assertEquals(1L, parsed.version)
         assertEquals(listOf(me), parsed.devices)
         assertEquals(now, parsed.issuedAt)
-        assertTrue(AccountKeys.listsDevice(list, me.id))
-        assertFalse(AccountKeys.listsDevice(list, UUID.randomUUID()))
-        assertFalse(AccountKeys.listsDevice(null, me.id))
+        assertTrue(AccountKeys.listsDevice(list, me.id, identity.publicKey))
+        assertFalse(AccountKeys.listsDevice(list, UUID.randomUUID(), identity.publicKey))
+        assertFalse(AccountKeys.listsDevice(null, me.id, identity.publicKey))
+        failure(AccountKeys.Failure.NOT_AUTHENTIC) { AccountKeys.listsDevice(list, me.id, Identity.generate().publicKey) }
     }
 
     @Test fun aNewDeviceExtendsTheListWithoutRemovedOnes() {

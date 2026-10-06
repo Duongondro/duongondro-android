@@ -110,9 +110,18 @@ object AccountKeys {
         return FirstDeviceSecrets(identity, practiceKey, me, discardStored = discard, publishIdentity = true)
     }
 
-    /** True when the published list already names this device. */
-    fun listsDevice(current: SignedStatement?, device: UUID): Boolean =
-        current?.let { Statements.parseDeviceList(it.payload) }?.devices?.any { it.id == device } ?: false
+    /**
+     * True when the published list already names this device. The list is
+     * verified first, against this phone's identity or, on restore, the
+     * account's published key (as [deviceListAdding] does); one that does not
+     * verify or parse is [Failure.NOT_AUTHENTIC].
+     */
+    fun listsDevice(current: SignedStatement?, device: UUID, verifyWith: ByteArray): Boolean {
+        if (current == null) return false
+        if (!current.verify(StatementTypes.DEVICE_LIST, verifyWith)) throw Error(Failure.NOT_AUTHENTIC)
+        val parsed = Statements.parseDeviceList(current.payload) ?: throw Error(Failure.NOT_AUTHENTIC)
+        return parsed.devices.any { it.id == device }
+    }
 
     /**
      * A signed list with this device added. The list it extends must be one this
