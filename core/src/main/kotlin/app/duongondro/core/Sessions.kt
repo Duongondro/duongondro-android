@@ -157,3 +157,23 @@ fun Streak.headline(sessions: List<Session>, seeds: List<StreakSeed>, now: Insta
         .map { compute(events, it, now, zone) }
         .maxWith(compareBy<Streak.Result> { it.current }.thenBy { it.longest })
 }
+
+/**
+ * A version 7 UUID (RFC 9562): 48 bits of Unix milliseconds, then random bits.
+ * Session ids are v7, as on iOS; the server accepts no other version.
+ */
+fun uuidV7(at: Instant, random: java.security.SecureRandom = SessionIds.random): UUID {
+    val bytes = ByteArray(16).also(random::nextBytes)
+    val ms = at.toEpochMilli()
+    for (i in 0 until 6) bytes[i] = (ms ushr (40 - 8 * i)).toByte()
+    bytes[6] = ((bytes[6].toInt() and 0x0F) or 0x70).toByte()
+    bytes[8] = ((bytes[8].toInt() and 0x3F) or 0x80).toByte()
+    val b = java.nio.ByteBuffer.wrap(bytes)
+    return UUID(b.long, b.long)
+}
+
+val UUID.isV7: Boolean get() = version() == 7 && variant() == 2
+
+internal object SessionIds {
+    val random = java.security.SecureRandom()
+}

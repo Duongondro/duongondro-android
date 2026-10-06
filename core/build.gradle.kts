@@ -17,5 +17,12 @@ dependencies {
     implementation(libs.bouncycastle.prov)
     // Statement payloads and sealed sessions are parsed from JSON.
     implementation(libs.kotlinx.serialization.json)
+    // The account and sync coordinators suspend around the store; the API client blocks.
+    implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.junit)
+}
+
+// LiveServerTest runs only against a DEV server named here (`make serve` in duongondro-api).
+tasks.test {
+    providers.environmentVariable("DUONGONDRO_API_URL").orNull?.let { environment("DUONGONDRO_API_URL", it) }
 }

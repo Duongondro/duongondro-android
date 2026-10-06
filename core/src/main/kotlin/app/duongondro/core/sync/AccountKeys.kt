@@ -59,8 +59,13 @@ object AccountKeys {
         val wrapped: E2EE.Wrapped get() = E2EE.Wrapped(ephemeralKey, box)
     }
 
-    /** A recovery box as the server stores it, one per kind. */
-    class RecoveryBox(val kind: E2EE.WrapKind, val box: ByteArray, val signature: ByteArray)
+    /**
+     * A recovery box as the server stores it, one per kind. [signature] is null
+     * for a box read back from `GET /api/me/recovery-boxes`, which does not
+     * return it (the server checked it on the way in): the AEAD under the code
+     * and the seed matching the published identity key authenticate it then.
+     */
+    class RecoveryBox(val kind: E2EE.WrapKind, val box: ByteArray, val signature: ByteArray?)
 
     fun newIdentity(): Identity = Identity.generate()
 
@@ -226,7 +231,10 @@ object AccountKeys {
         fun open(kind: E2EE.WrapKind): ByteArray {
             val box = boxes.firstOrNull { it.kind == kind } ?: throw Error(Failure.NOT_AUTHENTIC)
             val secret = try { E2EE.openRecovery(box.box, key, user, kind) } catch (_: E2EE.Error) { throw Error(Failure.BAD_RECOVERY_CODE) }
-            if (!E2EE.verifyRecoveryBox(box.box, user, kind, box.signature, publishedIdentityPk)) throw Error(Failure.NOT_AUTHENTIC)
+            val signature = box.signature
+            if (signature != null && !E2EE.verifyRecoveryBox(box.box, user, kind, signature, publishedIdentityPk)) {
+                throw Error(Failure.NOT_AUTHENTIC)
+            }
             return secret
         }
         val seed = open(E2EE.WrapKind.IDENTITY_SEED)
