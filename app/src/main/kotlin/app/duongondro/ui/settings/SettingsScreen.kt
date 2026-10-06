@@ -101,7 +101,10 @@ private const val SHOW_LANGUAGE = true
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es")
 
 @Composable
-fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit) {
+fun SettingsScreen(
+    model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit,
+    openSignIn: () -> Unit, openNewAccount: () -> Unit, openRecoveryCode: () -> Unit,
+) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
     Column(
@@ -134,6 +137,8 @@ fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () 
                 model.updatePreferences { it.copy(discreetNotifications = v) }
             }
         }
+
+        model.accounts?.let { AccountSection(it, openSignIn, openNewAccount, openRecoveryCode) }
 
         CardSection(stringResource(R.string.section_your_data)) {
             ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)

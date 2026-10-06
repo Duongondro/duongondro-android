@@ -1,6 +1,10 @@
 package app.duongondro.ui.onboarding
 
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -55,12 +59,18 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import app.duongondro.R
-import app.duongondro.account.AccountService
+import androidx.compose.ui.platform.LocalContext
+import app.duongondro.account.AccountManager
 import app.duongondro.account.Crockford
 import app.duongondro.account.Gender
 import app.duongondro.account.InviteCheck
-import app.duongondro.account.Passkey
-import app.duongondro.account.RedeemResult
+import app.duongondro.account.LinkRequest
+import app.duongondro.account.PasskeyResult
+import app.duongondro.account.ProfileResult
+import app.duongondro.account.Redeem
+import app.duongondro.core.api.Profile
+import app.duongondro.core.sync.Account
+import app.duongondro.core.sync.RecoveryCode
 import app.duongondro.model.AppModel
 import app.duongondro.ui.FilledAction
 import app.duongondro.ui.OutlinedAction
@@ -182,24 +192,65 @@ private val codeKeyboard = KeyboardOptions(capitalization = KeyboardCapitalizati
 
 @Composable
 private fun CallError(call: Call) {
-    if (call.failed) Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive)
+    if (call.failed) ErrorLine(stringResource(R.string.account_error))
+}
+
+@Composable
+private fun ErrorLine(text: String) {
+    Text(text, style = Theme.type.footnote, color = Theme.colors.destructive)
+}
+
+/** After any sign-in or sign-up: a new account gives its profile next; an existing one sets up, restores, or is done. */
+private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, created: Boolean, finish: () -> Unit) {
+    if (created) {
+        flow.signingIn = false
+        flow.go(Step.Name)
+        return
+    }
+    when (accounts.standing()) {
+        Account.Standing.READY -> finish()
+        Account.Standing.SET_UP -> flow.go(Step.Recovery)
+        Account.Standing.RESTORE -> flow.go(Step.Restore)
+    }
+}
+
+/** A redemption's answer: signed in, or the reason it was not, shown under the field. */
+private suspend fun redeemed(result: Redeem, flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit): Int? = when (result) {
+    is Redeem.SignedIn -> { route(flow, accounts, result.created, finish); null }
+    Redeem.Wrong -> R.string.code_wrong
+    Redeem.NoAccount -> R.string.no_account
+    Redeem.InviteGone -> R.string.invite_unknown
+    Redeem.TooMany -> R.string.try_later
 }
 
 /** The screen that asks whether the account exists at all. */
 @Composable
-internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel) {
+internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finishLocal: () -> Unit) {
     val link by model.inviteCode.collectAsState()
+    val accounts = model.accounts
+    val call = rememberCall()
     Page(
         stringResource(R.string.where_title), plain(stringResource(R.string.where_detail)), centered = true,
         actions = {
-            FilledAction(stringResource(R.string.where_online)) {
+            CallError(call)
+            FilledAction(stringResource(R.string.where_online), enabled = accounts != null && !call.busy) {
                 flow.signingIn = false
-                link?.let { flow.inviteCode = it }
-                // A link opened earlier already brought the invitation.
-                flow.go(if (link != null) Step.Consent else Step.Invite)
+                val opened = link
+                if (opened == null || accounts == null) {
+                    flow.go(Step.Invite)
+                } else {
+                    // A link opened earlier brought the invitation: checked here, the step skipped.
+                    flow.inviteCode = opened
+                    call.run {
+                        if (accounts.checkInvite(opened) == InviteCheck.Valid) flow.go(Step.Consent) else {
+                            flow.inviteProblem = R.string.invite_unknown
+                            flow.go(Step.Invite)
+                        }
+                    }
+                }
             }
             OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
-                container = androidx.compose.ui.graphics.Color.Transparent) { flow.finish(model) }
+                container = androidx.compose.ui.graphics.Color.Transparent, onClick = finishLocal)
         },
     ) {
         Column(Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium).padding(Space.l),
@@ -214,29 +265,32 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel) {
     }
 }
 
+/** A friend's invitation (24 characters) or an admission code (16): the length tells them apart. */
 @Composable
-internal fun ColumnScope.InviteStep(flow: OnboardingFlow, accounts: AccountService, finishLocal: () -> Unit) {
+internal fun ColumnScope.InviteStep(flow: OnboardingFlow, accounts: AccountManager, finishLocal: () -> Unit) {
     val call = rememberCall()
-    var unknown by remember { mutableStateOf(false) }
+    val length = flow.inviteCode.length
     Page(
         stringResource(R.string.invite_title), plain(stringResource(R.string.invite_detail)),
         actions = {
             CallError(call)
             Text(stringResource(R.string.invite_none), style = Theme.type.secondary, color = Theme.colors.muted)
-            FilledAction(stringResource(R.string.continue_), enabled = flow.inviteCode.length == Crockford.INVITE_LENGTH && !call.busy) {
+            FilledAction(stringResource(R.string.continue_),
+                enabled = (length == Crockford.INVITE_LENGTH || length == Crockford.ADMISSION_LENGTH) && !call.busy) {
                 call.run {
                     when (accounts.checkInvite(flow.inviteCode)) {
                         InviteCheck.Valid -> flow.go(Step.Consent)
-                        InviteCheck.Unknown -> unknown = true
+                        InviteCheck.Unknown -> flow.inviteProblem = R.string.invite_unknown
+                        InviteCheck.NotAuthentic -> flow.inviteProblem = R.string.invite_not_authentic
                     }
                 }
             }
-            TextAction(stringResource(R.string.invite_local), onClick = finishLocal)
+            TextAction(stringResource(R.string.invite_local)) { accounts.clearInvitation(); finishLocal() }
         },
     ) {
         LabelledField(stringResource(R.string.invite_label), flow.inviteCode,
-            { flow.inviteCode = Crockford.normalise(it, Crockford.INVITE_LENGTH); unknown = false },
-            hint = stringResource(R.string.invite_hint), error = if (unknown) stringResource(R.string.invite_unknown) else null,
+            { flow.inviteCode = Crockford.normalise(it, Crockford.INVITE_LENGTH); flow.inviteProblem = null },
+            hint = stringResource(R.string.invite_hint), error = flow.inviteProblem?.let { stringResource(it) },
             keyboard = codeKeyboard, transformation = Grouped)
     }
 }
@@ -266,13 +320,17 @@ internal fun ColumnScope.ConsentStep(flow: OnboardingFlow) {
 }
 
 @Composable
-internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountService) {
+internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
+    var problem by remember { mutableStateOf<Int?>(null) }
     val valid = flow.email.trim().matches(EMAIL)
     val send = {
         call.run {
-            accounts.requestMagicLink(flow.email.trim())
-            flow.go(Step.CheckEmail)
+            when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn)) {
+                LinkRequest.Sent -> flow.go(Step.CheckEmail)
+                LinkRequest.UnknownInvite -> problem = R.string.invite_unknown
+                LinkRequest.TooMany -> problem = R.string.try_later
+            }
         }
     }
     Page(
@@ -283,7 +341,8 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountServic
             if (!flow.signingIn) TextAction(stringResource(R.string.email_skip)) { flow.email = ""; flow.go(Step.Username) }
         },
     ) {
-        LabelledField(stringResource(R.string.email_label), flow.email, { flow.email = it },
+        LabelledField(stringResource(R.string.email_label), flow.email, { flow.email = it; problem = null },
+            error = problem?.let { stringResource(it) },
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
             onDone = if (valid) ({ send() }) else null)
     }
@@ -292,25 +351,20 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountServic
 private val EMAIL = Regex("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")
 
 @Composable
-internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, finishSignedIn: () -> Unit) {
-    val accounts = model.accounts
+internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finish: () -> Unit) {
     val call = rememberCall()
     var code by remember { mutableStateOf("") }
     var problem by remember { mutableStateOf<Int?>(null) }
     var again by remember { mutableStateOf(false) }
-    // A sign-in link opened on this phone brings its code.
-    val link by model.signInCode.collectAsState()
+    // A magic link opened on this phone signs in by itself.
+    val link by model.magicLink.collectAsState()
     LaunchedEffect(link) {
-        link?.let { code = it; model.usedSignInCode() }
+        val token = link ?: return@LaunchedEffect
+        model.usedMagicLink()
+        call.run { problem = redeemed(accounts.redeemLink(token), flow, accounts, finish) }
     }
     val submit = {
-        call.run {
-            when (accounts.redeemCode(flow.email.trim(), code)) {
-                RedeemResult.Ok -> if (flow.signingIn) finishSignedIn() else flow.go(Step.Name)
-                RedeemResult.Wrong -> problem = R.string.code_wrong
-                RedeemResult.Expired -> problem = R.string.code_expired
-            }
-        }
+        call.run { problem = redeemed(accounts.redeemCode(flow.email.trim(), code), flow, accounts, finish) }
     }
     Page(
         stringResource(R.string.check_title), plain(stringResource(R.string.check_detail, flow.email.trim())),
@@ -318,7 +372,10 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, f
             CallError(call)
             FilledAction(stringResource(R.string.continue_), enabled = code.length == Crockford.SIGN_IN_LENGTH && !call.busy) { submit() }
             TextAction(if (again) stringResource(R.string.sent_again) else stringResource(R.string.send_again)) {
-                if (!call.busy && !again) call.run { accounts.requestMagicLink(flow.email.trim()); again = true }
+                if (!call.busy && !again) call.run {
+                    if (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn) == LinkRequest.TooMany) problem = R.string.try_later
+                    else again = true
+                }
             }
         },
     ) {
@@ -333,18 +390,24 @@ internal fun ColumnScope.UsernameStep(flow: OnboardingFlow) {
     Page(
         stringResource(R.string.username_title), plain(stringResource(R.string.username_detail)),
         actions = {
-            FilledAction(stringResource(R.string.continue_), enabled = flow.username.isNotBlank()) { flow.go(Step.Name) }
-            TextAction(stringResource(R.string.skip)) { flow.username = ""; flow.go(Step.Name) }
+            FilledAction(stringResource(R.string.continue_), enabled = flow.username.length >= USERNAME_MIN && !flow.usernameTaken) {
+                flow.go(Step.Name)
+            }
+            TextAction(stringResource(R.string.skip)) { flow.username = ""; flow.usernameTaken = false; flow.go(Step.Name) }
         },
     ) {
         LabelledField(stringResource(R.string.username_label), flow.username,
-            { flow.username = it.filter { c -> c.isLetterOrDigit() && c.code < 128 || c == '.' || c == '_' }.take(USERNAME_MAX) },
-            hint = stringResource(R.string.username_hint),
+            {
+                flow.username = it.filter { c -> c.isLetterOrDigit() && c.code < 128 || c == '.' || c == '_' }.take(USERNAME_MAX).lowercase()
+                flow.usernameTaken = false
+            },
+            hint = stringResource(R.string.username_hint), error = if (flow.usernameTaken) stringResource(R.string.username_taken) else null,
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
     }
 }
 
-private const val USERNAME_MAX = 30
+private const val USERNAME_MIN = 3
+private const val USERNAME_MAX = 32
 
 @Composable
 internal fun ColumnScope.NameStep(flow: OnboardingFlow) {
@@ -352,20 +415,24 @@ internal fun ColumnScope.NameStep(flow: OnboardingFlow) {
         stringResource(R.string.name_title), plain(stringResource(R.string.name_detail)),
         actions = { FilledAction(stringResource(R.string.continue_), enabled = flow.displayName.isNotBlank()) { flow.go(Step.Gender) } },
     ) {
-        LabelledField(stringResource(R.string.name_label), flow.displayName, { flow.displayName = it },
+        LabelledField(stringResource(R.string.name_label), flow.displayName, { flow.displayName = it.take(64) },
             keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             onDone = if (flow.displayName.isNotBlank()) ({ flow.go(Step.Gender) }) else null)
     }
 }
 
 @Composable
-internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountService) {
+internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
     val pick = { g: Gender? ->
         flow.gender = g
-        call.run {
-            accounts.setProfile(flow.displayName.trim(), flow.username.ifBlank { null }, g)
-            flow.go(Step.Passkey)
+        // With an email the account exists already and takes its profile now; without
+        // one, the passkey sign-up carries it.
+        if (flow.email.isBlank()) flow.go(Step.Passkey) else call.run {
+            when (accounts.setProfile(flow.displayName.trim(), flow.username.ifBlank { null }, g)) {
+                ProfileResult.Saved -> flow.go(Step.Passkey)
+                ProfileResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
+            }
         }
     }
     Page(
@@ -383,8 +450,9 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountServi
 }
 
 @Composable
-internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountService) {
+internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
+    val activity = LocalContext.current
     Page(
         stringResource(R.string.passkey_title), plain(stringResource(R.string.passkey_detail)), centered = true,
         top = {
@@ -398,57 +466,196 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountServ
         actions = {
             CallError(call)
             FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) {
-                call.run { if (accounts.createPasskey() == Passkey.Saved) flow.go(Step.Recovery) }
+                call.run {
+                    // Without an email the passkey makes the account, with the profile given so far.
+                    val profile = if (flow.email.isBlank()) {
+                        Profile(flow.displayName.trim(), flow.username.ifBlank { null }, flow.gender?.wire)
+                    } else null
+                    when (accounts.createPasskey(activity, profile)) {
+                        PasskeyResult.Saved -> flow.go(Step.Recovery)
+                        PasskeyResult.Cancelled -> Unit
+                        PasskeyResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
+                        PasskeyResult.InviteGone -> { flow.inviteProblem = R.string.invite_unknown; flow.backTo(Step.Invite) }
+                    }
+                }
             }
             // With an email there is a way back in without it; with only a username the passkey is the account.
-            if (flow.email.isNotBlank()) TextAction(stringResource(R.string.passkey_later)) { flow.go(Step.Recovery) }
+            if (flow.email.isNotBlank()) TextAction(stringResource(R.string.passkey_later)) { if (!call.busy) flow.go(Step.Recovery) }
         },
     )
 }
 
+/** Keys are made here, silently, and the recovery code shown once (resumed with the same code after an interruption). */
 @Composable
-internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountService, finish: () -> Unit) {
+internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit) {
     val call = rememberCall()
-    LaunchedEffect(Unit) {
-        if (flow.recoveryCode == null) flow.recoveryCode = try { accounts.createRecoveryCode() } catch (e: CancellationException) { throw e } catch (e: Exception) { null }
-    }
+    val setUp = rememberCall()
+    val activity = LocalContext.current
+    val makeKeys = { setUp.run { if (flow.recoveryCode == null) flow.recoveryCode = accounts.setUpKeys() } }
+    LaunchedEffect(Unit) { if (flow.recoveryCode == null) makeKeys() }
     val code = flow.recoveryCode
     Page(
         stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
         actions = {
             CallError(call)
-            FilledAction(stringResource(R.string.recovery_done), enabled = code != null, onClick = finish)
+            CallError(setUp)
+            if (setUp.failed) {
+                FilledAction(stringResource(R.string.try_again), enabled = !setUp.busy) { makeKeys() }
+            } else {
+                FilledAction(stringResource(R.string.recovery_done), enabled = code != null) { flow.go(Step.RecoveryCheck) }
+            }
             TextAction(stringResource(R.string.recovery_gpm)) {
-                if (code != null) call.run { if (accounts.saveRecoveryCode(code)) finish() }
+                if (code != null && !call.busy) call.run { if (accounts.saveRecoveryCode(activity, code)) finish() }
             }
         },
     ) {
-        Column(Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium).padding(horizontal = Space.l, vertical = Space.xl),
-            verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
-            Crockford.grouped(code.orEmpty()).chunked(3).forEach { row ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    repeat(3) { i ->
-                        Text(row.getOrNull(i).orEmpty(), Modifier.weight(1f), style = Theme.type.code, color = Theme.colors.ink, textAlign = TextAlign.Center)
-                    }
-                }
-            }
-        }
+        RecoveryGrid(code)
         Text(stringResource(R.string.recovery_note), style = Theme.type.secondary, color = Theme.colors.muted)
     }
 }
 
+/** The code in groups of four, three to a row. */
 @Composable
-internal fun ColumnScope.SignInStep(flow: OnboardingFlow, accounts: AccountService, finish: () -> Unit) {
+internal fun RecoveryGrid(code: String?) {
+    Column(Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium).padding(horizontal = Space.l, vertical = Space.xl),
+        verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
+        val groups = RecoveryCode.normalise(code.orEmpty()).chunked(Crockford.GROUP)
+        groups.chunked(3).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                repeat(3) { i ->
+                    Text(row.getOrNull(i).orEmpty(), Modifier.weight(1f), style = Theme.type.code, color = Theme.colors.ink, textAlign = TextAlign.Center)
+                }
+            }
+        }
+    }
+}
+
+/** Two of the code's groups typed back, as the code screen promised (iOS's RecoveryCheckView). */
+@Composable
+internal fun ColumnScope.RecoveryCheckStep(code: String, back: () -> Unit, done: () -> Unit) {
+    val groups = remember(code) { RecoveryCode.normalise(code).chunked(Crockford.GROUP) }
+    val asked = remember(code) { groups.indices.shuffled().take(2).sorted() }
+    val answers = remember(code) { androidx.compose.runtime.mutableStateListOf("", "") }
+    var wrong by remember { mutableStateOf(false) }
+    val check = {
+        if (asked.indices.all { n -> RecoveryCode.normalise(answers[n]) == groups[asked[n]] }) done() else wrong = true
+    }
+    Page(
+        stringResource(R.string.recovery_check_title), plain(stringResource(R.string.recovery_check_detail)),
+        actions = {
+            FilledAction(stringResource(R.string.done), enabled = answers.all { it.isNotBlank() }) { check() }
+            TextAction(stringResource(R.string.recovery_show_again), onClick = back)
+        },
+    ) {
+        asked.forEachIndexed { n, i ->
+            LabelledField(stringResource(R.string.recovery_group_n, i + 1), answers[n],
+                { answers[n] = Crockford.normalise(it, groups[i].length); wrong = false },
+                error = if (wrong) "" else null, keyboard = codeKeyboard,
+                onDone = if (n == asked.lastIndex && answers.all { it.isNotBlank() }) check else null)
+        }
+        if (wrong) ErrorLine(stringResource(R.string.recovery_check_wrong))
+    }
+}
+
+/** A new phone, without the old one: the recovery code brings the keys back. */
+@Composable
+internal fun ColumnScope.RestoreStep(accounts: AccountManager, finish: () -> Unit) {
     val call = rememberCall()
+    var code by remember { mutableStateOf("") }
+    var wrong by remember { mutableStateOf(false) }
+    val submit = { call.run { if (accounts.restore(code)) finish() else wrong = true } }
+    Page(
+        stringResource(R.string.restore_title), plain(stringResource(R.string.restore_detail)),
+        actions = {
+            CallError(call)
+            FilledAction(stringResource(R.string.continue_), enabled = code.length == Crockford.RECOVERY_LENGTH && !call.busy) { submit() }
+        },
+    ) {
+        LabelledField(stringResource(R.string.restore_label), code, { code = Crockford.normalise(it, Crockford.RECOVERY_LENGTH); wrong = false },
+            error = if (wrong) stringResource(R.string.restore_wrong) else null, keyboard = codeKeyboard, transformation = Grouped,
+            onDone = if (code.length == Crockford.RECOVERY_LENGTH) submit else null)
+    }
+}
+
+@Composable
+internal fun ColumnScope.SignInStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finish: () -> Unit) {
+    val call = rememberCall()
+    val activity = LocalContext.current
+    var problem by remember { mutableStateOf<Int?>(null) }
+    val link by model.magicLink.collectAsState()
+    LaunchedEffect(link) {
+        val token = link ?: return@LaunchedEffect
+        model.usedMagicLink()
+        call.run { problem = redeemed(accounts.redeemLink(token), flow, accounts, finish) }
+    }
     Page(
         stringResource(R.string.signin_title), plain(stringResource(R.string.signin_detail)), centered = true,
         actions = {
             CallError(call)
+            problem?.let { ErrorLine(stringResource(it)) }
             FilledAction(stringResource(R.string.signin_passkey), enabled = !call.busy) {
-                call.run { if (accounts.signInWithPasskey()) finish() }
+                problem = null
+                call.run {
+                    val result = accounts.signInWithPasskey(activity)
+                    problem = if (result == null) R.string.signin_no_passkey else redeemed(result, flow, accounts, finish)
+                }
             }
             OutlinedAction(stringResource(R.string.signin_email), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
-                container = androidx.compose.ui.graphics.Color.Transparent) { flow.go(Step.Email) }
+                container = androidx.compose.ui.graphics.Color.Transparent) { if (!call.busy) flow.go(Step.Email) }
         },
     )
+}
+
+/** Survives rotation, so turning the phone never makes a second code; never saved to the instance state. */
+class RecoveryCodeModel : androidx.lifecycle.ViewModel() {
+    var code by mutableStateOf<String?>(null)
+    var checking by mutableStateOf(false)
+    var started = false
+}
+
+/**
+ * From Settings: a new recovery code (the old one stops working), or the
+ * first one when a set-up was interrupted; shown once, then two groups typed
+ * back, as during sign-up.
+ */
+@Composable
+fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
+    val m: RecoveryCodeModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val call = rememberCall()
+    val save = rememberCall()
+    val activity = LocalContext.current
+    val make = {
+        call.run {
+            m.code = if (accounts.state.value.status == app.duongondro.account.AccountStatus.NEEDS_KEYS) accounts.setUpKeys()
+            else accounts.newRecoveryCode()
+        }
+    }
+    LaunchedEffect(Unit) { if (!m.started) { m.started = true; make() } }
+    Column(Modifier.fillMaxSize().background(Theme.colors.ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
+        Row(Modifier.fillMaxWidth().padding(top = Space.s), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = back, modifier = Modifier.size(Size.minTap)) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
+            }
+        }
+        val code = m.code
+        if (m.checking && code != null) {
+            RecoveryCheckStep(code, back = { m.checking = false }) { accounts.confirmRecoveryCode(); back() }
+        } else {
+            Page(
+                stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
+                actions = {
+                    CallError(call)
+                    CallError(save)
+                    if (call.failed) FilledAction(stringResource(R.string.try_again), enabled = !call.busy) { make() }
+                    else FilledAction(stringResource(R.string.recovery_done), enabled = code != null) { m.checking = true }
+                    TextAction(stringResource(R.string.recovery_gpm)) {
+                        if (code != null) save.run { if (accounts.saveRecoveryCode(activity, code)) back() }
+                    }
+                },
+            ) {
+                RecoveryGrid(code)
+                Text(stringResource(R.string.recovery_note), style = Theme.type.secondary, color = Theme.colors.muted)
+            }
+        }
+    }
 }

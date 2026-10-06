@@ -1,8 +1,9 @@
 package app.duongondro.account
 
-/** Typing rules for the codes people copy by hand: Crockford base32, forgiving about case, look-alikes and spacing. */
+/** Typing rules for the codes people copy by hand: Crockford base32, forgiving about case, look-alikes and spacing. An invitation is 24 characters, an admission code 16. */
 object Crockford {
     const val INVITE_LENGTH = 24
+    const val ADMISSION_LENGTH = 16
     const val SIGN_IN_LENGTH = 8
     const val RECOVERY_LENGTH = 26
     const val GROUP = 4

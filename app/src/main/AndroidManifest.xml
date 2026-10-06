@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Only with an account: local mode makes no network call. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -12,6 +14,10 @@
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.Duongondro">
+        <!-- Passkeys and passwords for duongondro.app: the site's assetlinks.json names this app. -->
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -21,22 +27,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Invitation and sign-in links. Not auto-verified until the site serves assetlinks.json. -->
-            <intent-filter android:autoVerify="false">
+            <!-- Invitation links (https://duongondro.app/i/<id>#<secret>, upper case in QR
+                 codes) and magic links (https://duongondro.app/m#<token>), verified against
+                 the site's assetlinks.json. -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
                 <data android:host="duongondro.app" />
-                <data android:pathPrefix="/invite/" />
-            </intent-filter>
-            <intent-filter android:autoVerify="false">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" />
-                <data android:host="duongondro.app" />
-                <data android:pathPrefix="/signin/" />
+                <data android:pathPrefix="/i/" />
+                <data android:pathPrefix="/I/" />
+                <data android:path="/m" />
+                <data android:pathPrefix="/m/" />
             </intent-filter>
         </activity>
 

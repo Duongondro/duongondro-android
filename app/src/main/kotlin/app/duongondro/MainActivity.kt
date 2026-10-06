@@ -39,7 +39,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.duongondro.model.AppModel
 import app.duongondro.model.SqliteStore
+import androidx.compose.foundation.layout.consumeWindowInsets
 import app.duongondro.ui.onboarding.OnboardingScreen
+import app.duongondro.ui.onboarding.RecoveryCodeScreen
+import app.duongondro.ui.onboarding.Step
 import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     private val model: AppModel by viewModels {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T = AppModel(SqliteStore(applicationContext)) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = AppModel(SqliteStore(applicationContext), context = applicationContext) as T
         }
     }
 
@@ -86,20 +89,30 @@ class MainActivity : AppCompatActivity() {
         handleLink(intent)
     }
 
-    /** https://duongondro.app/invite/<24 characters> and https://duongondro.app/signin/<8 characters>. */
+    /**
+     * Invitation links, https://duongondro.app/i/<8-character id>#<16-character
+     * secret> (upper case from a QR code), and magic links,
+     * https://duongondro.app/m#<token>. The secret and the token travel in the
+     * fragment, which never reaches a server.
+     */
     private fun handleLink(intent: Intent?) {
         val uri = intent?.data ?: return
-        val kind = uri.pathSegments.firstOrNull()
-        val last = uri.lastPathSegment ?: uri.getQueryParameter("code") ?: return
-        when (kind) {
-            "invite" -> Crockford.normalise(last, Crockford.INVITE_LENGTH).takeIf { it.length == Crockford.INVITE_LENGTH }?.let(model::openedInvite)
-            "signin" -> Crockford.normalise(last, Crockford.SIGN_IN_LENGTH).takeIf { it.length == Crockford.SIGN_IN_LENGTH }?.let(model::openedSignIn)
+        if (uri.host?.lowercase() != "duongondro.app") return
+        val segments = uri.pathSegments
+        val fragment = uri.fragment ?: return
+        when (segments.firstOrNull()?.lowercase()) {
+            "i" -> {
+                val id = segments.getOrNull(1) ?: return
+                Crockford.normalise(id + fragment, Crockford.INVITE_LENGTH).takeIf { it.length == Crockford.INVITE_LENGTH }
+                    ?.let(model::openedInvite)
+            }
+            "m" -> fragment.takeIf { it.isNotBlank() && it.length <= 128 }?.let(model::openedMagicLink)
         }
     }
 
     override fun onStart() {
         super.onStart()
-        model.tick()
+        model.resumed()
         Reminders.reschedule(this, model.snapshot.value)
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_DATE_CHANGED)
@@ -130,6 +143,9 @@ private object Routes {
     const val DELETE = "settings/data/delete"
     const val ABOUT = "settings/about"
     const val LICENCES = "settings/licences"
+    const val SIGN_IN = "settings/account/sign-in"
+    const val NEW_ACCOUNT = "settings/account/new"
+    const val RECOVERY_CODE = "settings/account/recovery-code"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
 }
@@ -151,14 +167,17 @@ private fun Home(model: AppModel) {
     val nav = rememberNavController()
     val prompt by model.afterMidnight.collectAsStateWithLifecycle()
     val entry by nav.currentBackStackEntryAsState()
-    // The practice screen is full screen: the +mala button owns the bottom edge.
-    val onPractice = entry?.destination?.route == Routes.PRACTICE
+    // The practice screen is full screen: the +mala button owns the bottom edge;
+    // so are the account steps opened from Settings.
+    val onPractice = entry?.destination?.route.let { it == Routes.PRACTICE || it?.startsWith("settings/account/") == true }
     Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!onPractice) BottomBar(nav) }) { padding ->
-        NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding)) {
+        NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding).consumeWindowInsets(padding)) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
             composable(Routes.SETTINGS) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
-                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) })
+                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
+                    openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
+                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
             }
             composable(Routes.PRACTICES) {
                 PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
@@ -171,6 +190,9 @@ private fun Home(model: AppModel) {
             composable(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
             composable(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
             composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
+            composable(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
+            composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Invite) { nav.popBackStack() } }
+            composable(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
             }

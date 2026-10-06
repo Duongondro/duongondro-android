@@ -1,0 +1,489 @@
+package app.duongondro.account
+
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import androidx.core.content.edit
+import app.duongondro.BuildConfig
+import app.duongondro.core.api.Api
+import app.duongondro.core.api.ApiError
+import app.duongondro.core.api.Profile
+import app.duongondro.core.api.SignInResult
+import app.duongondro.core.api.SignedStatementDto
+import app.duongondro.core.api.SignUpProof
+import app.duongondro.core.crypto.StatementTypes
+import app.duongondro.core.sync.Account
+import app.duongondro.core.sync.AccountKeys
+import app.duongondro.core.sync.Erased
+import app.duongondro.core.sync.Invitation
+import app.duongondro.core.sync.SignedStatement
+import app.duongondro.core.sync.Statements
+import app.duongondro.core.sync.SyncEngine
+import app.duongondro.keys.KeystoreDeviceKeys
+import app.duongondro.keys.SecretFiles
+import app.duongondro.model.SqliteStore
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.time.Instant
+
+enum class Gender(val wire: String) { Male("male"), Female("female"), NonBinary("nonbinary") }
+
+/** Where this phone stands with the server. */
+enum class AccountStatus {
+    /** No account: local mode, no network calls at all. */
+    NONE,
+    /** Signed in, but this phone holds no keys yet: set up, or restore. */
+    NEEDS_KEYS,
+    READY,
+    /** The server ended the session (removed elsewhere): keys and data stay, sign in again to sync. */
+    SIGNED_OUT,
+}
+
+data class AccountState(
+    val status: AccountStatus = AccountStatus.NONE,
+    val email: String? = null,
+    val username: String? = null,
+    val displayName: String? = null,
+    val gender: Gender? = null,
+    /** A recovery code was made but not yet checked or saved to the password manager. */
+    val recoveryUnconfirmed: Boolean = false,
+    val syncing: Boolean = false,
+    val lastSync: Instant? = null,
+    /** The last sync did not finish: offline, or the server away. */
+    val offline: Boolean = false,
+    val refused: Int = 0,
+    val unreadable: Int = 0,
+)
+
+sealed interface InviteCheck {
+    data object Valid : InviteCheck
+    /** Not a code of either length, or the server knows no such live invite. */
+    data object Unknown : InviteCheck
+    /** The invite does not verify: its signature or the link's MAC is wrong. */
+    data object NotAuthentic : InviteCheck
+}
+
+enum class LinkRequest { Sent, UnknownInvite, TooMany }
+
+sealed interface Redeem {
+    /** Signed in; [created] when the link or passkey made the account. */
+    data class SignedIn(val created: Boolean) : Redeem
+    /** A wrong, expired, used or replaced code: the server does not say which. */
+    data object Wrong : Redeem
+    /** No account uses this address, and the link carried no invitation. */
+    data object NoAccount : Redeem
+    /** The invitation or admission code stopped being valid since the link was sent. */
+    data object InviteGone : Redeem
+    data object TooMany : Redeem
+}
+
+enum class ProfileResult { Saved, UsernameTaken }
+
+enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone }
+
+/**
+ * The account side of the app, as iOS's AccountModel: signing up and in,
+ * setting up keys or restoring them from the recovery code, and syncing.
+ * Practice data never waits for it: the app works fully offline, and sync
+ * catches up. Without an account it makes no network call at all.
+ */
+class AccountManager(
+    context: Context,
+    private val db: SqliteStore,
+    private val scope: CoroutineScope,
+    baseUrl: String = BuildConfig.API_BASE_URL,
+) {
+    private val app = context.applicationContext
+    private val secrets = SecretFiles(app)
+    private val deviceKeys = KeystoreDeviceKeys(app)
+    private val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private val anonymous = Api(baseUrl)
+    private val passkeys = Passkeys(app)
+
+    private val _state = MutableStateFlow(AccountState())
+    val state: StateFlow<AccountState> = _state.asStateFlow()
+
+    private var account: Account? = null
+    private val syncLock = Mutex()
+    private var pendingSync: Job? = null
+
+    /** The invitation a sign-up started from, checked; kept until the account exists and has keys. */
+    private var invitation: Invitation? = null
+    private var checkedInvite: Invitation.Checked? = null
+
+    /** Reads the stored session; call once the database is open. */
+    suspend fun load() = withContext(Dispatchers.IO) {
+        val token = secrets.read(TOKEN)?.decodeToString()
+        val synced = db.syncState() != null
+        _state.value = profileState().copy(
+            status = when {
+                token != null -> { open(token); if (account!!.hasKeys()) AccountStatus.READY else AccountStatus.NEEDS_KEYS }
+                synced -> AccountStatus.SIGNED_OUT
+                else -> AccountStatus.NONE
+            },
+        )
+    }
+
+    private fun open(token: String) {
+        account = Account(anonymous.withToken(token), secrets, deviceKeys, db)
+    }
+
+    private fun profileState() = AccountState(
+        email = prefs.getString(EMAIL, null),
+        username = prefs.getString(USERNAME, null),
+        displayName = prefs.getString(DISPLAY_NAME, null),
+        gender = prefs.getString(GENDER, null)?.let { g -> Gender.entries.firstOrNull { it.wire == g } },
+        recoveryUnconfirmed = prefs.getBoolean(RECOVERY_UNCONFIRMED, false),
+        lastSync = prefs.getLong(LAST_SYNC, 0).takeIf { it > 0 }?.let(Instant::ofEpochMilli),
+    )
+
+    private fun saveProfile(email: String? = null, username: String? = null, displayName: String? = null, gender: Gender? = null) {
+        prefs.edit {
+            email?.let { putString(EMAIL, it) }
+            username?.let { putString(USERNAME, it) }
+            displayName?.let { putString(DISPLAY_NAME, it) }
+            gender?.let { putString(GENDER, it.wire) }
+        }
+        _state.update { profileState().copy(status = it.status, syncing = it.syncing, offline = it.offline, refused = it.refused, unreadable = it.unreadable) }
+    }
+
+    private suspend fun signedIn(result: SignInResult) = withContext(Dispatchers.IO) {
+        // The account this phone already syncs with, if any: another one would mix two accounts' data.
+        val synced = db.syncState()
+        if (synced != null && synced.user != result.userId) {
+            runCatching { anonymous.withToken(result.token).signOut() }
+            throw IllegalStateException("this phone holds another account's data")
+        }
+        secrets.write(TOKEN, result.token.toByteArray())
+        open(result.token)
+        _state.update { it.copy(status = if (account!!.hasKeys()) AccountStatus.READY else AccountStatus.NEEDS_KEYS) }
+    }
+
+    private fun requireAccount() = account ?: throw IllegalStateException("not signed in")
+
+    // Invitation
+
+    /** Checks a typed or opened code: an invite against the server (signature, then the link's MAC), an admission code by its shape only. */
+    suspend fun checkInvite(code: String): InviteCheck = withContext(Dispatchers.IO) {
+        invitation = null
+        checkedInvite = null
+        when (val parsed = Invitation.parse(code)) {
+            null -> InviteCheck.Unknown
+            is Invitation.Admission -> { invitation = parsed; InviteCheck.Valid }
+            is Invitation.Invite -> try {
+                checkedInvite = Invitation.check(anonymous, parsed)
+                invitation = parsed
+                InviteCheck.Valid
+            } catch (_: ApiError.NotFound) {
+                InviteCheck.Unknown
+            } catch (e: Invitation.Error) {
+                if (e.failure == Invitation.Failure.EXPIRED) InviteCheck.Unknown else InviteCheck.NotAuthentic
+            }
+        }
+    }
+
+    private val proof: SignUpProof?
+        get() = when (val i = invitation) {
+            is Invitation.Invite -> i.proof
+            is Invitation.Admission -> i.proof
+            null -> null
+        }
+
+    /** Forgets an invitation from an abandoned sign-up, so a later sign-in does not carry it. */
+    fun clearInvitation() {
+        invitation = null
+        checkedInvite = null
+    }
+
+    // Email
+
+    suspend fun requestMagicLink(email: String, signUp: Boolean): LinkRequest = withContext(Dispatchers.IO) {
+        try {
+            anonymous.requestMagicLink(email, if (signUp) proof else null)
+            saveProfile(email = email)
+            LinkRequest.Sent
+        } catch (_: ApiError.NotFound) {
+            LinkRequest.UnknownInvite
+        } catch (_: ApiError.TooManyRequests) {
+            LinkRequest.TooMany
+        }
+    }
+
+    suspend fun redeemCode(email: String, code: String): Redeem = redeem { anonymous.redeemMagicLinkCode(email, code) }
+
+    suspend fun redeemLink(token: String): Redeem = redeem { anonymous.redeemMagicLink(token) }
+
+    private suspend fun redeem(call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
+        try {
+            val result = call()
+            signedIn(result)
+            Redeem.SignedIn(result.created)
+        } catch (e: ApiError.Status) {
+            if (e.code == 400) Redeem.Wrong else throw e
+        } catch (_: ApiError.Forbidden) {
+            Redeem.NoAccount
+        } catch (_: ApiError.NotFound) {
+            Redeem.InviteGone
+        } catch (_: ApiError.TooManyRequests) {
+            Redeem.TooMany
+        }
+    }
+
+    // Profile
+
+    /** PATCH /api/me after a sign-up by email; the name is required, username and gender optional. */
+    suspend fun setProfile(name: String, username: String?, gender: Gender?): ProfileResult = withContext(Dispatchers.IO) {
+        try {
+            requireAccount().api.updateMe(displayName = name, username = username?.lowercase(), gender = gender?.wire)
+            saveProfile(username = username?.lowercase(), displayName = name, gender = gender)
+            ProfileResult.Saved
+        } catch (_: ApiError.Conflict) {
+            ProfileResult.UsernameTaken
+        }
+    }
+
+    suspend fun setDisplayName(name: String) = withContext(Dispatchers.IO) {
+        // The server counts code points, at most 64.
+        val trimmed = name.trim().let { it.substring(0, it.offsetByCodePoints(0, minOf(64, it.codePointCount(0, it.length)))) }
+        requireAccount().api.updateMe(displayName = trimmed)
+        saveProfile(displayName = trimmed)
+    }
+
+    // Passkeys
+
+    /**
+     * Without a session, makes the account with a passkey and the profile (the
+     * no-email path); signed in, adds a passkey to the account. [activity] must
+     * be the Activity, which the system sheet attaches to.
+     */
+    suspend fun createPasskey(activity: Context, profile: Profile?): PasskeyResult {
+        val current = account
+        if (current == null) {
+            val p = proof ?: throw IllegalStateException("a passkey sign-up needs an invitation")
+            val ceremony = try {
+                withContext(Dispatchers.IO) { anonymous.beginPasskeySignUp(p, profile ?: Profile()) }
+            } catch (_: ApiError.Conflict) {
+                return PasskeyResult.UsernameTaken
+            } catch (_: ApiError.NotFound) {
+                return PasskeyResult.InviteGone
+            }
+            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            val result = try {
+                withContext(Dispatchers.IO) { anonymous.finishPasskey(ceremony.sessionId, credential) }
+            } catch (_: ApiError.Conflict) {
+                return PasskeyResult.UsernameTaken
+            } catch (_: ApiError.NotFound) {
+                return PasskeyResult.InviteGone
+            }
+            signedIn(result)
+            profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
+        } else {
+            val ceremony = withContext(Dispatchers.IO) { current.api.beginPasskeyAdd() }
+            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            withContext(Dispatchers.IO) { current.api.finishPasskeyAdd(ceremony.sessionId, credential) }
+        }
+        return PasskeyResult.Saved
+    }
+
+    /** Offers this app's passkeys; null when there is none or the person backed out. */
+    suspend fun signInWithPasskey(activity: Context): Redeem? {
+        val ceremony = withContext(Dispatchers.IO) { anonymous.beginPasskeySignIn() }
+        val credential = passkeys.get(activity, ceremony.publicKeyJson) ?: return null
+        return redeem { anonymous.finishPasskey(ceremony.sessionId, credential) }
+    }
+
+    // Keys
+
+    /** Whether the signed-in account needs setting up here, restoring, or nothing. */
+    suspend fun standing(): Account.Standing = withContext(Dispatchers.IO) {
+        val standing = requireAccount().standing()
+        if (standing == Account.Standing.READY) _state.update { it.copy(status = AccountStatus.READY) }
+        // The profile as the server has it, for a sign-in on a new phone.
+        runCatching { requireAccount().api.me() }.getOrNull()?.let { me ->
+            saveProfile(username = me.username, displayName = me.displayName.ifEmpty { null },
+                gender = Gender.entries.firstOrNull { it.wire == me.gender })
+        }
+        standing
+    }
+
+    /**
+     * Sets up keys on this first phone (or finishes an interrupted set-up, with
+     * the same code); returns the recovery code to show once.
+     */
+    suspend fun setUpKeys(): String = withContext(Dispatchers.IO) {
+        val a = requireAccount()
+        val code = if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
+        prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
+        _state.update { it.copy(status = AccountStatus.READY, recoveryUnconfirmed = true) }
+        afterKeys(a)
+        code
+    }
+
+    /** False when the code does not open this account's recovery boxes. */
+    suspend fun restore(code: String): Boolean = withContext(Dispatchers.IO) {
+        val a = requireAccount()
+        try {
+            a.restore(code)
+        } catch (e: AccountKeys.Error) {
+            if (e.failure == AccountKeys.Failure.BAD_RECOVERY_CODE) return@withContext false
+            throw e
+        }
+        _state.update { it.copy(status = AccountStatus.READY) }
+        afterKeys(a)
+        true
+    }
+
+    /** A new recovery code, replacing the old one (which stops working). */
+    suspend fun newRecoveryCode(): String = withContext(Dispatchers.IO) {
+        val code = requireAccount().newRecoveryCode()
+        prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
+        _state.update { it.copy(recoveryUnconfirmed = true) }
+        code
+    }
+
+    /** The code was written down and checked, or saved to the password manager. */
+    fun confirmRecoveryCode() {
+        prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, false) }
+        _state.update { it.copy(recoveryUnconfirmed = false) }
+    }
+
+    /** Offers the code to Google Password Manager, named after the account; false when declined. */
+    suspend fun saveRecoveryCode(activity: Context, code: String): Boolean {
+        val s = _state.value
+        val id = s.username ?: s.email ?: "Duongöndro recovery"
+        return passkeys.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
+    }
+
+    /** The fallback report, then the invitation's friendship, once keys exist. Failures here never fail the set-up. */
+    private fun afterKeys(a: Account) {
+        a.deviceKeyFallback?.let { reason ->
+            runCatching {
+                a.api.reportClientError("android keystore refused a device key; weaker tier used", BuildConfig.VERSION_NAME,
+                    "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})", mapOf("reason" to reason.take(256)))
+            }
+        }
+        val checked = checkedInvite ?: return
+        runCatching {
+            val me = a.api.me()
+            if (checked.inviter == me.id) return@runCatching
+            val identity = a.identity()
+            val payload = Statements.acceptance(checked.invite.id, me.id, identity.publicKey)
+            val acceptance = SignedStatement.sign(StatementTypes.ACCEPTANCE, payload, identity)
+            a.api.redeemInvite(checked.invite.id, checked.invite.proof.let { (it as SignUpProof.Invite).auth },
+                SignedStatementDto(acceptance.payload, acceptance.signature))
+        }.onFailure { Log.w(TAG, "redeeming the invitation failed: ${it.javaClass.simpleName}") }
+        clearInvitation()
+    }
+
+    // Sync
+
+    /** Syncs a moment after the last change, so a burst of malas is one round trip. */
+    fun scheduleSync(delayMs: Long = 2_000) {
+        if (_state.value.status != AccountStatus.READY) return
+        pendingSync?.cancel()
+        pendingSync = scope.launch {
+            delay(delayMs)
+            syncNow()
+        }
+    }
+
+    suspend fun syncNow() {
+        val a = account ?: return
+        if (_state.value.status != AccountStatus.READY) return
+        if (!syncLock.tryLock()) return
+        try {
+            _state.update { it.copy(syncing = true) }
+            val result = withContext(Dispatchers.IO) { SyncEngine(a).sync() }
+            val now = Instant.now()
+            prefs.edit { putLong(LAST_SYNC, now.toEpochMilli()) }
+            _state.update { it.copy(lastSync = now, offline = false, refused = result.refused, unreadable = result.unreadable) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: ApiError.Unauthorized) {
+            // The session ended (removed elsewhere): keys stay, sign in again.
+            withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
+            account = null
+            _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
+        } catch (_: Erased) {
+            // "Delete everything" or a sign-out ran meanwhile: nothing to keep.
+        } catch (e: IOException) {
+            _state.update { it.copy(offline = true) }
+        } catch (e: Exception) {
+            Log.w(TAG, "sync failed: ${e.javaClass.simpleName}: ${e.message}")
+            _state.update { it.copy(offline = true) }
+        } finally {
+            _state.update { it.copy(syncing = false) }
+            syncLock.unlock()
+        }
+    }
+
+    // Leaving
+
+    /**
+     * Ends the session here and forgets the account on this phone: the token,
+     * the account's keys and the sync state. The practice data stays, as in
+     * local mode. The device key stays too; it holds nothing without its wraps.
+     */
+    suspend fun signOut() = withContext(Dispatchers.IO) {
+        pendingSync?.cancel()
+        account?.let { a -> runCatching { a.api.signOut() } }
+        account = null
+        db.clearSyncState()
+        forgetSecrets()
+        prefs.edit { clear() }
+        _state.value = AccountState()
+    }
+
+    /**
+     * The server half of "Delete everything": it must succeed before the phone
+     * wipes itself, or the server would keep data the person believes gone.
+     */
+    suspend fun deleteOnServer() = withContext(Dispatchers.IO) {
+        pendingSync?.cancel()
+        when (_state.value.status) {
+            AccountStatus.NONE -> Unit
+            AccountStatus.SIGNED_OUT -> throw SignInToDelete()
+            AccountStatus.NEEDS_KEYS, AccountStatus.READY -> requireAccount().api.deleteMe()
+        }
+    }
+
+    class SignInToDelete : Exception("signed out")
+
+    /** After the local purge: back to local mode, with nothing of the account left. */
+    fun forget() {
+        pendingSync?.cancel()
+        account = null
+        clearInvitation()
+        runCatching { forgetSecrets() }
+        prefs.edit { clear() }
+        _state.value = AccountState()
+    }
+
+    private fun forgetSecrets() {
+        SecretFiles.folder(app).deleteRecursively()
+    }
+
+    private companion object {
+        const val TAG = "Account"
+        const val TOKEN = "session-token"
+        const val PREFS = "account"
+        const val EMAIL = "email"
+        const val USERNAME = "username"
+        const val DISPLAY_NAME = "displayName"
+        const val GENDER = "gender"
+        const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
+        const val LAST_SYNC = "lastSync"
+    }
+}

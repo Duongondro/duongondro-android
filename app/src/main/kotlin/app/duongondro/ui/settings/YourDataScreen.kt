@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -108,6 +109,8 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
     Page(stringResource(R.string.delete_everything), back) {
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Text(stringResource(R.string.delete_explainer))
+            val status = model.accounts?.state?.collectAsStateWithLifecycle()?.value?.status
+            if (status != null && status != app.duongondro.account.AccountStatus.NONE) Text(stringResource(R.string.delete_server))
             Text(stringResource(R.string.export_first), color = Theme.colors.muted)
         }
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,

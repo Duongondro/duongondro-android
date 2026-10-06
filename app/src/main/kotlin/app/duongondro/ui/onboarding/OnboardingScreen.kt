@@ -47,6 +47,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -122,8 +123,12 @@ sealed interface Step {
     data object Gender : Step
     data object Passkey : Step
     data object Recovery : Step
+    /** Two groups of the recovery code typed back. */
+    data object RecoveryCheck : Step
     /** "Welcome back": sign in with a passkey or an emailed link. */
     data object SignIn : Step
+    /** Signed in to an account with keys on a new phone: the recovery code brings them back. */
+    data object Restore : Step
 }
 
 /** What the user said about one chosen practice. */
@@ -158,6 +163,10 @@ class OnboardingFlow : ViewModel() {
     var signingIn by mutableStateOf(false)
     /** The invitation code, from a link opened earlier or typed in. */
     var inviteCode by mutableStateOf("")
+    /** Why the invitation was not accepted, shown under its field. */
+    var inviteProblem by mutableStateOf<Int?>(null)
+    /** The server said the username is taken; shown on the Username step. */
+    var usernameTaken by mutableStateOf(false)
     var consented by mutableStateOf(false)
     var email by mutableStateOf("")
     var username by mutableStateOf("")
@@ -168,6 +177,18 @@ class OnboardingFlow : ViewModel() {
 
     val canGoBack: Boolean get() = history.isNotEmpty()
 
+    private var begun = false
+
+    /** Where a flow from Settings starts, once. */
+    fun begin(start: Step, signingIn: Boolean) {
+        if (begun) return
+        begun = true
+        if (start != Step.Welcome) {
+            step = start
+            this.signingIn = signingIn
+        }
+    }
+
     fun go(next: Step) {
         history += step
         step = next
@@ -175,6 +196,14 @@ class OnboardingFlow : ViewModel() {
 
     fun back() {
         history.removeLastOrNull()?.let { step = it }
+    }
+
+    /** Back to an earlier step (a taken username, a spent invitation), keeping the answers. */
+    fun backTo(target: Step) {
+        val i = history.lastIndexOf(target)
+        if (i < 0) return go(target)
+        while (history.size > i) history.removeAt(history.lastIndex)
+        step = target
     }
 
     val available: List<Practice> get() = Catalogue.available(finishedNgondro, finishedShortRefuge)
@@ -209,9 +238,13 @@ class OnboardingFlow : ViewModel() {
             finishedNgondro = finishedNgondro,
             finishedShortRefuge = finishedShortRefuge || finishedNgondro,
             malaSize = malaSize,
-            reminderMinutes = reminder?.let { it.hour * 60 + it.minute },
+            // Signing in skips the practice questions, the reminder's among them.
+            reminderMinutes = if (signingIn) null else reminder?.let { it.hour * 60 + it.minute },
         )
-        model.perform { model.store.completeOnboarding(practices, seeds, prefs) }
+        model.perform {
+            model.store.completeOnboarding(practices, seeds, prefs)
+            model.accounts?.scheduleSync(0)
+        }
     }
 }
 
@@ -223,24 +256,41 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
     is Step.Counts, Step.Mala -> 4 to PRACTICE_STEPS
     Step.Reminder -> 5 to PRACTICE_STEPS
     Step.Email, Step.CheckEmail, Step.Username -> if (signingIn) null else 1 to ACCOUNT_STEPS
-    Step.Name -> 2 to ACCOUNT_STEPS
-    Step.Gender -> 3 to ACCOUNT_STEPS
+    Step.Name -> if (signingIn) null else 2 to ACCOUNT_STEPS
+    Step.Gender -> if (signingIn) null else 3 to ACCOUNT_STEPS
     else -> null
 }
 
 private const val PRACTICE_STEPS = 5
 private const val ACCOUNT_STEPS = 3
 
+/**
+ * The first run, from Welcome; or, from Settings with [done] set, only the
+ * account steps from [start] (sign in again, or make an account later),
+ * leaving the practices and preferences as they are.
+ */
 @Composable
-fun OnboardingScreen(model: AppModel) {
+fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> Unit)? = null) {
     // Keyed by the purge generation: after "Delete everything" a fresh flow
     // starts at Welcome, holding none of the answers that were just deleted.
     val generation by model.generation.collectAsStateWithLifecycle()
-    val flow: OnboardingFlow = viewModel(key = "onboarding-$generation")
-    BackHandler(enabled = flow.canGoBack) { flow.back() }
+    val flow: OnboardingFlow = viewModel(key = if (done != null) "account-$start" else "onboarding-$generation")
+    // The account steps need the network layer, which every real model has.
+    val accounts = model.accounts ?: return
+    LaunchedEffect(flow) { flow.begin(start, signingIn = start == Step.SignIn) }
+    val leave = { done?.invoke() ?: Unit }
+    BackHandler(enabled = flow.canGoBack || done != null) { if (flow.canGoBack) flow.back() else leave() }
+    // Local mode keeps the onboarding's answers; from Settings, nothing about the practices changes.
+    val finishLocal = { if (done != null) leave() else flow.finish(model) }
+    val finishOnline = {
+        if (done != null) {
+            model.accounts?.scheduleSync(0)
+            leave()
+        } else flow.finish(model)
+    }
     val ground = if (flow.step == Step.Welcome) Theme.colors.welcomeGround else Theme.colors.ground
     Column(Modifier.fillMaxSize().background(ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
-        if (flow.step != Step.Welcome) StepTopBar(flow)
+        if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack) leave else null)
         when (val step = flow.step) {
             Step.Welcome -> Welcome(flow)
             Step.FinishedNgondro -> YesNo(stringResource(R.string.q_finished_ngondro), stringResource(R.string.q_finished_ngondro_detail),
@@ -255,28 +305,33 @@ fun OnboardingScreen(model: AppModel) {
                 flow.malaSize = it; flow.go(Step.Reminder)
             }
             Step.Reminder -> Reminder(flow)
-            Step.Where -> WhereStep(flow, model)
-            Step.Invite -> InviteStep(flow, model.accounts) { flow.finish(model) }
+            Step.Where -> WhereStep(flow, model, finishLocal)
+            Step.Invite -> InviteStep(flow, accounts, finishLocal)
             Step.Consent -> ConsentStep(flow)
-            Step.Email -> EmailStep(flow, model.accounts)
-            Step.CheckEmail -> CheckEmailStep(flow, model) { flow.finish(model) }
+            Step.Email -> EmailStep(flow, accounts)
+            Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)
             Step.Username -> UsernameStep(flow)
             Step.Name -> NameStep(flow)
-            Step.Gender -> GenderStep(flow, model.accounts)
-            Step.Passkey -> PasskeyStep(flow, model.accounts)
-            Step.Recovery -> RecoveryStep(flow, model.accounts) { flow.finish(model) }
-            Step.SignIn -> SignInStep(flow, model.accounts) { flow.finish(model) }
+            Step.Gender -> GenderStep(flow, accounts)
+            Step.Passkey -> PasskeyStep(flow, accounts)
+            Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
+            Step.RecoveryCheck -> RecoveryCheckStep(flow.recoveryCode.orEmpty(), back = { flow.back() }) {
+                accounts.confirmRecoveryCode()
+                finishOnline()
+            }
+            Step.SignIn -> SignInStep(flow, model, accounts, finishOnline)
+            Step.Restore -> RestoreStep(accounts, finishOnline)
         }
     }
 }
 
 /** A back arrow on the left, the progress bar centred where the step has one. */
 @Composable
-private fun StepTopBar(flow: OnboardingFlow) {
+private fun StepTopBar(flow: OnboardingFlow, leave: (() -> Unit)?) {
     val progress = flow.step.progress(flow.signingIn)
     Row(Modifier.fillMaxWidth().padding(top = Space.s), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(Size.minTap)) {
-            IconButton(onClick = { flow.back() }, enabled = flow.canGoBack, modifier = Modifier.fillMaxSize()) {
+            IconButton(onClick = { leave?.invoke() ?: flow.back() }, enabled = flow.canGoBack || leave != null, modifier = Modifier.fillMaxSize()) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
             }
         }

@@ -2,8 +2,8 @@ package app.duongondro.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.duongondro.account.AccountService
-import app.duongondro.account.defaultAccountService
+import app.duongondro.account.AccountManager
+import app.duongondro.core.uuidV7
 import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
@@ -34,9 +34,11 @@ data class AfterMidnightPrompt(val session: Session, val sheet: AfterMidnight)
 class AppModel(
     val store: Store,
     private val clock: () -> Instant = Instant::now,
-    /** Every server or key operation of onboarding; the fake in debug builds. */
-    val accounts: AccountService = defaultAccountService(),
+    context: android.content.Context? = null,
 ) : ViewModel() {
+    /** Every server and key operation; none for previews and tests without a database. */
+    val accounts: AccountManager? = (store as? SqliteStore)?.let { s -> context?.let { AccountManager(it, s, viewModelScope) } }
+
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
     private val _pending = MutableStateFlow<PendingLog?>(null)
@@ -75,20 +77,32 @@ class AppModel(
     /** An invitation code from a link opened before onboarding; kept so the invitation screen is skipped. */
     val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
 
-    private val _signInCode = MutableStateFlow<String?>(null)
-    /** The code carried by a sign-in link opened on this phone; the Check your email screen takes it. */
-    val signInCode: StateFlow<String?> = _signInCode.asStateFlow()
+    private val _magicLink = MutableStateFlow<String?>(null)
+    /** The token of a magic link opened on this phone; the sign-in steps redeem it. */
+    val magicLink: StateFlow<String?> = _magicLink.asStateFlow()
 
     fun openedInvite(code: String) { _inviteCode.value = code }
-    fun openedSignIn(code: String) { _signInCode.value = code }
-    fun usedSignInCode() { _signInCode.value = null }
+    fun openedMagicLink(token: String) { _magicLink.value = token }
+    fun usedMagicLink() { _magicLink.value = null }
 
     init {
         if (store is SqliteStore) viewModelScope.launch {
             // Shown either way: a failed read must not leave a blank screen.
-            try { store.load() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+            try {
+                store.load()
+                accounts?.load()
+            } catch (e: Exception) {
+                _storageError.value = e.message ?: e.toString()
+            }
             _loaded.value = true
+            accounts?.syncNow()
         }
+    }
+
+    /** Back in the foreground: sync, if there is an account. */
+    fun resumed() {
+        tick()
+        if (_loaded.value) viewModelScope.launch { accounts?.syncNow() }
     }
 
     /**
@@ -98,7 +112,20 @@ class AppModel(
     fun purge(context: android.content.Context, onFailure: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                // The server's copy goes first: if that fails, nothing here is deleted.
+                accounts?.deleteOnServer()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: AccountManager.SignInToDelete) {
+                onFailure(context.getString(app.duongondro.R.string.sign_in_to_delete))
+                return@launch
+            } catch (e: Exception) {
+                onFailure(context.getString(app.duongondro.R.string.account_error))
+                return@launch
+            }
+            try {
                 app.duongondro.data.Purge.run(context.applicationContext, this@AppModel)
+                accounts?.forget()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -171,13 +198,14 @@ class AppModel(
         val tapped = pendingStart
         pendingStart = null
         val startedAt = SessionStart.estimate(p.openedAt, tapped, SessionStart.timedLengths(snapshot.value.sessions))
-        val session = Session(practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
+        val session = Session(id = uuidV7(p.openedAt), practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
             startExact = tapped != null, zoneId = zone.id, loggedAt = p.openedAt)
         perform {
             store.insert(session)
             // Only once written; a Start tapped during the window stays for the next session.
             if (tapped != null && _started.value[p.practiceId] == tapped) _started.value = _started.value - p.practiceId
             AfterMidnight.check(session)?.let { _afterMidnight.value = AfterMidnightPrompt(session, it) }
+            accounts?.scheduleSync()
         }
     }
 
@@ -199,7 +227,10 @@ class AppModel(
     fun choose(day: LocalDate, prompt: AfterMidnightPrompt) {
         val startDay = civilDate(prompt.session.startedAt, prompt.session.zone)
         _afterMidnight.value = null
-        perform { store.choose(if (day == startDay) null else day, prompt.session.id) }
+        perform {
+            store.choose(if (day == startDay) null else day, prompt.session.id)
+            accounts?.scheduleSync()
+        }
     }
 
     fun dismissAfterMidnight() { _afterMidnight.value = null }

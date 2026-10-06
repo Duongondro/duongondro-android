@@ -37,7 +37,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            // This Mac's development server (`make serve` in duongondro-api), as the
+            // emulator reaches it; another with -Pduongondro.apiUrl=http://… or in
+            // gradle.properties. Cleartext is allowed in debug builds only
+            // (src/debug/res/xml/network_security_config.xml).
+            val apiUrl = providers.gradleProperty("duongondro.apiUrl").orElse("http://10.0.2.2:8080").get()
+            buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"https://api.duongondro.app\"")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -105,6 +114,10 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.kotlinx.serialization.json)
+    // Passkeys and the recovery code in Google Password Manager; play-services-auth
+    // provides them below Android 14.
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
     implementation(libs.compose.ui)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui.tooling.preview)
