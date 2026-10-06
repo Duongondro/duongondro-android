@@ -134,7 +134,11 @@ object E2EE {
         return data.copyOfRange(0, i)
     }
 
-    fun sealSession(sealKey: ByteArray, session: UUID, user: UUID, keyVersion: Long, json: ByteArray, nonce: ByteArray? = null): ByteArray =
+    fun sealSession(sealKey: ByteArray, session: UUID, user: UUID, keyVersion: Long, json: ByteArray): ByteArray =
+        seal(sealKey, pad(json), sessionAAD(session, user, keyVersion))
+
+    /** With a fixed nonce: test vectors only. */
+    internal fun sealSession(sealKey: ByteArray, session: UUID, user: UUID, keyVersion: Long, json: ByteArray, nonce: ByteArray): ByteArray =
         seal(sealKey, pad(json), sessionAAD(session, user, keyVersion), nonce)
 
     fun openSession(sealKey: ByteArray, session: UUID, user: UUID, keyVersion: Long, sealed: ByteArray): ByteArray =
@@ -155,17 +159,12 @@ object E2EE {
         override fun hashCode() = epk.contentHashCode() * 31 + box.contentHashCode()
     }
 
-    /**
-     * Wraps a 32-byte secret to a device's public key (65 bytes, uncompressed)
-     * with a fresh ephemeral key, or a given one for test vectors only.
-     */
-    fun wrap(
-        secret: ByteArray,
-        recipientPk: ByteArray,
-        aad: ByteArray,
-        ephemeral: SoftwareDeviceKey = SoftwareDeviceKey.generate(),
-        nonce: ByteArray? = null,
-    ): Wrapped {
+    /** Wraps a 32-byte secret to a device's public key (65 bytes, uncompressed) with a fresh ephemeral key. */
+    fun wrap(secret: ByteArray, recipientPk: ByteArray, aad: ByteArray): Wrapped =
+        wrap(secret, recipientPk, aad, SoftwareDeviceKey.generate(), null)
+
+    /** With a given ephemeral key and nonce: test vectors only. */
+    internal fun wrap(secret: ByteArray, recipientPk: ByteArray, aad: ByteArray, ephemeral: SoftwareDeviceKey, nonce: ByteArray?): Wrapped {
         if (secret.size != KEY_SIZE) throw Error(Failure.SIZE)
         val shared = ephemeral.sharedSecret(recipientPk)
         val epk = ephemeral.publicKey
@@ -229,7 +228,11 @@ object E2EE {
     /** uuid(user) ‖ u8(kind): 17 bytes. */
     fun recoveryAAD(user: UUID, kind: WrapKind): ByteArray = user.bytes + byteArrayOf(kind.raw.toByte())
 
-    fun sealRecovery(secret: ByteArray, key: ByteArray, user: UUID, kind: WrapKind, nonce: ByteArray? = null): ByteArray =
+    fun sealRecovery(secret: ByteArray, key: ByteArray, user: UUID, kind: WrapKind): ByteArray =
+        seal(key, secret, recoveryAAD(user, kind))
+
+    /** With a fixed nonce: test vectors only. */
+    internal fun sealRecovery(secret: ByteArray, key: ByteArray, user: UUID, kind: WrapKind, nonce: ByteArray): ByteArray =
         seal(key, secret, recoveryAAD(user, kind), nonce)
 
     fun openRecovery(box: ByteArray, key: ByteArray, user: UUID, kind: WrapKind): ByteArray =
