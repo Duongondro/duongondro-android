@@ -140,8 +140,8 @@ class AccountKeysTest {
             assertEquals(E2EE.PUBLIC_KEY_SIZE, w.ephemeralKey.size)
             assertEquals(E2EE.WRAPPED_BOX_SIZE, w.box.size)
         }
-        assertArrayEquals(practiceKey, AccountKeys.receiveWrap(wraps[0], user, id, deviceKey, identity.publicKey))
-        assertArrayEquals(identity.seed, AccountKeys.receiveWrap(wraps[1], user, id, deviceKey, identity.publicKey))
+        assertArrayEquals(practiceKey, AccountKeys.receiveWrap(wraps[0], user, id, deviceKey, identity))
+        assertArrayEquals(identity.seed, AccountKeys.receiveWrap(wraps[1], user, id, deviceKey, identity))
     }
 
     @Test fun anUnsignedOrForeignWrapIsSkipped() {
@@ -149,12 +149,12 @@ class AccountKeysTest {
         val deviceKey = SoftwareDeviceKey.generate()
         val id = UUID.randomUUID()
         val w = AccountKeys.wrapSecrets(id, deviceKey.publicKey, user, 2, identity, AccountKeys.newPracticeKey())[0]
-        assertNull("signed by someone else", AccountKeys.receiveWrap(w, user, id, deviceKey, Identity.generate().publicKey))
+        assertNull("signed by someone else", AccountKeys.receiveWrap(w, user, id, deviceKey, Identity.generate()))
         val asEnrol = AccountKeys.Wrap(w.kind, w.keyVersion, w.ephemeralKey, w.box, AccountKeys.AuthType.ENROL, w.authenticator)
-        assertNull("not a signature", AccountKeys.receiveWrap(asEnrol, user, id, deviceKey, identity.publicKey))
+        assertNull("not a signature", AccountKeys.receiveWrap(asEnrol, user, id, deviceKey, identity))
         val otherVersion = AccountKeys.Wrap(w.kind, 3, w.ephemeralKey, w.box, w.authType, w.authenticator)
-        assertNull("the signature covers the key version", AccountKeys.receiveWrap(otherVersion, user, id, deviceKey, identity.publicKey))
-        assertNull("addressed to another device", AccountKeys.receiveWrap(w, user, UUID.randomUUID(), deviceKey, identity.publicKey))
+        assertNull("the signature covers the key version", AccountKeys.receiveWrap(otherVersion, user, id, deviceKey, identity))
+        assertNull("addressed to another device", AccountKeys.receiveWrap(w, user, UUID.randomUUID(), deviceKey, identity))
     }
 
     // Recovery

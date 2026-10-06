@@ -158,13 +158,20 @@ object AccountKeys {
 
     /**
      * Opens a wrap addressed to this device after checking its signature against
-     * the identity key; null when it is not signed or does not verify (skipped,
-     * as iOS does). A verified wrap that will not open throws.
+     * this phone's own identity key; null when it is not signed or does not
+     * verify (skipped, as iOS's receiveNewerKeys does). A verified wrap that will
+     * not open throws.
+     *
+     * The identity is the local one, never a key the server published: a server
+     * that could choose the verifying key could plant a practice key of its own.
+     * Before storing the result, the caller checks that the database generation
+     * has not changed since it fetched the wraps (as iOS does), so a sync running
+     * across "Delete everything" never writes the purged keys back.
      */
-    fun receiveWrap(wrap: Wrap, user: UUID, device: UUID, deviceKey: DeviceKeyAgreement, identityPk: ByteArray): ByteArray? {
+    fun receiveWrap(wrap: Wrap, user: UUID, device: UUID, deviceKey: DeviceKeyAgreement, identity: Identity): ByteArray? {
         val aad = E2EE.wrapAAD(user, wrap.keyVersion, device, wrap.kind)
         if (wrap.authType != AuthType.SIGNATURE) return null
-        if (!E2EE.verifyWrap(wrap.wrapped, aad, deviceKey.publicKey, wrap.authenticator, identityPk)) return null
+        if (!E2EE.verifyWrap(wrap.wrapped, aad, deviceKey.publicKey, wrap.authenticator, identity.publicKey)) return null
         return E2EE.unwrap(wrap.wrapped, deviceKey, aad)
     }
 
