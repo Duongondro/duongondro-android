@@ -11,14 +11,21 @@ object RecoveryCode {
 
     fun encode(secret: ByteArray): String = Crockford.encode(secret).chunked(4).joinToString("-")
 
-    /** What was typed, as the code's characters: upper case, no separators, O read as 0 and I or L as 1. */
+    /**
+     * What was typed, as the code's characters: upper case, no separators, O read
+     * as 0 and I or L as 1. Separators are any whitespace (a pasted tab or
+     * non-breaking space) and any dash a keyboard or autocorrect may produce
+     * (hyphen-minus, U+2010–U+2015, U+2212).
+     */
     fun normalise(typed: String): String = buildString {
         for (c in typed.uppercase()) {
-            when (c) {
-                '-', ' ', '\n' -> {}
-                'O' -> append('0')
-                'I', 'L' -> append('1')
-                else -> append(c)
+            when {
+                c.isWhitespace() || c == '-' || c in '\u2010'..'\u2015' || c == '\u2212' -> {}
+                else -> when (c) {
+                    'O' -> append('0')
+                    'I', 'L' -> append('1')
+                    else -> append(c)
+                }
             }
         }
     }

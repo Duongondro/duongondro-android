@@ -39,6 +39,15 @@ class RecoveryCodeTest {
         assertArrayEquals(ByteArray(16) { -1 }, RecoveryCode.decode("zzzz zzzz zzzz zzzz zzzz zzzz zw"))
     }
 
+    @Test fun anyWhitespaceAndDashSeparates() {
+        val secret = E2EE.randomBytes(16)
+        val groups = RecoveryCode.encode(secret).split("-")
+        for (sep in listOf("\t", "\u00a0", "\r\n", "\u2010", "\u2011", "\u2012", "\u2013", "\u2014", "\u2015", "\u2212", " - ")) {
+            assertArrayEquals(sep, secret, RecoveryCode.decode(groups.joinToString(sep)))
+        }
+        assertNull(RecoveryCode.decode(groups.joinToString("_")))
+    }
+
     @Test fun wrongLengthsAreRefused() {
         val code = RecoveryCode.normalise(RecoveryCode.encode(E2EE.randomBytes(16)))
         assertNull(RecoveryCode.decode(code.dropLast(1)))
