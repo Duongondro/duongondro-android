@@ -10,8 +10,9 @@ import java.security.KeyStore
 
 /**
  * The local half of "Delete everything" (design: Data export and deletion ›
- * Purge). With an account, `DELETE /api/me` comes first and this runs only
- * after the server confirms; in local mode there is nothing on any server.
+ * Purge). With an account, `DELETE /api/me` comes first (AppModel.purge) and
+ * this runs only after the server confirms; in local mode there is nothing on
+ * any server. The account's preferences go in AccountManager.forget.
  * Every step runs even if an earlier one fails; the first error is thrown at
  * the end, so a database error never leaves keys or files behind.
  */
@@ -20,7 +21,10 @@ object Purge {
         model.discardInFlight()
         var failure: Throwable? = null
         try { model.store.eraseAll() } catch (e: CancellationException) { throw e } catch (e: Exception) { failure = e }
+        // The device key's record and the sealed secrets go with their Keystore keys.
+        try { app.duongondro.keys.KeystoreDeviceKeys(context).delete() } catch (e: Exception) { failure = failure ?: e }
         try { deleteKeystoreEntries() } catch (e: Exception) { failure = failure ?: e }
+        app.duongondro.keys.SecretFiles.folder(context).deleteRecursively()
         listOf(Exports.folder(context), Covers.folder(context)).forEach { it.deleteRecursively() }
         Reminders.reschedule(context, model.snapshot.value)
         context.getSystemService(NotificationManager::class.java)?.cancelAll()

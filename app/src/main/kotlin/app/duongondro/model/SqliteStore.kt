@@ -12,6 +12,15 @@ import app.duongondro.core.Session
 import app.duongondro.core.StreakSeed
 import app.duongondro.core.TrackedPractice
 import app.duongondro.core.parseCivilDate
+import app.duongondro.core.isV7
+import app.duongondro.core.sync.Erased
+import app.duongondro.core.sync.SyncDatabase
+import app.duongondro.core.sync.SyncRecord
+import app.duongondro.core.sync.SyncState
+import app.duongondro.core.sync.syncMillis
+import app.duongondro.core.sync.toSyncTime
+import app.duongondro.core.uuidV7
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,8 +40,17 @@ import java.util.UUID
  * Every write goes through here and re-reads the snapshot, so the UI never
  * shows a state the database does not hold. Excluded from cloud backups and
  * device transfer (data_extraction_rules.xml): it holds plaintext counts.
+ *
+ * Sync (as iOS's AppDatabase): a session's `updated_at` orders writes under
+ * last-write-wins, compared to the millisecond; a deletion is a mark
+ * (`deleted_at`) so it syncs; `dirty` rows go up on the next push. [generation]
+ * is bumped by [eraseAll], and a sync write naming an older one is refused.
  */
-class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
+class SqliteStore(
+    context: Context,
+    name: String? = "duongondro.db",
+    private val clock: () -> Instant = Instant::now,
+) : Store, SyncDatabase {
     private val helper = Helper(context.applicationContext, name)
     private val lock = Mutex()
     private val state = MutableStateFlow(Snapshot())
@@ -45,6 +63,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
 
     override suspend fun insert(session: Session) = write { db ->
         db.insertOrThrow("sessions", null, ContentValues().apply {
+            put("updated_at", clock().toSyncTime().toEpochMilli())
             put("id", session.id.toString())
             put("practice_id", session.practiceId)
             put("amount", session.amount)
@@ -57,7 +76,21 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
     }
 
     override suspend fun choose(day: LocalDate?, forSession: UUID) = write { db ->
-        db.execSQL("UPDATE sessions SET chosen_day = ?, dirty = 1 WHERE id = ?", arrayOf(day?.toString(), forSession.toString()))
+        db.execSQL("UPDATE sessions SET chosen_day = ?, updated_at = ?, dirty = 1 WHERE id = ?",
+            arrayOf<Any?>(day?.toString(), nextStamp(db, forSession), forSession.toString()))
+    }
+
+    /**
+     * A change's time: now, but always after the row's last change, so a local
+     * edit made after pulling a newer remote one (or after the clock moved back)
+     * still wins under last-write-wins.
+     */
+    private fun nextStamp(db: SQLiteDatabase, id: UUID): Long {
+        val now = clock().syncMillis()
+        val last = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ?", arrayOf(id.toString())).use { c ->
+            if (c.moveToFirst() && !c.isNull(0)) c.getLong(0) else null
+        }
+        return if (last != null && last >= now) last + 1 else now
     }
 
     override suspend fun save(preferences: Preferences) = write { savePreferences(it, preferences) }
@@ -80,6 +113,8 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
     /** Deletes every row, then VACUUM rewrites the file so deleted rows do not linger in free pages. */
     override suspend fun eraseAll() {
         write { db ->
+            generationCounter.incrementAndGet()
+            db.execSQL("DELETE FROM sync_state")
             db.execSQL("DELETE FROM sessions")
             db.execSQL("DELETE FROM streak_seeds")
             db.execSQL("DELETE FROM practices")
@@ -96,20 +131,142 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
         }
     }
 
-    /** One transaction, then a fresh snapshot. */
-    private suspend fun write(block: (SQLiteDatabase) -> Unit) = withContext(Dispatchers.IO) {
+    /** One transaction, then a fresh snapshot; refused with [Erased] when [generation] names one an erase has ended. */
+    private suspend fun write(generation: Int? = null, block: (SQLiteDatabase) -> Unit): Unit = writeFor(generation, block)
+
+    private suspend fun <T> writeFor(generation: Int?, block: (SQLiteDatabase) -> T): T = withContext(Dispatchers.IO) {
         lock.withLock {
+            if (generation != null && generation != generationCounter.get()) throw Erased()
             val db = helper.writableDatabase
             db.beginTransaction()
-            try {
-                block(db)
-                db.setTransactionSuccessful()
+            val result = try {
+                block(db).also { db.setTransactionSuccessful() }
             } finally {
                 db.endTransaction()
             }
             state.value = read(db)
+            result
         }
     }
+
+    private suspend fun <T> query(block: (SQLiteDatabase) -> T): T = withContext(Dispatchers.IO) {
+        lock.withLock { block(helper.readableDatabase) }
+    }
+
+    // Sync
+
+    private val generationCounter = AtomicInteger(0)
+    override val generation: Int get() = generationCounter.get()
+
+    override suspend fun syncState(): SyncState? = query { db ->
+        db.rawQuery("SELECT * FROM sync_state WHERE id = 1", null).all { c ->
+            SyncState(UUID.fromString(c.str("user_id")), c.long("key_version"), c.str("cursor"))
+        }.firstOrNull()
+    }
+
+    override suspend fun saveSyncState(state: SyncState, generation: Int?) = write(generation) { db ->
+        db.insertWithOnConflict("sync_state", null, ContentValues().apply {
+            put("id", 1)
+            put("user_id", state.user.toString().lowercase())
+            put("key_version", state.keyVersion)
+            put("cursor", state.cursor)
+        }, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    /** Forgets the account this phone synced with (signing out); the sessions stay, dirty, as in local mode. */
+    suspend fun clearSyncState() = write { db ->
+        generationCounter.incrementAndGet()
+        db.execSQL("DELETE FROM sync_state")
+        db.execSQL("UPDATE sessions SET dirty = 1")
+    }
+
+    override suspend fun dirtySessions(): List<SyncRecord> = query { db ->
+        db.rawQuery("SELECT * FROM sessions WHERE dirty = 1 ORDER BY updated_at, id", null).all(::syncRecord)
+    }
+
+    override suspend fun markSynced(id: UUID, updatedAt: Instant, generation: Int) = write(generation) { db ->
+        db.execSQL("UPDATE sessions SET dirty = 0 WHERE id = ? AND updated_at = ?", arrayOf<Any>(id.toString(), updatedAt.syncMillis()))
+    }
+
+    override suspend fun markAllDirty() = write { db -> db.execSQL("UPDATE sessions SET dirty = 1") }
+
+    /**
+     * Gives every session whose id is not a UUIDv7 (logged before sync, with
+     * version 4) a new v7 id from its logging time. Safe because such a session
+     * never reached the server, which accepts only v7.
+     */
+    override suspend fun rekeyLegacySessionIds() = write { db ->
+        db.rawQuery("SELECT id, logged_at FROM sessions", null).all { c -> c.str("id")!! to c.long("logged_at") }
+            .filter { (id, _) -> !UUID.fromString(id).isV7 }
+            .forEach { (id, loggedAt) ->
+                db.execSQL("UPDATE sessions SET id = ?, dirty = 1 WHERE id = ?",
+                    arrayOf(uuidV7(Instant.ofEpochMilli(loggedAt)).toString(), id))
+            }
+    }
+
+    override suspend fun applyRemote(record: SyncRecord, practiceName: String?, generation: Int): Boolean = writeFor(generation) { db ->
+        val s = record.session
+        val id = s.id.toString()
+        val local = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ?", arrayOf(id)).use { c ->
+            if (c.moveToFirst()) (if (c.isNull(0)) 0L else c.getLong(0)) else null
+        }
+        if (local != null && local >= record.updatedAt.syncMillis()) return@writeFor false
+        // A deletion of a session this phone never had changes nothing here.
+        if (local == null && record.deletedAt != null) return@writeFor false
+        val known = db.rawQuery("SELECT 1 FROM practices WHERE id = ?", arrayOf(s.practiceId)).use { it.moveToFirst() }
+        if (!known) {
+            val order = db.rawQuery("SELECT COALESCE(MAX(sort_order) + 1, 0) FROM practices", null).use { c -> c.moveToFirst(); c.getInt(0) }
+            val practice = Catalogue.builtIn.firstOrNull { it.id == s.practiceId }
+                ?: Practice(s.practiceId, practiceName ?: s.practiceId, null, PracticeGroup.AnyTime, null, allowStreakOnly = true, isCustom = true)
+            upsert(db, TrackedPractice(practice, wantsStreakOnly = practice.streakOnlyByDefault, sortOrder = order))
+        }
+        val values = ContentValues().apply {
+            put("practice_id", s.practiceId)
+            put("amount", s.amount)
+            put("started_at", s.startedAt.toEpochMilli())
+            put("start_exact", s.startExact)
+            put("time_zone", s.zoneId)
+            put("chosen_day", s.chosenDay?.toString())
+            put("logged_at", s.loggedAt.toEpochMilli())
+            put("updated_at", record.updatedAt.syncMillis())
+            put("deleted_at", record.deletedAt?.syncMillis())
+            put("dirty", 0)
+        }
+        if (local == null) {
+            values.put("id", id)
+            db.insertOrThrow("sessions", null, values)
+        } else {
+            db.update("sessions", values, "id = ?", arrayOf(id))
+        }
+        true
+    }
+
+    override suspend fun applyRemoteDeletion(id: UUID, updatedAt: Instant, deletedAt: Instant, generation: Int): Boolean = writeFor(generation) { db ->
+        val local = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ?", arrayOf(id.toString())).use { c ->
+            if (c.moveToFirst()) (if (c.isNull(0)) 0L else c.getLong(0)) else null
+        }
+        if (local == null || local >= updatedAt.syncMillis()) return@writeFor false
+        db.execSQL("UPDATE sessions SET deleted_at = ?, updated_at = ?, dirty = 0 WHERE id = ?",
+            arrayOf<Any>(deletedAt.syncMillis(), updatedAt.syncMillis(), id.toString()))
+        true
+    }
+
+    override suspend fun customNames(): Map<String, String> =
+        snapshot.value.practices.filter { it.practice.isCustom }.associate { it.id to it.practice.name }
+
+    private fun syncRecord(c: Cursor): SyncRecord {
+        val session = sessionOf(c)
+        val updated = c.getColumnIndexOrThrow("updated_at").let { if (c.isNull(it)) session.loggedAt.toEpochMilli() else c.getLong(it) }
+        val deleted = c.getColumnIndexOrThrow("deleted_at").let { if (c.isNull(it)) null else Instant.ofEpochMilli(c.getLong(it)) }
+        return SyncRecord(session, Instant.ofEpochMilli(updated), deleted)
+    }
+
+    private fun sessionOf(c: Cursor) = Session(
+        id = UUID.fromString(c.str("id")), practiceId = c.str("practice_id")!!, amount = c.int("amount") ?: 0,
+        startedAt = Instant.ofEpochMilli(c.long("started_at")), startExact = c.int("start_exact") == 1,
+        zoneId = c.str("time_zone")!!, chosenDay = c.str("chosen_day")?.let(::parseCivilDate),
+        loggedAt = Instant.ofEpochMilli(c.long("logged_at")),
+    )
 
     /**
      * Update, then insert if nothing matched. Not `ON CONFLICT DO UPDATE`, which
@@ -167,14 +324,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
                 archived = c.int("archived") == 1, sortOrder = c.int("sort_order") ?: 0,
             )
         }
-        val sessions = db.rawQuery("SELECT * FROM sessions ORDER BY started_at, id", null).all { c ->
-            Session(
-                id = UUID.fromString(c.str("id")), practiceId = c.str("practice_id")!!, amount = c.int("amount") ?: 0,
-                startedAt = Instant.ofEpochMilli(c.long("started_at")), startExact = c.int("start_exact") == 1,
-                zoneId = c.str("time_zone")!!, chosenDay = c.str("chosen_day")?.let(::parseCivilDate),
-                loggedAt = Instant.ofEpochMilli(c.long("logged_at")),
-            )
-        }
+        val sessions = db.rawQuery("SELECT * FROM sessions WHERE deleted_at IS NULL ORDER BY started_at, id", null).all(::sessionOf)
         val seeds = db.rawQuery("SELECT * FROM streak_seeds ORDER BY practice_id", null).all { c ->
             StreakSeed(c.str("practice_id")!!, c.int("days") ?: 0, c.int("longest"),
                 parseCivilDate(c.str("last_day")!!) ?: LocalDate.of(1970, 1, 1), c.str("time_zone")!!)
@@ -196,7 +346,7 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
 
     fun close() = helper.close()
 
-    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 1) {
+    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 2) {
         override fun onConfigure(db: SQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
             db.enableWriteAheadLogging()
@@ -261,9 +411,28 @@ class SqliteStore(context: Context, name: String? = "duongondro.db") : Store {
                     discreet_notifications INTEGER NOT NULL
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
+            onUpgrade(db, 1, 2)
         }
 
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+        /**
+         * Version 2, sync: when each session last changed (Unix milliseconds; the
+         * logging time for rows from before), its deletion mark, and the account
+         * this phone syncs with.
+         */
+        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+            if (oldVersion < 2) listOf(
+                "ALTER TABLE sessions ADD COLUMN updated_at INTEGER",
+                "UPDATE sessions SET updated_at = logged_at",
+                "ALTER TABLE sessions ADD COLUMN deleted_at INTEGER",
+                """
+                CREATE TABLE sync_state (
+                    id          INTEGER PRIMARY KEY CHECK (id = 1),
+                    user_id     TEXT NOT NULL,
+                    key_version INTEGER NOT NULL,
+                    cursor      TEXT
+                )""",
+            ).forEach { db.execSQL(it.trimIndent()) }
+        }
     }
 }
 
