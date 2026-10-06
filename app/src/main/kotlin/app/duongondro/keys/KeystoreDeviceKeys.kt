@@ -78,7 +78,7 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         }
         val tier = Tier.of(tierText) ?: throw IllegalStateException("unreadable device key tier: $tierText")
         return if (sealed != null) {
-            DeviceKey(SoftwareDeviceKey.fromRaw(unseal(Base64.decode(sealed, Base64.NO_WRAP))), tier)
+            DeviceKey(SoftwareDeviceKey.fromRaw(unseal(Base64.decode(sealed, Base64.NO_WRAP), tier)), tier)
         } else {
             val entry = store.getEntry(ecAlias, null) as? KeyStore.PrivateKeyEntry
                 ?: throw IllegalStateException("the device key record exists but the Keystore has no key")
@@ -170,7 +170,7 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
     private fun createSoftware(): DeviceKey {
         check(!keyStore().containsAlias(aesAlias)) { "refusing to replace an existing sealed device key" }
         val key = SoftwareDeviceKey.generate()
-        val sealed = seal(key.rawPrivate)
+        val sealed = seal(key.rawPrivate, Tier.SOFTWARE)
         prefs.edit()
             .putString(TIER, Tier.SOFTWARE.raw)
             .putString(SEALED, Base64.encodeToString(sealed, Base64.NO_WRAP))
@@ -193,18 +193,26 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         return generator.generateKey()
     }
 
-    /** iv(12) ‖ ciphertext ‖ tag. */
-    private fun seal(plain: ByteArray): ByteArray {
+    /**
+     * iv(12) ‖ ciphertext ‖ tag, with the alias and the tier as associated data,
+     * so a sealed scalar cannot be moved to another name or recorded under
+     * another tier without failing to open.
+     */
+    private fun seal(plain: ByteArray, tier: Tier): ByteArray {
         val cipher = Cipher.getInstance(AES_GCM)
         cipher.init(Cipher.ENCRYPT_MODE, sealingKey())
+        cipher.updateAAD(sealAAD(tier))
         return cipher.iv + cipher.doFinal(plain)
     }
 
-    private fun unseal(sealed: ByteArray): ByteArray {
+    private fun sealAAD(tier: Tier): ByteArray = "$ecAlias\n${tier.raw}".toByteArray(Charsets.UTF_8)
+
+    private fun unseal(sealed: ByteArray, tier: Tier): ByteArray {
         val key = keyStore().getKey(aesAlias, null) as? SecretKey
             ?: throw IllegalStateException("the sealed device key exists but its sealing key does not")
         val cipher = Cipher.getInstance(AES_GCM)
         cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, sealed, 0, 12))
+        cipher.updateAAD(sealAAD(tier))
         return cipher.doFinal(sealed, 12, sealed.size - 12)
     }
 
