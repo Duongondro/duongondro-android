@@ -48,8 +48,9 @@ import javax.crypto.spec.GCMParameterSpec
  * can unwrap. App data is excluded from backup, so the record never leaves the
  * phone; the Keystore keys could not anyway.
  *
- * NOT YET TESTED ON A DEVICE OR EMULATOR: written against the platform
- * documentation; it compiles, but needs an instrumented test on API 28 and 31+.
+ * Tested only by the instrumented test on the Medium_Phone emulator (API 36,
+ * whose Keystore reports a software security level): not yet on a phone with
+ * a TEE or StrongBox, nor on API 28–30, where the sealed software tier runs.
  */
 class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key") : DeviceKeyStore {
     private val prefs = context.applicationContext.getSharedPreferences(name, Context.MODE_PRIVATE)
