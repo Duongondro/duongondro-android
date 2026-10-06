@@ -82,6 +82,20 @@ class SealedSessionTest {
         assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, sealJson(empty, id), 1, syncInstant(1_791_183_600_000), user, keys))
     }
 
+    /** Content that opened under the key but is not a usable session is refused, not retried forever. */
+    @Test fun authenticButUnusableContentIsRefused() {
+        val id = UUID.randomUUID()
+        // Sealed without the 0x80 marker: opens, but will not unpad.
+        val unpadded = sealRaw(ByteArray(256), id)
+        assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, unpadded, 1, syncInstant(t), user, keys))
+        assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, sealJson("not json", id), 1, syncInstant(t), user, keys))
+        val huge = """{"count":4294967296,"practice":"x","start":1,"tz":"UTC","updatedAt":5}"""
+        assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, sealJson(huge, id), 1, syncInstant(5), user, keys))
+    }
+
+    private fun sealRaw(plain: ByteArray, id: UUID) =
+        E2EE.seal(E2EE.sealKey(practiceKey, user), plain, E2EE.sessionAAD(id, user, 1))
+
     @Test fun unknownFieldsAreIgnored() {
         val id = UUID.randomUUID()
         val json = """{"count":3,"minutes":20,"note":"later","practice":"x","start":1,"tz":"UTC","updatedAt":5}"""

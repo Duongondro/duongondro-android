@@ -21,7 +21,7 @@ data class SyncRecord(val session: Session, val updatedAt: Instant, val deletedA
 @Serializable
 data class SealedSession(
     val chosenDay: String? = null,
-    val count: Int? = null,
+    val count: Long? = null,
     val day: String? = null,
     val deletedAt: Long? = null,
     val exact: Boolean? = null,
@@ -37,10 +37,11 @@ data class SealedSession(
     /** The whole session, or null when the content is missing (a bare tombstone). */
     fun record(id: UUID): SyncRecord? {
         if (practice == null || count == null || start == null || tz == null) return null
+        if (count !in 0..Int.MAX_VALUE.toLong()) return null
         val session = Session(
             id = id,
             practiceId = practice,
-            amount = count,
+            amount = count.toInt(),
             startedAt = syncInstant(start),
             startExact = exact ?: false,
             zoneId = tz,
@@ -61,7 +62,7 @@ data class SealedSession(
             val s = record.session
             return SealedSession(
                 chosenDay = s.chosenDay?.toString(),
-                count = s.amount,
+                count = s.amount.toLong(),
                 day = s.day.toString(),
                 deletedAt = record.deletedAt?.syncMillis(),
                 exact = s.startExact,
@@ -108,10 +109,14 @@ object SessionSync {
         /** A bare tombstone: only its times. */
         data class Deletion(val id: UUID, val updatedAt: Instant, val deletedAt: Instant) : Opened
 
-        /** No key for this version, or it would not open: ask for it again later. */
+        /** No key for this version, or it would not open under it: ask for it again later. */
         data object Unreadable : Opened
 
-        /** The sealed time disagrees with the outer one (an old blob replayed), or the content is unusable. */
+        /**
+         * The sealed time disagrees with the outer one (an old blob replayed), or
+         * the content opened but is unusable (bad padding, not a session, a count
+         * out of range): skipped for good.
+         */
         data object Refused : Opened
     }
 
@@ -128,12 +133,20 @@ object SessionSync {
         practiceKey: (Long) -> ByteArray?,
     ): Opened {
         val key = practiceKey(keyVersion) ?: return Opened.Unreadable
-        val session = try {
-            SealedSession.decode(E2EE.openSession(E2EE.sealKey(key, user), id, user, keyVersion, sealed))
-        } catch (_: Exception) {
+        val padded = try {
+            E2EE.open(E2EE.sealKey(key, user), sealed, E2EE.sessionAAD(id, user, keyVersion))
+        } catch (_: E2EE.Error) {
             return Opened.Unreadable
         }
+        // Authentic but unusable content will never read better later: refusing
+        // it (rather than calling it unreadable) lets the sync cursor move on.
+        val session = try {
+            SealedSession.decode(E2EE.unpad(padded))
+        } catch (_: Exception) {
+            return Opened.Refused
+        }
         if (session.updatedAt != outerUpdatedAt.syncMillis()) return Opened.Refused
+        if (session.count != null && session.count !in 0..Int.MAX_VALUE.toLong()) return Opened.Refused
         session.record(id)?.let { return Opened.Record(it, session.practiceName) }
         session.deletedAt?.let { return Opened.Deletion(id, syncInstant(session.updatedAt), syncInstant(it)) }
         return Opened.Refused
