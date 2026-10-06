@@ -1,6 +1,7 @@
 package app.duongondro.keys
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyInfo
@@ -51,6 +52,7 @@ import javax.crypto.spec.GCMParameterSpec
  */
 class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key") : DeviceKeyStore {
     private val prefs = context.applicationContext.getSharedPreferences(name, Context.MODE_PRIVATE)
+    private val packageManager = context.applicationContext.packageManager
     private val ecAlias = name
     private val aesAlias = "$name-seal"
 
@@ -95,25 +97,40 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
         return DeviceKey(KeystoreAgreement(entry.privateKey, entry.certificate.publicKey as ECPublicKey), tier)
     }
 
+    /**
+     * The stored key, or a new one: StrongBox where the phone has one, then the
+     * TEE, then software. Falling back from storage the phone has is reported
+     * as `fellBack`, with what refused; API 28–30 using software is not.
+     */
     @Synchronized
     override fun currentOrCreate(): DeviceKeyStore.Created {
         current()?.let { return DeviceKeyStore.Created(it, fellBack = false) }
-        var fellBack = false
+        val refused = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val made = createInKeystore(strongBox = true) ?: createInKeystore(strongBox = false)
-            if (made != null) return DeviceKeyStore.Created(made, fellBack = false)
-            fellBack = true
+            if (packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
+                val strongBox = createInKeystore(strongBox = true)
+                strongBox.key?.let { return DeviceKeyStore.Created(it, fellBack = false) }
+                refused += "StrongBox: ${describe(strongBox.error)}"
+            }
+            val tee = createInKeystore(strongBox = false)
+            tee.key?.let { return DeviceKeyStore.Created(it, fellBack = refused.isNotEmpty(), refused.joinToString("; ").ifEmpty { null }) }
+            refused += "Keystore: ${describe(tee.error)}"
         }
-        return DeviceKeyStore.Created(createSoftware(), fellBack)
+        return DeviceKeyStore.Created(createSoftware(), fellBack = refused.isNotEmpty(), refused.joinToString("; ").ifEmpty { null })
     }
 
+    private class Attempt(val key: DeviceKey?, val error: Exception?)
+
+    private fun describe(e: Exception?): String =
+        if (e == null) "unknown" else e.javaClass.name + (e.message?.let { ": $it" } ?: "")
+
     /**
-     * A Keystore ECDH key that passes a self-agreement, or null. Only ever called
+     * A Keystore ECDH key that passes a self-agreement, or why not. Only ever called
      * when [current] found no key under the alias, so on failure the only entry
      * it removes is the one this call just made.
      */
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun createInKeystore(strongBox: Boolean): DeviceKey? {
+    private fun createInKeystore(strongBox: Boolean): Attempt {
         check(!keyStore().containsAlias(ecAlias)) { "refusing to replace an existing device key" }
         return try {
             val generator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, KEYSTORE)
@@ -129,11 +146,11 @@ class KeystoreDeviceKeys(context: Context, name: String = "duongondro-device-key
             check(agreement.sharedSecret(agreement.publicKey).size == 32)
             val tier = tierOf(pair.private)
             check(prefs.edit().putString(TIER, tier.raw).remove(SEALED).commit()) { "could not store the device key record" }
-            DeviceKey(agreement, tier)
+            Attempt(DeviceKey(agreement, tier), null)
         } catch (e: Exception) {
             // Only this call's own key can be here: the alias was empty above.
             runCatching { keyStore().deleteEntry(ecAlias) }
-            null
+            Attempt(null, e)
         }
     }
 

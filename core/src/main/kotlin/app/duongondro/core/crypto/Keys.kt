@@ -57,12 +57,18 @@ interface DeviceKeyStore {
     fun current(): DeviceKey?
 
     /**
-     * The stored key, or a new one in the strongest tier that works. `fellBack`
-     * says hardware existed but refused to make a key, which the app reports.
+     * The stored key, or a new one in the strongest tier that works.
      */
     fun currentOrCreate(): Created
 
-    class Created(val key: DeviceKey, val fellBack: Boolean)
+    /**
+     * @property fellBack stronger storage existed but refused to make a key (a
+     *   StrongBox that failed, or a Keystore whose ECDH failed), which the app
+     *   reports through the client-error endpoint.
+     * @property fallbackReason what refused, for that report: exception classes
+     *   and messages only, never key material.
+     */
+    class Created(val key: DeviceKey, val fellBack: Boolean, val fallbackReason: String? = null)
 }
 
 /** A [DeviceKeyStore] in memory, with software keys: tests, and previews. */
