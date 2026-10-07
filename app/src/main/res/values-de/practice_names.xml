@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in practice names as each country's practice books have them, generated
+     from the iOS app's Practices.xcstrings (design: Localisation › Practice names).
+     Only practitioners' sources go here; a missing name falls back to English. -->
+<resources>
+    <string name="practice_refuge_name">Zuflucht und Erleuchtungsgeist</string>
+    <string name="practice_refuge_second">Verbeugungen</string>
+    <string name="practice_dorje_sempa_name">Diamantgeist-Meditation</string>
+    <string name="practice_dorje_sempa_second">Dorje Sempa</string>
+    <string name="practice_mandala_name">Mandala-Gaben</string>
+    <string name="practice_guru_yoga_name">Meditation auf den Lama</string>
+    <string name="practice_8th_karmapa_name">8. Karmapa-Meditation</string>
+    <string name="practice_16th_karmapa_name">16. Karmapa-Meditation</string>
+    <string name="practice_chenrezig_second">Liebevolle Augen</string>
+</resources>

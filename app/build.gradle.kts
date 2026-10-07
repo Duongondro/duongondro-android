@@ -1,5 +1,6 @@
 import org.gradle.api.GradleException
 import org.gradle.process.ExecOperations
+import java.util.Properties
 import javax.inject.Inject
 
 plugins {
@@ -29,15 +30,44 @@ android {
         applicationId = "app.duongondro"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 2
+        versionName = "0.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_REVISION", "\"${gitRevision.get()}\"")
         buildConfigField("boolean", "GIT_DIRTY", gitStatus.get().isNotEmpty().toString())
     }
 
+    // The release key lives outside the repository. A properties file names the
+    // keystore and alias (default ~/.config/duongondro/android-release.properties,
+    // or -Pduongondro.signing=<file>); the passwords come from the environment
+    // (DUONGONDRO_STORE_PASSWORD, DUONGONDRO_KEY_PASSWORD), never from a file
+    // here. Without them the release APK is built unsigned.
+    val signingFile = providers.gradleProperty("duongondro.signing")
+        .orElse("${System.getProperty("user.home")}/.config/duongondro/android-release.properties")
+        .map { file(it) }.get()
+    val storePassword = providers.environmentVariable("DUONGONDRO_STORE_PASSWORD").orNull
+    if (signingFile.isFile && storePassword != null) {
+        val props = Properties().apply { signingFile.inputStream().use { load(it) } }
+        signingConfigs.create("release") {
+            storeFile = file(props.getProperty("storeFile"))
+            this.storePassword = storePassword
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = providers.environmentVariable("DUONGONDRO_KEY_PASSWORD").orElse(storePassword).get()
+        }
+    }
+
     buildTypes {
+        debug {
+            // This Mac's development server (`make serve` in duongondro-api), as the
+            // emulator reaches it; another with -Pduongondro.apiUrl=http://… or in
+            // gradle.properties. Cleartext is allowed in debug builds only
+            // (src/debug/res/xml/network_security_config.xml).
+            val apiUrl = providers.gradleProperty("duongondro.apiUrl").orElse("http://10.0.2.2:8080").get()
+            buildConfigField("String", "API_BASE_URL", "\"$apiUrl\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"https://api.duongondro.app\"")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -105,6 +135,10 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.kotlinx.serialization.json)
+    // Passkeys and the recovery code in Google Password Manager; play-services-auth
+    // provides them below Android 14.
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
     implementation(libs.compose.ui)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui.tooling.preview)

@@ -1,6 +1,8 @@
 package app.duongondro.ui.today
 
 import android.text.format.DateFormat
+import app.duongondro.ui.shownName
+import app.duongondro.ui.shownSecondName
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -131,7 +133,7 @@ private fun PracticeCard(
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xs + Space.xxs)) {
             Row(horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
-                Text(p.practice.name, style = Theme.type.cardTitle, color = Theme.colors.ink, modifier = Modifier.weight(1f, fill = false))
+                Text(p.practice.shownName(), style = Theme.type.cardTitle, color = Theme.colors.ink, modifier = Modifier.weight(1f, fill = false))
                 if (streak.current > 0) {
                     val label = pluralStringResource(R.plurals.days, streak.current, streak.current)
                     Row(Modifier.semantics { contentDescription = label }, verticalAlignment = Alignment.CenterVertically,
@@ -165,7 +167,7 @@ private fun statusLine(p: TrackedPractice, snapshot: Snapshot, done: Boolean): S
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val target = p.practice.target
     val parts = buildList {
-        p.practice.secondName?.let(::add)
+        p.practice.shownSecondName()?.let(::add)
         if (rounds != null && target != null) {
             add(
                 if (rounds.round > 1) stringResource(R.string.status_round, rounds.round, rounds.inRound.grouped(), target.grouped())

@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,6 +60,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var failure by remember { mutableStateOf<String?>(null) }
+    val withAccount = hasAccount(model)
     Page(stringResource(R.string.section_your_data), back) {
         CardSection(footer = stringResource(R.string.export_footer)) {
             Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable {
@@ -84,7 +86,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                 Text(stringResource(R.string.export_all), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.accent)
             }
         }
-        CardSection(footer = stringResource(R.string.delete_footer)) {
+        CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
             Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(onClick = openDelete).padding(horizontal = Space.l),
                 horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Delete, contentDescription = null, tint = Theme.colors.destructive)
@@ -107,7 +109,7 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
     var failure by remember { mutableStateOf<String?>(null) }
     Page(stringResource(R.string.delete_everything), back) {
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            Text(stringResource(R.string.delete_explainer))
+            Text(stringResource(if (hasAccount(model)) R.string.delete_explainer_account else R.string.delete_explainer))
             Text(stringResource(R.string.export_first), color = Theme.colors.muted)
         }
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,
@@ -118,6 +120,17 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
         }
     }
     failure?.let { ErrorDialog(stringResource(R.string.could_not_delete), it) { failure = null } }
+}
+
+/**
+ * Whether "Delete everything" also deletes an account: on the server, and so
+ * on the person's other phones at their next sync. A phone signed out of its
+ * account must sign in again before it can delete, so it counts too.
+ */
+@Composable
+private fun hasAccount(model: AppModel): Boolean {
+    val status = model.accounts?.state?.collectAsStateWithLifecycle()?.value?.status
+    return status != null && status != app.duongondro.account.AccountStatus.NONE
 }
 
 @Composable

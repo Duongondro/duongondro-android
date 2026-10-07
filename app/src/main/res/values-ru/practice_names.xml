@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in practice names as each country's practice books have them, generated
+     from the iOS app's Practices.xcstrings (design: Localisation › Practice names).
+     Only practitioners' sources go here; a missing name falls back to English. -->
+<resources>
+    <string name="practice_short_refuge_name">Медитация Прибежища</string>
+    <string name="practice_refuge_second">Простирания</string>
+</resources>

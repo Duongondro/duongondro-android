@@ -58,7 +58,7 @@ object DataExport {
     @Serializable
     private data class PreferencesOut(
         val malaSize: Int, val finishedShortRefuge: Boolean, val finishedNgondro: Boolean,
-        val reminderMinutesAfterMidnight: Int?, val discreetNotifications: Boolean, val gender: String?,
+        val reminderMinutesAfterMidnight: Int?, val discreetNotifications: Boolean,
     )
 
     @Serializable
@@ -83,7 +83,7 @@ object DataExport {
         val p = s.preferences
         val file = PracticeFile(
             exportedAt = now.iso(), appVersion = appVersion,
-            preferences = PreferencesOut(p.malaSize, p.finishedShortRefuge, p.finishedNgondro, p.reminderMinutes, p.discreetNotifications, p.gender?.wire),
+            preferences = PreferencesOut(p.malaSize, p.finishedShortRefuge, p.finishedNgondro, p.reminderMinutes, p.discreetNotifications),
             practices = s.practices.map { t ->
                 val r = t.rounds(s.sessions)
                 PracticeOut(t.id, t.practice.name, t.practice.secondName, t.practice.group.name.replaceFirstChar { it.lowercase() },

@@ -4,7 +4,9 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import app.duongondro.R
-import app.duongondro.core.Gender
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.duongondro.account.Gender
+import app.duongondro.model.AppModel
 
 /**
  * Strings that conjugate for someone's grammatical gender (design: Localisation ›
@@ -22,9 +24,16 @@ enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int,
     fun id(gender: Gender?): Int = when (gender) {
         Gender.Male -> male
         Gender.Female -> female
-        Gender.Nonbinary, null -> neutral
+        Gender.NonBinary, null -> neutral
     }
 }
 
 @Composable
 fun stringResource(s: GenderedString, gender: Gender?, vararg args: Any): String = stringResource(s.id(gender), *args)
+
+/** The person's own gender, as their account keeps it; null without an account or when not given. */
+@Composable
+fun AppModel.ownGender(): Gender? {
+    val accounts = accounts ?: return null
+    return accounts.state.collectAsStateWithLifecycle().value.gender
+}

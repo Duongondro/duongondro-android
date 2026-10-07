@@ -1,6 +1,5 @@
 package app.duongondro.model
 
-import app.duongondro.core.Gender
 import app.duongondro.core.Session
 import app.duongondro.core.StreakSeed
 import app.duongondro.core.TrackedPractice
@@ -33,8 +32,6 @@ data class Preferences(
     /** Minutes after local midnight for the streak-at-risk reminder; null for none. */
     val reminderMinutes: Int? = null,
     val discreetNotifications: Boolean = false,
-    /** For conjugating in the Slavic languages; null when not given. */
-    val gender: Gender? = null,
 )
 
 /** The local database: every write goes through here, the UI observes `snapshot`. */

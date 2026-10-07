@@ -1,6 +1,8 @@
 package app.duongondro.ui.settings
 
 import android.content.ClipData
+import app.duongondro.ui.shownName
+import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
@@ -79,18 +81,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.BuildConfig
 import app.duongondro.R
 import app.duongondro.core.Catalogue
-import app.duongondro.core.Gender
 import app.duongondro.core.TrackedPractice
 import app.duongondro.model.AppModel
 import app.duongondro.ui.PracticeName
 import app.duongondro.ui.card
 import app.duongondro.ui.onboarding.CustomPracticeDialog
+import app.duongondro.ui.grouped
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import android.icu.text.DisplayContext
+import android.icu.text.LocaleDisplayNames
+import android.icu.util.ULocale
 import java.util.Locale
 import app.duongondro.reminders.Reminders
 import app.duongondro.reminders.rememberNotificationPermission
@@ -102,7 +107,10 @@ private const val SHOW_LANGUAGE = true
 private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es")
 
 @Composable
-fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit) {
+fun SettingsScreen(
+    model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit,
+    openSignIn: () -> Unit, openNewAccount: () -> Unit, openRecoveryCode: () -> Unit, openInvite: () -> Unit,
+) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
     Column(
@@ -123,8 +131,6 @@ fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () 
                 LanguageRow()
                 RowDivider()
             }
-            GenderRow(snapshot.preferences.gender) { g -> model.updatePreferences { it.copy(gender = g) } }
-            RowDivider()
             Column(Modifier.fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.s)) {
                 Text(stringResource(R.string.mala_counts_as), style = Theme.type.body, color = Theme.colors.ink)
                 MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
@@ -137,6 +143,8 @@ fun SettingsScreen(model: AppModel, openPractices: () -> Unit, openYourData: () 
                 model.updatePreferences { it.copy(discreetNotifications = v) }
             }
         }
+
+        model.accounts?.let { AccountSection(it, openSignIn, openNewAccount, openRecoveryCode, openInvite) }
 
         CardSection(stringResource(R.string.section_your_data)) {
             ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)
@@ -262,23 +270,64 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
     }
 }
 
-/** 100 or 108; with `default`, a third choice "Default (n)" that stores null. */
+/** What a mala may count as when the person types their own number. */
+private const val MALA_MIN = 1
+private const val MALA_MAX = 10_000
+
+/**
+ * 108 or a custom number the person types; with `default`, a first choice
+ * "Default (n)" that stores null. Anything but 108 (a 100 chosen earlier
+ * included) shows as a custom value.
+ */
 @Composable
 private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
-    val options: List<Pair<Int?, String>> = buildList {
-        default?.let { add(null to stringResource(R.string.mala_default, it)) }
-        add(100 to "100")
-        add(108 to "108")
+    var custom by rememberSaveable { mutableStateOf(selected != null && selected != 108) }
+    val isCustom = custom || (selected != null && selected != 108)
+    val defaultLabel = default?.let { stringResource(R.string.mala_default, it) }
+    val customLabel = stringResource(R.string.mala_custom)
+    val options = buildList {
+        defaultLabel?.let { add(0 to it) }
+        add(1 to "108")
+        add(2 to customLabel)
+    }
+    val current = when {
+        isCustom -> 2
+        selected == null && default != null -> 0
+        else -> 1
     }
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-        options.forEachIndexed { i, (value, label) ->
-            SegmentedButton(selected = selected == value, onClick = { pick(value) },
+        options.forEachIndexed { i, (key, label) ->
+            SegmentedButton(selected = current == key, onClick = {
+                custom = key == 2
+                when (key) {
+                    0 -> pick(null)
+                    1 -> pick(108)
+                }
+            },
                 shape = SegmentedButtonDefaults.itemShape(i, options.size, MaterialTheme.shapes.small),
                 colors = SegmentedButtonDefaults.colors(
                     activeContainerColor = Theme.colors.accent, activeContentColor = Theme.colors.onAccent, activeBorderColor = Theme.colors.accent,
                     inactiveContainerColor = Theme.colors.softFill, inactiveContentColor = Theme.colors.soft, inactiveBorderColor = Theme.colors.softFill),
-                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold)) }
+                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold), maxLines = 1) }
         }
+    }
+    if (isCustom) {
+        var text by rememberSaveable { mutableStateOf(selected?.takeIf { it != 108 }?.toString().orEmpty()) }
+        // Digits only, and only a number in range is taken: anything else leaves the
+        // field as it was, so no hint is needed. Emptied, it picks nothing until retyped.
+        OutlinedTextField(
+            text, { t ->
+                val digits = t.filter { c -> c in '0'..'9' }
+                val n = digits.toIntOrNull()
+                when {
+                    digits.isEmpty() -> text = ""
+                    n != null && n in MALA_MIN..MALA_MAX -> { text = n.toString(); pick(n) }
+                }
+            },
+            label = { Text(stringResource(R.string.mala_custom_label)) }, singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -318,43 +367,10 @@ private fun LanguageRow() {
     }
 }
 
-/**
- * Optional grammatical gender, only for conjugating in the Slavic languages (design:
- * Localisation › Grammatical gender); kept on the phone until accounts arrive here.
- */
-@Composable
-private fun GenderRow(current: Gender?, choose: (Gender?) -> Unit) {
-    var open by remember { mutableStateOf(false) }
-    val options = listOf(null to R.string.gender_not_given, Gender.Male to R.string.gender_male,
-        Gender.Female to R.string.gender_female, Gender.Nonbinary to R.string.gender_nonbinary)
-    ListRow(stringResource(R.string.gender), detail = stringResource(options.first { it.first == current }.second), chevron = true,
-        onClick = { open = true })
-    if (open) {
-        AlertDialog(
-            onDismissRequest = { open = false },
-            title = { Text(stringResource(R.string.gender)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                    options.forEach { (gender, label) ->
-                        Row(
-                            Modifier.fillMaxWidth().clickable(role = Role.RadioButton) { open = false; choose(gender) },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = current == gender, onClick = null)
-                            Text(stringResource(label), Modifier.padding(start = Space.s))
-                        }
-                    }
-                    Text(stringResource(R.string.gender_detail), style = Theme.type.secondary, color = Theme.colors.muted)
-                }
-            },
-            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel)) } },
-        )
-    }
-}
-
+/** The language's own name as CLDR writes it, never capitalised: "polski", "čeština", "Deutsch". */
 private fun nativeName(code: String): String {
-    val locale = Locale.forLanguageTag(code)
-    return locale.getDisplayLanguage(locale)
+    val locale = ULocale.forLanguageTag(code)
+    return LocaleDisplayNames.getInstance(locale, DisplayContext.CAPITALIZATION_NONE).languageDisplayName(locale.language)
 }
 
 /** Add any built-in practice the path allows, or a custom one, at any time. */
@@ -397,7 +413,7 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     val p = snapshot.practices.firstOrNull { it.id == practiceId } ?: return
     val save = { q: TrackedPractice -> model.save(q) }
-    Page(p.practice.name, back) {
+    Page(p.practice.shownName(), back) {
         if (p.practice.isCustom) {
             DebouncedField(p.practice.name, stringResource(R.string.name), numeric = false) { v ->
                 if (v.isNotBlank()) save(p.copy(practice = p.practice.copy(name = v.trim())))

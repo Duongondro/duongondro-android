@@ -2,6 +2,8 @@ package app.duongondro.model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.duongondro.account.AccountManager
+import app.duongondro.core.uuidV7
 import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
@@ -29,7 +31,14 @@ data class AfterMidnightPrompt(val session: Session, val sheet: AfterMidnight)
  * What the UI shows, from the store, plus the in-memory state that must never
  * reach it early: the undo window.
  */
-class AppModel(val store: Store, private val clock: () -> Instant = Instant::now) : ViewModel() {
+class AppModel(
+    val store: Store,
+    private val clock: () -> Instant = Instant::now,
+    context: android.content.Context? = null,
+) : ViewModel() {
+    /** Every server and key operation; none for previews and tests without a database. */
+    val accounts: AccountManager? = (store as? SqliteStore)?.let { s -> context?.let { AccountManager(it, s, viewModelScope, onInvitationUsed = { usedInvite() }) } }
+
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
     private val _pending = MutableStateFlow<PendingLog?>(null)
@@ -58,12 +67,47 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     /** Bumped by "Delete everything", so onboarding starts again from Welcome with no old answers. */
     val generation: StateFlow<Int> = _generation.asStateFlow()
 
+    private val _inviteCode = MutableStateFlow<String?>(null)
+    /**
+     * An invitation code from an opened link: before onboarding it is kept so the
+     * invitation screen is skipped; with an account that has keys, it is offered
+     * for accepting.
+     */
+    val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
+
+    private val _magicLink = MutableStateFlow<String?>(null)
+    /**
+     * The token of a magic link opened on this phone, kept only when this phone
+     * asked for a link in the last 15 minutes; only Check your email redeems it.
+     */
+    val magicLink: StateFlow<String?> = _magicLink.asStateFlow()
+
+    fun openedInvite(code: String) { _inviteCode.value = code }
+    /** The opened invitation was accepted or declined by an account that already has its keys. */
+    fun usedInvite() { _inviteCode.value = null }
+    fun openedMagicLink(token: String) {
+        _magicLink.value = token.takeIf { accounts?.expectsLink() == true }
+    }
+    fun usedMagicLink() { _magicLink.value = null }
+
     init {
         if (store is SqliteStore) viewModelScope.launch {
             // Shown either way: a failed read must not leave a blank screen.
-            try { store.load() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+            try {
+                store.load()
+                accounts?.load()
+            } catch (e: Exception) {
+                _storageError.value = e.message ?: e.toString()
+            }
             _loaded.value = true
+            accounts?.syncNow()
         }
+    }
+
+    /** Back in the foreground: sync, if there is an account. */
+    fun resumed() {
+        tick()
+        if (_loaded.value) viewModelScope.launch { accounts?.syncNow() }
     }
 
     /**
@@ -73,12 +117,26 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     fun purge(context: android.content.Context, onFailure: (String) -> Unit) {
         viewModelScope.launch {
             try {
+                // The server's copy goes first: if that fails, nothing here is deleted.
+                accounts?.deleteOnServer()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: AccountManager.SignInToDelete) {
+                onFailure(context.getString(app.duongondro.R.string.sign_in_to_delete))
+                return@launch
+            } catch (e: Exception) {
+                onFailure(context.getString(app.duongondro.R.string.account_error))
+                return@launch
+            }
+            try {
                 app.duongondro.data.Purge.run(context.applicationContext, this@AppModel)
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
                 onFailure(e.message ?: e.toString())
             } finally {
+                // The server's copy is gone: the account goes too, even if part of the local purge failed.
+                accounts?.forget()
                 _generation.value += 1
             }
         }
@@ -139,11 +197,12 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
         _pending.value = null
         // Always estimated; the after-midnight sheet corrects a wrong day in one tap.
         val startedAt = SessionStart.estimate(p.openedAt, null, SessionStart.timedLengths(snapshot.value.sessions))
-        val session = Session(practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
+        val session = Session(id = uuidV7(p.openedAt), practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
             startExact = false, zoneId = zone.id, loggedAt = p.openedAt)
         perform {
             store.insert(session)
             AfterMidnight.check(session)?.let { _afterMidnight.value = AfterMidnightPrompt(session, it) }
+            accounts?.scheduleSync()
         }
     }
 
@@ -163,7 +222,10 @@ class AppModel(val store: Store, private val clock: () -> Instant = Instant::now
     fun choose(day: LocalDate, prompt: AfterMidnightPrompt) {
         val startDay = civilDate(prompt.session.startedAt, prompt.session.zone)
         _afterMidnight.value = null
-        perform { store.choose(if (day == startDay) null else day, prompt.session.id) }
+        perform {
+            store.choose(if (day == startDay) null else day, prompt.session.id)
+            accounts?.scheduleSync()
+        }
     }
 
     fun dismissAfterMidnight() { _afterMidnight.value = null }

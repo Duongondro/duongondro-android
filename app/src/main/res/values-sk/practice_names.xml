@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in practice names as each country's practice books have them, generated
+     from the iOS app's Practices.xcstrings (design: Localisation › Practice names).
+     Only practitioners' sources go here; a missing name falls back to English. -->
+<resources>
+    <string name="practice_short_refuge_name">Meditácia útočiska</string>
+    <string name="practice_refuge_name">Prijatie útočiska a rozvoj osvieteného postoja</string>
+    <string name="practice_refuge_second">Poklony</string>
+    <string name="practice_dorje_sempa_name">Meditácia na Diamantovú myseľ</string>
+    <string name="practice_dorje_sempa_second">Dorje Sempa</string>
+    <string name="practice_mandala_name">Darovanie mandaly</string>
+    <string name="practice_guru_yoga_name">Meditácia na Lamu</string>
+    <string name="practice_guru_yoga_second">Guru joga</string>
+    <string name="practice_8th_karmapa_name">Meditácia na 8. Karmapu</string>
+    <string name="practice_16th_karmapa_name">Meditácia na 16. Karmapu</string>
+    <string name="practice_chenrezig_name">Meditácia na buddhu Milujúce oči</string>
+    <string name="practice_chenrezig_second">Chenrezig</string>
+    <string name="practice_amitabha_name">Meditácia na Buddhu neobmedzeného svetla</string>
+    <string name="practice_amitabha_second">Amitabha</string>
+</resources>
