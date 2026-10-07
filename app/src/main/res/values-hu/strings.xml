@@ -88,8 +88,6 @@
     <string name="yesterday">Tegnap</string>
     <string name="longest_optional">Leghosszabb sorozat (nem kötelező)</string>
     <string name="seed_footer">Az eddigi sorozatod a saját Ma képernyődön számít. A barátok csak az alkalmazásban követett napokat látják.</string>
-    <string name="q_mala">Mennyit számít egy mala?</string>
-    <string name="q_mala_detail">A tanítók eltérnek ebben. Minden gyakorlatnál módosíthatod később a Beállításokban.</string>
     <string name="q_reminder">Mikor emlékeztessünk?</string>
     <string name="q_reminder_detail">Esti emlékeztető, ha veszélyben van a sorozatod. Ezen a telefonon van beütemezve, semmi nem hagyja el.</string>
     <string name="remind_at_time">Emlékeztessen ekkor: %1$s</string>
@@ -165,6 +163,9 @@
     <string name="discreet_detail">A zárolt képernyőn a gyakorlat helyett az áll: „Egy barát gyakorolt”.</string>
     <string name="target_per_round">Cél körönként</string>
     <string name="mala_default">Alapértelmezett (%1$d)</string>
+    <string name="mala_custom">Egyéni…</string>
+    <string name="mala_custom_label">A mala értéke</string>
+    <string name="mala_custom_range">%1$s és %2$s között</string>
     <string name="streak_only_kept">Az eddig rögzített számok megmaradnak.</string>
     <string name="archive">Archiválás</string>
     <string name="unarchive">Újra megjelenítés a Ma képernyőn</string>

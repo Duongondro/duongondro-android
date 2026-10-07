@@ -92,8 +92,6 @@
     <string name="yesterday">Včera</string>
     <string name="longest_optional">Nejdelší série (nepovinné)</string>
     <string name="seed_footer">Tvá dosavadní série se počítá na tvé obrazovce Dnes. Přátelé vždy vidí jen dny sledované v aplikaci.</string>
-    <string name="q_mala">Kolik se počítá jedna mala?</string>
-    <string name="q_mala_detail">Učitelé to vidí různě. Každá praktika to může později změnit v Nastavení.</string>
     <string name="q_reminder">Kdy ti to máme připomenout?</string>
     <string name="q_reminder_detail">Večerní připomenutí, když je série v ohrožení. Plánuje se v tomto telefonu a nic z něj neodchází.</string>
     <string name="remind_at_time">Připomenout v %1$s</string>
@@ -169,6 +167,9 @@
     <string name="discreet_detail">Zamčená obrazovka ukáže „Přítel praktikoval“ místo názvu praktiky.</string>
     <string name="target_per_round">Cíl na kolo</string>
     <string name="mala_default">Výchozí (%1$d)</string>
+    <string name="mala_custom">Vlastní…</string>
+    <string name="mala_custom_label">Velikost maly</string>
+    <string name="mala_custom_range">Od %1$s do %2$s</string>
     <string name="streak_only_kept">Dosud zapsané počty zůstanou zachované.</string>
     <string name="archive">Archivovat</string>
     <string name="unarchive">Znovu zobrazit na obrazovce Dnes</string>

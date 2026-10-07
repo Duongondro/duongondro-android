@@ -86,6 +86,7 @@ import app.duongondro.model.AppModel
 import app.duongondro.ui.PracticeName
 import app.duongondro.ui.card
 import app.duongondro.ui.onboarding.CustomPracticeDialog
+import app.duongondro.ui.grouped
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
 import kotlinx.coroutines.launch
@@ -269,23 +270,59 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
     }
 }
 
-/** 100 or 108; with `default`, a third choice "Default (n)" that stores null. */
+/** What a mala may count as when the person types their own number. */
+private const val MALA_MIN = 1
+private const val MALA_MAX = 10_000
+
+/**
+ * 108 or a custom number the person types; with `default`, a first choice
+ * "Default (n)" that stores null. Anything but 108 (a 100 chosen earlier
+ * included) shows as a custom value.
+ */
 @Composable
 private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
-    val options: List<Pair<Int?, String>> = buildList {
-        default?.let { add(null to stringResource(R.string.mala_default, it)) }
-        add(100 to "100")
-        add(108 to "108")
+    var custom by rememberSaveable { mutableStateOf(selected != null && selected != 108) }
+    val isCustom = custom || (selected != null && selected != 108)
+    val defaultLabel = default?.let { stringResource(R.string.mala_default, it) }
+    val customLabel = stringResource(R.string.mala_custom)
+    val options = buildList {
+        defaultLabel?.let { add(0 to it) }
+        add(1 to "108")
+        add(2 to customLabel)
+    }
+    val current = when {
+        isCustom -> 2
+        selected == null && default != null -> 0
+        else -> 1
     }
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-        options.forEachIndexed { i, (value, label) ->
-            SegmentedButton(selected = selected == value, onClick = { pick(value) },
+        options.forEachIndexed { i, (key, label) ->
+            SegmentedButton(selected = current == key, onClick = {
+                custom = key == 2
+                when (key) {
+                    0 -> pick(null)
+                    1 -> pick(108)
+                }
+            },
                 shape = SegmentedButtonDefaults.itemShape(i, options.size, MaterialTheme.shapes.small),
                 colors = SegmentedButtonDefaults.colors(
                     activeContainerColor = Theme.colors.accent, activeContentColor = Theme.colors.onAccent, activeBorderColor = Theme.colors.accent,
                     inactiveContainerColor = Theme.colors.softFill, inactiveContentColor = Theme.colors.soft, inactiveBorderColor = Theme.colors.softFill),
-                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold)) }
+                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold), maxLines = 1) }
         }
+    }
+    if (isCustom) {
+        var text by rememberSaveable { mutableStateOf(selected?.takeIf { it != 108 }?.toString().orEmpty()) }
+        val value = text.toIntOrNull()
+        val valid = value != null && value in MALA_MIN..MALA_MAX
+        OutlinedTextField(
+            text, { t -> text = t.filter { c -> c in '0'..'9' }.take(5).also { n -> n.toIntOrNull()?.takeIf { it in MALA_MIN..MALA_MAX }?.let(pick) } },
+            label = { Text(stringResource(R.string.mala_custom_label)) }, singleLine = true,
+            isError = text.isNotEmpty() && !valid,
+            supportingText = { Text(stringResource(R.string.mala_custom_range, MALA_MIN.grouped(), MALA_MAX.grouped())) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

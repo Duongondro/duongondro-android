@@ -92,8 +92,6 @@
     <string name="yesterday">Вчера</string>
     <string name="longest_optional">Самая длинная серия (по желанию)</string>
     <string name="seed_footer">Ваша серия до сих пор учитывается на вашем экране «Сегодня». Друзья видят только дни, отмеченные в приложении.</string>
-    <string name="q_mala">Сколько засчитывается за одну малу?</string>
-    <string name="q_mala_detail">Учителя говорят по-разному. Для каждой практики это можно изменить позже в настройках.</string>
     <string name="q_reminder">Когда вам напомнить?</string>
     <string name="q_reminder_detail">Вечернее напоминание, когда серия под угрозой. Оно настраивается на этом телефоне, и ничего не уходит с него.</string>
     <string name="remind_at_time">Напомнить в %1$s</string>
@@ -169,6 +167,9 @@
     <string name="discreet_detail">На экране блокировки будет «Друг практиковал» вместо названия практики.</string>
     <string name="target_per_round">Цель на круг</string>
     <string name="mala_default">По умолчанию (%1$d)</string>
+    <string name="mala_custom">Своё…</string>
+    <string name="mala_custom_label">Размер малы</string>
+    <string name="mala_custom_range">От %1$s до %2$s</string>
     <string name="streak_only_kept">Уже записанные счётчики сохраняются.</string>
     <string name="archive">В архив</string>
     <string name="unarchive">Снова показывать в «Сегодня»</string>

@@ -94,8 +94,6 @@
     <string name="yesterday">Gestern</string>
     <string name="longest_optional">Längste Serie (optional)</string>
     <string name="seed_footer">Deine bisherige Serie zählt auf deinem eigenen Heute-Bildschirm. Freunde sehen immer nur die in der App erfassten Tage.</string>
-    <string name="q_mala">Wie viel zählt eine Mala?</string>
-    <string name="q_mala_detail">Lehrer sehen das unterschiedlich. Jede Übung kann das später in den Einstellungen ändern.</string>
     <string name="q_reminder">Wann sollen wir dich erinnern?</string>
     <string name="q_reminder_detail">Ein Anstoß am Abend, wenn deine Serie in Gefahr ist. Er wird auf diesem Handy geplant; nichts verlässt es.</string>
     <string name="remind_at_time">Erinnere mich um %1$s</string>
@@ -173,6 +171,9 @@
     <string name="discreet_detail">Auf dem Sperrbildschirm steht „Ein Freund hat geübt“ statt der Übung.</string>
     <string name="target_per_round">Ziel pro Runde</string>
     <string name="mala_default">Standard (%1$d)</string>
+    <string name="mala_custom">Eigene…</string>
+    <string name="mala_custom_label">Größe der Mala</string>
+    <string name="mala_custom_range">Von %1$s bis %2$s</string>
     <string name="streak_only_kept">Bisher erfasste Zählungen bleiben erhalten.</string>
     <string name="archive">Archivieren</string>
     <string name="unarchive">Wieder unter „Heute“ zeigen</string>

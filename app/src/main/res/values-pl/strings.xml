@@ -98,8 +98,6 @@
     <string name="yesterday">Wczoraj</string>
     <string name="longest_optional">Najdłuższa seria (opcjonalnie)</string>
     <string name="seed_footer">Dotychczasowa seria liczy się na Twoim ekranie Dziś. Przyjaciele widzą wyłącznie dni śledzone w aplikacji.</string>
-    <string name="q_mala">Ile liczy jedna mala?</string>
-    <string name="q_mala_detail">Nauczyciele podchodzą do tego różnie. Każda praktyka może to później zmienić w Ustawieniach.</string>
     <string name="q_reminder">Kiedy mamy Ci przypominać?</string>
     <string name="q_reminder_detail">Wieczorne przypomnienie, gdy seria jest zagrożona. Jest ustawiane na tym telefonie i nic go nie opuszcza.</string>
     <string name="remind_at_time">Przypomnij mi o %1$s</string>
@@ -177,6 +175,9 @@
     <string name="discreet_detail">Ekran blokady pokazuje „Przyjaciel praktykował” zamiast nazwy praktyki.</string>
     <string name="target_per_round">Cel na rundę</string>
     <string name="mala_default">Domyślnie (%1$d)</string>
+    <string name="mala_custom">Własna…</string>
+    <string name="mala_custom_label">Rozmiar mali</string>
+    <string name="mala_custom_range">Od %1$s do %2$s</string>
     <string name="streak_only_kept">Dotychczasowe liczby zostają zachowane.</string>
     <string name="archive">Archiwizuj</string>
     <string name="unarchive">Pokaż ponownie w Dziś</string>

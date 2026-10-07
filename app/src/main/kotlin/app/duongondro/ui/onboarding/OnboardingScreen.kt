@@ -112,7 +112,6 @@ sealed interface Step {
     data object FinishedShortRefuge : Step
     data object Practices : Step
     data class Counts(val index: Int) : Step
-    data object Mala : Step
     data object Reminder : Step
     /** "Keep it on this phone, or online?" */
     data object Where : Step
@@ -158,7 +157,6 @@ class OnboardingFlow : ViewModel() {
     var finishedNgondro by mutableStateOf(false)
     var finishedShortRefuge by mutableStateOf(false)
     val chosen = mutableStateListOf<Chosen>()
-    var malaSize by mutableStateOf(108)
     var reminder by mutableStateOf<LocalTime?>(LocalTime.of(20, 0))
 
     /** True after "I already have an account": the email steps then sign in rather than sign up. */
@@ -243,7 +241,6 @@ class OnboardingFlow : ViewModel() {
             onboarded = true,
             finishedNgondro = finishedNgondro,
             finishedShortRefuge = finishedShortRefuge || finishedNgondro,
-            malaSize = malaSize,
             // Signing in skips the practice questions, the reminder's among them.
             reminderMinutes = if (signingIn) null else reminder?.let { it.hour * 60 + it.minute },
         )
@@ -259,7 +256,7 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
     Step.FinishedNgondro -> 1 to PRACTICE_STEPS
     Step.FinishedShortRefuge -> 2 to PRACTICE_STEPS
     Step.Practices -> 3 to PRACTICE_STEPS
-    is Step.Counts, Step.Mala -> 4 to PRACTICE_STEPS
+    is Step.Counts -> 4 to PRACTICE_STEPS
     Step.Reminder -> 5 to PRACTICE_STEPS
     Step.Email, Step.CheckEmail, Step.Username -> if (signingIn) null else 1 to ACCOUNT_STEPS
     Step.Name -> if (signingIn) null else 2 to ACCOUNT_STEPS
@@ -307,9 +304,6 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
                 no = { flow.finishedShortRefuge = false; flow.pruneToAvailable(); flow.go(Step.Practices) })
             Step.Practices -> Practices(flow)
             is Step.Counts -> Counts(flow, step.index)
-            Step.Mala -> Choice(stringResource(R.string.q_mala), stringResource(R.string.q_mala_detail), listOf(100, 108)) {
-                flow.malaSize = it; flow.go(Step.Reminder)
-            }
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
             Step.Invite -> InviteStep(flow, model, accounts, finishLocal)
@@ -404,20 +398,6 @@ private fun ColumnScope.YesNo(title: String, detail: String, yes: () -> Unit, no
         FilledAction(stringResource(R.string.yes), height = Size.answer, onClick = yes)
         OutlinedAction(stringResource(R.string.no), height = Size.answer, border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
             container = Color.Transparent, onClick = no)
-    }
-}
-
-@Composable
-private fun ColumnScope.Choice(title: String, detail: String, options: List<Int>, pick: (Int) -> Unit) {
-    Spacer(Modifier.weight(1f))
-    Text(title, style = Theme.type.question, color = Theme.colors.ink)
-    Text(detail, style = Theme.type.lead, color = Theme.colors.soft, modifier = Modifier.padding(top = Space.l))
-    Spacer(Modifier.weight(1f))
-    Column(Modifier.padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        options.forEachIndexed { i, v ->
-            if (i == 0) FilledAction("$v", height = Size.answer) { pick(v) } else OutlinedAction("$v", height = Size.answer, border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
-                container = Color.Transparent) { pick(v) }
-        }
     }
 }
 
@@ -565,7 +545,7 @@ private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
     }
     Column(Modifier.padding(vertical = Space.l)) {
         Primary(stringResource(R.string.continue_)) {
-            flow.go(if (index + 1 < flow.chosen.size) Step.Counts(index + 1) else Step.Mala)
+            flow.go(if (index + 1 < flow.chosen.size) Step.Counts(index + 1) else Step.Reminder)
         }
     }
 }

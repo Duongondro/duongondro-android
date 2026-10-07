@@ -97,8 +97,6 @@
     <string name="yesterday">Ayer</string>
     <string name="longest_optional">Racha más larga (opcional)</string>
     <string name="seed_footer">Tu racha hasta ahora cuenta en tu propia pantalla de Hoy. Tus amigos solo ven los días registrados en la app.</string>
-    <string name="q_mala">¿Cuánto cuenta una mala?</string>
-    <string name="q_mala_detail">Los maestros no coinciden. Cada práctica puede cambiarlo después en Ajustes.</string>
     <string name="q_reminder">¿Cuándo quieres que te recordemos?</string>
     <string name="q_reminder_detail">Un recordatorio por la tarde cuando tu racha está en riesgo. Se programa en este teléfono; nada sale de él.</string>
     <string name="remind_at_time">Recordarme a las %1$s</string>
@@ -176,6 +174,9 @@
     <string name="discreet_detail">La pantalla de bloqueo dice “Un amigo practicó” en lugar de nombrar la práctica.</string>
     <string name="target_per_round">Objetivo por ronda</string>
     <string name="mala_default">Predeterminado (%1$d)</string>
+    <string name="mala_custom">Personalizada…</string>
+    <string name="mala_custom_label">Tamaño de la mala</string>
+    <string name="mala_custom_range">De %1$s a %2$s</string>
     <string name="streak_only_kept">Los conteos registrados hasta ahora se conservan.</string>
     <string name="archive">Archivar</string>
     <string name="unarchive">Volver a mostrar en Hoy</string>

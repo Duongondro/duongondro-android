@@ -96,8 +96,6 @@
     <string name="yesterday">Yesterday</string>
     <string name="longest_optional">Longest streak (optional)</string>
     <string name="seed_footer">Your streak so far counts on your own Today screen. Friends only ever see days tracked in the app.</string>
-    <string name="q_mala">How much does one mala count?</string>
-    <string name="q_mala_detail">Teachers differ. Each practice can change this later in Settings.</string>
     <string name="q_reminder">When should we remind you?</string>
     <string name="q_reminder_detail">An evening nudge when a streak is at risk. It is scheduled on this phone; nothing leaves it.</string>
     <string name="remind_at_time">Remind me at %1$s</string>
@@ -176,6 +174,9 @@
     <string name="discreet_detail">Lock screens say “A friend practised” instead of the practice.</string>
     <string name="target_per_round">Target per round</string>
     <string name="mala_default">Default (%1$d)</string>
+    <string name="mala_custom">Custom…</string>
+    <string name="mala_custom_label">Mala size</string>
+    <string name="mala_custom_range">From %1$s to %2$s</string>
     <string name="streak_only_kept">Counts logged so far are kept.</string>
     <string name="archive">Archive</string>
     <string name="unarchive">Show on Today again</string>
