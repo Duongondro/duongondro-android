@@ -501,10 +501,28 @@ class AccountManager(
         }
     }
 
+    /** A sync was asked for while one ran: it runs once more after, to send what changed meanwhile. */
+    @Volatile private var rerun = false
+
     suspend fun syncNow() {
+        while (true) {
+            if (account == null || _state.value.status != AccountStatus.READY) return
+            if (!syncLock.tryLock()) {
+                rerun = true
+                return
+            }
+            rerun = false
+            try {
+                syncOnce()
+            } finally {
+                syncLock.unlock()
+            }
+            if (!rerun) return
+        }
+    }
+
+    private suspend fun syncOnce() {
         val a = account ?: return
-        if (_state.value.status != AccountStatus.READY) return
-        if (!syncLock.tryLock()) return
         // A sign-out or "Delete everything" that ran meanwhile ended this account
         // here: nothing this sync learns may touch the state or the token after it.
         val generation = db.generation
@@ -535,7 +553,6 @@ class AccountManager(
             _state.update { it.copy(offline = true) }
         } finally {
             _state.update { it.copy(syncing = false) }
-            syncLock.unlock()
         }
     }
 
