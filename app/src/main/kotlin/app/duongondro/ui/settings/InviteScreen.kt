@@ -1,6 +1,9 @@
 package app.duongondro.ui.settings
 
 import android.content.ClipData
+import android.content.ClipDescription
+import android.os.Build
+import android.os.PersistableBundle
 import android.content.Intent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -223,7 +226,13 @@ private fun InviteShown(invite: MadeInvite) {
     }
     OutlinedAction(stringResource(if (copied) R.string.copied else R.string.invite_copy)) {
         scope.launch {
-            clipboard.setClipEntry(ClipData.newPlainText(clipLabel, invite.code).toClipEntry())
+            // Anyone with the code can join and befriend: keep it out of clipboard previews.
+            val clip = ClipData.newPlainText(clipLabel, invite.code).apply {
+                description.extras = PersistableBundle().apply {
+                    putBoolean(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ClipDescription.EXTRA_IS_SENSITIVE else IS_SENSITIVE, true)
+                }
+            }
+            clipboard.setClipEntry(clip.toClipEntry())
             copied = true
         }
     }
@@ -293,3 +302,5 @@ private const val DOT_INSET = 0.08f
 private const val GROUPS_PER_LINE = 3
 private const val COPIED_MS = 2_000L
 private const val MINUTES_PER_DAY = 1440.0
+/** ClipDescription.EXTRA_IS_SENSITIVE before API 33, which some keyboards and launchers read. */
+private const val IS_SENSITIVE = "android.content.extra.IS_SENSITIVE"
