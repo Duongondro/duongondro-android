@@ -205,6 +205,8 @@
     <string name="delete_everything">Alles löschen</string>
     <string name="delete_footer">Entfernt alle deine Daten von diesem Handy. Das lässt sich nicht rückgängig machen.</string>
     <string name="delete_explainer">Das löscht jede Übung, Sitzung und Serie auf diesem Handy, deine Erinnerungen und alle Schlüssel, die die App hält, und kehrt dann zum Anfang zurück.</string>
+    <string name="delete_footer_account">Löscht dein Konto und alle seine Daten auf dem Server, auf diesem Handy und auf deinen anderen Handys. Das lässt sich nicht rückgängig machen.</string>
+    <string name="delete_explainer_account">Das löscht dein Konto und alles, was mit ihm auf dem Server gespeichert ist: deine verschlüsselten Sitzungen, Freunde, öffentlichen Serien, Einladungen, Passkeys und Anmeldungen. Deine anderen Handys verwerfen ihre Kopie bei der nächsten Synchronisierung. Auf diesem Handy löscht es jede Übung, Sitzung und Serie, deine Erinnerungen und die Schlüssel der App und kehrt dann zum Anfang zurück.</string>
     <string name="export_first">Exportiere zuerst, wenn du eine Kopie möchtest.</string>
     <string name="delete_word" translatable="true">löschen</string>
     <string name="type_to_confirm">Zum Bestätigen „%1$s“ eingeben</string>
@@ -237,7 +239,6 @@
     <string name="restore_label">Wiederherstellungscode</string>
     <string name="restore_wrong">Dieser Wiederherstellungscode öffnet dieses Konto nicht.</string>
     <string name="sign_in_to_delete">Dieses Handy gehört zu einem Konto, ist aber abgemeldet. Melde dich zuerst wieder an, damit auch die Kopie auf dem Server gelöscht wird.</string>
-    <string name="delete_server">Zuerst werden dein Konto und alles, was der Server über dich speichert, gelöscht.</string>
     <string name="section_account">Konto</string>
     <string name="account_signed_in_as">Angemeldet als</string>
     <string name="account_name">Dein Name</string>

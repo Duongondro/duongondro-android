@@ -199,6 +199,8 @@
     <string name="delete_everything">Zmazať všetko</string>
     <string name="delete_footer">Odstráni všetky tvoje údaje z tohto telefónu. Nedá sa to vrátiť späť.</string>
     <string name="delete_explainer">Zmaže všetky cvičenia, sedenia a série v tomto telefóne, tvoje pripomienky a všetky kľúče, ktoré aplikácia drží, a vráti sa na začiatok.</string>
+    <string name="delete_footer_account">Zmaže tvoj účet a všetky jeho údaje na serveri, v tomto telefóne aj v tvojich ďalších telefónoch. Nedá sa to vrátiť späť.</string>
+    <string name="delete_explainer_account">Zmaže tvoj účet a všetko, čo je s ním uložené na serveri: zašifrované sedenia, priateľov, verejné série, pozvánky, prístupové kľúče a spôsoby prihlásenia. Tvoje ďalšie telefóny svoju kópiu zahodia pri najbližšej synchronizácii. V tomto telefóne zmaže všetky cvičenia, sedenia a série, tvoje pripomienky aj kľúče aplikácie a vráti sa na začiatok.</string>
     <string name="export_first">Ak chceš kópiu, najprv exportuj.</string>
     <string name="delete_word">zmazať</string>
     <string name="type_to_confirm">Na potvrdenie napíš „%1$s“</string>
@@ -230,7 +232,6 @@
     <string name="restore_label">Obnovovací kód</string>
     <string name="restore_wrong">Tento obnovovací kód neotvorí tento účet.</string>
     <string name="sign_in_to_delete">Tento telefón patrí k účtu, ale je odhlásený. Najprv sa prihlás znova, aby sa zmazala aj kópia na serveri.</string>
-    <string name="delete_server">Najprv sa zmaže tvoj účet a všetko, čo o tebe server uchováva.</string>
     <string name="section_account">Účet</string>
     <string name="account_signed_in_as">Prihlásený/á ako</string>
     <string name="account_name">Tvoje meno</string>

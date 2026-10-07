@@ -199,6 +199,8 @@
     <string name="delete_everything">Smazat vše</string>
     <string name="delete_footer">Odstraní všechna tvá data z tohoto telefonu. Nelze to vrátit.</string>
     <string name="delete_explainer">Tím se smaže každá praktika, sezení a série v tomto telefonu, tvá připomenutí i všechny klíče, které aplikace drží, a vrátíš se na začátek.</string>
+    <string name="delete_footer_account">Smaže tvůj účet a všechna jeho data na serveru, v tomto telefonu i v tvých dalších telefonech. Nelze to vrátit.</string>
+    <string name="delete_explainer_account">Tím se smaže tvůj účet a vše, co je s ním uložené na serveru: zašifrovaná sezení, přátelé, veřejné série, pozvánky, přístupové klíče a způsoby přihlášení. Tvé další telefony svou kopii zahodí při příští synchronizaci. V tomto telefonu se smaže každá praktika, sezení a série, tvá připomenutí i klíče aplikace a vrátíš se na začátek.</string>
     <string name="export_first">Chceš-li kopii, nejdřív exportuj.</string>
     <string name="delete_word">smazat</string>
     <string name="type_to_confirm">Pro potvrzení napiš „%1$s“</string>
@@ -230,7 +232,6 @@
     <string name="restore_label">Obnovovací kód</string>
     <string name="restore_wrong">Tento obnovovací kód tento účet neotevře.</string>
     <string name="sign_in_to_delete">Tento telefon patří k účtu, ale je odhlášený. Nejdřív se přihlas znovu, aby se smazala i kopie na serveru.</string>
-    <string name="delete_server">Nejdřív se smaže tvůj účet a vše, co o tobě server uchovává.</string>
     <string name="section_account">Účet</string>
     <string name="account_signed_in_as">Přihlášen(a) jako</string>
     <string name="account_name">Tvé jméno</string>

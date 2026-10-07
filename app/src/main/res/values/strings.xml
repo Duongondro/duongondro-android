@@ -208,6 +208,8 @@
     <string name="delete_everything">Delete everything</string>
     <string name="delete_footer">Removes all your data from this phone. It cannot be undone.</string>
     <string name="delete_explainer">This deletes every practice, session and streak on this phone, your reminders and any keys the app holds, then returns to the start.</string>
+    <string name="delete_footer_account">Deletes your account and all its data, on the server, on this phone and on your other phones. It cannot be undone.</string>
+    <string name="delete_explainer_account">This deletes your account and everything stored with it on the server: your encrypted sessions, friends, public streaks, invitations, passkeys and sign-ins. Your other phones drop their copy at their next sync. On this phone it deletes every practice, session and streak, your reminders and the app\'s keys, then returns to the start.</string>
     <string name="export_first">Export first if you want a copy.</string>
     <string name="delete_word" translatable="true">delete</string>
     <string name="type_to_confirm">Type “%1$s” to confirm</string>
@@ -240,7 +242,6 @@
     <string name="restore_label">Recovery code</string>
     <string name="restore_wrong">That recovery code does not open this account.</string>
     <string name="sign_in_to_delete">This phone belongs to an account, but is signed out. Sign in again first, so the server\'s copy is deleted too.</string>
-    <string name="delete_server">Your account and everything the server holds about you are deleted first.</string>
     <string name="section_account">Account</string>
     <string name="account_signed_in_as">Signed in as</string>
     <string name="account_name">Your name</string>

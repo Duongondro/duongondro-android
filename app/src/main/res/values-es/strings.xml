@@ -209,6 +209,8 @@
     <string name="delete_everything">Eliminar todo</string>
     <string name="delete_footer">Elimina todos tus datos de este teléfono. No se puede deshacer.</string>
     <string name="delete_explainer">Esto elimina todas las prácticas, sesiones y rachas de este teléfono, tus recordatorios y las claves que guarda la app, y luego vuelve al inicio.</string>
+    <string name="delete_footer_account">Elimina tu cuenta y todos sus datos del servidor, de este teléfono y de tus otros teléfonos. No se puede deshacer.</string>
+    <string name="delete_explainer_account">Esto elimina tu cuenta y todo lo que se guarda con ella en el servidor: tus sesiones cifradas, amigos, rachas públicas, invitaciones, llaves de acceso y formas de iniciar sesión. Tus otros teléfonos descartan su copia en la siguiente sincronización. En este teléfono elimina todas las prácticas, sesiones y rachas, tus recordatorios y las claves de la app, y luego vuelve al inicio.</string>
     <string name="export_first">Exporta primero si quieres una copia.</string>
     <string name="delete_word">eliminar</string>
     <string name="type_to_confirm">Escribe “%1$s” para confirmar</string>
@@ -242,7 +244,6 @@
     <string name="restore_label">Código de recuperación</string>
     <string name="restore_wrong">Ese código de recuperación no abre esta cuenta.</string>
     <string name="sign_in_to_delete">Este teléfono pertenece a una cuenta, pero la sesión está cerrada. Inicia sesión de nuevo primero, para que también se elimine la copia del servidor.</string>
-    <string name="delete_server">Primero se eliminan tu cuenta y todo lo que el servidor guarda sobre ti.</string>
     <string name="section_account">Cuenta</string>
     <string name="account_signed_in_as">Sesión iniciada como</string>
     <string name="account_name">Tu nombre</string>
