@@ -83,6 +83,17 @@ sealed interface InviteCheck {
     data object NotAuthentic : InviteCheck
 }
 
+/** An invitation opened by an account that already has its keys, checked before it is accepted. */
+sealed interface AcceptCheck {
+    class Ready(val checked: Invitation.Checked) : AcceptCheck
+    /** This account made it. */
+    data object Own : AcceptCheck
+    /** Not a code, or unknown, revoked or expired. */
+    data object Gone : AcceptCheck
+    /** Its signature or the link's MAC is wrong. */
+    data object NotAuthentic : AcceptCheck
+}
+
 enum class LinkRequest { Sent, UnknownInvite, TooMany }
 
 sealed interface Redeem {
@@ -497,6 +508,37 @@ class AccountManager(
             db.repin(checked.inviter, checked.inviterIdentityPk, name, Instant.now())
         }.onFailure { Log.w(TAG, "redeeming the invitation failed: ${it.javaClass.simpleName}") }
         clearInvitation()
+    }
+
+    // Being invited, with an account
+
+    /** Checks an invitation opened while signed in with keys, as iOS's Social.check: the signature, then the link's MAC. */
+    suspend fun checkToAccept(code: String): AcceptCheck = withContext(Dispatchers.IO) {
+        val invite = Invitation.parse(code) as? Invitation.Invite ?: return@withContext AcceptCheck.Gone
+        val checked = try {
+            Invitation.check(anonymous, invite)
+        } catch (_: ApiError.NotFound) {
+            return@withContext AcceptCheck.Gone
+        } catch (e: Invitation.Error) {
+            return@withContext if (e.failure == Invitation.Failure.EXPIRED) AcceptCheck.Gone else AcceptCheck.NotAuthentic
+        }
+        if (checked.inviter == db.syncState()?.user) AcceptCheck.Own else AcceptCheck.Ready(checked)
+    }
+
+    /**
+     * Accepts a checked invitation (iOS's AccountModel.accept): a signed
+     * acceptance makes the two accounts friends, and the inviter's key is pinned
+     * as the invitation proved it. Returns the new friend's name, if the server
+     * has one. A revoked or expired invitation is the API's NotFound.
+     */
+    suspend fun accept(checked: Invitation.Checked): String? = withContext(Dispatchers.IO) {
+        val a = requireAccount()
+        val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
+        Invites.redeem(a.api, checked, user, a.identity())
+        val name = runCatching { a.api.friends().firstOrNull { it.userId == checked.inviter }?.displayName }.getOrNull()
+        // The key the invitation proved wins over anything pinned on the server's word.
+        db.repin(checked.inviter, checked.inviterIdentityPk, name.orEmpty(), Instant.now())
+        name?.takeIf { it.isNotBlank() }
     }
 
     // Inviting

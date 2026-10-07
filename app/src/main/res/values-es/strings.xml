@@ -305,4 +305,15 @@
         <item quantity="many">Cualquiera con esta invitación puede unirse · vale %d días</item>
         <item quantity="other">Cualquiera con esta invitación puede unirse · vale %d días</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">¿Aceptar esta invitación?</string>
+    <string name="accept_detail">Al aceptarla, tú y quien la envió seréis amigos: cada uno ve las rachas públicas del otro, nunca los recuentos.</string>
+    <string name="accept_confirm">Ser amigos</string>
+    <string name="not_now">Ahora no</string>
+    <string name="accept_done_title">Ya sois amigos</string>
+    <string name="accept_done">Ya sois amigos.</string>
+    <string name="accept_done_named">Tú y %s ya sois amigos.</string>
+    <string name="accept_own">Es tu propia invitación. Envíasela a un amigo.</string>
+    <string name="accept_gone">Esta invitación no se puede usar: puede que haya caducado o se haya revocado.</string>
 </resources>

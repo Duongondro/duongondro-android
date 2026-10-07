@@ -53,6 +53,7 @@ import app.duongondro.ui.settings.PracticeSettingsScreen
 import app.duongondro.ui.settings.AboutScreen
 import app.duongondro.ui.settings.PracticeListScreen
 import app.duongondro.ui.settings.DeleteEverythingScreen
+import app.duongondro.ui.settings.AcceptInviteDialog
 import app.duongondro.ui.settings.InviteScreen
 import app.duongondro.ui.settings.LicencesScreen
 import app.duongondro.ui.settings.SettingsScreen
@@ -217,6 +218,7 @@ private fun Home(model: AppModel) {
         }
     }
     prompt?.let { AfterMidnightDialog(it, model) }
+    model.accounts?.let { AcceptInviteDialog(model, it) }
 }
 
 /** Says plainly when something could not be saved, instead of losing it quietly. */

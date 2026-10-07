@@ -310,4 +310,15 @@
         <item quantity="many">За цим запрошенням може приєднатися будь-хто · діє %d днів</item>
         <item quantity="other">За цим запрошенням може приєднатися будь-хто · діє %d дня</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Прийняти це запрошення?</string>
+    <string name="accept_detail">Прийнявши його, ви станете друзями з тим, хто його надіслав: кожен бачить публічні серії іншого, але ніколи не лічильники.</string>
+    <string name="accept_confirm">Стати друзями</string>
+    <string name="not_now">Не зараз</string>
+    <string name="accept_done_title">Тепер ви друзі</string>
+    <string name="accept_done">Тепер ви друзі.</string>
+    <string name="accept_done_named">Ви та %s тепер друзі.</string>
+    <string name="accept_own">Це ваше власне запрошення. Надішліть його другові.</string>
+    <string name="accept_gone">Це запрошення не можна використати: можливо, воно закінчилося або його відкликали.</string>
 </resources>

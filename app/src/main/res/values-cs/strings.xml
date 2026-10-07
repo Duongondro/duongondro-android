@@ -296,4 +296,15 @@
         <item quantity="many">Kdokoli s touto pozvánkou se může přidat · platí %d dne</item>
         <item quantity="other">Kdokoli s touto pozvánkou se může přidat · platí %d dní</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Přijmout tuto pozvánku?</string>
+    <string name="accept_detail">Přijetím se ty a ten, kdo ji poslal, stanete přáteli: každý vidí veřejné série toho druhého, nikdy počty.</string>
+    <string name="accept_confirm">Stát se přáteli</string>
+    <string name="not_now">Teď ne</string>
+    <string name="accept_done_title">Teď jste přátelé</string>
+    <string name="accept_done">Teď jste přátelé.</string>
+    <string name="accept_done_named">Ty a %s jste teď přátelé.</string>
+    <string name="accept_own">Tohle je tvoje vlastní pozvánka. Pošli ji raději kamarádovi.</string>
+    <string name="accept_gone">Tuto pozvánku nelze použít: možná vypršela nebo byla zrušena.</string>
 </resources>

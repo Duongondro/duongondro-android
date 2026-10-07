@@ -296,4 +296,15 @@
         <item quantity="many">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d dňa</item>
         <item quantity="other">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d dní</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Prijať túto pozvánku?</string>
+    <string name="accept_detail">Prijatím sa ty a ten, kto ju poslal, stanete priateľmi: každý vidí verejné série toho druhého, nikdy počty.</string>
+    <string name="accept_confirm">Stať sa priateľmi</string>
+    <string name="not_now">Teraz nie</string>
+    <string name="accept_done_title">Teraz ste priatelia</string>
+    <string name="accept_done">Teraz ste priatelia.</string>
+    <string name="accept_done_named">Ty a %s ste teraz priatelia.</string>
+    <string name="accept_own">Toto je tvoja vlastná pozvánka. Pošli ju radšej kamarátovi.</string>
+    <string name="accept_gone">Túto pozvánku nemožno použiť: možno vypršala alebo bola zrušená.</string>
 </resources>

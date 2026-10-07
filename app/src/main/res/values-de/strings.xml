@@ -297,4 +297,15 @@
         <item quantity="one">Wer diese Einladung hat, kann beitreten · gilt %d Tag</item>
         <item quantity="other">Wer diese Einladung hat, kann beitreten · gilt %d Tage</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Diese Einladung annehmen?</string>
+    <string name="accept_detail">Wenn du annimmst, werdet du und die Person, die sie geschickt hat, Freunde: Jeder sieht die öffentlichen Serien des anderen, nie die Zählungen.</string>
+    <string name="accept_confirm">Freunde werden</string>
+    <string name="not_now">Nicht jetzt</string>
+    <string name="accept_done_title">Jetzt befreundet</string>
+    <string name="accept_done">Ihr seid jetzt befreundet.</string>
+    <string name="accept_done_named">Du und %s seid jetzt befreundet.</string>
+    <string name="accept_own">Das ist deine eigene Einladung. Schick sie lieber einem Freund.</string>
+    <string name="accept_gone">Diese Einladung lässt sich nicht verwenden: Sie ist vielleicht abgelaufen oder wurde zurückgezogen.</string>
 </resources>

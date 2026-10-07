@@ -68,7 +68,11 @@ class AppModel(
     val generation: StateFlow<Int> = _generation.asStateFlow()
 
     private val _inviteCode = MutableStateFlow<String?>(null)
-    /** An invitation code from a link opened before onboarding; kept so the invitation screen is skipped. */
+    /**
+     * An invitation code from an opened link: before onboarding it is kept so the
+     * invitation screen is skipped; with an account that has keys, it is offered
+     * for accepting.
+     */
     val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
 
     private val _magicLink = MutableStateFlow<String?>(null)
@@ -79,6 +83,8 @@ class AppModel(
     val magicLink: StateFlow<String?> = _magicLink.asStateFlow()
 
     fun openedInvite(code: String) { _inviteCode.value = code }
+    /** The opened invitation was accepted or declined by an account that already has its keys. */
+    fun usedInvite() { _inviteCode.value = null }
     fun openedMagicLink(token: String) {
         _magicLink.value = token.takeIf { accounts?.expectsLink() == true }
     }

@@ -309,4 +309,15 @@
         <item quantity="many">Każdy z tym zaproszeniem może dołączyć · ważne %d dni</item>
         <item quantity="other">Każdy z tym zaproszeniem może dołączyć · ważne %d dnia</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Przyjąć to zaproszenie?</string>
+    <string name="accept_detail">Po przyjęciu Ty i osoba, która je wysłała, zostaniecie znajomymi: każde widzi publiczne serie drugiego, nigdy liczby powtórzeń.</string>
+    <string name="accept_confirm">Zostańmy znajomymi</string>
+    <string name="not_now">Nie teraz</string>
+    <string name="accept_done_title">Jesteście znajomymi</string>
+    <string name="accept_done">Jesteście teraz znajomymi.</string>
+    <string name="accept_done_named">Ty i %s jesteście teraz znajomymi.</string>
+    <string name="accept_own">To Twoje własne zaproszenie. Wyślij je komuś innemu.</string>
+    <string name="accept_gone">Tego zaproszenia nie da się użyć: mogło wygasnąć albo zostać wycofane.</string>
 </resources>

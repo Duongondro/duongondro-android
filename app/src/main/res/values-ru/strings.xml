@@ -296,4 +296,15 @@
         <item quantity="many">По этому приглашению может присоединиться любой · действует %d дней</item>
         <item quantity="other">По этому приглашению может присоединиться любой · действует %d дня</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Принять это приглашение?</string>
+    <string name="accept_detail">Приняв его, вы станете друзьями с тем, кто его отправил: каждый видит публичные серии другого, но никогда не счёт.</string>
+    <string name="accept_confirm">Стать друзьями</string>
+    <string name="not_now">Не сейчас</string>
+    <string name="accept_done_title">Теперь вы друзья</string>
+    <string name="accept_done">Теперь вы друзья.</string>
+    <string name="accept_done_named">Вы и %s теперь друзья.</string>
+    <string name="accept_own">Это ваше собственное приглашение. Отправьте его другу.</string>
+    <string name="accept_gone">Это приглашение нельзя использовать: возможно, оно истекло или было отозвано.</string>
 </resources>

@@ -303,4 +303,15 @@
         <item quantity="one">Anyone with this invitation can join · works for %d day</item>
         <item quantity="other">Anyone with this invitation can join · works for %d days</item>
     </plurals>
+
+    <!-- Accepting an invitation while signed in -->
+    <string name="accept_title">Accept this invitation?</string>
+    <string name="accept_detail">Accepting makes you and the person who sent it friends: each sees the other\'s public streaks, never counts.</string>
+    <string name="accept_confirm">Become friends</string>
+    <string name="not_now">Not now</string>
+    <string name="accept_done_title">Friends now</string>
+    <string name="accept_done">You are now friends.</string>
+    <string name="accept_done_named">You and %s are now friends.</string>
+    <string name="accept_own">This is your own invitation. Send it to a friend instead.</string>
+    <string name="accept_gone">This invitation can\'t be used: it may have expired or been revoked.</string>
 </resources>
