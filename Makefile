@@ -7,7 +7,7 @@ export JAVA_HOME := $(STUDIO_JBR)
 endif
 GRADLE := ./gradlew --console=plain
 
-.PHONY: test core-test device-test build install release apk
+.PHONY: test core-test device-test build install release apk publish
 
 core-test:            ## Core unit and conformance tests on the JVM (no emulator)
 	$(GRADLE) :core:test
@@ -30,3 +30,6 @@ release:              ## Release bundle; refuses a dirty tree
 apk:                  ## Signed release APK for sideloading; refuses a dirty tree (signing: app/build.gradle.kts)
 	$(GRADLE) :app:assembleRelease
 	@ls app/build/outputs/apk/release/*.apk
+
+publish:              ## GitHub Release of the signed APK: make publish NOTES=<file>; refuses an unbumped version
+	sh Scripts/publish.sh
