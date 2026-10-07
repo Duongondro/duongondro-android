@@ -7,6 +7,7 @@ import app.duongondro.core.api.SignedStatementDto
 import app.duongondro.core.crypto.E2EE
 import app.duongondro.core.crypto.Identity
 import app.duongondro.core.crypto.StatementTypes
+import java.io.IOException
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -81,6 +82,12 @@ object Invites {
                 return MadeInvite(invite, expiresAt)
             } catch (_: ApiError.Conflict) {
                 // The id is taken: draw another.
+            } catch (e: IOException) {
+                // The answer may be what was lost, not the request: an invitation the
+                // server stored is adopted rather than left open and unknown here.
+                val stored = runCatching { api.invites() }.getOrNull() ?: throw e
+                if (stored.any { it.id == invite.id }) return MadeInvite(invite, expiresAt)
+                throw e
             }
         }
         throw ApiError.Conflict("no free invite id")

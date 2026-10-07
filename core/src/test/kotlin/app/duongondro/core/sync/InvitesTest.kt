@@ -26,6 +26,8 @@ class InvitesTest {
     private class FakeServer : Http {
         val invites = mutableMapOf<String, JsonObject>()
         var posts = 0
+        /** Stores the next POST, then fails as if its answer were lost on the way. */
+        var loseNextAnswer = false
 
         override fun send(method: String, url: String, headers: Map<String, String>, body: ByteArray?): Http.Response {
             val path = url.substringAfter("http://server/")
@@ -36,7 +38,14 @@ class InvitesTest {
                     val id = o["id"]!!.jsonPrimitive.content
                     if (id in invites) return Http.Response(409, """{"error":"taken"}""".toByteArray())
                     invites[id] = o
+                    if (loseNextAnswer) { loseNextAnswer = false; throw java.io.IOException("connection reset") }
                     Http.Response(201, ByteArray(0))
+                }
+                method == "GET" && path == "api/invites" -> {
+                    val list = invites.values.joinToString(",") { o ->
+                        """{"id":"${o["id"]!!.jsonPrimitive.content}","expiresAt":"${o["expiresAt"]!!.jsonPrimitive.content}"}"""
+                    }
+                    Http.Response(200, """{"invites":[$list]}""".toByteArray())
                 }
                 method == "GET" && path.startsWith("api/invites/") -> {
                     val o = invites[path.removePrefix("api/invites/")] ?: return Http.Response(404, """{"error":"not found"}""".toByteArray())
@@ -112,6 +121,14 @@ class InvitesTest {
         })
         assertEquals(Crockford.encode(ByteArray(5) { 1 }), made.id)
         assertEquals(3, server.posts)
+    }
+
+    @Test
+    fun aStoredInviteWhoseAnswerWasLostIsAdopted() {
+        server.loseNextAnswer = true
+        val made = Invites.create(api, user, identity, now)
+        assertEquals(1, server.posts)
+        assertEquals(user, Invitation.check(api, made.invite, now).inviter)
     }
 
     @Test
