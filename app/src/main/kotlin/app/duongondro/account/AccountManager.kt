@@ -545,8 +545,9 @@ class AccountManager(
 
     /**
      * The invitation on show: the one made here before while it has more than a
-     * day left (kept sealed with the other secrets, so reopening the Invite
-     * screen does not mint a new one each time, as iOS keeps it), else a new one.
+     * day left and the server still has it open, else a new one, so reopening
+     * the Invite screen does not mint one each time. iOS keeps it in memory;
+     * here it persists, sealed with the other secrets in no_backup.
      */
     suspend fun invite(now: Instant = Instant.now()): MadeInvite = withContext(Dispatchers.IO) {
         inviteLock.withLock {
