@@ -505,19 +505,27 @@ class AccountManager(
         val a = account ?: return
         if (_state.value.status != AccountStatus.READY) return
         if (!syncLock.tryLock()) return
+        // A sign-out or "Delete everything" that ran meanwhile ended this account
+        // here: nothing this sync learns may touch the state or the token after it.
+        val generation = db.generation
+        val current = { account === a && db.generation == generation }
         try {
             _state.update { it.copy(syncing = true) }
             val result = withContext(Dispatchers.IO) { SyncEngine(a).sync() }
-            val now = Instant.now()
-            prefs.edit { putLong(LAST_SYNC, now.toEpochMilli()) }
-            _state.update { it.copy(lastSync = now, offline = false, refused = result.refused, unreadable = result.unreadable) }
+            if (current()) {
+                val now = Instant.now()
+                prefs.edit { putLong(LAST_SYNC, now.toEpochMilli()) }
+                _state.update { it.copy(lastSync = now, offline = false, refused = result.refused, unreadable = result.unreadable) }
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (_: ApiError.Unauthorized) {
             // The session ended (removed elsewhere): keys stay, sign in again.
-            withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
-            account = null
-            _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
+            if (current()) {
+                withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
+                account = null
+                _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
+            }
         } catch (_: Erased) {
             // "Delete everything" or a sign-out ran meanwhile: nothing to keep.
         } catch (e: IOException) {
@@ -541,6 +549,11 @@ class AccountManager(
     suspend fun signOut() = withContext(Dispatchers.IO) {
         check(_state.value.canSignOut) { "the recovery code is not finished; signing out would lose the keys" }
         pendingSync?.cancel()
+        // After any sync in flight, so it cannot write the account back.
+        syncLock.withLock { signOutLocked() }
+    }
+
+    private suspend fun signOutLocked() {
         val user = db.syncState()?.user
         account?.let { a -> runCatching { a.api.signOut() } }
         account = null
