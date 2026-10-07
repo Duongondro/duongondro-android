@@ -32,9 +32,6 @@
     <string name="history_empty">Még nincs semmi rögzítve.</string>
     <string name="total">Összesen</string>
     <string name="done_session">kész</string>
-    <string name="started_cancel">Elindítva: %1$s. Koppints a megszakításhoz.</string>
-    <string name="start">Indítás</string>
-    <string name="started_at">Elindítva: %1$s</string>
     <string name="cancel">Mégse</string>
     <string name="add_amount">Újabb mennyiség hozzáadása</string>
     <string name="amount">Mennyiség</string>

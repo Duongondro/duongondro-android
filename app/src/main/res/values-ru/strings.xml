@@ -36,9 +36,6 @@
     <string name="history_empty">Пока ничего не записано.</string>
     <string name="total">Всего</string>
     <string name="done_session">готово</string>
-    <string name="started_cancel">Начато в %1$s. Нажмите, чтобы отменить.</string>
-    <string name="start">Начать</string>
-    <string name="started_at">Начато в %1$s</string>
     <string name="cancel">Отмена</string>
     <string name="add_amount">Добавить другое количество</string>
     <string name="amount">Количество</string>

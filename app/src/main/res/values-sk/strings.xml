@@ -36,9 +36,6 @@
     <string name="history_empty">Zatiaľ nič nezaznamenané.</string>
     <string name="total">Celkovo</string>
     <string name="done_session">hotovo</string>
-    <string name="started_cancel">Začaté o %1$s. Ťuknutím zrušíš.</string>
-    <string name="start">Začať</string>
-    <string name="started_at">Začaté o %1$s</string>
     <string name="cancel">Zrušiť</string>
     <string name="add_amount">Pridať ďalšie množstvo</string>
     <string name="amount">Množstvo</string>

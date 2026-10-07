@@ -36,10 +36,7 @@
     <string name="history_empty">Aún no hay nada registrado.</string>
     <string name="total">Total</string>
     <string name="done_session">hecho</string>
-    <string name="started_cancel">Iniciado a las %1$s. Toca para cancelar.</string>
 
-    <string name="start">Iniciar</string>
-    <string name="started_at">Iniciado a las %1$s</string>
     <string name="cancel">Cancelar</string>
     <string name="add_amount">Añadir otra cantidad</string>
     <string name="amount">Cantidad</string>

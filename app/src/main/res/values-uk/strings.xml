@@ -38,10 +38,7 @@
     <string name="history_empty">Поки нічого не записано.</string>
     <string name="total">Усього</string>
     <string name="done_session">виконано</string>
-    <string name="started_cancel">Розпочато %1$s. Торкніться, щоб скасувати.</string>
 
-    <string name="start">Почати</string>
-    <string name="started_at">Розпочато %1$s</string>
     <string name="cancel">Скасувати</string>
     <string name="add_amount">Додати іншу кількість</string>
     <string name="amount">Кількість</string>

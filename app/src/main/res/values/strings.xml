@@ -35,10 +35,7 @@
     <string name="history_empty">Nothing logged yet.</string>
     <string name="total">Total</string>
     <string name="done_session">done</string>
-    <string name="started_cancel">Started %1$s. Tap to cancel.</string>
 
-    <string name="start">Start</string>
-    <string name="started_at">Started %1$s</string>
     <string name="cancel">Cancel</string>
     <string name="add_amount">Add another amount</string>
     <string name="amount">Amount</string>

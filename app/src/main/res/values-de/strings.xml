@@ -33,10 +33,7 @@
     <string name="history_empty">Noch nichts erfasst.</string>
     <string name="total">Gesamt</string>
     <string name="done_session">erledigt</string>
-    <string name="started_cancel">Gestartet um %1$s. Tippen zum Abbrechen.</string>
 
-    <string name="start">Start</string>
-    <string name="started_at">Gestartet um %1$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="add_amount">Weitere Menge hinzufügen</string>
     <string name="amount">Menge</string>

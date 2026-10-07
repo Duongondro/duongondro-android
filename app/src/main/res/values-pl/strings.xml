@@ -37,10 +37,7 @@
     <string name="history_empty">Nic jeszcze nie zapisano.</string>
     <string name="total">Razem</string>
     <string name="done_session">zrobione</string>
-    <string name="started_cancel">Rozpoczęto %1$s. Dotknij, aby anulować.</string>
 
-    <string name="start">Start</string>
-    <string name="started_at">Rozpoczęto %1$s</string>
     <string name="cancel">Anuluj</string>
     <string name="add_amount">Dodaj inną ilość</string>
     <string name="amount">Ilość</string>

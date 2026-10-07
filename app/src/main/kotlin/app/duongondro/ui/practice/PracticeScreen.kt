@@ -107,7 +107,6 @@ import java.util.Locale
 fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     val pending by model.pending.collectAsStateWithLifecycle()
-    val started by model.started.collectAsStateWithLifecycle()
     val now by model.now.collectAsStateWithLifecycle()
     val practice = snapshot.practices.firstOrNull { it.id == practiceId }
     val view = LocalView.current
@@ -165,7 +164,6 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
             }
             Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                 if (!practice.streakOnly) OutlinedAction(stringResource(R.string.custom), Modifier.weight(1f), height = Size.secondary) { askAmount = true }
-                StartButton(started[practice.id], Modifier.weight(1f), { model.start(practice.id) }, { model.cancelStart(practice.id) })
                 SoftAction(stringResource(R.string.history), Modifier.weight(1f)) { showHistory = true }
             }
         }
@@ -247,32 +245,6 @@ private fun StreakOnlyStatus(current: Int, longest: Int, done: Boolean) {
         Text(stringResource(if (done) R.string.done_today else R.string.not_yet_today), style = Theme.type.secondary, color = Theme.colors.muted)
         if (longest > current) Text(stringResource(R.string.longest_n, longest), style = Theme.type.secondary, color = Theme.colors.muted)
     }
-}
-
-/** Start records the exact start, so the session needs no estimate. Once started it shows the running time; a tap cancels. */
-@Composable
-private fun StartButton(started: Instant?, modifier: Modifier, onStart: () -> Unit, onCancel: () -> Unit) {
-    if (started == null) {
-        OutlinedAction(stringResource(R.string.start), modifier, height = Size.secondary, onClick = onStart)
-    } else {
-        val elapsed by produceState(Duration.between(started, Instant.now()), started) {
-            while (true) {
-                value = Duration.between(started, Instant.now())
-                delay(1000)
-            }
-        }
-        val label = stringResource(R.string.started_cancel, started.shortTime())
-        OutlinedAction(elapsed.clock(), modifier.semantics { contentDescription = label }, height = Size.secondary, onClick = onCancel)
-    }
-}
-
-/** 4:07, or 1:04:07 past the hour. */
-private fun Duration.clock(): String {
-    val total = maxOf(0L, seconds)
-    val h = total / 3600
-    val m = total % 3600 / 60
-    val s = total % 60
-    return if (h > 0) String.format(Locale.getDefault(), "%d:%02d:%02d", h, m, s) else String.format(Locale.getDefault(), "%d:%02d", m, s)
 }
 
 /** "Added 108 · Undo" on an inverted strip, with a ring that empties as the window closes. */

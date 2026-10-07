@@ -45,10 +45,6 @@ class AppModel(
     /** The open undo window, at most one at a time. */
     val pending: StateFlow<PendingLog?> = _pending.asStateFlow()
 
-    private val _started = MutableStateFlow<Map<String, Instant>>(emptyMap())
-    /** Start taps per practice. */
-    val started: StateFlow<Map<String, Instant>> = _started.asStateFlow()
-
     private val _afterMidnight = MutableStateFlow<AfterMidnightPrompt?>(null)
     val afterMidnight: StateFlow<AfterMidnightPrompt?> = _afterMidnight.asStateFlow()
 
@@ -62,8 +58,6 @@ class AppModel(
     /** Writes in flight; declared before init, which already writes. */
     private val writes = mutableListOf<Job>()
     private var closeJob: Job? = null
-    /** The Start tap that belongs to the open window, captured when it opened. */
-    private var pendingStart: Instant? = null
 
     private val _loaded = MutableStateFlow(store !is SqliteStore)
     /** False until the database has been read once, so onboarding never flashes. */
@@ -171,10 +165,6 @@ class AppModel(
 
     // Logging
 
-    fun start(practiceId: String) { _started.value = _started.value + (practiceId to clock()) }
-
-    fun cancelStart(practiceId: String) { _started.value = _started.value - practiceId }
-
     /** +mala, another amount or "done today" (0): opens or extends the undo window. */
     fun add(amount: Int, practiceId: String) {
         val now = clock()
@@ -184,7 +174,6 @@ class AppModel(
         } else {
             commitPending()
             _pending.value = PendingLog.open(practiceId, amount, now)
-            pendingStart = _started.value[practiceId]
         }
         scheduleClose()
     }
@@ -193,7 +182,6 @@ class AppModel(
     fun undo() {
         closeJob?.cancel()
         _pending.value = null
-        pendingStart = null
     }
 
     /** Writes the pending session now: the window closed, another practice was logged, or the app went to the background. */
@@ -201,15 +189,11 @@ class AppModel(
         closeJob?.cancel()
         val p = _pending.value ?: return
         _pending.value = null
-        val tapped = pendingStart
-        pendingStart = null
-        val startedAt = SessionStart.estimate(p.openedAt, tapped, SessionStart.timedLengths(snapshot.value.sessions))
+        val startedAt = SessionStart.estimate(p.openedAt, null, SessionStart.timedLengths(snapshot.value.sessions))
         val session = Session(id = uuidV7(p.openedAt), practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
-            startExact = tapped != null, zoneId = zone.id, loggedAt = p.openedAt)
+            startExact = false, zoneId = zone.id, loggedAt = p.openedAt)
         perform {
             store.insert(session)
-            // Only once written; a Start tapped during the window stays for the next session.
-            if (tapped != null && _started.value[p.practiceId] == tapped) _started.value = _started.value - p.practiceId
             AfterMidnight.check(session)?.let { _afterMidnight.value = AfterMidnightPrompt(session, it) }
             accounts?.scheduleSync()
         }
@@ -221,12 +205,10 @@ class AppModel(
         writes.lastOrNull()?.join()
     }
 
-    /** Drops the undo window and Start timers without writing anything. */
+    /** Drops the undo window without writing anything. */
     fun discardInFlight() {
         closeJob?.cancel()
         _pending.value = null
-        pendingStart = null
-        _started.value = emptyMap()
         _afterMidnight.value = null
     }
 
