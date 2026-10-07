@@ -274,4 +274,27 @@
         <item quantity="one">%d Sitzung von einem anderen Handy lässt sich hier noch nicht öffnen.</item>
         <item quantity="other">%d Sitzungen von einem anderen Handy lassen sich hier noch nicht öffnen.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Jemanden einladen</string>
+    <string name="invite_screen_title">Einladen</string>
+    <string name="invite_scan">Mit einer beliebigen Handykamera scannen</string>
+    <string name="invite_code_caption">Oder diesen Einladungscode eintippen</string>
+    <string name="invite_copy">Code kopieren</string>
+    <string name="invite_share">Einladung teilen</string>
+    <string name="invite_share_text">Übe mit mir auf Duongöndro: %s</string>
+    <string name="invite_make">Einladung erstellen</string>
+    <string name="invite_open">Deine offenen Einladungen</string>
+    <string name="invite_open_until">Gilt bis %s</string>
+    <string name="invite_open_shown">Hier angezeigt</string>
+    <string name="invite_open_none">Keine offen.</string>
+    <string name="invite_open_footer">Wenn du eine Einladung zurückziehst, funktionieren ihr Link und ihr Code sofort nicht mehr. Freundschaften, die sie schon gestiftet hat, bleiben.</string>
+    <string name="invite_revoke">Zurückziehen</string>
+    <string name="invite_revoke_title">Diese Einladung zurückziehen?</string>
+    <string name="invite_revoke_detail">Ihr Link und ihr Code funktionieren sofort nicht mehr. Freundschaften, die sie schon gestiftet hat, bleiben.</string>
+    <string name="invite_qr_description">QR-Code des Einladungslinks</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Wer diese Einladung hat, kann beitreten · gilt %d Tag</item>
+        <item quantity="other">Wer diese Einladung hat, kann beitreten · gilt %d Tage</item>
+    </plurals>
 </resources>

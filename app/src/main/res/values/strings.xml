@@ -278,4 +278,27 @@
         <item quantity="one">%d session from another phone cannot be opened here yet.</item>
         <item quantity="other">%d sessions from another phone cannot be opened here yet.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Invite someone</string>
+    <string name="invite_screen_title">Invite a friend</string>
+    <string name="invite_scan">Scan with any phone camera</string>
+    <string name="invite_code_caption">Or type this invitation code</string>
+    <string name="invite_copy">Copy code</string>
+    <string name="invite_share">Share invitation</string>
+    <string name="invite_share_text">Practise with me on Duongöndro: %s</string>
+    <string name="invite_make">Make an invitation</string>
+    <string name="invite_open">Your open invitations</string>
+    <string name="invite_open_until">Works until %s</string>
+    <string name="invite_open_shown">On this screen</string>
+    <string name="invite_open_none">None open.</string>
+    <string name="invite_open_footer">Revoking an invitation stops its link and code at once. Friends it already made stay.</string>
+    <string name="invite_revoke">Revoke</string>
+    <string name="invite_revoke_title">Revoke this invitation?</string>
+    <string name="invite_revoke_detail">Its link and code stop working at once. Friends it already made stay.</string>
+    <string name="invite_qr_description">QR code of the invitation link</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Anyone with this invitation can join · works for %d day</item>
+        <item quantity="other">Anyone with this invitation can join · works for %d days</item>
+    </plurals>
 </resources>

@@ -9,15 +9,14 @@ import app.duongondro.core.api.Api
 import app.duongondro.core.api.ApiError
 import app.duongondro.core.api.Profile
 import app.duongondro.core.api.SignInResult
-import app.duongondro.core.api.SignedStatementDto
 import app.duongondro.core.api.SignUpProof
-import app.duongondro.core.crypto.StatementTypes
 import app.duongondro.core.sync.Account
 import app.duongondro.core.sync.AccountKeys
 import app.duongondro.core.sync.Erased
 import app.duongondro.core.sync.Invitation
-import app.duongondro.core.sync.SignedStatement
-import app.duongondro.core.sync.Statements
+import app.duongondro.core.sync.Invites
+import app.duongondro.core.sync.MadeInvite
+import app.duongondro.core.sync.SyncTime
 import app.duongondro.core.sync.SyncEngine
 import app.duongondro.keys.KeystoreDeviceKeys
 import app.duongondro.keys.SecretFiles
@@ -99,6 +98,9 @@ sealed interface Redeem {
     /** Signed in, but this phone holds another account's practice: erase it, or cancel. */
     data object OtherAccountData : Redeem
 }
+
+/** An invitation this account made that still works: not revoked, not expired. */
+data class OpenInvite(val id: String, val expiresAt: Instant)
 
 enum class ProfileResult { Saved, UsernameTaken }
 
@@ -478,16 +480,57 @@ class AccountManager(
         runCatching {
             val me = a.api.me()
             if (checked.inviter == me.id) return@runCatching
-            val identity = a.identity()
-            val payload = Statements.acceptance(checked.invite.id, me.id, identity.publicKey)
-            val acceptance = SignedStatement.sign(StatementTypes.ACCEPTANCE, payload, identity)
-            a.api.redeemInvite(checked.invite.id, checked.invite.proof.let { (it as SignUpProof.Invite).auth },
-                SignedStatementDto(acceptance.payload, acceptance.signature))
+            Invites.redeem(a.api, checked, me.id, a.identity())
             // The key the invite proved (MAC under the link's pin), not the server's word.
             val name = runCatching { a.api.friends().firstOrNull { it.userId == checked.inviter }?.displayName }.getOrNull().orEmpty()
             db.repin(checked.inviter, checked.inviterIdentityPk, name, Instant.now())
         }.onFailure { Log.w(TAG, "redeeming the invitation failed: ${it.javaClass.simpleName}") }
         clearInvitation()
+    }
+
+    // Inviting
+
+    /**
+     * The invitation on show: the one made here before while it has more than a
+     * day left (kept sealed with the other secrets, so reopening the Invite
+     * screen does not mint a new one each time, as iOS keeps it), else a new one.
+     */
+    suspend fun invite(now: Instant = Instant.now()): MadeInvite = withContext(Dispatchers.IO) {
+        inviteLock.withLock {
+            shownInvite(now) ?: run {
+                val a = requireAccount()
+                val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
+                Invites.create(a.api, user, a.identity(), now).also { secrets.write(SHOWN_INVITE, it.serialised()) }
+            }
+        }
+    }
+
+    /** The cached invitation, if it is still worth showing; never makes one. */
+    suspend fun shownInvite(now: Instant = Instant.now()): MadeInvite? = withContext(Dispatchers.IO) {
+        runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let(MadeInvite::deserialised)
+            ?.takeIf { java.time.Duration.between(now, it.expiresAt) > INVITE_REUSE }
+    }
+
+    private val inviteLock = Mutex()
+
+    /** This account's invitations that still work, the soonest to expire first. */
+    suspend fun openInvites(now: Instant = Instant.now()): List<OpenInvite> = withContext(Dispatchers.IO) {
+        requireAccount().api.invites()
+            .filter { it.revokedAt == null }
+            .mapNotNull { i -> SyncTime.parse(i.expiresAt)?.takeIf { it.isAfter(now) }?.let { OpenInvite(i.id, it) } }
+            .sortedBy { it.expiresAt }
+    }
+
+    /** Stops an invitation from working; friends it made stay. One already gone counts as revoked. */
+    suspend fun revokeInvite(id: String) = withContext(Dispatchers.IO) {
+        try {
+            requireAccount().api.revokeInvite(id)
+        } catch (_: ApiError.NotFound) {
+        }
+        inviteLock.withLock {
+            val shown = runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let(MadeInvite::deserialised)
+            if (shown?.id == id) secrets.delete(SHOWN_INVITE)
+        }
     }
 
     // Sync
@@ -629,6 +672,10 @@ class AccountManager(
         const val PENDING_RECOVERY = app.duongondro.core.sync.SecretName.PENDING_RECOVERY
         const val LAST_SYNC = "lastSync"
         const val LAST_USER = "lastUser"
+        /** The invitation on the Invite screen, among the sealed secrets: it is erased with them. */
+        const val SHOWN_INVITE = "invite-shown"
+        /** An invitation is shown again while it has more than a day to run. */
+        val INVITE_REUSE: java.time.Duration = java.time.Duration.ofDays(1)
         val LINK_LIFETIME: java.time.Duration = java.time.Duration.ofMinutes(15)
     }
 }

@@ -284,4 +284,29 @@
         <item quantity="many">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
         <item quantity="other">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Zaproś kogoś</string>
+    <string name="invite_screen_title">Zaproś przyjaciela</string>
+    <string name="invite_scan">Zeskanuj aparatem dowolnego telefonu</string>
+    <string name="invite_code_caption">Albo wpisz ten kod zaproszenia</string>
+    <string name="invite_copy">Kopiuj kod</string>
+    <string name="invite_share">Udostępnij zaproszenie</string>
+    <string name="invite_share_text">Praktykuj ze mną w Duongöndro: %s</string>
+    <string name="invite_make">Utwórz zaproszenie</string>
+    <string name="invite_open">Twoje otwarte zaproszenia</string>
+    <string name="invite_open_until">Ważne do %s</string>
+    <string name="invite_open_shown">Pokazane wyżej</string>
+    <string name="invite_open_none">Brak otwartych.</string>
+    <string name="invite_open_footer">Po wycofaniu zaproszenia jego link i kod od razu przestają działać. Przyjaźnie, które już z niego powstały, zostają.</string>
+    <string name="invite_revoke">Wycofaj</string>
+    <string name="invite_revoke_title">Wycofać to zaproszenie?</string>
+    <string name="invite_revoke_detail">Jego link i kod od razu przestaną działać. Przyjaźnie, które już z niego powstały, zostaną.</string>
+    <string name="invite_qr_description">Kod QR linku z zaproszeniem</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Każdy z tym zaproszeniem może dołączyć · ważne %d dzień</item>
+        <item quantity="few">Każdy z tym zaproszeniem może dołączyć · ważne %d dni</item>
+        <item quantity="many">Każdy z tym zaproszeniem może dołączyć · ważne %d dni</item>
+        <item quantity="other">Każdy z tym zaproszeniem może dołączyć · ważne %d dnia</item>
+    </plurals>
 </resources>

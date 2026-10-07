@@ -271,4 +271,29 @@
         <item quantity="many">%d záznamu z iného telefónu sa tu zatiaľ nedá otvoriť.</item>
         <item quantity="other">%d záznamov z iného telefónu sa tu zatiaľ nedá otvoriť.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Pozvať niekoho</string>
+    <string name="invite_screen_title">Pozvať priateľa</string>
+    <string name="invite_scan">Naskenuj fotoaparátom ľubovoľného telefónu</string>
+    <string name="invite_code_caption">Alebo zadaj tento kód pozvánky</string>
+    <string name="invite_copy">Kopírovať kód</string>
+    <string name="invite_share">Zdieľať pozvánku</string>
+    <string name="invite_share_text">Praktizuj so mnou v Duongöndro: %s</string>
+    <string name="invite_make">Vytvoriť pozvánku</string>
+    <string name="invite_open">Tvoje otvorené pozvánky</string>
+    <string name="invite_open_until">Platí do %s</string>
+    <string name="invite_open_shown">Zobrazená vyššie</string>
+    <string name="invite_open_none">Žiadne otvorené.</string>
+    <string name="invite_open_footer">Po zrušení pozvánky prestanú jej odkaz aj kód okamžite fungovať. Priateľstvá, ktoré už vďaka nej vznikli, zostanú.</string>
+    <string name="invite_revoke">Zrušiť</string>
+    <string name="invite_revoke_title">Zrušiť túto pozvánku?</string>
+    <string name="invite_revoke_detail">Jej odkaz aj kód okamžite prestanú fungovať. Priateľstvá, ktoré už vďaka nej vznikli, zostanú.</string>
+    <string name="invite_qr_description">QR kód odkazu s pozvánkou</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d deň</item>
+        <item quantity="few">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d dni</item>
+        <item quantity="many">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d dňa</item>
+        <item quantity="other">Ktokoľvek s touto pozvánkou sa môže pridať · platí %d dní</item>
+    </plurals>
 </resources>

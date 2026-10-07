@@ -261,4 +261,27 @@
         <item quantity="one">%d másik telefonról származó alkalom még nem nyitható meg itt.</item>
         <item quantity="other">%d másik telefonról származó alkalom még nem nyitható meg itt.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Valaki meghívása</string>
+    <string name="invite_screen_title">Barát meghívása</string>
+    <string name="invite_scan">Olvasd be bármelyik telefon kamerájával</string>
+    <string name="invite_code_caption">Vagy írd be ezt a meghívókódot</string>
+    <string name="invite_copy">Kód másolása</string>
+    <string name="invite_share">Meghívó megosztása</string>
+    <string name="invite_share_text">Gyakorolj velem a Duongöndro alkalmazásban: %s</string>
+    <string name="invite_make">Meghívó létrehozása</string>
+    <string name="invite_open">Nyitott meghívóid</string>
+    <string name="invite_open_until">Érvényes eddig: %s</string>
+    <string name="invite_open_shown">Fent látható</string>
+    <string name="invite_open_none">Nincs nyitott meghívó.</string>
+    <string name="invite_open_footer">Ha visszavonsz egy meghívót, a linkje és a kódja azonnal megszűnik működni. A barátságok, amelyek már létrejöttek általa, megmaradnak.</string>
+    <string name="invite_revoke">Visszavonás</string>
+    <string name="invite_revoke_title">Visszavonod ezt a meghívót?</string>
+    <string name="invite_revoke_detail">A linkje és a kódja azonnal megszűnik működni. A barátságok, amelyek már létrejöttek általa, megmaradnak.</string>
+    <string name="invite_qr_description">A meghívólink QR-kódja</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Bárki csatlakozhat ezzel a meghívóval · %d napig érvényes</item>
+        <item quantity="other">Bárki csatlakozhat ezzel a meghívóval · %d napig érvényes</item>
+    </plurals>
 </resources>

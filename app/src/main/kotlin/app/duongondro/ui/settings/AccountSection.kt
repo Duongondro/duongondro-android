@@ -37,7 +37,8 @@ import java.time.format.FormatStyle
 /**
  * Settings' account rows, minimal: who is signed in, the name friends see,
  * the recovery code's state, sync, and signing out on this phone. Without an
- * account, the two ways to get one.
+ * account, the two ways to get one. Inviting is for accounts with keys only:
+ * an invitation is signed by the account's identity key.
  */
 @Composable
 fun AccountSection(
@@ -45,6 +46,7 @@ fun AccountSection(
     openSignIn: () -> Unit,
     openNewAccount: () -> Unit,
     openRecoveryCode: () -> Unit,
+    openInvite: () -> Unit,
 ) {
     val state by accounts.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -85,6 +87,8 @@ fun AccountSection(
                     ListRow(stringResource(R.string.account_signed_in_as), detail = it)
                     RowDivider()
                 }
+                ListRow(stringResource(R.string.invite_someone), titleColor = Theme.colors.accent, semibold = true, chevron = true, onClick = openInvite)
+                RowDivider()
                 ListRow(stringResource(R.string.account_name), detail = state.displayName, chevron = true, onClick = { naming = true })
                 RowDivider()
                 ListRow(stringResource(R.string.recovery_code),

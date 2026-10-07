@@ -281,4 +281,28 @@
         <item quantity="many">%d sesiones de otro teléfono aún no se pueden abrir aquí.</item>
         <item quantity="other">%d sesiones de otro teléfono aún no se pueden abrir aquí.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Invitar a alguien</string>
+    <string name="invite_screen_title">Invitar a un amigo</string>
+    <string name="invite_scan">Escanéalo con la cámara de cualquier teléfono</string>
+    <string name="invite_code_caption">O escribe este código de invitación</string>
+    <string name="invite_copy">Copiar código</string>
+    <string name="invite_share">Compartir invitación</string>
+    <string name="invite_share_text">Practica conmigo en Duongöndro: %s</string>
+    <string name="invite_make">Crear una invitación</string>
+    <string name="invite_open">Tus invitaciones abiertas</string>
+    <string name="invite_open_until">Vale hasta %s</string>
+    <string name="invite_open_shown">Mostrada arriba</string>
+    <string name="invite_open_none">Ninguna abierta.</string>
+    <string name="invite_open_footer">Al revocar una invitación, su enlace y su código dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
+    <string name="invite_revoke">Revocar</string>
+    <string name="invite_revoke_title">¿Revocar esta invitación?</string>
+    <string name="invite_revoke_detail">Su enlace y su código dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
+    <string name="invite_qr_description">Código QR del enlace de invitación</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">Cualquiera con esta invitación puede unirse · vale %d día</item>
+        <item quantity="many">Cualquiera con esta invitación puede unirse · vale %d días</item>
+        <item quantity="other">Cualquiera con esta invitación puede unirse · vale %d días</item>
+    </plurals>
 </resources>

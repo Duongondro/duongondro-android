@@ -72,6 +72,9 @@ data class DuongondroColors(
     val buttonOutline: Color,
     /** The scrim behind buttons laid over a cover photo. */
     val coverButton: Color,
+    /** A QR code's tile and modules: burgundy on white in both themes, since a camera needs the contrast. */
+    val qrGround: Color,
+    val qrInk: Color,
     /** Covers sit a little back in the dark theme, so a bright thangka does not glare. */
     val coverAlpha: Float,
 )
@@ -87,6 +90,7 @@ private val Light = DuongondroColors(
     welcomePrimaryInk = Color(0xFFFFFFFF), welcomeTitle = Color(0xFF7A1F2E), welcomeSoft = Color(0xFF4E3F44),
     welcomeGoldText = Color(0xFF7A5410), welcomeOutline = Color(0xFF8A777D), welcomeOutlineInk = Color(0xFF7A1F2E),
     buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE6FFFFFF), coverAlpha = 1f,
+    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E),
 )
 
 private val Dark = DuongondroColors(
@@ -100,6 +104,7 @@ private val Dark = DuongondroColors(
     welcomePrimaryInk = Color(0xFF2A1A06), welcomeTitle = Color(0xFFFFFFFF), welcomeSoft = Color(0xFFE9D7DB),
     welcomeGoldText = Color(0xFFE3B341), welcomeOutline = Color(0xFF6E4A54), welcomeOutlineInk = Color(0xFFFFFFFF),
     buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE62B1C20), coverAlpha = 0.82f,
+    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E),
 )
 
 /** Spacing steps and fixed sizes, so composables carry no layout literals. */
@@ -152,6 +157,14 @@ object Size {
     val badgeIcon = 48.dp
     /** The cover photo at the top of a practice, below the status bar. */
     val cover = 300.dp
+    /** The Invite screen's round badge, the white tile holding the QR code, and the small vajra above it. */
+    val qrBadge = 300.dp
+    val qrTile = 196.dp
+    val vajraWidth = 16.dp
+    val vajraHeight = 26.dp
+    val vajraStroke = 1.6.dp
+    /** From the badge's top edge to the vajra's centre. */
+    val vajraInset = 29.dp
 }
 
 /** Material 3 with a custom shape scale: 4 dp small components, 6 dp buttons, cards and the FAB. */
@@ -223,6 +236,8 @@ data class DuongondroType(
     val input: TextStyle,
     /** Codes people copy by hand: the recovery code. */
     val code: TextStyle,
+    /** A title under a picture, as the Invite screen's "Scan with any phone camera". */
+    val title: TextStyle,
 )
 
 private fun heading(size: Int, tracking: Double = 0.0, lineHeight: Double? = null) = TextStyle(
@@ -256,6 +271,7 @@ private val type = DuongondroType(
     label = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium),
     input = TextStyle(fontSize = 17.sp),
     code = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace, letterSpacing = 1.sp),
+    title = heading(22),
 )
 
 val LocalColors = staticCompositionLocalOf { Light }

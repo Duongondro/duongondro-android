@@ -271,4 +271,29 @@
         <item quantity="many">%d занятий с другого телефона пока нельзя открыть здесь.</item>
         <item quantity="other">%d занятия с другого телефона пока нельзя открыть здесь.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Пригласить кого-нибудь</string>
+    <string name="invite_screen_title">Пригласить друга</string>
+    <string name="invite_scan">Отсканируйте камерой любого телефона</string>
+    <string name="invite_code_caption">Или введите этот код приглашения</string>
+    <string name="invite_copy">Скопировать код</string>
+    <string name="invite_share">Поделиться приглашением</string>
+    <string name="invite_share_text">Практикуйте со мной в Duongöndro: %s</string>
+    <string name="invite_make">Создать приглашение</string>
+    <string name="invite_open">Ваши открытые приглашения</string>
+    <string name="invite_open_until">Действует до %s</string>
+    <string name="invite_open_shown">Показано выше</string>
+    <string name="invite_open_none">Открытых нет.</string>
+    <string name="invite_open_footer">Если отозвать приглашение, его ссылка и код сразу перестанут работать. Уже появившиеся друзья останутся.</string>
+    <string name="invite_revoke">Отозвать</string>
+    <string name="invite_revoke_title">Отозвать это приглашение?</string>
+    <string name="invite_revoke_detail">Его ссылка и код сразу перестанут работать. Уже появившиеся друзья останутся.</string>
+    <string name="invite_qr_description">QR-код ссылки-приглашения</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">По этому приглашению может присоединиться любой · действует %d день</item>
+        <item quantity="few">По этому приглашению может присоединиться любой · действует %d дня</item>
+        <item quantity="many">По этому приглашению может присоединиться любой · действует %d дней</item>
+        <item quantity="other">По этому приглашению может присоединиться любой · действует %d дня</item>
+    </plurals>
 </resources>

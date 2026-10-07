@@ -285,4 +285,29 @@
         <item quantity="many">%d занять з іншого телефона поки не можна відкрити тут.</item>
         <item quantity="other">%d заняття з іншого телефона поки не можна відкрити тут.</item>
     </plurals>
+
+    <!-- Inviting (Settings › Account › Invite someone) -->
+    <string name="invite_someone">Запросити когось</string>
+    <string name="invite_screen_title">Запросити друга</string>
+    <string name="invite_scan">Відскануйте камерою будь-якого телефона</string>
+    <string name="invite_code_caption">Або введіть цей код запрошення</string>
+    <string name="invite_copy">Скопіювати код</string>
+    <string name="invite_share">Поділитися запрошенням</string>
+    <string name="invite_share_text">Практикуйте зі мною в Duongöndro: %s</string>
+    <string name="invite_make">Створити запрошення</string>
+    <string name="invite_open">Ваші відкриті запрошення</string>
+    <string name="invite_open_until">Діє до %s</string>
+    <string name="invite_open_shown">Показано вище</string>
+    <string name="invite_open_none">Відкритих немає.</string>
+    <string name="invite_open_footer">Якщо відкликати запрошення, його посилання й код одразу перестануть працювати. Друзі, які вже з\'явилися, залишаться.</string>
+    <string name="invite_revoke">Відкликати</string>
+    <string name="invite_revoke_title">Відкликати це запрошення?</string>
+    <string name="invite_revoke_detail">Його посилання й код одразу перестануть працювати. Друзі, які вже з\'явилися, залишаться.</string>
+    <string name="invite_qr_description">QR-код посилання-запрошення</string>
+    <plurals name="invite_works_for">
+        <item quantity="one">За цим запрошенням може приєднатися будь-хто · діє %d день</item>
+        <item quantity="few">За цим запрошенням може приєднатися будь-хто · діє %d дні</item>
+        <item quantity="many">За цим запрошенням може приєднатися будь-хто · діє %d днів</item>
+        <item quantity="other">За цим запрошенням може приєднатися будь-хто · діє %d дня</item>
+    </plurals>
 </resources>

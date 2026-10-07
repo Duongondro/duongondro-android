@@ -53,6 +53,7 @@ import app.duongondro.ui.settings.PracticeSettingsScreen
 import app.duongondro.ui.settings.AboutScreen
 import app.duongondro.ui.settings.PracticeListScreen
 import app.duongondro.ui.settings.DeleteEverythingScreen
+import app.duongondro.ui.settings.InviteScreen
 import app.duongondro.ui.settings.LicencesScreen
 import app.duongondro.ui.settings.SettingsScreen
 import app.duongondro.ui.settings.YourDataScreen
@@ -153,6 +154,7 @@ private object Routes {
     const val SIGN_IN = "settings/account/sign-in"
     const val NEW_ACCOUNT = "settings/account/new"
     const val RECOVERY_CODE = "settings/account/recovery-code"
+    const val INVITE = "settings/invite"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
 }
@@ -189,7 +191,7 @@ private fun Home(model: AppModel) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
                     openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
                     openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
-                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
+                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) })
             }
             composable(Routes.PRACTICES) {
                 PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
@@ -204,6 +206,7 @@ private fun Home(model: AppModel) {
             composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
             composable(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
             composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Invite) { nav.popBackStack() } }
+            composable(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
             composable(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
