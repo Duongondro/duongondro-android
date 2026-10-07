@@ -128,10 +128,12 @@ class InvitesTest {
     @Test
     fun theCacheRoundTrips() {
         val made = Invites.create(api, user, identity, now)
-        val back = MadeInvite.deserialised(made.serialised())!!
+        val back = MadeInvite.deserialised(made.serialised(user), user)!!
         assertEquals(made.code, back.code)
         assertEquals(made.expiresAt, back.expiresAt)
-        assertNull(MadeInvite.deserialised("nonsense".toByteArray()))
+        // Another account's cached invite is never shown.
+        assertNull(MadeInvite.deserialised(made.serialised(user), UUID.randomUUID()))
+        assertNull(MadeInvite.deserialised("nonsense".toByteArray(), user))
     }
 
     @Test

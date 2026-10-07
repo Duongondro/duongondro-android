@@ -187,11 +187,22 @@ class AccountManager(
      * kept or uploaded until the person chooses, and this returns false.
      */
     private suspend fun signedIn(result: SignInResult): Boolean = withContext(Dispatchers.IO) {
-        val other = db.syncState()?.user ?: prefs.getString(LAST_USER, null)?.let(java.util.UUID::fromString)
+        // The account this phone's keys and sync state belong to, if any: they can
+        // outlive a session the server ended (a 401 deletes only the token).
+        val owner = db.syncState()?.user
+            ?: runCatching { secrets.read(SET_UP_USER)?.decodeToString()?.let(java.util.UUID::fromString) }.getOrNull()
+        val other = owner ?: prefs.getString(LAST_USER, null)?.let(java.util.UUID::fromString)
         val holdsPractice = db.snapshot.value.let { it.sessions.isNotEmpty() || it.practices.isNotEmpty() }
         if (other != null && other != result.userId && holdsPractice) {
             heldSignIn = result
             return@withContext false
+        }
+        // Another account's keys, sync state and device key never carry over to
+        // this one; with no practice here, there is nothing to ask about.
+        if (owner != null && owner != result.userId) {
+            db.clearSyncState()
+            forgetSecrets()
+            deviceKeys.delete()
         }
         keep(result)
         true
@@ -505,14 +516,15 @@ class AccountManager(
             } ?: run {
                 secrets.delete(SHOWN_INVITE)
                 val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
-                Invites.create(a.api, user, a.identity(), now).also { secrets.write(SHOWN_INVITE, it.serialised()) }
+                Invites.create(a.api, user, a.identity(), now).also { secrets.write(SHOWN_INVITE, it.serialised(user)) }
             }
         }
     }
 
     /** The cached invitation, if it still has more than a day to run; never asks the server. */
     suspend fun shownInvite(now: Instant = Instant.now()): MadeInvite? = withContext(Dispatchers.IO) {
-        runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let(MadeInvite::deserialised)
+        val user = db.syncState()?.user ?: return@withContext null
+        runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let { MadeInvite.deserialised(it, user) }
             ?.takeIf { java.time.Duration.between(now, it.expiresAt) > INVITE_REUSE }
     }
 
@@ -533,8 +545,8 @@ class AccountManager(
         } catch (_: ApiError.NotFound) {
         }
         inviteLock.withLock {
-            val shown = runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let(MadeInvite::deserialised)
-            if (shown?.id == id) secrets.delete(SHOWN_INVITE)
+            val shown = runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.decodeToString()?.split(' ')?.getOrNull(1)
+            if (shown == id) secrets.delete(SHOWN_INVITE)
         }
     }
 
@@ -679,6 +691,7 @@ class AccountManager(
         const val LAST_USER = "lastUser"
         /** The invitation on the Invite screen, among the sealed secrets: it is erased with them. */
         const val SHOWN_INVITE = "invite-shown"
+        const val SET_UP_USER = app.duongondro.core.sync.SecretName.SET_UP_USER
         /** An invitation is shown again while it has more than a day to run. */
         val INVITE_REUSE: java.time.Duration = java.time.Duration.ofDays(1)
         val LINK_LIFETIME: java.time.Duration = java.time.Duration.ofMinutes(15)

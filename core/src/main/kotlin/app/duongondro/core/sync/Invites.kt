@@ -29,14 +29,16 @@ class MadeInvite(val invite: Invitation.Invite, val expiresAt: Instant) {
     /** The link as a QR code carries it: all upper case, so it fits alphanumeric mode (version 3 rather than 4), as on iOS. */
     val qrText: String get() = "HTTPS://${HOST.uppercase()}/I/$id#$secretText"
 
-    /** For the cache of the invite on show: `<id> <secret> <expiresAt ms>`. */
-    fun serialised(): ByteArray = "$id $secretText ${expiresAt.toEpochMilli()}".toByteArray()
+    /** For the cache of the invite on show, bound to the account that made it: `<owner> <id> <secret> <expiresAt ms>`. */
+    fun serialised(owner: UUID): ByteArray = "$owner $id $secretText ${expiresAt.toEpochMilli()}".toByteArray()
 
     companion object {
         const val HOST = "duongondro.app"
 
-        fun deserialised(data: ByteArray): MadeInvite? = runCatching {
-            val (id, secret, expires) = data.decodeToString().split(' ')
+        /** The cached invite, or null when it does not parse or another account made it. */
+        fun deserialised(data: ByteArray, owner: UUID): MadeInvite? = runCatching {
+            val (madeBy, id, secret, expires) = data.decodeToString().split(' ')
+            if (UUID.fromString(madeBy) != owner) return null
             val parsed = Invitation.parse(id + secret) as Invitation.Invite
             MadeInvite(parsed, Instant.ofEpochMilli(expires.toLong()))
         }.getOrNull()
