@@ -151,7 +151,8 @@ fun InviteScreen(accounts: AccountManager, back: () -> Unit) {
                 }
             }
         }
-        if (failed && shown == Shown.Invite) {
+        // The Failed state says it above already.
+        if (failed && shown != Shown.Failed) {
             Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive,
                 modifier = Modifier.padding(horizontal = Space.l))
         }
