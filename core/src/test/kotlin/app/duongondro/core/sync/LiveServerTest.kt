@@ -62,6 +62,43 @@ class LiveServerTest {
         }
     }
 
+    /**
+     * The whole invitation as two phones live it: A makes one with Invites.create
+     * and lists it; B, with keys of its own, checks the code and redeems it, and
+     * each is the other's friend; once A revokes it, it is gone.
+     */
+    @Test
+    fun inviteMakesFriendsUntilRevoked() = runBlocking {
+        assumeTrue("set DUONGONDRO_API_URL to run against a DEV server", base != null)
+        val (tokenA, userA) = devSession()
+        val phoneA = Account(Api(base!!, tokenA), MemorySecretStore(), MemoryDeviceKeyStore(), MemorySyncDatabase())
+        phoneA.setUpFirstDevice()
+        val made = Invites.create(phoneA.api, userA, phoneA.identity())
+        println("INVITE ${made.link} CODE ${made.code}")
+        val listed = phoneA.api.invites().single { it.id == made.id }
+        assertEquals(made.expiresAt, SyncTime.parse(listed.expiresAt))
+        assertEquals(null, listed.revokedAt)
+
+        val (tokenB, userB) = devSession()
+        val phoneB = Account(Api(base, tokenB), MemorySecretStore(), MemoryDeviceKeyStore(), MemorySyncDatabase())
+        phoneB.setUpFirstDevice()
+        val checked = Invitation.check(Api(base), Invitation.parse(made.code) as Invitation.Invite)
+        assertEquals(userA, checked.inviter)
+        Invites.redeem(phoneB.api, checked, userB, phoneB.identity())
+        assertTrue(phoneA.api.friends().any { it.userId == userB })
+        assertTrue(phoneB.api.friends().any { it.userId == userA })
+
+        phoneA.api.revokeInvite(made.id)
+        try {
+            Invitation.check(Api(base), made.invite)
+            fail("a revoked invite checked out")
+        } catch (_: app.duongondro.core.api.ApiError.NotFound) {
+        }
+        assertTrue(phoneA.api.invites().single { it.id == made.id }.revokedAt != null)
+        // Friends made before the revocation stay.
+        assertTrue(phoneA.api.friends().any { it.userId == userB })
+    }
+
     @Test
     fun setUpSyncAndRestore() = runBlocking {
         assumeTrue("set DUONGONDRO_API_URL to run against a DEV server", base != null)

@@ -87,6 +87,12 @@ class Api(
             put("mac", Base64.getEncoder().encodeToString(mac))
         })
 
+    /** The invites this account made, revoked and expired ones included. */
+    fun invites(): List<InviteSummary> = get<InviteList>("api/invites").invites
+
+    /** Stops an invite from working; friendships it made stay. 404 when this account made no such invite. */
+    fun revokeInvite(id: String) = send<Unit>("DELETE", "api/invites/${id.uppercase()}", null)
+
     fun friends(): List<Friend> = get<FriendList>("api/friends").friends
 
     // The account
@@ -381,6 +387,11 @@ class InviteRecord(
     @Serializable(Base64Bytes::class) val mac: ByteArray,
     val expiresAt: String,
 )
+
+@Serializable
+class InviteSummary(val id: String, val expiresAt: String, val revokedAt: String? = null, val createdAt: String = "")
+
+@Serializable class InviteList(val invites: List<InviteSummary>)
 
 @Serializable
 internal class ClientErrorReport(
