@@ -70,6 +70,10 @@ fun AcceptInviteDialog(model: AppModel, accounts: AccountManager) {
             title = { Text(stringResource(R.string.accept_title)) },
             text = { CircularProgressIndicator(color = Theme.colors.accent) },
             confirmButton = {},
+            // A slow or stuck check can be walked away from; an acceptance under way cannot.
+            dismissButton = if (s == Accepting.Checking) {
+                { TextButton(onClick = close) { Text(stringResource(R.string.cancel)) } }
+            } else null,
         )
         is Accepting.Confirm -> AlertDialog(
             onDismissRequest = close,
