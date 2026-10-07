@@ -115,6 +115,7 @@ class SqliteStore(
         write { db ->
             generationCounter.incrementAndGet()
             db.execSQL("DELETE FROM sync_state")
+            db.execSQL("DELETE FROM friend_pins")
             db.execSQL("DELETE FROM sessions")
             db.execSQL("DELETE FROM streak_seeds")
             db.execSQL("DELETE FROM practices")
@@ -173,10 +174,32 @@ class SqliteStore(
         }, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
+    /**
+     * Pins a friend's identity key as an invitation proved it (its MAC under the
+     * link's pin). The key the invite proved wins over anything pinned before,
+     * so a re-invite is how a changed key gets sorted out (iOS's repin).
+     */
+    suspend fun repin(user: UUID, identityPk: ByteArray, displayName: String, at: Instant) = write { db ->
+        db.insertWithOnConflict("friend_pins", null, ContentValues().apply {
+            put("user_id", user.toString().lowercase())
+            put("identity_pk", identityPk)
+            put("display_name", displayName)
+            put("pinned_at", at.toEpochMilli())
+        }, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    /** The pinned identity key of a friend, or null. */
+    suspend fun pinnedKey(user: UUID): ByteArray? = query { db ->
+        db.rawQuery("SELECT identity_pk FROM friend_pins WHERE user_id = ?", arrayOf(user.toString().lowercase())).use { c ->
+            if (c.moveToFirst()) c.getBlob(0) else null
+        }
+    }
+
     /** Deletes the practice (sessions, seeds, practices) and the sync state, keeping the preferences: another account's data leaving. */
     suspend fun erasePractice() = write { db ->
         generationCounter.incrementAndGet()
         db.execSQL("DELETE FROM sync_state")
+        db.execSQL("DELETE FROM friend_pins")
         db.execSQL("DELETE FROM sessions")
         db.execSQL("DELETE FROM streak_seeds")
         db.execSQL("DELETE FROM practices")
@@ -186,6 +209,7 @@ class SqliteStore(
     suspend fun clearSyncState() = write { db ->
         generationCounter.incrementAndGet()
         db.execSQL("DELETE FROM sync_state")
+        db.execSQL("DELETE FROM friend_pins")
         db.execSQL("UPDATE sessions SET dirty = 1")
     }
 
@@ -355,7 +379,7 @@ class SqliteStore(
 
     fun close() = helper.close()
 
-    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 2) {
+    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 3) {
         override fun onConfigure(db: SQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
             db.enableWriteAheadLogging()
@@ -420,7 +444,7 @@ class SqliteStore(
                     discreet_notifications INTEGER NOT NULL
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
-            onUpgrade(db, 1, 2)
+            onUpgrade(db, 1, 3)
         }
 
         /**
@@ -441,6 +465,16 @@ class SqliteStore(
                     cursor      TEXT
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
+            // Version 3: friends' identity keys as an invitation proved them (iOS's friends table, pins only).
+            if (oldVersion < 3) db.execSQL(
+                """
+                CREATE TABLE friend_pins (
+                    user_id      TEXT PRIMARY KEY NOT NULL,
+                    identity_pk  BLOB NOT NULL,
+                    display_name TEXT NOT NULL,
+                    pinned_at    INTEGER NOT NULL
+                )""".trimIndent(),
+            )
         }
     }
 }

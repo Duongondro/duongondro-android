@@ -76,7 +76,7 @@ class SqliteStoreTest {
 
     /** Adding a table without a place in the export and the purge fails here. */
     @Test fun eraseAllCoversEveryTableAndLeavesNoTrace() = runBlocking {
-        assertEquals(listOf("practices", "preferences", "sessions", "streak_seeds", "sync_state"), store.tables())
+        assertEquals(listOf("friend_pins", "practices", "preferences", "sessions", "streak_seeds", "sync_state"), store.tables())
         store.completeOnboarding(listOf(TrackedPractice(pick("mandala"))),
             listOf(StreakSeed("mandala", 1, null, parseCivilDate("2026-10-03")!!, ams)), Preferences(onboarded = true))
         store.insert(Session(practiceId = "mandala", amount = 777_001, startedAt = Instant.now(), startExact = true, zoneId = ams, loggedAt = Instant.now()))

@@ -34,6 +34,34 @@ class LiveServerTest {
         return o["token"]!!.jsonPrimitive.content to UUID.fromString(o["userId"]!!.jsonPrimitive.content)
     }
 
+    /** An invite made by a phone with keys checks out with its secret and not with another (the MAC). */
+    @Test
+    fun inviteChecksOnlyWithItsSecret() = runBlocking {
+        assumeTrue("set DUONGONDRO_API_URL to run against a DEV server", base != null)
+        val (token, user) = devSession()
+        val phone = Account(Api(base!!, token), MemorySecretStore(), MemoryDeviceKeyStore(), MemorySyncDatabase())
+        phone.setUpFirstDevice()
+        val identity = phone.identity()
+        val id = Crockford.encode(app.duongondro.core.crypto.E2EE.randomBytes(5))
+        val secret = app.duongondro.core.crypto.E2EE.randomBytes(10)
+        val keys = app.duongondro.core.crypto.E2EE.inviteKeys(secret)
+        val expires = Instant.ofEpochMilli(Instant.now().plusSeconds(86_400).toEpochMilli())
+        val payload = Statements.invite(id, user, identity.publicKey, expires)
+        val st = SignedStatement.sign(app.duongondro.core.crypto.StatementTypes.INVITE, payload, identity)
+        phone.api.createInvite(id, keys.auth, SyncTime.rfc3339(expires), app.duongondro.core.api.SignedStatementDto(st.payload, st.signature),
+            app.duongondro.core.crypto.E2EE.inviteMAC(keys.pin, identity.publicKey))
+        val checked = Invitation.check(Api(base), Invitation.parse(id + Crockford.encode(secret)) as Invitation.Invite)
+        assertEquals(user, checked.inviter)
+        // For a walk on the emulator: the link this invite makes.
+        println("INVITE https://duongondro.app/i/$id#${Crockford.encode(secret)}")
+        try {
+            Invitation.check(Api(base), Invitation.Invite(id, app.duongondro.core.crypto.E2EE.randomBytes(10)))
+            fail("another secret checked out")
+        } catch (e: Invitation.Error) {
+            assertEquals(Invitation.Failure.NOT_AUTHENTIC, e.failure)
+        }
+    }
+
     @Test
     fun setUpSyncAndRestore() = runBlocking {
         assumeTrue("set DUONGONDRO_API_URL to run against a DEV server", base != null)

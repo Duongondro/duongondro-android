@@ -465,7 +465,7 @@ class AccountManager(
     }
 
     /** The fallback report, then the invitation's friendship, once keys exist. Failures here never fail the set-up. */
-    private fun afterKeys(a: Account) {
+    private suspend fun afterKeys(a: Account) {
         a.deviceKeyFallback?.let { reason ->
             runCatching {
                 a.api.reportClientError("android keystore refused a device key; weaker tier used", BuildConfig.VERSION_NAME,
@@ -481,6 +481,9 @@ class AccountManager(
             val acceptance = SignedStatement.sign(StatementTypes.ACCEPTANCE, payload, identity)
             a.api.redeemInvite(checked.invite.id, checked.invite.proof.let { (it as SignUpProof.Invite).auth },
                 SignedStatementDto(acceptance.payload, acceptance.signature))
+            // The key the invite proved (MAC under the link's pin), not the server's word.
+            val name = runCatching { a.api.friends().firstOrNull { it.userId == checked.inviter }?.displayName }.getOrNull().orEmpty()
+            db.repin(checked.inviter, checked.inviterIdentityPk, name, Instant.now())
         }.onFailure { Log.w(TAG, "redeeming the invitation failed: ${it.javaClass.simpleName}") }
         clearInvitation()
     }

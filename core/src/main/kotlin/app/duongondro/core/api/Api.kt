@@ -76,6 +76,19 @@ class Api(
             put("acceptance", encode(acceptance))
         })
 
+    /** Stores an invitation this account signed; 409 when the id is taken. */
+    fun createInvite(id: String, auth: ByteArray, expiresAt: String, statement: SignedStatementDto, mac: ByteArray) =
+        send<Unit>("POST", "api/invites", buildJsonObject {
+            put("id", id)
+            put("auth", Base64.getEncoder().encodeToString(auth))
+            put("expiresAt", expiresAt)
+            put("payload", Base64.getEncoder().encodeToString(statement.payload))
+            put("signature", Base64.getEncoder().encodeToString(statement.signature))
+            put("mac", Base64.getEncoder().encodeToString(mac))
+        })
+
+    fun friends(): List<Friend> = get<FriendList>("api/friends").friends
+
     // The account
 
     fun me(): Me = get("api/me")
@@ -352,6 +365,11 @@ class PracticeLog(
     val updatedAt: String,
     val deletedAt: String? = null,
 )
+
+@Serializable
+class Friend(@Serializable(UuidText::class) val userId: UUID, val displayName: String = "")
+
+@Serializable class FriendList(val friends: List<Friend>)
 
 @Serializable class SyncResponse(val cursor: String, val full: Boolean, val logs: List<PracticeLog>)
 
