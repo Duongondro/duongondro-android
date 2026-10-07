@@ -91,8 +91,9 @@ object Invites {
 
     /**
      * Accepts a checked invitation with a signed acceptance: the server makes
-     * the two accounts friends. The inviter's key to pin is the one the check
-     * proved ([Invitation.Checked.inviterIdentityPk]), never the server's word.
+     * the two accounts friends. It pins nothing: the caller must then re-pin the
+     * inviter from [Invitation.Checked.inviterIdentityPk], the key the check
+     * proved, never from the server's word.
      */
     fun redeem(api: Api, checked: Invitation.Checked, user: UUID, identity: Identity) {
         if (checked.inviter == user) throw OwnInvite()
