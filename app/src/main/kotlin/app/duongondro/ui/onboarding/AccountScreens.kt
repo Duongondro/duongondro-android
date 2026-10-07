@@ -495,9 +495,11 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
     val call = rememberCall()
     val setUp = rememberCall()
     val activity = LocalContext.current
+    // The work runs in AccountManager's scope under its lock; a rotation only re-asks for the same code.
     val makeKeys = { setUp.run { if (flow.recoveryCode == null) flow.recoveryCode = accounts.setUpKeys() } }
     LaunchedEffect(Unit) { if (flow.recoveryCode == null) makeKeys() }
-    val code = flow.recoveryCode
+    val shown by accounts.shownCode.collectAsState()
+    val code = flow.recoveryCode ?: shown
     Page(
         stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
         actions = {
@@ -606,9 +608,7 @@ internal fun ColumnScope.SignInStep(flow: OnboardingFlow, accounts: AccountManag
 
 /** Survives rotation, so turning the phone never makes a second code; never saved to the instance state. */
 class RecoveryCodeModel : androidx.lifecycle.ViewModel() {
-    var code by mutableStateOf<String?>(null)
     var checking by mutableStateOf(false)
-    var started = false
 }
 
 /**
@@ -622,22 +622,24 @@ fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
     val call = rememberCall()
     val save = rememberCall()
     val activity = LocalContext.current
+    // AccountManager keeps the code (shownCode) and runs the work under its lock, so a
+    // rotation shows the same code instead of making a second one.
     val make = {
         call.run {
-            m.code = if (accounts.state.value.status == app.duongondro.account.AccountStatus.NEEDS_KEYS) accounts.setUpKeys()
+            if (accounts.state.value.status == app.duongondro.account.AccountStatus.NEEDS_KEYS) accounts.setUpKeys()
             else accounts.newRecoveryCode()
         }
     }
-    LaunchedEffect(Unit) { if (!m.started) { m.started = true; make() } }
+    LaunchedEffect(Unit) { make() }
     Column(Modifier.fillMaxSize().background(Theme.colors.ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
         Row(Modifier.fillMaxWidth().padding(top = Space.s), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = back, modifier = Modifier.size(Size.minTap)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back), tint = Theme.colors.ink)
             }
         }
-        val code = m.code
+        val code by accounts.shownCode.collectAsState()
         if (m.checking && code != null) {
-            RecoveryCheckStep(code, back = { m.checking = false }) { accounts.confirmRecoveryCode(); back() }
+            RecoveryCheckStep(code!!, back = { m.checking = false }) { accounts.confirmRecoveryCode(); back() }
         } else {
             Page(
                 stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
@@ -647,7 +649,7 @@ fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
                     if (call.failed) FilledAction(stringResource(R.string.try_again), enabled = !call.busy) { make() }
                     else FilledAction(stringResource(R.string.recovery_done), enabled = code != null) { m.checking = true }
                     TextAction(stringResource(R.string.recovery_gpm)) {
-                        if (code != null) save.run { if (accounts.saveRecoveryCode(activity, code)) back() }
+                        code?.let { c -> save.run { if (accounts.saveRecoveryCode(activity, c)) back() } }
                     }
                 },
             ) {

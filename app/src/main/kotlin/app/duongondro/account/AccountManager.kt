@@ -26,6 +26,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -348,47 +349,74 @@ class AccountManager(
         standing
     }
 
+    /** One key operation at a time: a set-up, a restore or a new code. */
+    private val keyWork = Mutex()
+
+    private val _shownCode = MutableStateFlow<String?>(null)
+    /**
+     * The recovery code being shown, until it is confirmed or saved: a screen
+     * recreated on rotation gets this one back rather than making another.
+     */
+    val shownCode: StateFlow<String?> = _shownCode.asStateFlow()
+
+    /**
+     * Runs key work in this manager's scope, one at a time: a screen that goes
+     * away (rotation) cancels only its wait, never the work half done.
+     */
+    private suspend fun <T> keyed(block: suspend () -> T): T =
+        scope.async(Dispatchers.IO) { keyWork.withLock { block() } }.await()
+
     /**
      * Sets up keys on this first phone (or finishes an interrupted set-up, with
      * the same code); returns the recovery code to show once.
      */
-    suspend fun setUpKeys(): String = withContext(Dispatchers.IO) {
-        val a = requireAccount()
-        val code = try {
-            if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
-        } finally {
-            refreshPending()
+    suspend fun setUpKeys(): String = keyed {
+        _shownCode.value ?: run {
+            val a = requireAccount()
+            val code = try {
+                if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
+            } finally {
+                refreshPending()
+            }
+            prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
+            _shownCode.value = code
+            _state.update { it.copy(status = AccountStatus.READY, recoveryUnconfirmed = true) }
+            afterKeys(a)
+            code
         }
-        prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
-        _state.update { it.copy(status = AccountStatus.READY, recoveryUnconfirmed = true) }
-        afterKeys(a)
-        code
     }
 
     /** False when the code does not open this account's recovery boxes. */
-    suspend fun restore(code: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun restore(code: String): Boolean = keyed {
         val a = requireAccount()
-        try {
-            a.restore(code)
+        val opened = try {
+            if (!a.hasKeys()) a.restore(code)
+            true
         } catch (e: AccountKeys.Error) {
-            if (e.failure == AccountKeys.Failure.BAD_RECOVERY_CODE) return@withContext false
-            throw e
+            if (e.failure != AccountKeys.Failure.BAD_RECOVERY_CODE) throw e
+            false
         }
-        _state.update { it.copy(status = AccountStatus.READY) }
-        afterKeys(a)
-        true
+        if (opened) {
+            _state.update { it.copy(status = AccountStatus.READY) }
+            afterKeys(a)
+        }
+        opened
     }
 
-    /** A new recovery code, replacing the old one (which stops working). */
-    suspend fun newRecoveryCode(): String = withContext(Dispatchers.IO) {
-        val code = try { requireAccount().newRecoveryCode() } finally { refreshPending() }
-        prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
-        _state.update { it.copy(recoveryUnconfirmed = true) }
-        code
+    /** A new recovery code, replacing the old one (which stops working); the one being shown, if any. */
+    suspend fun newRecoveryCode(): String = keyed {
+        _shownCode.value ?: run {
+            val code = try { requireAccount().newRecoveryCode() } finally { refreshPending() }
+            prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
+            _shownCode.value = code
+            _state.update { it.copy(recoveryUnconfirmed = true) }
+            code
+        }
     }
 
     /** The code was written down and checked, or saved to the password manager. */
     fun confirmRecoveryCode() {
+        _shownCode.value = null
         prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, false) }
         _state.update { it.copy(recoveryUnconfirmed = false) }
     }
@@ -499,6 +527,7 @@ class AccountManager(
     /** After the local purge: back to local mode, with nothing of the account left. */
     fun forget() {
         pendingSync?.cancel()
+        _shownCode.value = null
         account = null
         clearInvitation()
         runCatching { forgetSecrets() }
