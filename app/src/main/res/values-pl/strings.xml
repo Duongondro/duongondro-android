@@ -267,4 +267,7 @@
     <string name="finish_set_up">Dokończ konfigurację</string>
     <string name="account_footer_local">Tylko na tym telefonie. Konto daje przyjaciół, publiczne serie i synchronizację między telefonami; Twoje liczby pozostają zaszyfrowane end-to-end.</string>
     <string name="sign_out_needs_recovery">Zanim się tu wylogujesz, dokończ kod odzyskiwania: bez niego Twoje liczby nie mogłyby wrócić.</string>
+    <string name="other_account_title">Ten telefon ma praktykę z innego konta</string>
+    <string name="other_account_detail">Usunąć ją tutaj i kontynuować? To, co zostało zsynchronizowane, zostaje w tamtym koncie.</string>
+    <string name="erase_and_continue">Usuń i kontynuuj</string>
 </resources>

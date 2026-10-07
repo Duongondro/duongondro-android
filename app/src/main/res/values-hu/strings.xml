@@ -248,4 +248,7 @@
     <string name="finish_set_up">Beállítás befejezése</string>
     <string name="account_footer_local">Csak ezen a telefonon. Egy fiókkal barátok, nyilvános sorozatok és telefonok közötti szinkronizálás jár; a számaid végig titkosítva maradnak.</string>
     <string name="sign_out_needs_recovery">Mielőtt itt kijelentkezel, fejezd be a helyreállítási kódot: nélküle a számaid nem jöhetnének vissza.</string>
+    <string name="other_account_title">Ezen a telefonon egy másik fiók gyakorlása van</string>
+    <string name="other_account_detail">Törlöd itt, és folytatod? Ami szinkronizálódott belőle, az abban a fiókban marad.</string>
+    <string name="erase_and_continue">Törlés és folytatás</string>
 </resources>

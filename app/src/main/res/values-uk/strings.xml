@@ -268,4 +268,7 @@
     <string name="finish_set_up">Завершити налаштування</string>
     <string name="account_footer_local">Лише на цьому телефоні. Обліковий запис додає друзів, публічні серії та синхронізацію між телефонами; ваші підрахунки лишаються наскрізно зашифрованими.</string>
     <string name="sign_out_needs_recovery">Перш ніж вийти тут, завершіть код відновлення: без нього ваші підрахунки не повернути.</string>
+    <string name="other_account_title">На цьому телефоні практика з іншого облікового запису</string>
+    <string name="other_account_detail">Стерти її тут і продовжити? Те, що було синхронізовано, лишиться в тому обліковому записі.</string>
+    <string name="erase_and_continue">Стерти й продовжити</string>
 </resources>

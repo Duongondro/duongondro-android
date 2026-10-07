@@ -96,11 +96,13 @@ sealed interface Redeem {
     /** The invitation or admission code stopped being valid since the link was sent. */
     data object InviteGone : Redeem
     data object TooMany : Redeem
+    /** Signed in, but this phone holds another account's practice: erase it, or cancel. */
+    data object OtherAccountData : Redeem
 }
 
 enum class ProfileResult { Saved, UsernameTaken }
 
-enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone }
+enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, OtherAccountData }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -174,16 +176,51 @@ class AccountManager(
         _state.update { profileState().copy(status = it.status, syncing = it.syncing, offline = it.offline, refused = it.refused, unreadable = it.unreadable) }
     }
 
-    private suspend fun signedIn(result: SignInResult) = withContext(Dispatchers.IO) {
-        // The account this phone already syncs with, if any: another one would mix two accounts' data.
-        val synced = db.syncState()
-        if (synced != null && synced.user != result.userId) {
-            runCatching { anonymous.withToken(result.token).signOut() }
-            throw IllegalStateException("this phone holds another account's data")
+    /** A sign-in held back because this phone holds another account's practice; see [eraseOtherAccountAndContinue]. */
+    private var heldSignIn: SignInResult? = null
+
+    /**
+     * Keeps the session, unless this phone holds practice from another account
+     * (the one it syncs with, or the last one signed out here): then nothing is
+     * kept or uploaded until the person chooses, and this returns false.
+     */
+    private suspend fun signedIn(result: SignInResult): Boolean = withContext(Dispatchers.IO) {
+        val other = db.syncState()?.user ?: prefs.getString(LAST_USER, null)?.let(java.util.UUID::fromString)
+        val holdsPractice = db.snapshot.value.let { it.sessions.isNotEmpty() || it.practices.isNotEmpty() }
+        if (other != null && other != result.userId && holdsPractice) {
+            heldSignIn = result
+            return@withContext false
         }
+        keep(result)
+        true
+    }
+
+    private suspend fun keep(result: SignInResult) {
         secrets.write(TOKEN, result.token.toByteArray())
         open(result.token)
         _state.update { it.copy(status = if (account!!.hasKeys()) AccountStatus.READY else AccountStatus.NEEDS_KEYS) }
+    }
+
+    /**
+     * "Erase it here and continue": the other account's practice and keys leave
+     * this phone (its server copy stays), then the held sign-in goes on.
+     * Returns whether the held sign-in made its account.
+     */
+    suspend fun eraseOtherAccountAndContinue(): Boolean = withContext(Dispatchers.IO) {
+        val result = heldSignIn ?: throw IllegalStateException("no sign-in is waiting")
+        heldSignIn = null
+        db.erasePractice()
+        forgetSecrets()
+        prefs.edit { remove(LAST_USER) }
+        keep(result)
+        result.created
+    }
+
+    /** "Cancel": the held session ends on the server, and nothing was uploaded. */
+    suspend fun abandonHeldSignIn() = withContext(Dispatchers.IO) {
+        val result = heldSignIn ?: return@withContext
+        heldSignIn = null
+        runCatching { anonymous.withToken(result.token).signOut() }
     }
 
     private fun requireAccount() = account ?: throw IllegalStateException("not signed in")
@@ -259,8 +296,7 @@ class AccountManager(
     private suspend fun redeem(call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
             val result = call()
-            signedIn(result)
-            Redeem.SignedIn(result.created)
+            if (signedIn(result)) Redeem.SignedIn(result.created) else Redeem.OtherAccountData
         } catch (e: ApiError.Status) {
             if (e.code == 400) Redeem.Wrong else throw e
         } catch (_: ApiError.Forbidden) {
@@ -318,7 +354,7 @@ class AccountManager(
             } catch (_: ApiError.NotFound) {
                 return PasskeyResult.InviteGone
             }
-            signedIn(result)
+            if (!signedIn(result)) return PasskeyResult.OtherAccountData
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
         } else {
             val ceremony = withContext(Dispatchers.IO) { current.api.beginPasskeyAdd() }
@@ -501,11 +537,16 @@ class AccountManager(
     suspend fun signOut() = withContext(Dispatchers.IO) {
         check(_state.value.canSignOut) { "the recovery code is not finished; signing out would lose the keys" }
         pendingSync?.cancel()
+        val user = db.syncState()?.user
         account?.let { a -> runCatching { a.api.signOut() } }
         account = null
         db.clearSyncState()
         forgetSecrets()
-        prefs.edit { clear() }
+        // Remembered, so signing in to another account asks before mixing this practice into it.
+        prefs.edit {
+            clear()
+            user?.let { putString(LAST_USER, it.toString()) }
+        }
         _state.value = AccountState()
     }
 
@@ -550,6 +591,7 @@ class AccountManager(
         const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
         const val PENDING_RECOVERY = app.duongondro.core.sync.SecretName.PENDING_RECOVERY
         const val LAST_SYNC = "lastSync"
+        const val LAST_USER = "lastUser"
         val LINK_LIFETIME: java.time.Duration = java.time.Duration.ofMinutes(15)
     }
 }

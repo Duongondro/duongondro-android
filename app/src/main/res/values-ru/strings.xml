@@ -254,4 +254,7 @@
     <string name="finish_set_up">Завершить настройку</string>
     <string name="account_footer_local">Только на этом телефоне. Аккаунт добавляет друзей, публичные серии и синхронизацию между телефонами; ваши счёты остаются со сквозным шифрованием.</string>
     <string name="sign_out_needs_recovery">Прежде чем выйти здесь, завершите код восстановления: без него ваши счёты не вернуть.</string>
+    <string name="other_account_title">На этом телефоне практика из другого аккаунта</string>
+    <string name="other_account_detail">Стереть её здесь и продолжить? То, что было синхронизировано, останется в том аккаунте.</string>
+    <string name="erase_and_continue">Стереть и продолжить</string>
 </resources>

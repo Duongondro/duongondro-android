@@ -266,4 +266,7 @@
     <string name="finish_set_up">Terminar la configuración</string>
     <string name="account_footer_local">Solo en este teléfono. Una cuenta añade amigos, rachas públicas y sincronización entre teléfonos; tus cuentas siguen cifradas de extremo a extremo.</string>
     <string name="sign_out_needs_recovery">Antes de cerrar sesión aquí, termina tu código de recuperación: sin él, tus cuentas no podrían volver.</string>
+    <string name="other_account_title">Este teléfono tiene la práctica de otra cuenta</string>
+    <string name="other_account_detail">¿Borrarla aquí y continuar? Lo que se sincronizó sigue en esa cuenta.</string>
+    <string name="erase_and_continue">Borrar y continuar</string>
 </resources>

@@ -261,4 +261,7 @@
     <string name="finish_set_up">Einrichtung abschließen</string>
     <string name="account_footer_local">Nur auf diesem Handy. Ein Konto bringt Freunde, öffentliche Serien und Synchronisierung zwischen Handys; deine Zählungen bleiben Ende-zu-Ende-verschlüsselt.</string>
     <string name="sign_out_needs_recovery">Bevor du dich hier abmeldest, schließe deinen Wiederherstellungscode ab: Ohne ihn könnten deine Zählungen nicht zurückkommen.</string>
+    <string name="other_account_title">Auf diesem Handy ist Praxis aus einem anderen Konto</string>
+    <string name="other_account_detail">Hier löschen und fortfahren? Was davon synchronisiert wurde, bleibt in jenem Konto.</string>
+    <string name="erase_and_continue">Löschen und fortfahren</string>
 </resources>

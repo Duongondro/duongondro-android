@@ -265,4 +265,7 @@
     <string name="account_footer_local">Only on this phone. An account adds friends, public streaks and sync between phones; your counts stay end-to-end encrypted.</string>
     <string name="asset_statements" translatable="false">[{\"include\": \"https://duongondro.app/.well-known/assetlinks.json\"}]</string>
     <string name="sign_out_needs_recovery">Before signing out here, finish your recovery code: without it, your counts could not come back.</string>
+    <string name="other_account_title">This phone holds practice from another account</string>
+    <string name="other_account_detail">Erase it here and continue? Whatever of it was synced stays in that account.</string>
+    <string name="erase_and_continue">Erase and continue</string>
 </resources>

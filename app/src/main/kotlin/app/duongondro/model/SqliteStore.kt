@@ -173,6 +173,15 @@ class SqliteStore(
         }, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
+    /** Deletes the practice (sessions, seeds, practices) and the sync state, keeping the preferences: another account's data leaving. */
+    suspend fun erasePractice() = write { db ->
+        generationCounter.incrementAndGet()
+        db.execSQL("DELETE FROM sync_state")
+        db.execSQL("DELETE FROM sessions")
+        db.execSQL("DELETE FROM streak_seeds")
+        db.execSQL("DELETE FROM practices")
+    }
+
     /** Forgets the account this phone synced with (signing out); the sessions stay, dirty, as in local mode. */
     suspend fun clearSyncState() = write { db ->
         generationCounter.incrementAndGet()

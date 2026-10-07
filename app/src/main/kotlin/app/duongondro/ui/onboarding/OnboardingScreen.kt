@@ -165,6 +165,8 @@ class OnboardingFlow : ViewModel() {
     var inviteCode by mutableStateOf("")
     /** Why the invitation was not accepted, shown under its field. */
     var inviteProblem by mutableStateOf<Int?>(null)
+    /** A sign-in waits for "erase the other account's practice here, or cancel". */
+    var otherAccount by mutableStateOf(false)
     /** The server said the username is taken; shown on the Username step. */
     var usernameTaken by mutableStateOf(false)
     var consented by mutableStateOf(false)

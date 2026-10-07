@@ -222,6 +222,39 @@ private suspend fun redeemed(result: Redeem, flow: OnboardingFlow, accounts: Acc
     Redeem.NoAccount -> R.string.no_account
     Redeem.InviteGone -> R.string.invite_unknown
     Redeem.TooMany -> R.string.try_later
+    Redeem.OtherAccountData -> { flow.otherAccount = true; null }
+}
+
+/**
+ * "This phone holds practice from another account": erase it here and go on
+ * with the sign-in, or cancel, which ends the new session with nothing uploaded.
+ */
+@Composable
+private fun OtherAccountDialog(
+    flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit,
+    onContinue: suspend (created: Boolean) -> Unit = { created -> route(flow, accounts, created, finish) },
+) {
+    if (!flow.otherAccount) return
+    val scope = rememberCoroutineScope()
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = {},
+        title = { Text(stringResource(R.string.other_account_title)) },
+        text = { Text(stringResource(R.string.other_account_detail)) },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = {
+                flow.otherAccount = false
+                scope.launch {
+                    runCatching { accounts.eraseOtherAccountAndContinue() }.onSuccess { created -> onContinue(created) }
+                }
+            }) { Text(stringResource(R.string.erase_and_continue), color = Theme.colors.destructive) }
+        },
+        dismissButton = {
+            androidx.compose.material3.TextButton(onClick = {
+                flow.otherAccount = false
+                scope.launch { accounts.abandonHeldSignIn() }
+            }) { Text(stringResource(R.string.cancel)) }
+        },
+    )
 }
 
 /** The screen that asks whether the account exists at all. */
@@ -370,6 +403,7 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
     val submit = {
         call.run { problem = redeemed(accounts.redeemCode(flow.email.trim(), code), flow, accounts, finish) }
     }
+    OtherAccountDialog(flow, accounts, finish)
     Page(
         stringResource(R.string.check_title), plain(stringResource(R.string.check_detail, flow.email.trim())),
         actions = {
@@ -457,6 +491,8 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
 internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
     val activity = LocalContext.current
+    // The passkey made the account with its profile already: keys next.
+    OtherAccountDialog(flow, accounts, finish = {}) { flow.go(Step.Recovery) }
     Page(
         stringResource(R.string.passkey_title), plain(stringResource(R.string.passkey_detail)), centered = true,
         top = {
@@ -480,6 +516,7 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
                         PasskeyResult.Cancelled -> Unit
                         PasskeyResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
                         PasskeyResult.InviteGone -> { flow.inviteProblem = R.string.invite_unknown; flow.backTo(Step.Invite) }
+                        PasskeyResult.OtherAccountData -> flow.otherAccount = true
                     }
                 }
             }
@@ -588,6 +625,7 @@ internal fun ColumnScope.SignInStep(flow: OnboardingFlow, accounts: AccountManag
     val call = rememberCall()
     val activity = LocalContext.current
     var problem by remember { mutableStateOf<Int?>(null) }
+    OtherAccountDialog(flow, accounts, finish)
     Page(
         stringResource(R.string.signin_title), plain(stringResource(R.string.signin_detail)), centered = true,
         actions = {

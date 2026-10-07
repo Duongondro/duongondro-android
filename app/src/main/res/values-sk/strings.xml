@@ -254,4 +254,7 @@
     <string name="finish_set_up">Dokončiť nastavenie</string>
     <string name="account_footer_local">Len v tomto telefóne. Účet pridá priateľov, verejné série a synchronizáciu medzi telefónmi; tvoje počty zostanú šifrované end-to-end.</string>
     <string name="sign_out_needs_recovery">Kým sa tu odhlásiš, dokonči obnovovací kód: bez neho by sa tvoje počty nedali vrátiť.</string>
+    <string name="other_account_title">V tomto telefóne je prax z iného účtu</string>
+    <string name="other_account_detail">Zmazať ju tu a pokračovať? Čo z nej bolo synchronizované, zostane v tom účte.</string>
+    <string name="erase_and_continue">Zmazať a pokračovať</string>
 </resources>
