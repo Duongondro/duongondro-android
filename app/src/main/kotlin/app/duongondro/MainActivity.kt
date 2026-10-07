@@ -75,7 +75,8 @@ class MainActivity : AppCompatActivity() {
         setContent {
             DuongondroTheme { App(model) }
         }
-        handleLink(intent)
+        // Recreated (rotation, a language switch, process death): the link was handled already.
+        if (savedInstanceState == null) handleLink(intent)
         // Reminders follow the data: a session logged today cancels today's.
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -97,6 +98,9 @@ class MainActivity : AppCompatActivity() {
      */
     private fun handleLink(intent: Intent?) {
         val uri = intent?.data ?: return
+        // Used once: the intent outlives this call, and the token must not be read again.
+        intent.data = null
+        setIntent(intent)
         if (uri.host?.lowercase() != "duongondro.app") return
         val segments = uri.pathSegments
         val fragment = uri.fragment ?: return
