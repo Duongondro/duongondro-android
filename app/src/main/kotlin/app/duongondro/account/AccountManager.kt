@@ -583,7 +583,10 @@ class AccountManager(
             // The cached one only while the server still has it open: another phone
             // may have revoked it, and a dead QR code must not be shown for days.
             shownInvite(now)?.takeIf { cached ->
-                a.api.invites().any { it.id == cached.id && it.revokedAt == null && SyncTime.parse(it.expiresAt)?.isAfter(now) == true }
+                // Offline, the cached one is shown as it is; it is dropped only when the
+                // server answers and does not list it as open.
+                val listed = try { a.api.invites() } catch (_: IOException) { return@takeIf true }
+                listed.any { it.id == cached.id && it.revokedAt == null && SyncTime.parse(it.expiresAt)?.isAfter(now) == true }
             } ?: run {
                 secrets.delete(SHOWN_INVITE)
                 val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
