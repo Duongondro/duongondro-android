@@ -559,7 +559,9 @@ class AccountManager(
      * as the invitation proved it. Returns the new friend's name, if the server
      * has one. A revoked or expired invitation is the API's NotFound.
      */
-    suspend fun accept(checked: Invitation.Checked): String? = withContext(Dispatchers.IO) {
+    suspend fun accept(checked: Invitation.Checked): String? = scope.async(Dispatchers.IO) {
+        // In this manager's scope, so a screen that goes away (rotation) cannot
+        // stop it between the redemption and the re-pin.
         val a = requireAccount()
         val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
         Invites.redeem(a.api, checked, user, a.identity())
@@ -567,7 +569,7 @@ class AccountManager(
         // The key the invitation proved wins over anything pinned on the server's word.
         db.repin(checked.inviter, checked.inviterIdentityPk, name.orEmpty(), Instant.now())
         name?.takeIf { it.isNotBlank() }
-    }
+    }.await()
 
     // Inviting
 
