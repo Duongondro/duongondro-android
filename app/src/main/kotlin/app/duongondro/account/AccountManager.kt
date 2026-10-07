@@ -211,6 +211,7 @@ class AccountManager(
         heldSignIn = null
         db.erasePractice()
         forgetSecrets()
+        deviceKeys.delete()
         prefs.edit { remove(LAST_USER) }
         keep(result)
         result.created
@@ -561,7 +562,7 @@ class AccountManager(
     /**
      * Ends the session here and forgets the account on this phone: the token,
      * the account's keys and the sync state. The practice data stays, as in
-     * local mode. The device key stays too; it holds nothing without its wraps.
+     * local mode. The device key goes too, so another account gets its own.
      */
     suspend fun signOut() = withContext(Dispatchers.IO) {
         check(_state.value.canSignOut) { "the recovery code is not finished; signing out would lose the keys" }
@@ -576,6 +577,8 @@ class AccountManager(
         account = null
         db.clearSyncState()
         forgetSecrets()
+        // A new device key for whichever account comes next: two accounts never share one.
+        deviceKeys.delete()
         // Remembered, so signing in to another account asks before mixing this practice into it.
         prefs.edit {
             clear()
