@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in practice names as each country's practice books have them, generated
+     from the iOS app's Practices.xcstrings (design: Localisation › Practice names).
+     Only practitioners' sources go here; a missing name falls back to English. -->
+<resources>
+    <string name="practice_short_refuge_name">Medytacja Schronienia</string>
+    <string name="practice_refuge_name">Schronienie i Oświecona Postawa</string>
+    <string name="practice_refuge_second">Pokłony</string>
+    <string name="practice_dorje_sempa_name">Diamentowy Umysł</string>
+    <string name="practice_dorje_sempa_second">Dordże Sempa</string>
+    <string name="practice_mandala_name">Podarowanie Mandali</string>
+    <string name="practice_guru_yoga_name">Medytacja na Lamę</string>
+    <string name="practice_guru_yoga_second">Guru Joga</string>
+    <string name="practice_8th_karmapa_name">Medytacja VIII Karmapy</string>
+    <string name="practice_16th_karmapa_name">Medytacja XVI Karmapy</string>
+    <string name="practice_chenrezig_name">Kochające Oczy</string>
+    <string name="practice_chenrezig_second">Czenrezig</string>
+    <string name="practice_amitabha_name">Medytacja na Buddę Nieograniczonego Światła</string>
+    <string name="practice_amitabha_second">Amitabha</string>
+</resources>

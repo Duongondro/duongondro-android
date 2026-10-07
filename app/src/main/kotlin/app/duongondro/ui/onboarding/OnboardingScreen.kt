@@ -1,6 +1,8 @@
 package app.duongondro.ui.onboarding
 
 import androidx.activity.compose.BackHandler
+import app.duongondro.ui.shownName
+import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -440,8 +442,8 @@ private fun ColumnScope.Practices(flow: OnboardingFlow) {
                             uncheckedColor = Theme.colors.inputBorder))
                     FlowRow(Modifier.weight(1f).padding(vertical = Space.xs), horizontalArrangement = Arrangement.spacedBy(Space.s),
                         verticalArrangement = Arrangement.Center, itemVerticalAlignment = Alignment.CenterVertically) {
-                        Text(p.name, style = Theme.type.body.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal), color = Theme.colors.ink)
-                        p.secondName?.let { Text(it, style = Theme.type.secondary, color = Theme.colors.muted) }
+                        Text(p.shownName(), style = Theme.type.body.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.Normal), color = Theme.colors.ink)
+                        p.shownSecondName()?.let { Text(it, style = Theme.type.secondary, color = Theme.colors.muted) }
                     }
                 }
                 if (on && p.streakOnlyAllowed) {
@@ -509,7 +511,7 @@ private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
         Text(stringResource(R.string.practice_n_of_m, index + 1, flow.chosen.size), style = Theme.type.secondary.copy(fontWeight = FontWeight.Bold),
             color = Theme.colors.muted, modifier = Modifier.padding(top = Space.s))
-        Text(stringResource(R.string.where_are_you, c.practice.name), style = Theme.type.questionSmall, color = Theme.colors.ink)
+        Text(stringResource(R.string.where_are_you, c.practice.shownName()), style = Theme.type.questionSmall, color = Theme.colors.ink)
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
             Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                 if (!c.streakOnly) {

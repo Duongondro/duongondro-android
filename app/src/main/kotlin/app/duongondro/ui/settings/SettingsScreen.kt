@@ -1,6 +1,8 @@
 package app.duongondro.ui.settings
 
 import android.content.ClipData
+import app.duongondro.ui.shownName
+import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
@@ -369,7 +371,7 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     val p = snapshot.practices.firstOrNull { it.id == practiceId } ?: return
     val save = { q: TrackedPractice -> model.save(q) }
-    Page(p.practice.name, back) {
+    Page(p.practice.shownName(), back) {
         if (p.practice.isCustom) {
             DebouncedField(p.practice.name, stringResource(R.string.name), numeric = false) { v ->
                 if (v.isNotBlank()) save(p.copy(practice = p.practice.copy(name = v.trim())))

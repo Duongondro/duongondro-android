@@ -64,8 +64,8 @@ fun PracticeName(practice: Practice, large: Boolean = false, modifier: Modifier 
         horizontalAlignment = if (large) Alignment.CenterHorizontally else Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(Space.xxs),
     ) {
-        Text(practice.name, style = if (large) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium, textAlign = align)
-        practice.secondName?.let {
+        Text(practice.shownName(), style = if (large) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium, textAlign = align)
+        practice.shownSecondName()?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium, color = Theme.colors.muted, textAlign = align)
         }
     }

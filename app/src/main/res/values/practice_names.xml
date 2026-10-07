@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Built-in practice names as each country's practice books have them, generated
+     from the iOS app's Practices.xcstrings (design: Localisation › Practice names).
+     Only practitioners' sources go here; a missing name falls back to English. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="practice_short_refuge_name">Short refuge</string>
+    <string name="practice_refuge_name">Refuge and the Enlightened Attitude</string>
+    <string name="practice_refuge_second">Prostrations</string>
+    <string name="practice_dorje_sempa_name">Dorje Sempa</string>
+    <string name="practice_dorje_sempa_second">Diamond Mind</string>
+    <string name="practice_mandala_name">Mandala offering</string>
+    <string name="practice_guru_yoga_name">Meditation on the Lama</string>
+    <string name="practice_guru_yoga_second">Guru Yoga</string>
+    <string name="practice_8th_karmapa_name">8th Karmapa Meditation</string>
+    <string name="practice_16th_karmapa_name">16th Karmapa Meditation</string>
+    <string name="practice_chenrezig_name">Chenrezig</string>
+    <string name="practice_chenrezig_second">Loving Eyes</string>
+    <string name="practice_amitabha_name">Amitabha</string>
+    <string name="practice_amitabha_second">Meditation on the Buddha of Limitless Light</string>
+</resources>

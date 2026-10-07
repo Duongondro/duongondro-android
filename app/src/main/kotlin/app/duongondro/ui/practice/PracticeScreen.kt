@@ -1,6 +1,8 @@
 package app.duongondro.ui.practice
 
 import android.text.format.DateFormat
+import app.duongondro.ui.shownName
+import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
@@ -165,7 +167,7 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
 private fun Header(p: TrackedPractice, sessions: List<Session>) {
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val parts = buildList {
-        p.practice.secondName?.let(::add)
+        p.practice.shownSecondName()?.let(::add)
         if (p.streakOnly) add(stringResource(R.string.header_streak_only))
         else {
             rounds?.let { add(stringResource(R.string.header_round, it.round)) }
@@ -173,7 +175,7 @@ private fun Header(p: TrackedPractice, sessions: List<Session>) {
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-        Text(p.practice.name, style = Theme.type.pageTitle)
+        Text(p.practice.shownName(), style = Theme.type.pageTitle)
         Text(parts.joinToString(" · "), style = Theme.type.subtitle, color = Theme.colors.muted)
     }
 }
