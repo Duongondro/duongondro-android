@@ -49,9 +49,6 @@
     <string name="back">Zurück</string>
 
     <string name="logged_amount">%1$s erfasst</string>
-    <string name="after_midnight_body">Gezählt für %1$s: Du hast gegen %2$s begonnen, vor Mitternacht. Deine Serie ist sicher.</string>
-    <string name="after_midnight_hint">Tippe nächstes Mal auf „Start“, dann weiß die App es genau.</string>
-    <string name="count_for">Zählung für</string>
     <string name="done">Fertig</string>
 
     <string name="settings">Einstellungen</string>
@@ -310,4 +307,6 @@
     <string name="accept_already_named">Du und %s seid schon befreundet: Diese Einladung ändert nichts.</string>
     <string name="accept_own">Das ist deine eigene Einladung. Schick sie lieber einem Freund.</string>
     <string name="accept_gone">Diese Einladung lässt sich nicht verwenden: Sie ist vielleicht abgelaufen oder wurde zurückgezogen.</string>
+    <string name="counted_for">Gezählt für %1$s</string>
+    <string name="started_after_midnight">Ich habe nach Mitternacht angefangen</string>
 </resources>

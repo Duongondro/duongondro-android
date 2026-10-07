@@ -46,9 +46,6 @@
     <string name="practice_gone">Ez a gyakorlat már nincs meg.</string>
     <string name="back">Vissza</string>
     <string name="logged_amount">Rögzítve: %1$s</string>
-    <string name="after_midnight_body">Elszámolva erre a napra: %1$s. Kb. %2$s körül kezdtél, még éjfél előtt. A sorozatod biztonságban van.</string>
-    <string name="after_midnight_hint">Legközelebb koppints az Indításra, és az alkalmazás pontosan tudni fogja.</string>
-    <string name="count_for">Elszámolás erre</string>
     <string name="done">Kész</string>
     <string name="settings">Beállítások</string>
     <string name="section_general">Általános</string>
@@ -297,4 +294,6 @@
     <string name="accept_already_named">Te és %s már barátok vagytok: ez a meghívó semmit sem változtat.</string>
     <string name="accept_own">Ez a saját meghívód. Küldd el inkább egy barátodnak.</string>
     <string name="accept_gone">Ez a meghívó nem használható: lehet, hogy lejárt, vagy visszavonták.</string>
+    <string name="counted_for">Beszámítva: %1$s</string>
+    <string name="started_after_midnight">Éjfél után kezdtem</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Сегодня</string>
-    <string name="tab_settings">Вы</string>
+    <string name="tab_settings">Профиль</string>
     <string name="daily_practices">Ежедневные практики</string>
     <plurals name="days">
         <item quantity="one">%d день</item>
@@ -50,9 +50,6 @@
     <string name="practice_gone">Этой практики больше нет.</string>
     <string name="back">Назад</string>
     <string name="logged_amount">Записано: %1$s</string>
-    <string name="after_midnight_body">Засчитано за %1$s: вы начали около %2$s, до полуночи. Ваша серия в безопасности.</string>
-    <string name="after_midnight_hint">В следующий раз нажмите «Начать», и приложение будет знать точно.</string>
-    <string name="count_for">Засчитать за</string>
     <string name="done">Готово</string>
     <string name="settings">Настройки</string>
     <string name="section_general">Общие</string>
@@ -65,10 +62,10 @@
     <string name="welcome_tagline">Ведите практику медитации вместе с друзьями.</string>
     <string name="welcome_encrypted">Сквозное шифрование и полностью открытый исходный код.</string>
     <string name="have_account">У меня уже есть аккаунт</string>
-    <string name="q_finished_ngondro">Вы уже завершили ngöndro?</string>
+    <string name="q_finished_ngondro">Вы уже завершили нёндро?</string>
     <string name="q_finished_ngondro_detail">Все четыре части, по 111 111 в каждой. Повторные круги — позже.</string>
     <string name="q_finished_short_refuge">Вы уже завершили медитацию Прибежища?</string>
-    <string name="q_finished_short_refuge_detail">Медитация Прибежища, которую вы делаете перед началом ngöndro.</string>
+    <string name="q_finished_short_refuge_detail">Медитация Прибежища, которую вы делаете перед началом нёндро.</string>
     <string name="yes">Да</string>
     <string name="no">Ещё нет</string>
     <string name="q_daily">Какие практики вы делаете каждый день?</string>
@@ -309,4 +306,6 @@
     <string name="accept_already_named">Вы и %s уже друзья: это приглашение ничего не добавит.</string>
     <string name="accept_own">Это ваше собственное приглашение. Отправьте его другу.</string>
     <string name="accept_gone">Это приглашение нельзя использовать: возможно, оно истекло или было отозвано.</string>
+    <string name="counted_for">Засчитано за день: %1$s</string>
+    <string name="started_after_midnight">Я начал(а) после полуночи</string>
 </resources>

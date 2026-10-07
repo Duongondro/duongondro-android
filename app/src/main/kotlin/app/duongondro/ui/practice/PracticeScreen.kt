@@ -61,12 +61,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.R
@@ -79,11 +76,14 @@ import app.duongondro.model.AppModel
 import app.duongondro.ui.Bar
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.FilledAction
+import app.duongondro.ui.GenderedString
+import app.duongondro.ui.ownGender
 import app.duongondro.ui.ListRow
 import app.duongondro.ui.OutlinedAction
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.SoftAction
 import app.duongondro.ui.grouped
+import app.duongondro.ui.stringResource
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
@@ -375,70 +375,26 @@ private fun LocalDate.formatDay(): String {
     return DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEEdMMMM"), locale).format(this)
 }
 
-/** "Sunday 4": the weekday and day of the month, for the after-midnight choice. */
-private fun LocalDate.weekdayAndDay(): String {
-    return "${dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault())} $dayOfMonth"
-}
-
 /**
- * The after-midnight sheet: "Logged 108", which day it counted for, and a
- * two-way choice. Done applies the choice; dismissing keeps what was counted.
+ * The after-midnight sheet (design: Social › Which day a session counts for): the
+ * day the session counted for, OK, or the one alternative. Dismissing keeps it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AfterMidnightDialog(prompt: AfterMidnightPrompt, model: AppModel) {
-    val sheet = prompt.sheet
     val zone = prompt.session.zone
-    val days = listOf(sheet.countedFor, sheet.alternative).sorted()
-    var picked by remember(prompt) { mutableStateOf(sheet.countedFor) }
-    val counted = sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
-    val time = prompt.session.loggedAt.shortTime(zone)
-    val body = stringResource(R.string.after_midnight_body, counted, sheet.startedAround.shortTime(zone))
-    val bolded = buildAnnotatedString {
-        val at = body.indexOf(counted)
-        if (at < 0) append(body) else {
-            append(body.substring(0, at))
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Theme.colors.ink)) { append(counted) }
-            append(body.substring(at + counted.length))
-        }
-    }
+    val counted = prompt.sheet.countedFor.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, LocalConfiguration.current.locales[0])
+    val logged = if (prompt.session.amount > 0) stringResource(R.string.logged_amount, prompt.session.amount.grouped())
+        else stringResource(R.string.marked_done)
+    val gender = model.ownGender()
     ModalBottomSheet(onDismissRequest = { model.dismissAfterMidnight() }, containerColor = Theme.colors.card) {
         Column(Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m + Space.xxs)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-                Text(
-                    if (prompt.session.amount > 0) stringResource(R.string.logged_amount, prompt.session.amount.grouped())
-                    else stringResource(R.string.marked_done),
-                    style = Theme.type.sheetTitle,
-                )
-                Text(time, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.muted)
+            Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                Text(stringResource(R.string.counted_for, counted), style = Theme.type.sheetTitle)
+                Text("$logged · ${prompt.session.loggedAt.shortTime(zone)}", style = Theme.type.secondary, color = Theme.colors.muted)
             }
-            Text(bolded, style = Theme.type.lead, color = Theme.colors.soft)
-            Choice(days.map { it to it.weekdayAndDay() }, picked, stringResource(R.string.count_for)) { picked = it }
-            Text(stringResource(R.string.after_midnight_hint), style = Theme.type.footnote, color = Theme.colors.muted)
-            SoftAction(stringResource(R.string.done)) {
-                if (picked == sheet.countedFor) model.dismissAfterMidnight() else model.choose(picked, prompt)
-            }
-        }
-    }
-}
-
-/** A two-way choice on a soft track, the selected side filled. */
-@Composable
-private fun Choice(options: List<Pair<LocalDate, String>>, selected: LocalDate, description: String, pick: (LocalDate) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().background(Theme.colors.softFill, MaterialTheme.shapes.medium).padding(Space.xs)
-            .semantics { contentDescription = description },
-        horizontalArrangement = Arrangement.spacedBy(Space.xs),
-    ) {
-        options.forEach { (day, label) ->
-            val on = day == selected
-            Button(
-                onClick = { pick(day) }, shape = MaterialTheme.shapes.small, modifier = Modifier.weight(1f).heightIn(min = Size.field),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (on) Theme.colors.accent else androidx.compose.ui.graphics.Color.Transparent,
-                    contentColor = if (on) Theme.colors.onAccent else Theme.colors.soft,
-                ),
-            ) { Text(label, style = Theme.type.body.copy(fontWeight = if (on) FontWeight.Bold else FontWeight.SemiBold), maxLines = 1) }
+            FilledAction(stringResource(R.string.ok)) { model.dismissAfterMidnight() }
+            SoftAction(stringResource(GenderedString.StartedAfterMidnight, gender)) { model.choose(prompt.sheet.alternative, prompt) }
         }
     }
 }

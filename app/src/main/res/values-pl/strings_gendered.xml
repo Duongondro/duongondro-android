@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="q_finished_ngondro_male">Czy ukończyłeś nyndro?</string>
+    <string name="q_finished_ngondro_female">Czy ukończyłaś nyndro?</string>
+    <string name="q_finished_short_refuge_male">Czy ukończyłeś Medytację Schronienia?</string>
+    <string name="q_finished_short_refuge_female">Czy ukończyłaś Medytację Schronienia?</string>
+    <string name="started_after_midnight_male">Zacząłem po północy</string>
+    <string name="started_after_midnight_female">Zaczęłam po północy</string>
+</resources>

@@ -29,7 +29,7 @@ data class AfterMidnightPrompt(val session: Session, val sheet: AfterMidnight)
 
 /**
  * What the UI shows, from the store, plus the in-memory state that must never
- * reach it early: the undo window and running Start timers.
+ * reach it early: the undo window.
  */
 class AppModel(
     val store: Store,
@@ -195,6 +195,7 @@ class AppModel(
         closeJob?.cancel()
         val p = _pending.value ?: return
         _pending.value = null
+        // Always estimated; the after-midnight sheet corrects a wrong day in one tap.
         val startedAt = SessionStart.estimate(p.openedAt, null, SessionStart.timedLengths(snapshot.value.sessions))
         val session = Session(id = uuidV7(p.openedAt), practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
             startExact = false, zoneId = zone.id, loggedAt = p.openedAt)

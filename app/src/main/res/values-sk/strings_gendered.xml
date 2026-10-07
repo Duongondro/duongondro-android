@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="q_finished_ngondro_male">Dokončil si ngöndro?</string>
+    <string name="q_finished_ngondro_female">Dokončila si ngöndro?</string>
+    <string name="q_finished_short_refuge_male">Dokončil si meditáciu útočiska?</string>
+    <string name="q_finished_short_refuge_female">Dokončila si meditáciu útočiska?</string>
+    <string name="started_after_midnight_male">Začal som po polnoci</string>
+    <string name="started_after_midnight_female">Začala som po polnoci</string>
+</resources>

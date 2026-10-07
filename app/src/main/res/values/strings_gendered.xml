@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Gendered forms (design: Localisation › Grammatical gender), used through
+  GenderedString. Each default is an alias of the neutral string, so a language
+  without its own form here shows its neutral one, never English.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="q_finished_ngondro_male">@string/q_finished_ngondro</string>
+    <string name="q_finished_ngondro_female">@string/q_finished_ngondro</string>
+    <string name="q_finished_short_refuge_male">@string/q_finished_short_refuge</string>
+    <string name="q_finished_short_refuge_female">@string/q_finished_short_refuge</string>
+    <string name="started_after_midnight_male">@string/started_after_midnight</string>
+    <string name="started_after_midnight_female">@string/started_after_midnight</string>
+</resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Dziś</string>
-    <string name="tab_settings">Ty</string>
+    <string name="tab_settings">Profil</string>
     <string name="daily_practices">Praktyki codzienne</string>
 
     <plurals name="days">
@@ -53,9 +53,6 @@
     <string name="back">Wstecz</string>
 
     <string name="logged_amount">Zapisano %1$s</string>
-    <string name="after_midnight_body">Zaliczone na %1$s: sesja zaczęła się około %2$s, przed północą. Twoja seria jest bezpieczna.</string>
-    <string name="after_midnight_hint">Następnym razem dotknij Start, a aplikacja będzie wiedzieć dokładnie.</string>
-    <string name="count_for">Zalicz na</string>
     <string name="done">Gotowe</string>
 
     <string name="settings">Ustawienia</string>
@@ -71,10 +68,10 @@
     <string name="welcome_tagline">Śledź swoją praktykę medytacji razem z przyjaciółmi.</string>
     <string name="welcome_encrypted">Szyfrowanie end-to-end i w pełni otwarty kod źródłowy.</string>
     <string name="have_account">Mam już konto</string>
-    <string name="q_finished_ngondro">Czy ngöndro masz już za sobą?</string>
+    <string name="q_finished_ngondro">Czy ukończyłeś/aś nyndro?</string>
     <string name="q_finished_ngondro_detail">Wszystkie cztery części, po 111 111 każda. Kolejne rundy dopiero później.</string>
-    <string name="q_finished_short_refuge">Czy Short refuge masz już za sobą?</string>
-    <string name="q_finished_short_refuge_detail">Medytacja Short refuge, którą wykonuje się przed rozpoczęciem ngöndro.</string>
+    <string name="q_finished_short_refuge">Czy ukończyłeś/aś Medytację Schronienia?</string>
+    <string name="q_finished_short_refuge_detail">Medytacja Schronienia, którą wykonuje się przed rozpoczęciem nyndro.</string>
     <string name="yes">Tak</string>
     <string name="no">Jeszcze nie</string>
     <string name="q_daily">Które praktykujesz codziennie?</string>
@@ -322,4 +319,6 @@
     <string name="accept_already_named">Ty i %s jesteście już znajomymi: to zaproszenie niczego nie zmieni.</string>
     <string name="accept_own">To Twoje własne zaproszenie. Wyślij je komuś innemu.</string>
     <string name="accept_gone">Tego zaproszenia nie da się użyć: mogło wygasnąć albo zostać wycofane.</string>
+    <string name="counted_for">Zaliczone na dzień: %1$s</string>
+    <string name="started_after_midnight">Zacząłem/zaczęłam po północy</string>
 </resources>

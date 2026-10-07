@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="started_after_midnight_male">Я почав після опівночі</string>
+    <string name="started_after_midnight_female">Я почала після опівночі</string>
+</resources>

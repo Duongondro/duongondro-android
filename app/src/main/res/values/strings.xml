@@ -51,9 +51,6 @@
     <string name="back">Back</string>
 
     <string name="logged_amount">Logged %1$s</string>
-    <string name="after_midnight_body">Counted for %1$s: you started around %2$s, before midnight. Your streak is safe.</string>
-    <string name="after_midnight_hint">Tap Start next time and the app knows exactly.</string>
-    <string name="count_for">Count for</string>
     <string name="done">Done</string>
 
     <string name="settings">Settings</string>
@@ -316,4 +313,6 @@
     <string name="accept_already_named">You and %s are friends already: this invitation adds nothing.</string>
     <string name="accept_own">This is your own invitation. Send it to a friend instead.</string>
     <string name="accept_gone">This invitation can\'t be used: it may have expired or been revoked.</string>
+    <string name="counted_for">Counted for %1$s</string>
+    <string name="started_after_midnight">I started after midnight</string>
 </resources>

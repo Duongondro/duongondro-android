@@ -2,7 +2,7 @@
 <resources>
 
     <string name="tab_today">Сьогодні</string>
-    <string name="tab_settings">Ви</string>
+    <string name="tab_settings">Профіль</string>
     <string name="daily_practices">Щоденні практики</string>
 
     <plurals name="days">
@@ -54,9 +54,6 @@
     <string name="back">Назад</string>
 
     <string name="logged_amount">Записано %1$s</string>
-    <string name="after_midnight_body">Зараховано за %1$s: ви почали близько %2$s, до опівночі. Ваша серія в безпеці.</string>
-    <string name="after_midnight_hint">Наступного разу торкніться «Почати», і застосунок знатиме точно.</string>
-    <string name="count_for">Кількість за</string>
     <string name="done">Готово</string>
 
     <string name="settings">Налаштування</string>
@@ -323,4 +320,6 @@
     <string name="accept_already_named">Ви та %s вже друзі: це запрошення нічого не додасть.</string>
     <string name="accept_own">Це ваше власне запрошення. Надішліть його другові.</string>
     <string name="accept_gone">Це запрошення не можна використати: можливо, воно закінчилося або його відкликали.</string>
+    <string name="counted_for">Зараховано за день: %1$s</string>
+    <string name="started_after_midnight">Я почав(-ла) після опівночі</string>
 </resources>

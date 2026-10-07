@@ -52,9 +52,6 @@
     <string name="back">Atrás</string>
 
     <string name="logged_amount">Se registró %1$s</string>
-    <string name="after_midnight_body">Contado para %1$s: empezaste alrededor de las %2$s, antes de medianoche. Tu racha está a salvo.</string>
-    <string name="after_midnight_hint">Toca Iniciar la próxima vez y la app lo sabrá con exactitud.</string>
-    <string name="count_for">Contar para</string>
     <string name="done">Listo</string>
 
     <string name="settings">Ajustes</string>
@@ -318,4 +315,6 @@
     <string name="accept_already_named">Tú y %s ya sois amigos: esta invitación no cambia nada.</string>
     <string name="accept_own">Es tu propia invitación. Envíasela a un amigo.</string>
     <string name="accept_gone">Esta invitación no se puede usar: puede que haya caducado o se haya revocado.</string>
+    <string name="counted_for">Contado para el %1$s</string>
+    <string name="started_after_midnight">Empecé después de medianoche</string>
 </resources>

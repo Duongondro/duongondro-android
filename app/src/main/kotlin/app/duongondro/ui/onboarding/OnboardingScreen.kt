@@ -91,10 +91,13 @@ import app.duongondro.model.Preferences
 import app.duongondro.reminders.rememberNotificationPermission
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.FilledAction
+import app.duongondro.ui.GenderedString
+import app.duongondro.ui.ownGender
 import app.duongondro.ui.OutlinedAction
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.timePickerColors
 import app.duongondro.ui.card
+import app.duongondro.ui.stringResource
 import app.duongondro.ui.settings.SwitchRow
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
@@ -298,10 +301,10 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
         if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack) leave else null)
         when (val step = flow.step) {
             Step.Welcome -> Welcome(flow)
-            Step.FinishedNgondro -> YesNo(stringResource(R.string.q_finished_ngondro), stringResource(R.string.q_finished_ngondro_detail),
+            Step.FinishedNgondro -> YesNo(stringResource(GenderedString.FinishedNgondro, model.ownGender()), stringResource(R.string.q_finished_ngondro_detail),
                 yes = { flow.finishedNgondro = true; flow.finishedShortRefuge = true; flow.pruneToAvailable(); flow.go(Step.Practices) },
                 no = { flow.finishedNgondro = false; flow.go(Step.FinishedShortRefuge) })
-            Step.FinishedShortRefuge -> YesNo(stringResource(R.string.q_finished_short_refuge), stringResource(R.string.q_finished_short_refuge_detail),
+            Step.FinishedShortRefuge -> YesNo(stringResource(GenderedString.FinishedShortRefuge, model.ownGender()), stringResource(R.string.q_finished_short_refuge_detail),
                 yes = { flow.finishedShortRefuge = true; flow.pruneToAvailable(); flow.go(Step.Practices) },
                 no = { flow.finishedShortRefuge = false; flow.pruneToAvailable(); flow.go(Step.Practices) })
             Step.Practices -> Practices(flow)

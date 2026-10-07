@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tab_today">Dnes</string>
-    <string name="tab_settings">Ty</string>
+    <string name="tab_settings">Profil</string>
     <string name="daily_practices">Denné cvičenia</string>
     <plurals name="days">
         <item quantity="one">%d deň</item>
@@ -50,9 +50,6 @@
     <string name="practice_gone">Toto cvičenie už neexistuje.</string>
     <string name="back">Späť</string>
     <string name="logged_amount">Zaznamenané: %1$s</string>
-    <string name="after_midnight_body">Započítané na %1$s: začal(a) si okolo %2$s, pred polnocou. Tvoja séria je v bezpečí.</string>
-    <string name="after_midnight_hint">Nabudúce ťukni na Začať a aplikácia bude vedieť presne.</string>
-    <string name="count_for">Započítať na</string>
     <string name="done">Hotovo</string>
     <string name="settings">Nastavenia</string>
     <string name="section_general">Všeobecné</string>
@@ -67,8 +64,8 @@
     <string name="have_account">Už mám účet</string>
     <string name="q_finished_ngondro">Dokončil(a) si ngöndro?</string>
     <string name="q_finished_ngondro_detail">Všetky štyri časti, každá 111 111. Opakované kolá prídu neskôr.</string>
-    <string name="q_finished_short_refuge">Dokončil(a) si Short refuge?</string>
-    <string name="q_finished_short_refuge_detail">Meditácia Short refuge, ktorú robíš pred začiatkom ngöndro.</string>
+    <string name="q_finished_short_refuge">Dokončil(a) si meditáciu útočiska?</string>
+    <string name="q_finished_short_refuge_detail">Meditácia útočiska, ktorú robíš pred začiatkom ngöndro.</string>
     <string name="yes">Áno</string>
     <string name="no">Ešte nie</string>
     <string name="q_daily">Ktoré cvičíš denne?</string>
@@ -309,4 +306,6 @@
     <string name="accept_already_named">Ty a %s už ste priatelia: táto pozvánka nič nezmení.</string>
     <string name="accept_own">Toto je tvoja vlastná pozvánka. Pošli ju radšej kamarátovi.</string>
     <string name="accept_gone">Túto pozvánku nemožno použiť: možno vypršala alebo bola zrušená.</string>
+    <string name="counted_for">Započítané na deň: %1$s</string>
+    <string name="started_after_midnight">Začal(a) som po polnoci</string>
 </resources>
