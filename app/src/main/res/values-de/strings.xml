@@ -70,10 +70,10 @@
     <string name="welcome_tagline">Verfolge deine Meditationspraxis gemeinsam mit deinen Freunden.</string>
     <string name="welcome_encrypted">Ende-zu-Ende-verschlüsselt und vollständig Open Source.</string>
     <string name="have_account">Ich habe schon ein Konto</string>
-    <string name="q_finished_ngondro">Hast du das ngöndro abgeschlossen?</string>
+    <string name="q_finished_ngondro">Hast du das Ngöndro abgeschlossen?</string>
     <string name="q_finished_ngondro_detail">Alle vier Teile, je 111.111. Wiederholungsrunden kommen später.</string>
     <string name="q_finished_short_refuge">Hast du Short refuge abgeschlossen?</string>
-    <string name="q_finished_short_refuge_detail">Die Meditation „Short refuge“, die du vor Beginn des ngöndro machst.</string>
+    <string name="q_finished_short_refuge_detail">Die Meditation „Short refuge“, die du vor Beginn des Ngöndro machst.</string>
     <string name="yes">Ja</string>
     <string name="no">Noch nicht</string>
     <string name="q_daily">Welche übst du täglich?</string>

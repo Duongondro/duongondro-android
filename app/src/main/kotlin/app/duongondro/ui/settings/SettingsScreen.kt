@@ -90,6 +90,9 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import android.icu.text.DisplayContext
+import android.icu.text.LocaleDisplayNames
+import android.icu.util.ULocale
 import java.util.Locale
 import app.duongondro.reminders.Reminders
 import app.duongondro.reminders.rememberNotificationPermission
@@ -320,9 +323,10 @@ private fun LanguageRow() {
     }
 }
 
+/** The language's own name as CLDR writes it, never capitalised: "polski", "čeština", "Deutsch". */
 private fun nativeName(code: String): String {
-    val locale = Locale.forLanguageTag(code)
-    return locale.getDisplayLanguage(locale)
+    val locale = ULocale.forLanguageTag(code)
+    return LocaleDisplayNames.getInstance(locale, DisplayContext.CAPITALIZATION_NONE).languageDisplayName(locale.language)
 }
 
 /** Add any built-in practice the path allows, or a custom one, at any time. */
