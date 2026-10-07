@@ -42,8 +42,11 @@ private sealed interface Accepting {
 fun AcceptInviteDialog(model: AppModel, accounts: AccountManager) {
     val code by model.inviteCode.collectAsStateWithLifecycle()
     val state by accounts.state.collectAsStateWithLifecycle()
+    val shownCode by accounts.shownCode.collectAsStateWithLifecycle()
+    val signingUp by accounts.signingUpWithInvite.collectAsStateWithLifecycle()
     val opened = code ?: return
-    if (state.status != AccountStatus.READY) return
+    // Not while a sign-up from this link finishes, nor over the recovery code (iOS waits for it too).
+    if (state.status != AccountStatus.READY || shownCode != null || signingUp) return
     val scope = rememberCoroutineScope()
     var step by remember(opened) { mutableStateOf<Accepting>(Accepting.Checking) }
     LaunchedEffect(opened) {

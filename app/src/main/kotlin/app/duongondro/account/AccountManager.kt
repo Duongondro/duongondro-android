@@ -128,6 +128,8 @@ class AccountManager(
     private val db: SqliteStore,
     private val scope: CoroutineScope,
     baseUrl: String = BuildConfig.API_BASE_URL,
+    /** Called once a sign-up's invitation has been redeemed (or tried), so the opened link is not offered again. */
+    private val onInvitationUsed: () -> Unit = {},
 ) {
     private val app = context.applicationContext
     private val secrets = SecretFiles(app)
@@ -146,6 +148,13 @@ class AccountManager(
     /** The invitation a sign-up started from, checked; kept until the account exists and has keys. */
     private var invitation: Invitation? = null
     private var checkedInvite: Invitation.Checked? = null
+        set(value) {
+            field = value
+            _signingUpWithInvite.value = value != null
+        }
+    private val _signingUpWithInvite = MutableStateFlow(false)
+    /** A sign-up holds a checked invitation not yet redeemed: an opened link belongs to it, not to accepting. */
+    val signingUpWithInvite: StateFlow<Boolean> = _signingUpWithInvite.asStateFlow()
 
     /** Reads the stored session; call once the database is open. */
     suspend fun load() = withContext(Dispatchers.IO) {
@@ -508,6 +517,8 @@ class AccountManager(
             db.repin(checked.inviter, checked.inviterIdentityPk, name, Instant.now())
         }.onFailure { Log.w(TAG, "redeeming the invitation failed: ${it.javaClass.simpleName}") }
         clearInvitation()
+        // The link that started this sign-up is used: never offer it again for accepting.
+        withContext(Dispatchers.Main) { onInvitationUsed() }
     }
 
     // Being invited, with an account

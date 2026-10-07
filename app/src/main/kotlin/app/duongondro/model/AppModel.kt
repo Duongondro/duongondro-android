@@ -37,7 +37,7 @@ class AppModel(
     context: android.content.Context? = null,
 ) : ViewModel() {
     /** Every server and key operation; none for previews and tests without a database. */
-    val accounts: AccountManager? = (store as? SqliteStore)?.let { s -> context?.let { AccountManager(it, s, viewModelScope) } }
+    val accounts: AccountManager? = (store as? SqliteStore)?.let { s -> context?.let { AccountManager(it, s, viewModelScope, onInvitationUsed = { usedInvite() }) } }
 
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
