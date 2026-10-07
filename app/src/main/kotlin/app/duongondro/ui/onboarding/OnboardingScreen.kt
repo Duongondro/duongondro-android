@@ -5,6 +5,8 @@ import app.duongondro.ui.shownName
 import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -367,7 +369,12 @@ private fun ColumnScope.Welcome(flow: OnboardingFlow) {
     Image(painterResource(R.drawable.emblem), contentDescription = null, modifier = Modifier.width(Size.emblem).align(Alignment.CenterHorizontally))
     Column(Modifier.padding(top = Space.xxl).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        Text(stringResource(R.string.app_name), style = Theme.type.welcomeTitle, color = Theme.colors.welcomeTitle, textAlign = TextAlign.Center)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Text(stringResource(R.string.app_name), style = Theme.type.welcomeTitle, color = Theme.colors.welcomeTitle, textAlign = TextAlign.Center)
+            // The motto stays English in every language, on one line, shrinking rather than wrapping.
+            BasicText(stringResource(R.string.welcome_motto), style = Theme.type.motto.copy(color = Theme.colors.muted, textAlign = TextAlign.Center),
+                maxLines = 1, softWrap = false, autoSize = TextAutoSize.StepBased(minFontSize = MOTTO_MIN, maxFontSize = Theme.type.motto.fontSize))
+        }
         Text(stringResource(R.string.welcome_tagline), style = Theme.type.body.copy(fontSize = 18.sp, lineHeight = 25.sp),
             color = Theme.colors.welcomeSoft, textAlign = TextAlign.Center)
         Text(stringResource(R.string.welcome_encrypted), style = Theme.type.subtitle.copy(fontWeight = FontWeight.SemiBold),
@@ -592,3 +599,6 @@ private fun ColumnScope.Reminder(flow: OnboardingFlow) {
         OutlinedAction(stringResource(R.string.no_reminders)) { flow.reminder = null; flow.go(Step.Where) }
     }
 }
+
+/** The Welcome motto shrinks to this at the narrowest before it would wrap. */
+private val MOTTO_MIN = 9.sp

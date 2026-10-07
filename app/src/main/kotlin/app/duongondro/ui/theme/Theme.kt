@@ -234,6 +234,8 @@ data class DuongondroType(
     val code: TextStyle,
     /** A title under a picture, as the Invite screen's "Scan with any phone camera". */
     val title: TextStyle,
+    /** Welcome's English motto under the name: small, one line. */
+    val motto: TextStyle,
 )
 
 private fun heading(size: Int, tracking: Double = 0.0, lineHeight: Double? = null) = TextStyle(
@@ -268,6 +270,7 @@ private val type = DuongondroType(
     input = TextStyle(fontSize = 17.sp),
     code = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Monospace, letterSpacing = 1.sp),
     title = heading(22),
+    motto = TextStyle(fontSize = 13.sp, letterSpacing = 0.2.sp),
 )
 
 val LocalColors = staticCompositionLocalOf { Light }

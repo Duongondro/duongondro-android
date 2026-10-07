@@ -66,6 +66,8 @@
     <string name="source_code">Source code</string>
 
     <!-- Onboarding -->
+    <!-- Always English, in every language: the owner's motto. -->
+    <string name="welcome_motto" translatable="false">A ngöndro tracker for the TikTok generation</string>
     <string name="welcome_tagline">Track your meditation practice together with your friends.</string>
     <string name="welcome_encrypted">End-to-end encrypted and fully open source.</string>
     <string name="have_account">I already have an account</string>
