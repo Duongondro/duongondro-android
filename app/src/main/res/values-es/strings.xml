@@ -137,7 +137,7 @@
     <string name="name_detail">Tus amigos ven este nombre junto a tus rachas.</string>
     <string name="name_label">Nombre</string>
     <string name="gender_title">Tu género</string>
-    <string name="gender_detail">El polaco, el ruso, el ucraniano, el checo y el eslovaco cambian las palabras según el género: &lt;i&gt;ukończyłaś&lt;/i&gt; o &lt;i&gt;ukończyłeś&lt;/i&gt;. Solo lo usamos para elegir esas formas, en la app y en lo que tus amigos ven de ti. Para no binario hay formulaciones sin forma de género donde el idioma lo permite.</string>
+    <string name="gender_detail">Algunos idiomas usan terminaciones verbales distintas para hombres y mujeres. Si te saltas este paso o eliges «No binario», la app usará formas neutras siempre que sea posible.</string>
     <string name="gender_male">Hombre</string>
     <string name="gender_female">Mujer</string>
     <string name="gender_nonbinary">No binario</string>

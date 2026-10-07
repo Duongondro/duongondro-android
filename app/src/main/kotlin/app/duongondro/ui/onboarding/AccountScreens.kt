@@ -492,7 +492,7 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
         }
     }
     Page(
-        stringResource(R.string.gender_title), AnnotatedString.fromHtml(stringResource(R.string.gender_detail)),
+        stringResource(R.string.gender_title), plain(stringResource(R.string.gender_detail)),
         actions = {
             CallError(call)
             listOf(Gender.Male to R.string.gender_male, Gender.Female to R.string.gender_female, Gender.NonBinary to R.string.gender_nonbinary)

@@ -137,7 +137,7 @@
     <string name="name_detail">Friends see this name next to your streaks.</string>
     <string name="name_label">Name</string>
     <string name="gender_title">Your gender</string>
-    <string name="gender_detail">Polish, Russian, Ukrainian, Czech and Slovak change words by gender: &lt;i&gt;ukończyłaś&lt;/i&gt; or &lt;i&gt;ukończyłeś&lt;/i&gt;. We use it only to pick those forms, in the app and in what friends see about you. Non-binary gets wording without a gendered form where the language has one.</string>
+    <string name="gender_detail">Some languages use different verb endings for men and women. If you skip this step or choose \"Non-binary,\" the app will use gender-neutral forms wherever possible.</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
     <string name="gender_nonbinary">Non-binary</string>

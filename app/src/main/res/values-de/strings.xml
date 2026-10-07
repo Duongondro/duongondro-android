@@ -134,7 +134,7 @@
     <string name="name_detail">Freunde sehen diesen Namen neben deinen Serien.</string>
     <string name="name_label">Name</string>
     <string name="gender_title">Dein Geschlecht</string>
-    <string name="gender_detail">Polnisch, Russisch, Ukrainisch, Tschechisch und Slowakisch ändern Wörter nach Geschlecht: &lt;i&gt;ukończyłaś&lt;/i&gt; oder &lt;i&gt;ukończyłeś&lt;/i&gt;. Wir nutzen die Angabe nur, um diese Formen zu wählen, in der App und in dem, was Freunde über dich sehen. Bei nicht-binär gibt es Formulierungen ohne Geschlechtsform, wo die Sprache welche kennt.</string>
+    <string name="gender_detail">Manche Sprachen haben für Männer und Frauen unterschiedliche Verbendungen. Wenn du diesen Schritt überspringst oder „Nicht-binär“ wählst, verwendet die App, wo immer möglich, geschlechtsneutrale Formen.</string>
     <string name="gender_male">Männlich</string>
     <string name="gender_female">Weiblich</string>
     <string name="gender_nonbinary">Nicht-binär</string>

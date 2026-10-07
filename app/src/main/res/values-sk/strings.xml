@@ -132,7 +132,7 @@
     <string name="name_detail">Priatelia vidia toto meno pri tvojich sériách.</string>
     <string name="name_label">Meno</string>
     <string name="gender_title">Tvoje pohlavie</string>
-    <string name="gender_detail">Poľština, ruština, ukrajinčina, čeština a slovenčina menia slová podľa rodu: &lt;i&gt;ukończyłaś&lt;/i&gt; alebo &lt;i&gt;ukończyłeś&lt;/i&gt;. Používame ho len na výber týchto tvarov, v aplikácii aj v tom, čo o tebe vidia priatelia. Pri nebinárnych osobách volíme formulácie bez rodového tvaru, kde ho jazyk má.</string>
+    <string name="gender_detail">Niektoré jazyky, vrátane slovenčiny, majú pre mužov a ženy rôzne koncovky slovies. Ak tento krok preskočíš alebo zvolíš „Nebinárne“, aplikácia bude všade, kde sa dá, používať rodovo neutrálne tvary.</string>
     <string name="gender_male">Muž</string>
     <string name="gender_female">Žena</string>
     <string name="gender_nonbinary">Nebinárne</string>

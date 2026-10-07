@@ -128,7 +128,7 @@
     <string name="name_detail">A barátaid ezt a nevet látják a sorozataid mellett.</string>
     <string name="name_label">Név</string>
     <string name="gender_title">A nemed</string>
-    <string name="gender_detail">A lengyel, az orosz, az ukrán, a cseh és a szlovák nyelv nem szerint változtatja a szavakat: &lt;i&gt;ukończyłaś&lt;/i&gt; vagy &lt;i&gt;ukończyłeś&lt;/i&gt;. Csak e alakok kiválasztására használjuk, az alkalmazásban és abban, amit a barátaid látnak rólad. A nem bináris megadásnál nemtől független megfogalmazást használunk, ahol a nyelv ismer ilyet.</string>
+    <string name="gender_detail">Egyes nyelvekben a férfiakra és a nőkre vonatkozó igék végződése eltér. Ha kihagyod ezt a lépést, vagy a „Nem bináris” lehetőséget választod, az alkalmazás, ahol csak lehet, nemsemleges alakokat használ.</string>
     <string name="gender_male">Férfi</string>
     <string name="gender_female">Nő</string>
     <string name="gender_nonbinary">Nem bináris</string>
