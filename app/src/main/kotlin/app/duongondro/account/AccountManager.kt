@@ -497,15 +497,20 @@ class AccountManager(
      */
     suspend fun invite(now: Instant = Instant.now()): MadeInvite = withContext(Dispatchers.IO) {
         inviteLock.withLock {
-            shownInvite(now) ?: run {
-                val a = requireAccount()
+            val a = requireAccount()
+            // The cached one only while the server still has it open: another phone
+            // may have revoked it, and a dead QR code must not be shown for days.
+            shownInvite(now)?.takeIf { cached ->
+                a.api.invites().any { it.id == cached.id && it.revokedAt == null && SyncTime.parse(it.expiresAt)?.isAfter(now) == true }
+            } ?: run {
+                secrets.delete(SHOWN_INVITE)
                 val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
                 Invites.create(a.api, user, a.identity(), now).also { secrets.write(SHOWN_INVITE, it.serialised()) }
             }
         }
     }
 
-    /** The cached invitation, if it is still worth showing; never makes one. */
+    /** The cached invitation, if it still has more than a day to run; never asks the server. */
     suspend fun shownInvite(now: Instant = Instant.now()): MadeInvite? = withContext(Dispatchers.IO) {
         runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.let(MadeInvite::deserialised)
             ?.takeIf { java.time.Duration.between(now, it.expiresAt) > INVITE_REUSE }
