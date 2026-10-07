@@ -234,8 +234,9 @@ private fun OtherAccountDialog(
     flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit,
     onContinue: suspend (created: Boolean) -> Unit = { created -> route(flow, accounts, created, finish) },
 ) {
-    if (!flow.otherAccount) return
+    // The step's scope, not the dialog's: closing the dialog must not cancel the erase.
     val scope = rememberCoroutineScope()
+    if (!flow.otherAccount) return
     androidx.compose.material3.AlertDialog(
         onDismissRequest = {},
         title = { Text(stringResource(R.string.other_account_title)) },
