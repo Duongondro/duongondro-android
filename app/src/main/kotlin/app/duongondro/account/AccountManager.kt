@@ -558,7 +558,10 @@ class AccountManager(
             } ?: run {
                 secrets.delete(SHOWN_INVITE)
                 val user = db.syncState()?.user ?: throw IllegalStateException("no keys on this phone")
-                Invites.create(a.api, user, a.identity(), now).also { secrets.write(SHOWN_INVITE, it.serialised(user)) }
+                Invites.create(a.api, user, a.identity(), now).also {
+                    secrets.write(SHOWN_INVITE, it.serialised(user))
+                    prefs.edit { putBoolean(INVITE_WITHDRAWN, false) }
+                }
             }
         }
     }
@@ -571,6 +574,13 @@ class AccountManager(
     }
 
     private val inviteLock = Mutex()
+
+    /**
+     * The invitation on show was revoked from the Invite screen: it offers "Make
+     * an invitation" rather than minting one, until that is tapped. Kept with the
+     * account's preferences, so it is forgotten on sign-out.
+     */
+    val inviteWithdrawn: Boolean get() = prefs.getBoolean(INVITE_WITHDRAWN, false)
 
     /** This account's invitations that still work, the soonest to expire first. */
     suspend fun openInvites(now: Instant = Instant.now()): List<OpenInvite> = withContext(Dispatchers.IO) {
@@ -588,7 +598,10 @@ class AccountManager(
         }
         inviteLock.withLock {
             val shown = runCatching { secrets.read(SHOWN_INVITE) }.getOrNull()?.decodeToString()?.split(' ')?.getOrNull(1)
-            if (shown == id) secrets.delete(SHOWN_INVITE)
+            if (shown == id) {
+                secrets.delete(SHOWN_INVITE)
+                prefs.edit { putBoolean(INVITE_WITHDRAWN, true) }
+            }
         }
     }
 
@@ -733,6 +746,7 @@ class AccountManager(
         const val LAST_USER = "lastUser"
         /** The invitation on the Invite screen, among the sealed secrets: it is erased with them. */
         const val SHOWN_INVITE = "invite-shown"
+        const val INVITE_WITHDRAWN = "inviteWithdrawn"
         const val SET_UP_USER = app.duongondro.core.sync.SecretName.SET_UP_USER
         /** An invitation is shown again while it has more than a day to run. */
         val INVITE_REUSE: java.time.Duration = java.time.Duration.ofDays(1)

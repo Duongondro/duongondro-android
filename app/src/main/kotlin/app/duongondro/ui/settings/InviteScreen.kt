@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,8 +90,6 @@ fun InviteScreen(accounts: AccountManager, back: () -> Unit) {
     var open by remember { mutableStateOf<List<OpenInvite>?>(null) }
     var revoking by remember { mutableStateOf<OpenInvite?>(null) }
     var failed by remember { mutableStateOf(false) }
-    // The one on show was revoked: a rotation must not mint another unasked.
-    var withdrawn by rememberSaveable { mutableStateOf(false) }
 
     suspend fun refreshOpen() {
         try {
@@ -110,7 +107,6 @@ fun InviteScreen(accounts: AccountManager, back: () -> Unit) {
             failed = false
             shown = try {
                 invite = accounts.invite()
-                withdrawn = false
                 Shown.Invite
             } catch (e: CancellationException) {
                 throw e
@@ -122,7 +118,9 @@ fun InviteScreen(accounts: AccountManager, back: () -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        if (withdrawn) {
+        // The one on show was revoked here: no new one is minted unasked, even after
+        // leaving and coming back, until "Make an invitation".
+        if (accounts.inviteWithdrawn) {
             shown = Shown.None
             refreshOpen()
         } else make()
@@ -173,7 +171,6 @@ fun InviteScreen(accounts: AccountManager, back: () -> Unit) {
                             accounts.revokeInvite(o.id)
                             if (invite?.id == o.id) {
                                 invite = null
-                                withdrawn = true
                                 shown = Shown.None
                             }
                         } catch (e: CancellationException) {
