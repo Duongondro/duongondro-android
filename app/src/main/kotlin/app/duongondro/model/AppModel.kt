@@ -130,12 +130,13 @@ class AppModel(
             }
             try {
                 app.duongondro.data.Purge.run(context.applicationContext, this@AppModel)
-                accounts?.forget()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
                 onFailure(e.message ?: e.toString())
             } finally {
+                // The server's copy is gone: the account goes too, even if part of the local purge failed.
+                accounts?.forget()
                 _generation.value += 1
             }
         }
