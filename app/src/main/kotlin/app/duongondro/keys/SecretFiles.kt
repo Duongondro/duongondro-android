@@ -46,9 +46,13 @@ class SecretFiles(context: Context, private val alias: String = "duongondro-secr
         val sealed = cipher.iv + cipher.doFinal(data)
         check(cipher.iv.size == IV_SIZE) { "unexpected IV size" }
         dir.mkdirs()
-        // Written beside, then renamed over: a crash never leaves half a secret.
+        // Written beside, flushed to the disk, then renamed over: a crash or power
+        // loss never leaves half a secret, nor a rename of data not yet written.
         val tmp = File(dir, "$name.tmp")
-        tmp.writeBytes(sealed)
+        java.io.FileOutputStream(tmp).use { out ->
+            out.write(sealed)
+            out.fd.sync()
+        }
         check(tmp.renameTo(file(name))) { "could not store the secret $name" }
     }
 
