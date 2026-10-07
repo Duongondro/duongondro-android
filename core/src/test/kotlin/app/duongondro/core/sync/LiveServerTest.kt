@@ -74,7 +74,8 @@ class LiveServerTest {
         val phoneA = Account(Api(base!!, tokenA), MemorySecretStore(), MemoryDeviceKeyStore(), MemorySyncDatabase())
         phoneA.setUpFirstDevice()
         val made = Invites.create(phoneA.api, userA, phoneA.identity())
-        println("INVITE ${made.link} CODE ${made.code}")
+        // The id only: the link and code would let anyone reading the log befriend A.
+        println("INVITE ${made.id}")
         val listed = phoneA.api.invites().single { it.id == made.id }
         assertEquals(made.expiresAt, SyncTime.parse(listed.expiresAt))
         assertEquals(null, listed.revokedAt)
