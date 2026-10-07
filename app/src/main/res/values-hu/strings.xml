@@ -166,6 +166,12 @@
     <string name="mala_custom">Egyéni…</string>
     <string name="mala_custom_label">A mala értéke</string>
     <string name="mala_custom_range">%1$s és %2$s között</string>
+    <string name="cover_title">Borító</string>
+    <string name="cover_choose">Fotó kiválasztása</string>
+    <string name="cover_use_default">Alapértelmezett használata</string>
+    <string name="cover_note">A fotód ezen a telefonon marad: nem szinkronizáljuk, és nem készül róla biztonsági mentés.</string>
+    <string name="cover_change">Borítókép cseréje</string>
+    <string name="cover_add">Borítókép hozzáadása</string>
     <string name="streak_only_kept">Az eddig rögzített számok megmaradnak.</string>
     <string name="archive">Archiválás</string>
     <string name="unarchive">Újra megjelenítés a Ma képernyőn</string>

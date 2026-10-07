@@ -39,6 +39,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.duongondro.model.AppModel
 import app.duongondro.model.SqliteStore
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
 import app.duongondro.ui.onboarding.OnboardingScreen
 import app.duongondro.ui.onboarding.RecoveryCodeScreen
@@ -175,7 +178,12 @@ private fun Home(model: AppModel) {
     // so are the account steps opened from Settings.
     val onPractice = entry?.destination?.route.let { it == Routes.PRACTICE || it?.startsWith("settings/account/") == true }
     Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!onPractice) BottomBar(nav) }) { padding ->
-        NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(padding).consumeWindowInsets(padding)) {
+        // The practice screen runs its cover under the status bar, so it takes the top inset itself.
+        val inner = if (entry?.destination?.route == Routes.PRACTICE) {
+            val dir = androidx.compose.ui.platform.LocalLayoutDirection.current
+            PaddingValues(start = padding.calculateStartPadding(dir), end = padding.calculateEndPadding(dir), bottom = padding.calculateBottomPadding())
+        } else padding
+        NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(inner).consumeWindowInsets(inner)) {
             composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
             composable(Routes.SETTINGS) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },

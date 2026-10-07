@@ -70,6 +70,10 @@ data class DuongondroColors(
     val welcomeOutlineInk: Color,
     /** The 1 dp border of outlined buttons beside a filled one. */
     val buttonOutline: Color,
+    /** The scrim behind buttons laid over a cover photo. */
+    val coverButton: Color,
+    /** Covers sit a little back in the dark theme, so a bright thangka does not glare. */
+    val coverAlpha: Float,
 )
 
 private val Light = DuongondroColors(
@@ -82,7 +86,7 @@ private val Light = DuongondroColors(
     toast = Color(0xFF22151A), toastInk = Color(0xFFFFFFFF), toastTrack = Color(0xFF5A4A4F),
     welcomePrimaryInk = Color(0xFFFFFFFF), welcomeTitle = Color(0xFF7A1F2E), welcomeSoft = Color(0xFF4E3F44),
     welcomeGoldText = Color(0xFF7A5410), welcomeOutline = Color(0xFF8A777D), welcomeOutlineInk = Color(0xFF7A1F2E),
-    buttonOutline = Color(0xFF8A777D),
+    buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE6FFFFFF), coverAlpha = 1f,
 )
 
 private val Dark = DuongondroColors(
@@ -95,7 +99,7 @@ private val Dark = DuongondroColors(
     toast = Color(0xFFF4ECEE), toastInk = Color(0xFF22151A), toastTrack = Color(0xFFC9B9BD),
     welcomePrimaryInk = Color(0xFF2A1A06), welcomeTitle = Color(0xFFFFFFFF), welcomeSoft = Color(0xFFE9D7DB),
     welcomeGoldText = Color(0xFFE3B341), welcomeOutline = Color(0xFF6E4A54), welcomeOutlineInk = Color(0xFFFFFFFF),
-    buttonOutline = Color(0xFF8A777D),
+    buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE62B1C20), coverAlpha = 0.82f,
 )
 
 /** Spacing steps and fixed sizes, so composables carry no layout literals. */
@@ -146,6 +150,8 @@ object Size {
     /** The disc behind the passkey glyph. */
     val badge = 96.dp
     val badgeIcon = 48.dp
+    /** The cover photo at the top of a practice, below the status bar. */
+    val cover = 300.dp
 }
 
 /** Material 3 with a custom shape scale: 4 dp small components, 6 dp buttons, cards and the FAB. */

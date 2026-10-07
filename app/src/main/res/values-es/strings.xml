@@ -177,6 +177,12 @@
     <string name="mala_custom">Personalizada…</string>
     <string name="mala_custom_label">Tamaño de la mala</string>
     <string name="mala_custom_range">De %1$s a %2$s</string>
+    <string name="cover_title">Portada</string>
+    <string name="cover_choose">Elegir una foto</string>
+    <string name="cover_use_default">Usar el valor predeterminado</string>
+    <string name="cover_note">Tu foto se queda en este teléfono: no se sincroniza ni se respalda.</string>
+    <string name="cover_change">Cambiar portada</string>
+    <string name="cover_add">Añadir una foto de portada</string>
     <string name="streak_only_kept">Los conteos registrados hasta ahora se conservan.</string>
     <string name="archive">Archivar</string>
     <string name="unarchive">Volver a mostrar en Hoy</string>

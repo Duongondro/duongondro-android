@@ -170,6 +170,12 @@
     <string name="mala_custom">Vlastní…</string>
     <string name="mala_custom_label">Velikost maly</string>
     <string name="mala_custom_range">Od %1$s do %2$s</string>
+    <string name="cover_title">Úvodní fotka</string>
+    <string name="cover_choose">Vybrat fotku</string>
+    <string name="cover_use_default">Použít výchozí</string>
+    <string name="cover_note">Tvá fotka zůstává v tomto telefonu: nesynchronizuje se ani nezálohuje.</string>
+    <string name="cover_change">Změnit úvodní fotku</string>
+    <string name="cover_add">Přidat úvodní fotku</string>
     <string name="streak_only_kept">Dosud zapsané počty zůstanou zachované.</string>
     <string name="archive">Archivovat</string>
     <string name="unarchive">Znovu zobrazit na obrazovce Dnes</string>

@@ -7,6 +7,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import app.duongondro.data.Covers
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -107,10 +114,15 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
     var askAmount by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    var coverVersion by remember { mutableIntStateOf(0) }
+    val own = remember(practiceId, coverVersion) { Covers.photo(context, practiceId)?.asImageBitmap() }
+    val builtIn = Covers.builtIn(practiceId)
+    val hasCover = own != null || builtIn != null
+
     Column(Modifier.fillMaxSize().background(Theme.colors.ground)) {
-        IconButton(onClick = back, modifier = Modifier.padding(Space.xs)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-        }
+        // With a cover the photo runs up under the status bar and the back button floats over it.
+        if (!hasCover) BackButton(back, Modifier.statusBarsPadding().padding(Space.xs))
         if (practice == null) {
             Text(stringResource(R.string.practice_gone), color = Theme.colors.muted, modifier = Modifier.padding(Space.xl))
             return
@@ -121,16 +133,24 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
         }
         val streak = model.streak(practice.id, now)
         val mine = pending?.takeIf { it.practiceId == practice.id }
-        Column(
-            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = Space.xl),
-            verticalArrangement = Arrangement.spacedBy(Space.xl),
-        ) {
-            Header(practice, snapshot.sessionsOf(practice.id))
-            if (practice.streakOnly) {
-                StreakOnlyStatus(streak.current, streak.longest, model.practisedToday(practice.id, now))
-            } else {
-                CountBlock(practice, snapshot.sessionsOf(practice.id), model.malaSize(practice), streak.current, now)
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                if (hasCover) CoverHeader(practice.id, own, builtIn) { coverVersion++ }
+                Column(
+                    Modifier.fillMaxWidth().padding(horizontal = Space.xl).padding(top = if (hasCover) Space.xl else 0.dp),
+                    verticalArrangement = Arrangement.spacedBy(Space.xl),
+                ) {
+                    Header(practice, snapshot.sessionsOf(practice.id)) {
+                        if (!hasCover) AddCoverButton(practice.id) { coverVersion++ }
+                    }
+                    if (practice.streakOnly) {
+                        StreakOnlyStatus(streak.current, streak.longest, model.practisedToday(practice.id, now))
+                    } else {
+                        CountBlock(practice, snapshot.sessionsOf(practice.id), model.malaSize(practice), streak.current, now)
+                    }
+                }
             }
+            if (hasCover) BackButton(back, Modifier.statusBarsPadding().padding(Space.xs).background(Theme.colors.coverButton, CircleShape))
         }
         Column(Modifier.padding(horizontal = Space.xl).padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
             mine?.let { UndoStrip(it, practice.streakOnly) { model.undo() } }
@@ -164,7 +184,7 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
 
 /** "Dorje Sempa", and below it "Diamond Mind · round 1 · 43,308 lifetime". */
 @Composable
-private fun Header(p: TrackedPractice, sessions: List<Session>) {
+private fun Header(p: TrackedPractice, sessions: List<Session>, extra: @Composable () -> Unit = {}) {
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val parts = buildList {
         p.practice.shownSecondName()?.let(::add)
@@ -177,6 +197,7 @@ private fun Header(p: TrackedPractice, sessions: List<Session>) {
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         Text(p.practice.shownName(), style = Theme.type.pageTitle)
         Text(parts.joinToString(" · "), style = Theme.type.subtitle, color = Theme.colors.muted)
+        extra()
     }
 }
 
@@ -453,3 +474,10 @@ private fun Choice(options: List<Pair<LocalDate, String>>, selected: LocalDate, 
 /** "23:30" or "11:30 PM", as the locale prefers. */
 private fun Instant.shortTime(zone: ZoneId = ZoneId.systemDefault()): String =
     DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault()).format(atZone(zone))
+
+@Composable
+private fun BackButton(back: () -> Unit, modifier: Modifier) {
+    IconButton(onClick = back, modifier = modifier) {
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+    }
+}

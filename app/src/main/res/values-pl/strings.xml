@@ -178,6 +178,12 @@
     <string name="mala_custom">Własna…</string>
     <string name="mala_custom_label">Rozmiar mali</string>
     <string name="mala_custom_range">Od %1$s do %2$s</string>
+    <string name="cover_title">Okładka</string>
+    <string name="cover_choose">Wybierz zdjęcie</string>
+    <string name="cover_use_default">Użyj domyślnej</string>
+    <string name="cover_note">Twoje zdjęcie zostaje na tym telefonie: nie jest synchronizowane ani objęte kopią zapasową.</string>
+    <string name="cover_change">Zmień okładkę</string>
+    <string name="cover_add">Dodaj zdjęcie okładki</string>
     <string name="streak_only_kept">Dotychczasowe liczby zostają zachowane.</string>
     <string name="archive">Archiwizuj</string>
     <string name="unarchive">Pokaż ponownie w Dziś</string>

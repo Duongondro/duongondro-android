@@ -179,6 +179,12 @@
     <string name="mala_custom">Власне…</string>
     <string name="mala_custom_label">Розмір мали</string>
     <string name="mala_custom_range">Від %1$s до %2$s</string>
+    <string name="cover_title">Обкладинка</string>
+    <string name="cover_choose">Обрати фото</string>
+    <string name="cover_use_default">Використати типове</string>
+    <string name="cover_note">Ваше фото залишається на цьому телефоні: воно не синхронізується й не потрапляє в резервну копію.</string>
+    <string name="cover_change">Змінити обкладинку</string>
+    <string name="cover_add">Додати обкладинку</string>
     <string name="streak_only_kept">Уже записані кількості залишаються.</string>
     <string name="archive">В архів</string>
     <string name="unarchive">Знову показувати в «Сьогодні»</string>
