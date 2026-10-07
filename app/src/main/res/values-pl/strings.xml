@@ -210,8 +210,8 @@
     <string name="delete_everything">Usuń wszystko</string>
     <string name="delete_footer">Usuwa wszystkie Twoje dane z tego telefonu. Nie można tego cofnąć.</string>
     <string name="delete_explainer">Usunie to każdą praktykę, sesję i serię na tym telefonie, Twoje przypomnienia i wszystkie klucze przechowywane przez aplikację, a potem wróci do początku.</string>
-    <string name="delete_footer_account">Usuwa Twoje konto i wszystkie jego dane: na serwerze, na tym telefonie i na Twoich innych telefonach. Nie można tego cofnąć.</string>
-    <string name="delete_explainer_account">Usunie to Twoje konto i wszystko, co jest z nim zapisane na serwerze: zaszyfrowane sesje, znajomych, publiczne serie, zaproszenia, klucze dostępu i sposoby logowania. Twoje inne telefony usuną swoją kopię przy następnej synchronizacji. Na tym telefonie usunie każdą praktykę, sesję i serię, Twoje przypomnienia i klucze aplikacji, a potem wróci do początku.</string>
+    <string name="delete_footer_account">Usuwa Twoje konto i jego dane na serwerze oraz wszystko na tym telefonie. Twoje inne telefony zostaną wylogowane, ale zachowają swoją kopię. Nie można tego cofnąć.</string>
+    <string name="delete_explainer_account">Usunie to Twoje konto i wszystko, co jest z nim zapisane na serwerze: zaszyfrowane sesje, znajomych, publiczne serie, zaproszenia, klucze dostępu i sposoby logowania. Twoje inne telefony zostaną wylogowane i zachowają swoją kopię, dopóki jej tam nie usuniesz. Na tym telefonie usunie każdą praktykę, sesję i serię, Twoje przypomnienia i klucze aplikacji, a potem wróci do początku.</string>
     <string name="export_first">Jeśli chcesz mieć kopię, najpierw wyeksportuj dane.</string>
     <string name="delete_word">usuń</string>
     <string name="type_to_confirm">Wpisz „%1$s”, aby potwierdzić</string>

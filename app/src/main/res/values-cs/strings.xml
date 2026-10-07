@@ -198,8 +198,8 @@
     <string name="delete_everything">Smazat vše</string>
     <string name="delete_footer">Odstraní všechna tvá data z tohoto telefonu. Nelze to vrátit.</string>
     <string name="delete_explainer">Tím se smaže každá praktika, sezení a série v tomto telefonu, tvá připomenutí i všechny klíče, které aplikace drží, a vrátíš se na začátek.</string>
-    <string name="delete_footer_account">Smaže tvůj účet a všechna jeho data na serveru, v tomto telefonu i v tvých dalších telefonech. Nelze to vrátit.</string>
-    <string name="delete_explainer_account">Tím se smaže tvůj účet a vše, co je s ním uložené na serveru: zašifrovaná sezení, přátelé, veřejné série, pozvánky, přístupové klíče a způsoby přihlášení. Tvé další telefony svou kopii zahodí při příští synchronizaci. V tomto telefonu se smaže každá praktika, sezení a série, tvá připomenutí i klíče aplikace a vrátíš se na začátek.</string>
+    <string name="delete_footer_account">Smaže tvůj účet a jeho data na serveru a vše v tomto telefonu. Tvé další telefony se odhlásí, ale svou kopii si ponechají. Nelze to vrátit.</string>
+    <string name="delete_explainer_account">Tím se smaže tvůj účet a vše, co je s ním uložené na serveru: zašifrovaná sezení, přátelé, veřejné série, pozvánky, přístupové klíče a způsoby přihlášení. Tvé další telefony se odhlásí a svou kopii si ponechají, dokud ji tam nesmažeš. V tomto telefonu se smaže každá praktika, sezení a série, tvá připomenutí i klíče aplikace a vrátíš se na začátek.</string>
     <string name="export_first">Chceš-li kopii, nejdřív exportuj.</string>
     <string name="delete_word">smazat</string>
     <string name="type_to_confirm">Pro potvrzení napiš „%1$s“</string>

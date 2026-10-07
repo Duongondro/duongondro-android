@@ -192,8 +192,8 @@
     <string name="delete_everything">Minden törlése</string>
     <string name="delete_footer">Minden adatodat eltávolítja erről a telefonról. Nem vonható vissza.</string>
     <string name="delete_explainer">Ez töröl minden gyakorlatot, ülést és sorozatot erről a telefonról, az emlékeztetőidet és az alkalmazás által tárolt kulcsokat, majd visszatér a kezdéshez.</string>
-    <string name="delete_footer_account">Törli a fiókodat és minden adatát a szerverről, erről a telefonról és a többi telefonodról. Nem vonható vissza.</string>
-    <string name="delete_explainer_account">Ez törli a fiókodat és mindent, amit vele együtt a szerver tárol: a titkosított üléseidet, a barátaidat, a nyilvános sorozataidat, a meghívóidat, a jelkulcsaidat és a bejelentkezési módjaidat. A többi telefonod a következő szinkronizáláskor eldobja a saját példányát. Erről a telefonról töröl minden gyakorlatot, ülést és sorozatot, az emlékeztetőidet és az alkalmazás kulcsait, majd visszatér a kezdéshez.</string>
+    <string name="delete_footer_account">Törli a fiókodat és annak adatait a szerverről, valamint mindent erről a telefonról. A többi telefonodon kijelentkezel, de azok megtartják a saját példányukat. Nem vonható vissza.</string>
+    <string name="delete_explainer_account">Ez törli a fiókodat és mindent, amit vele együtt a szerver tárol: a titkosított üléseidet, a barátaidat, a nyilvános sorozataidat, a meghívóidat, a jelkulcsaidat és a bejelentkezési módjaidat. A többi telefonodon kijelentkezel, és azok megtartják a saját példányukat, amíg ott nem törlöd. Erről a telefonról töröl minden gyakorlatot, ülést és sorozatot, az emlékeztetőidet és az alkalmazás kulcsait, majd visszatér a kezdéshez.</string>
     <string name="export_first">Ha másolatot szeretnél, előbb exportálj.</string>
     <string name="delete_word">törlés</string>
     <string name="type_to_confirm">A megerősítéshez írd be: „%1$s”</string>
