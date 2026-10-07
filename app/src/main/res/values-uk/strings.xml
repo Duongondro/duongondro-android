@@ -319,6 +319,8 @@
     <string name="accept_done_title">Тепер ви друзі</string>
     <string name="accept_done">Тепер ви друзі.</string>
     <string name="accept_done_named">Ви та %s тепер друзі.</string>
+    <string name="accept_already">Ви вже друзі: це запрошення нічого не додасть.</string>
+    <string name="accept_already_named">Ви та %s вже друзі: це запрошення нічого не додасть.</string>
     <string name="accept_own">Це ваше власне запрошення. Надішліть його другові.</string>
     <string name="accept_gone">Це запрошення не можна використати: можливо, воно закінчилося або його відкликали.</string>
 </resources>

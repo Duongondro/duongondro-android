@@ -305,6 +305,8 @@
     <string name="accept_done_title">Теперь вы друзья</string>
     <string name="accept_done">Теперь вы друзья.</string>
     <string name="accept_done_named">Вы и %s теперь друзья.</string>
+    <string name="accept_already">Вы уже друзья: это приглашение ничего не добавит.</string>
+    <string name="accept_already_named">Вы и %s уже друзья: это приглашение ничего не добавит.</string>
     <string name="accept_own">Это ваше собственное приглашение. Отправьте его другу.</string>
     <string name="accept_gone">Это приглашение нельзя использовать: возможно, оно истекло или было отозвано.</string>
 </resources>

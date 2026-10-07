@@ -30,6 +30,7 @@ private sealed interface Accepting {
     data object Working : Accepting
     class Done(val name: String?) : Accepting
     class Problem(val message: Int) : Accepting
+    class AlreadyFriends(val name: String?) : Accepting
 }
 
 /**
@@ -54,6 +55,7 @@ fun AcceptInviteDialog(model: AppModel, accounts: AccountManager) {
             when (val c = accounts.checkToAccept(opened)) {
                 is AcceptCheck.Ready -> Accepting.Confirm(c.checked)
                 AcceptCheck.Own -> Accepting.Problem(R.string.accept_own)
+                is AcceptCheck.AlreadyFriends -> Accepting.AlreadyFriends(c.name)
                 AcceptCheck.Gone -> Accepting.Problem(R.string.accept_gone)
                 AcceptCheck.NotAuthentic -> Accepting.Problem(R.string.invite_not_authentic)
             }
@@ -101,6 +103,12 @@ fun AcceptInviteDialog(model: AppModel, accounts: AccountManager) {
             onDismissRequest = close,
             title = { Text(stringResource(R.string.accept_done_title)) },
             text = { Text(s.name?.let { stringResource(R.string.accept_done_named, it) } ?: stringResource(R.string.accept_done)) },
+            confirmButton = { TextButton(onClick = close) { Text(stringResource(R.string.ok)) } },
+        )
+        is Accepting.AlreadyFriends -> AlertDialog(
+            onDismissRequest = close,
+            title = { Text(stringResource(R.string.accept_done_title)) },
+            text = { Text(s.name?.let { stringResource(R.string.accept_already_named, it) } ?: stringResource(R.string.accept_already)) },
             confirmButton = { TextButton(onClick = close) { Text(stringResource(R.string.ok)) } },
         )
         is Accepting.Problem -> AlertDialog(

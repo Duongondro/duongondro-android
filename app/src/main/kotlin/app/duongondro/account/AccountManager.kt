@@ -88,6 +88,8 @@ sealed interface AcceptCheck {
     class Ready(val checked: Invitation.Checked) : AcceptCheck
     /** This account made it. */
     data object Own : AcceptCheck
+    /** The inviter is a friend already; [name] when the server has one. */
+    class AlreadyFriends(val name: String?) : AcceptCheck
     /** Not a code, or unknown, revoked or expired. */
     data object Gone : AcceptCheck
     /** Its signature or the link's MAC is wrong. */
@@ -550,7 +552,10 @@ class AccountManager(
         } catch (e: Invitation.Error) {
             return@withContext if (e.failure == Invitation.Failure.EXPIRED) AcceptCheck.Gone else AcceptCheck.NotAuthentic
         }
-        if (checked.inviter == db.syncState()?.user) AcceptCheck.Own else AcceptCheck.Ready(checked)
+        if (checked.inviter == db.syncState()?.user) return@withContext AcceptCheck.Own
+        // Already friends: nothing to accept. Unknown (offline) counts as not.
+        val friend = runCatching { requireAccount().api.friends().firstOrNull { it.userId == checked.inviter } }.getOrNull()
+        if (friend != null) AcceptCheck.AlreadyFriends(friend.displayName.takeIf { it.isNotBlank() }) else AcceptCheck.Ready(checked)
     }
 
     /**

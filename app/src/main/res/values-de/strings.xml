@@ -306,6 +306,8 @@
     <string name="accept_done_title">Jetzt befreundet</string>
     <string name="accept_done">Ihr seid jetzt befreundet.</string>
     <string name="accept_done_named">Du und %s seid jetzt befreundet.</string>
+    <string name="accept_already">Ihr seid schon befreundet: Diese Einladung ändert nichts.</string>
+    <string name="accept_already_named">Du und %s seid schon befreundet: Diese Einladung ändert nichts.</string>
     <string name="accept_own">Das ist deine eigene Einladung. Schick sie lieber einem Freund.</string>
     <string name="accept_gone">Diese Einladung lässt sich nicht verwenden: Sie ist vielleicht abgelaufen oder wurde zurückgezogen.</string>
 </resources>

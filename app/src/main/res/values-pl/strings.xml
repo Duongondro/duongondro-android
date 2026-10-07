@@ -318,6 +318,8 @@
     <string name="accept_done_title">Jesteście znajomymi</string>
     <string name="accept_done">Jesteście teraz znajomymi.</string>
     <string name="accept_done_named">Ty i %s jesteście teraz znajomymi.</string>
+    <string name="accept_already">Jesteście już znajomymi: to zaproszenie niczego nie zmieni.</string>
+    <string name="accept_already_named">Ty i %s jesteście już znajomymi: to zaproszenie niczego nie zmieni.</string>
     <string name="accept_own">To Twoje własne zaproszenie. Wyślij je komuś innemu.</string>
     <string name="accept_gone">Tego zaproszenia nie da się użyć: mogło wygasnąć albo zostać wycofane.</string>
 </resources>

@@ -314,6 +314,8 @@
     <string name="accept_done_title">Ya sois amigos</string>
     <string name="accept_done">Ya sois amigos.</string>
     <string name="accept_done_named">Tú y %s ya sois amigos.</string>
+    <string name="accept_already">Ya sois amigos: esta invitación no cambia nada.</string>
+    <string name="accept_already_named">Tú y %s ya sois amigos: esta invitación no cambia nada.</string>
     <string name="accept_own">Es tu propia invitación. Envíasela a un amigo.</string>
     <string name="accept_gone">Esta invitación no se puede usar: puede que haya caducado o se haya revocado.</string>
 </resources>

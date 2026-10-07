@@ -305,6 +305,8 @@
     <string name="accept_done_title">Teď jste přátelé</string>
     <string name="accept_done">Teď jste přátelé.</string>
     <string name="accept_done_named">Ty a %s jste teď přátelé.</string>
+    <string name="accept_already">Už jste přátelé: tahle pozvánka nic nezmění.</string>
+    <string name="accept_already_named">Ty a %s už jste přátelé: tahle pozvánka nic nezmění.</string>
     <string name="accept_own">Tohle je tvoje vlastní pozvánka. Pošli ji raději kamarádovi.</string>
     <string name="accept_gone">Tuto pozvánku nelze použít: možná vypršela nebo byla zrušena.</string>
 </resources>

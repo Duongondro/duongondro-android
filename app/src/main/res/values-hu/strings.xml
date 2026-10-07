@@ -293,6 +293,8 @@
     <string name="accept_done_title">Már barátok vagytok</string>
     <string name="accept_done">Most már barátok vagytok.</string>
     <string name="accept_done_named">Te és %s most már barátok vagytok.</string>
+    <string name="accept_already">Már barátok vagytok: ez a meghívó semmit sem változtat.</string>
+    <string name="accept_already_named">Te és %s már barátok vagytok: ez a meghívó semmit sem változtat.</string>
     <string name="accept_own">Ez a saját meghívód. Küldd el inkább egy barátodnak.</string>
     <string name="accept_gone">Ez a meghívó nem használható: lehet, hogy lejárt, vagy visszavonták.</string>
 </resources>
