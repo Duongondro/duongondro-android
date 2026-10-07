@@ -173,7 +173,6 @@
     <string name="mala_default">Default (%1$d)</string>
     <string name="mala_custom">Custom…</string>
     <string name="mala_custom_label">Mala size</string>
-    <string name="mala_custom_range">From %1$s to %2$s</string>
     <string name="cover_title">Cover</string>
     <string name="cover_choose">Choose a photo</string>
     <string name="cover_use_default">Use the default</string>

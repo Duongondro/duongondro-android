@@ -173,7 +173,6 @@
     <string name="mala_default">Predeterminado (%1$d)</string>
     <string name="mala_custom">Personalizada…</string>
     <string name="mala_custom_label">Tamaño de la mala</string>
-    <string name="mala_custom_range">De %1$s a %2$s</string>
     <string name="cover_title">Portada</string>
     <string name="cover_choose">Elegir una foto</string>
     <string name="cover_use_default">Usar el valor predeterminado</string>

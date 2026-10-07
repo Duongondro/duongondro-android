@@ -166,7 +166,6 @@
     <string name="mala_default">По умолчанию (%1$d)</string>
     <string name="mala_custom">Своё…</string>
     <string name="mala_custom_label">Размер малы</string>
-    <string name="mala_custom_range">От %1$s до %2$s</string>
     <string name="cover_title">Обложка</string>
     <string name="cover_choose">Выбрать фото</string>
     <string name="cover_use_default">Использовать по умолчанию</string>

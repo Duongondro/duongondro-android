@@ -175,7 +175,6 @@
     <string name="mala_default">Типово (%1$d)</string>
     <string name="mala_custom">Власне…</string>
     <string name="mala_custom_label">Розмір мали</string>
-    <string name="mala_custom_range">Від %1$s до %2$s</string>
     <string name="cover_title">Обкладинка</string>
     <string name="cover_choose">Обрати фото</string>
     <string name="cover_use_default">Використати типове</string>

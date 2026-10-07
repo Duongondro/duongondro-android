@@ -313,13 +313,18 @@ private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
     }
     if (isCustom) {
         var text by rememberSaveable { mutableStateOf(selected?.takeIf { it != 108 }?.toString().orEmpty()) }
-        val value = text.toIntOrNull()
-        val valid = value != null && value in MALA_MIN..MALA_MAX
+        // Digits only, and only a number in range is taken: anything else leaves the
+        // field as it was, so no hint is needed. Emptied, it picks nothing until retyped.
         OutlinedTextField(
-            text, { t -> text = t.filter { c -> c in '0'..'9' }.take(5).also { n -> n.toIntOrNull()?.takeIf { it in MALA_MIN..MALA_MAX }?.let(pick) } },
+            text, { t ->
+                val digits = t.filter { c -> c in '0'..'9' }
+                val n = digits.toIntOrNull()
+                when {
+                    digits.isEmpty() -> text = ""
+                    n != null && n in MALA_MIN..MALA_MAX -> { text = n.toString(); pick(n) }
+                }
+            },
             label = { Text(stringResource(R.string.mala_custom_label)) }, singleLine = true,
-            isError = text.isNotEmpty() && !valid,
-            supportingText = { Text(stringResource(R.string.mala_custom_range, MALA_MIN.grouped(), MALA_MAX.grouped())) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
         )

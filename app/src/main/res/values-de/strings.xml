@@ -170,7 +170,6 @@
     <string name="mala_default">Standard (%1$d)</string>
     <string name="mala_custom">Eigene…</string>
     <string name="mala_custom_label">Größe der Mala</string>
-    <string name="mala_custom_range">Von %1$s bis %2$s</string>
     <string name="cover_title">Titelbild</string>
     <string name="cover_choose">Foto auswählen</string>
     <string name="cover_use_default">Standard verwenden</string>

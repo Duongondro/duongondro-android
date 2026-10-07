@@ -166,7 +166,6 @@
     <string name="mala_default">Predvolené (%1$d)</string>
     <string name="mala_custom">Vlastná…</string>
     <string name="mala_custom_label">Veľkosť maly</string>
-    <string name="mala_custom_range">Od %1$s do %2$s</string>
     <string name="cover_title">Titulná fotka</string>
     <string name="cover_choose">Vybrať fotku</string>
     <string name="cover_use_default">Použiť predvolené</string>
