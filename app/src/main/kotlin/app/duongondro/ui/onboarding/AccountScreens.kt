@@ -32,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -356,13 +357,16 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
     var code by remember { mutableStateOf("") }
     var problem by remember { mutableStateOf<Int?>(null) }
     var again by remember { mutableStateOf(false) }
-    // A magic link opened on this phone signs in by itself.
+    // A magic link opened on this phone signs in by itself, but only here, and only
+    // when this phone asked for one in the last 15 minutes (AccountManager.expectsLink).
     val link by model.magicLink.collectAsState()
     LaunchedEffect(link) {
         val token = link ?: return@LaunchedEffect
         model.usedMagicLink()
-        call.run { problem = redeemed(accounts.redeemLink(token), flow, accounts, finish) }
+        call.run { accounts.redeemLink(token)?.let { problem = redeemed(it, flow, accounts, finish) } }
     }
+    // A link that arrives after leaving this step is never redeemed.
+    DisposableEffect(Unit) { onDispose { model.usedMagicLink() } }
     val submit = {
         call.run { problem = redeemed(accounts.redeemCode(flow.email.trim(), code), flow, accounts, finish) }
     }
@@ -578,16 +582,10 @@ internal fun ColumnScope.RestoreStep(accounts: AccountManager, finish: () -> Uni
 }
 
 @Composable
-internal fun ColumnScope.SignInStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finish: () -> Unit) {
+internal fun ColumnScope.SignInStep(flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit) {
     val call = rememberCall()
     val activity = LocalContext.current
     var problem by remember { mutableStateOf<Int?>(null) }
-    val link by model.magicLink.collectAsState()
-    LaunchedEffect(link) {
-        val token = link ?: return@LaunchedEffect
-        model.usedMagicLink()
-        call.run { problem = redeemed(accounts.redeemLink(token), flow, accounts, finish) }
-    }
     Page(
         stringResource(R.string.signin_title), plain(stringResource(R.string.signin_detail)), centered = true,
         actions = {

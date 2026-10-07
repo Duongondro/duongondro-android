@@ -319,7 +319,7 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
                 accounts.confirmRecoveryCode()
                 finishOnline()
             }
-            Step.SignIn -> SignInStep(flow, model, accounts, finishOnline)
+            Step.SignIn -> SignInStep(flow, accounts, finishOnline)
             Step.Restore -> RestoreStep(accounts, finishOnline)
         }
     }

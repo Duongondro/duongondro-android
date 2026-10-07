@@ -78,11 +78,16 @@ class AppModel(
     val inviteCode: StateFlow<String?> = _inviteCode.asStateFlow()
 
     private val _magicLink = MutableStateFlow<String?>(null)
-    /** The token of a magic link opened on this phone; the sign-in steps redeem it. */
+    /**
+     * The token of a magic link opened on this phone, kept only when this phone
+     * asked for a link in the last 15 minutes; only Check your email redeems it.
+     */
     val magicLink: StateFlow<String?> = _magicLink.asStateFlow()
 
     fun openedInvite(code: String) { _inviteCode.value = code }
-    fun openedMagicLink(token: String) { _magicLink.value = token }
+    fun openedMagicLink(token: String) {
+        _magicLink.value = token.takeIf { accounts?.expectsLink() == true }
+    }
     fun usedMagicLink() { _magicLink.value = null }
 
     init {

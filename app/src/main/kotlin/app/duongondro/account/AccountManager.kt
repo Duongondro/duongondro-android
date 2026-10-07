@@ -209,9 +209,21 @@ class AccountManager(
 
     // Email
 
+    /**
+     * When this phone last asked for a magic link: a link's token is redeemed
+     * only within its 15 minutes, so a link someone else sent cannot sign this
+     * phone in to their account (and upload its practice there).
+     */
+    @Volatile private var linkRequestedAt: Instant? = null
+
+    /** Whether an opened magic link may be redeemed now: this phone asked for one in the last 15 minutes. */
+    fun expectsLink(now: Instant = Instant.now()): Boolean =
+        linkRequestedAt?.let { !now.isBefore(it) && java.time.Duration.between(it, now) <= LINK_LIFETIME } == true
+
     suspend fun requestMagicLink(email: String, signUp: Boolean): LinkRequest = withContext(Dispatchers.IO) {
         try {
             anonymous.requestMagicLink(email, if (signUp) proof else null)
+            linkRequestedAt = Instant.now()
             saveProfile(email = email)
             LinkRequest.Sent
         } catch (_: ApiError.NotFound) {
@@ -223,7 +235,11 @@ class AccountManager(
 
     suspend fun redeemCode(email: String, code: String): Redeem = redeem { anonymous.redeemMagicLinkCode(email, code) }
 
-    suspend fun redeemLink(token: String): Redeem = redeem { anonymous.redeemMagicLink(token) }
+    /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
+    suspend fun redeemLink(token: String): Redeem? {
+        if (!expectsLink()) return null
+        return redeem { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
+    }
 
     private suspend fun redeem(call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
@@ -485,5 +501,6 @@ class AccountManager(
         const val GENDER = "gender"
         const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
         const val LAST_SYNC = "lastSync"
+        val LINK_LIFETIME: java.time.Duration = java.time.Duration.ofMinutes(15)
     }
 }
