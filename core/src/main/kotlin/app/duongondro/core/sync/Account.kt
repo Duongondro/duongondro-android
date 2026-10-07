@@ -189,9 +189,6 @@ class Account(
         return putRecoveryBoxes(state.user, identity(), key)
     }
 
-    /** A recovery code made but whose boxes were not all stored yet; null when none is pending. */
-    fun pendingRecoveryCode(): String? = secrets.read(SecretName.PENDING_RECOVERY)?.let(RecoveryCode::encode)
-
     // Steps
 
     private fun registerThisDevice(): Pair<UUID, DeviceKey> {

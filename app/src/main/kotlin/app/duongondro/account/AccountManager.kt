@@ -410,7 +410,8 @@ class AccountManager(
         _shownCode.value ?: run {
             val a = requireAccount()
             val code = try {
-                if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
+                // newRecoveryCode finishes a code left pending, rather than replacing it.
+                if (a.hasKeys()) a.newRecoveryCode() else a.setUpFirstDevice()
             } finally {
                 refreshPending()
             }
