@@ -1,5 +1,6 @@
 import org.gradle.api.GradleException
 import org.gradle.process.ExecOperations
+import java.util.Properties
 import javax.inject.Inject
 
 plugins {
@@ -36,6 +37,25 @@ android {
         buildConfigField("boolean", "GIT_DIRTY", gitStatus.get().isNotEmpty().toString())
     }
 
+    // The release key lives outside the repository. A properties file names the
+    // keystore and alias (default ~/.config/duongondro/android-release.properties,
+    // or -Pduongondro.signing=<file>); the passwords come from the environment
+    // (DUONGONDRO_STORE_PASSWORD, DUONGONDRO_KEY_PASSWORD), never from a file
+    // here. Without them the release APK is built unsigned.
+    val signingFile = providers.gradleProperty("duongondro.signing")
+        .orElse("${System.getProperty("user.home")}/.config/duongondro/android-release.properties")
+        .map { file(it) }.get()
+    val storePassword = providers.environmentVariable("DUONGONDRO_STORE_PASSWORD").orNull
+    if (signingFile.isFile && storePassword != null) {
+        val props = Properties().apply { signingFile.inputStream().use { load(it) } }
+        signingConfigs.create("release") {
+            storeFile = file(props.getProperty("storeFile"))
+            this.storePassword = storePassword
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = providers.environmentVariable("DUONGONDRO_KEY_PASSWORD").orElse(storePassword).get()
+        }
+    }
+
     buildTypes {
         debug {
             // This Mac's development server (`make serve` in duongondro-api), as the
@@ -47,6 +67,7 @@ android {
         }
         release {
             buildConfigField("String", "API_BASE_URL", "\"https://api.duongondro.app\"")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
