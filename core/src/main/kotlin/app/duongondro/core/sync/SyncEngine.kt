@@ -88,7 +88,12 @@ class SyncEngine(private val account: Account) {
                 continue
             }
             val storedAt = SyncTime.parse(stored.updatedAt)?.syncMillis()
-            if (storedAt != null && storedAt > record.updatedAt.syncMillis()) {
+            if (storedAt == null) {
+                // An answer this phone cannot read proves nothing was stored: stays dirty.
+                result.refused++
+                continue
+            }
+            if (storedAt > record.updatedAt.syncMillis()) {
                 // The server kept a newer write from another phone: take that one.
                 if (apply(stored, state, generation) == Applied.APPLIED) result.pulled++
                 continue
