@@ -110,7 +110,7 @@
     <string name="invite_title">Twoje zaproszenie</string>
     <string name="invite_detail">Na razie konta są tylko na zaproszenie. Otwórz otrzymany link albo wpisz jego kod.</string>
     <string name="invite_label">Kod zaproszenia</string>
-    <string name="invite_hint">24 znaki na końcu linku z zaproszeniem albo 16 znaków kodu przyjęcia. Wielkość liter nie ma znaczenia.</string>
+    <string name="invite_hint">Wpisz lub wklej kod zaproszenia albo wklej cały link z zaproszeniem. Wielkość liter nie ma znaczenia.</string>
     <string name="invite_unknown">Nie znamy tego zaproszenia. Sprawdź kod albo zapytaj osobę, która je wysłała.</string>
     <string name="invite_none">Nie masz zaproszenia? Zapytaj kogoś, kto używa Duongöndro, albo ćwicz dalej na tym telefonie: konto dodasz później w Ustawieniach.</string>
     <string name="invite_local">Na razie tylko na tym telefonie</string>

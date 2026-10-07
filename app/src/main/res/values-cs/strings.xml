@@ -104,7 +104,7 @@
     <string name="invite_title">Tvoje pozvánka</string>
     <string name="invite_detail">Účty jsou zatím jen na pozvánku. Otevři odkaz, který ti přišel, nebo opiš jeho kód.</string>
     <string name="invite_label">Kód pozvánky</string>
-    <string name="invite_hint">24 znaků na konci odkazu s pozvánkou, nebo 16 znaků přijímacího kódu. Na velikosti písmen nezáleží.</string>
+    <string name="invite_hint">Napiš nebo vlož kód pozvánky, případně vlož celý odkaz s pozvánkou. Na velikosti písmen nezáleží.</string>
     <string name="invite_unknown">Tuto pozvánku neznáme. Zkontroluj kód nebo se zeptej toho, kdo ji poslal.</string>
     <string name="invite_none">Nemáš pozvánku? Zeptej se někoho, kdo Duongöndro používá, nebo dál cvič v tomto telefonu: účet můžeš přidat později v Nastavení.</string>
     <string name="invite_local">Zatím jen v tomto telefonu</string>

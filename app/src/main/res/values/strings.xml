@@ -108,7 +108,7 @@
     <string name="invite_title">Your invitation</string>
     <string name="invite_detail">Accounts are by invitation for now. Open the link you were sent, or type its code.</string>
     <string name="invite_label">Invitation code</string>
-    <string name="invite_hint">The 24 characters at the end of your invite link, or the 16 of an admission code. Case doesn\'t matter.</string>
+    <string name="invite_hint">Type or paste the invitation code, or paste the whole invitation link. Case doesn\'t matter.</string>
     <string name="invite_unknown">We don\'t know this invitation. Check the code, or ask whoever sent it.</string>
     <string name="invite_none">No invitation? Ask someone who uses Duongöndro, or keep practising on this phone: you can add an account later in Settings.</string>
     <string name="invite_local">Only on this phone for now</string>

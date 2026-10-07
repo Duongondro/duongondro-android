@@ -106,7 +106,7 @@
     <string name="invite_title">Deine Einladung</string>
     <string name="invite_detail">Konten gibt es vorerst nur auf Einladung. Öffne den Link, den du bekommen hast, oder tippe seinen Code ein.</string>
     <string name="invite_label">Einladungscode</string>
-    <string name="invite_hint">Die 24 Zeichen am Ende deines Einladungslinks oder die 16 eines Aufnahmecodes. Groß- und Kleinschreibung spielt keine Rolle.</string>
+    <string name="invite_hint">Tippe den Einladungscode ein oder füge ihn ein, oder füge den ganzen Einladungslink ein. Groß- und Kleinschreibung spielt keine Rolle.</string>
     <string name="invite_unknown">Diese Einladung kennen wir nicht. Prüfe den Code oder frag, wer sie geschickt hat.</string>
     <string name="invite_none">Keine Einladung? Frag jemanden, der Duongöndro nutzt, oder übe weiter auf diesem Handy: Ein Konto kannst du später in den Einstellungen anlegen.</string>
     <string name="invite_local">Vorerst nur auf diesem Handy</string>

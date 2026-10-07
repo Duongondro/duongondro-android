@@ -109,7 +109,7 @@
     <string name="invite_title">Tu invitación</string>
     <string name="invite_detail">Por ahora las cuentas son solo por invitación. Abre el enlace que te enviaron o escribe su código.</string>
     <string name="invite_label">Código de invitación</string>
-    <string name="invite_hint">Los 24 caracteres del final de tu enlace de invitación, o los 16 de un código de admisión. Da igual mayúsculas o minúsculas.</string>
+    <string name="invite_hint">Escribe o pega el código de invitación, o pega el enlace de invitación completo. Da igual mayúsculas o minúsculas.</string>
     <string name="invite_unknown">No conocemos esta invitación. Revisa el código o pregunta a quien te la envió.</string>
     <string name="invite_none">¿Sin invitación? Pídesela a alguien que use Duongöndro, o sigue practicando en este teléfono: puedes añadir una cuenta más tarde en Ajustes.</string>
     <string name="invite_local">Solo en este teléfono, por ahora</string>

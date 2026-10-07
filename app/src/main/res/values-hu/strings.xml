@@ -100,7 +100,7 @@
     <string name="invite_title">A meghívód</string>
     <string name="invite_detail">A fiókok egyelőre csak meghívóval érhetők el. Nyisd meg a kapott linket, vagy írd be a kódját.</string>
     <string name="invite_label">Meghívókód</string>
-    <string name="invite_hint">A meghívólink végén álló 24 karakter, vagy egy felvételi kód 16 karaktere. A kis- és nagybetű mindegy.</string>
+    <string name="invite_hint">Írd be vagy illeszd be a meghívókódot, vagy illeszd be a teljes meghívólinket. A kis- és nagybetű mindegy.</string>
     <string name="invite_unknown">Ezt a meghívót nem ismerjük. Ellenőrizd a kódot, vagy kérdezd meg, aki küldte.</string>
     <string name="invite_none">Nincs meghívód? Kérdezz meg valakit, aki használja a Duongöndrót, vagy gyakorolj tovább ezen a telefonon: fiókot később is hozzáadhatsz a Beállításokban.</string>
     <string name="invite_local">Egyelőre csak ezen a telefonon</string>
