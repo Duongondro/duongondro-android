@@ -304,10 +304,10 @@
     <string name="invite_revoke_detail">Jego link i kod od razu przestaną działać. Przyjaźnie, które już z niego powstały, zostaną.</string>
     <string name="invite_qr_description">Kod QR linku z zaproszeniem</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Każdy z tym zaproszeniem może dołączyć · ważne %d dzień</item>
-        <item quantity="few">Każdy z tym zaproszeniem może dołączyć · ważne %d dni</item>
-        <item quantity="many">Każdy z tym zaproszeniem może dołączyć · ważne %d dni</item>
-        <item quantity="other">Każdy z tym zaproszeniem może dołączyć · ważne %d dnia</item>
+        <item quantity="one">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dzień</item>
+        <item quantity="few">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dni</item>
+        <item quantity="many">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dni</item>
+        <item quantity="other">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dnia</item>
     </plurals>
 
     <!-- Accepting an invitation while signed in -->
