@@ -221,11 +221,30 @@ class AccountManager(
         // this one; with no practice here, there is nothing to ask about.
         if (owner != null && owner != result.userId) {
             db.clearSyncState()
-            forgetSecrets()
-            deviceKeys.delete()
+            forgetOtherAccount()
         }
         keep(result)
         true
+    }
+
+    /**
+     * Forgets what this phone kept for the account it is switching away from:
+     * its keys and device key, its profile and settings in the preferences (all
+     * but the email this sign-in was asked for), a recovery code on show and a
+     * pending one. The sign-in's own invitation, if any, stays: it is the new
+     * account's, and redeeming it waits for the new keys.
+     */
+    private fun forgetOtherAccount() {
+        forgetSecrets()
+        deviceKeys.delete()
+        val email = prefs.getString(EMAIL, null)
+        prefs.edit {
+            clear()
+            email?.let { putString(EMAIL, it) }
+        }
+        _shownCode.value = null
+        _state.update { profileState().copy(status = it.status) }
+        refreshPending()
     }
 
     private suspend fun keep(result: SignInResult) {
@@ -243,9 +262,7 @@ class AccountManager(
         val result = heldSignIn ?: throw IllegalStateException("no sign-in is waiting")
         heldSignIn = null
         db.erasePractice()
-        forgetSecrets()
-        deviceKeys.delete()
-        prefs.edit { remove(LAST_USER) }
+        forgetOtherAccount()
         keep(result)
         result.created
     }
