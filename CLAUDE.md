@@ -11,3 +11,4 @@ Kotlin + Jetpack Compose + Material 3 app for Duongöndro, minSdk 28. The design
 - **Release builds refuse a dirty tree**; debug builds show `<hash>-dirty` in Settings.
 - **Practice names:** Tibetan/Sanskrit first (Dorje Sempa, Chenrezig, Amitabha), English as the second line.
 - Commits end with the attribution trailers the session asks for.
+- **Accounts against the local server:** debug builds talk to `http://10.0.2.2:8080` (`make serve` in duongondro-api; magic-link codes are printed to its log; another URL with `-Pduongondro.apiUrl=…`). Passkeys cannot be exercised there: the DEV server's relying party is `localhost`, and Credential Manager needs `duongondro.app` with its assetlinks.json and the APK's `android:apk-key-hash:` origin in the server's `RP_ORIGINS`. Use "Not now" with an email on the emulator; try passkeys on a phone against production. `DUONGONDRO_API_URL=http://127.0.0.1:8080 make core-test` also runs `LiveServerTest` against it.
