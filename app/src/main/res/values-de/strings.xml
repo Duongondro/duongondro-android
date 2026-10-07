@@ -249,8 +249,6 @@
     <string name="syncing">Synchronisiere …</string>
     <string name="not_yet">Noch nicht</string>
     <string name="sync_offline">Die letzte Synchronisierung wurde nicht fertig. Deine Zählungen sind auf diesem Handy sicher und werden synchronisiert, sobald der Server erreichbar ist.</string>
-    <string name="sync_refused">Einige Änderungen ließen sich nicht synchronisieren (%1$d). Prüfe, ob die Uhr des Handys stimmt.</string>
-    <string name="sync_unreadable">Einige Sitzungen von einem anderen Handy lassen sich hier noch nicht öffnen (%1$d).</string>
     <string name="sign_out">Auf diesem Handy abmelden</string>
     <string name="sign_out_title">Auf diesem Handy abmelden?</string>
     <string name="sign_out_detail">Deine Zählungen bleiben auf diesem Handy, werden aber nicht mehr synchronisiert. Um wieder zu synchronisieren, melde dich an und gib deinen Wiederherstellungscode ein.</string>
@@ -264,4 +262,12 @@
     <string name="other_account_title">Auf diesem Handy ist Praxis aus einem anderen Konto</string>
     <string name="other_account_detail">Hier löschen und fortfahren? Was davon synchronisiert wurde, bleibt in jenem Konto.</string>
     <string name="erase_and_continue">Löschen und fortfahren</string>
+    <plurals name="sync_refused">
+        <item quantity="one">%d Änderung ließ sich nicht synchronisieren. Prüfe, ob die Uhr des Handys stimmt.</item>
+        <item quantity="other">%d Änderungen ließen sich nicht synchronisieren. Prüfe, ob die Uhr des Handys stimmt.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d Sitzung von einem anderen Handy lässt sich hier noch nicht öffnen.</item>
+        <item quantity="other">%d Sitzungen von einem anderen Handy lassen sich hier noch nicht öffnen.</item>
+    </plurals>
 </resources>

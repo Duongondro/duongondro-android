@@ -242,8 +242,6 @@
     <string name="syncing">Synchronizuji…</string>
     <string name="not_yet">Ještě ne</string>
     <string name="sync_offline">Poslední synchronizace se nedokončila. Tvé počty jsou v tomto telefonu v bezpečí a synchronizují se, až bude server dostupný.</string>
-    <string name="sync_refused">Některé změny se nepodařilo synchronizovat (%1$d). Zkontroluj, že hodiny telefonu jdou správně.</string>
-    <string name="sync_unreadable">Některé záznamy z jiného telefonu zatím nejde otevřít (%1$d).</string>
     <string name="sign_out">Odhlásit se v tomto telefonu</string>
     <string name="sign_out_title">Odhlásit se v tomto telefonu?</string>
     <string name="sign_out_detail">Tvé počty zůstanou v tomto telefonu, ale přestanou se synchronizovat. Pro další synchronizaci se přihlas a zadej obnovovací kód.</string>
@@ -257,4 +255,16 @@
     <string name="other_account_title">V tomto telefonu je praxe z jiného účtu</string>
     <string name="other_account_detail">Smazat ji tady a pokračovat? Co z ní bylo synchronizováno, zůstane v tom účtu.</string>
     <string name="erase_and_continue">Smazat a pokračovat</string>
+    <plurals name="sync_refused">
+        <item quantity="one">%d změnu se nepodařilo synchronizovat. Zkontroluj, že hodiny telefonu jdou správně.</item>
+        <item quantity="few">%d změny se nepodařilo synchronizovat. Zkontroluj, že hodiny telefonu jdou správně.</item>
+        <item quantity="many">%d změny se nepodařilo synchronizovat. Zkontroluj, že hodiny telefonu jdou správně.</item>
+        <item quantity="other">%d změn se nepodařilo synchronizovat. Zkontroluj, že hodiny telefonu jdou správně.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d záznam z jiného telefonu zatím nejde otevřít.</item>
+        <item quantity="few">%d záznamy z jiného telefonu zatím nejde otevřít.</item>
+        <item quantity="many">%d záznamu z jiného telefonu zatím nejde otevřít.</item>
+        <item quantity="other">%d záznamů z jiného telefonu zatím nejde otevřít.</item>
+    </plurals>
 </resources>

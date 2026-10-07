@@ -242,8 +242,6 @@
     <string name="syncing">Synchronizujem…</string>
     <string name="not_yet">Ešte nie</string>
     <string name="sync_offline">Posledná synchronizácia sa nedokončila. Tvoje počty sú v tomto telefóne v bezpečí a zosynchronizujú sa, keď bude server dostupný.</string>
-    <string name="sync_refused">Niektoré zmeny sa nepodarilo zosynchronizovať (%1$d). Skontroluj, či hodiny telefónu idú správne.</string>
-    <string name="sync_unreadable">Niektoré záznamy z iného telefónu sa tu zatiaľ nedajú otvoriť (%1$d).</string>
     <string name="sign_out">Odhlásiť sa v tomto telefóne</string>
     <string name="sign_out_title">Odhlásiť sa v tomto telefóne?</string>
     <string name="sign_out_detail">Tvoje počty zostanú v tomto telefóne, ale prestanú sa synchronizovať. Ak ich chceš znova synchronizovať, prihlás sa a zadaj obnovovací kód.</string>
@@ -257,4 +255,16 @@
     <string name="other_account_title">V tomto telefóne je prax z iného účtu</string>
     <string name="other_account_detail">Zmazať ju tu a pokračovať? Čo z nej bolo synchronizované, zostane v tom účte.</string>
     <string name="erase_and_continue">Zmazať a pokračovať</string>
+    <plurals name="sync_refused">
+        <item quantity="one">%d zmenu sa nepodarilo zosynchronizovať. Skontroluj, či hodiny telefónu idú správne.</item>
+        <item quantity="few">%d zmeny sa nepodarilo zosynchronizovať. Skontroluj, či hodiny telefónu idú správne.</item>
+        <item quantity="many">%d zmeny sa nepodarilo zosynchronizovať. Skontroluj, či hodiny telefónu idú správne.</item>
+        <item quantity="other">%d zmien sa nepodarilo zosynchronizovať. Skontroluj, či hodiny telefónu idú správne.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d záznam z iného telefónu sa tu zatiaľ nedá otvoriť.</item>
+        <item quantity="few">%d záznamy z iného telefónu sa tu zatiaľ nedajú otvoriť.</item>
+        <item quantity="many">%d záznamu z iného telefónu sa tu zatiaľ nedá otvoriť.</item>
+        <item quantity="other">%d záznamov z iného telefónu sa tu zatiaľ nedá otvoriť.</item>
+    </plurals>
 </resources>

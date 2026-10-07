@@ -252,8 +252,6 @@
     <string name="syncing">Syncing…</string>
     <string name="not_yet">Not yet</string>
     <string name="sync_offline">The last sync did not finish. Your counts are safe on this phone and sync when the server can be reached.</string>
-    <string name="sync_refused">Some changes could not be synced (%1$d). Check that the phone\'s clock is right.</string>
-    <string name="sync_unreadable">Some sessions from another phone cannot be opened here yet (%1$d).</string>
     <string name="sign_out">Sign out on this phone</string>
     <string name="sign_out_title">Sign out on this phone?</string>
     <string name="sign_out_detail">Your counts stay on this phone but stop syncing. To sync them again, sign in and enter your recovery code.</string>
@@ -268,4 +266,12 @@
     <string name="other_account_title">This phone holds practice from another account</string>
     <string name="other_account_detail">Erase it here and continue? Whatever of it was synced stays in that account.</string>
     <string name="erase_and_continue">Erase and continue</string>
+    <plurals name="sync_refused">
+        <item quantity="one">%d change could not be synced. Check that the phone\'s clock is right.</item>
+        <item quantity="other">%d changes could not be synced. Check that the phone\'s clock is right.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d session from another phone cannot be opened here yet.</item>
+        <item quantity="other">%d sessions from another phone cannot be opened here yet.</item>
+    </plurals>
 </resources>

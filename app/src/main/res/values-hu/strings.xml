@@ -236,8 +236,6 @@
     <string name="syncing">Szinkronizálás…</string>
     <string name="not_yet">Még nem</string>
     <string name="sync_offline">Az utolsó szinkronizálás nem fejeződött be. A számaid biztonságban vannak ezen a telefonon, és szinkronizálódnak, amint a szerver elérhető.</string>
-    <string name="sync_refused">Néhány változást nem sikerült szinkronizálni (%1$d). Ellenőrizd, hogy jól jár-e a telefon órája.</string>
-    <string name="sync_unreadable">Néhány másik telefonról származó alkalom még nem nyitható meg itt (%1$d).</string>
     <string name="sign_out">Kijelentkezés ezen a telefonon</string>
     <string name="sign_out_title">Kijelentkezel ezen a telefonon?</string>
     <string name="sign_out_detail">A számaid ezen a telefonon maradnak, de nem szinkronizálódnak tovább. Az újbóli szinkronizáláshoz jelentkezz be, és add meg a helyreállítási kódot.</string>
@@ -251,4 +249,12 @@
     <string name="other_account_title">Ezen a telefonon egy másik fiók gyakorlása van</string>
     <string name="other_account_detail">Törlöd itt, és folytatod? Ami szinkronizálódott belőle, az abban a fiókban marad.</string>
     <string name="erase_and_continue">Törlés és folytatás</string>
+    <plurals name="sync_refused">
+        <item quantity="one">%d változást nem sikerült szinkronizálni. Ellenőrizd, hogy jól jár-e a telefon órája.</item>
+        <item quantity="other">%d változást nem sikerült szinkronizálni. Ellenőrizd, hogy jól jár-e a telefon órája.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d másik telefonról származó alkalom még nem nyitható meg itt.</item>
+        <item quantity="other">%d másik telefonról származó alkalom még nem nyitható meg itt.</item>
+    </plurals>
 </resources>

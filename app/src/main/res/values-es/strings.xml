@@ -254,8 +254,6 @@
     <string name="syncing">Sincronizando…</string>
     <string name="not_yet">Todavía no</string>
     <string name="sync_offline">La última sincronización no terminó. Tus cuentas están a salvo en este teléfono y se sincronizarán cuando el servidor esté disponible.</string>
-    <string name="sync_refused">Algunos cambios no se pudieron sincronizar (%1$d). Comprueba que el reloj del teléfono está bien.</string>
-    <string name="sync_unreadable">Algunas sesiones de otro teléfono aún no se pueden abrir aquí (%1$d).</string>
     <string name="sign_out">Cerrar sesión en este teléfono</string>
     <string name="sign_out_title">¿Cerrar sesión en este teléfono?</string>
     <string name="sign_out_detail">Tus cuentas se quedan en este teléfono, pero dejan de sincronizarse. Para volver a sincronizarlas, inicia sesión e introduce tu código de recuperación.</string>
@@ -269,4 +267,14 @@
     <string name="other_account_title">Este teléfono tiene la práctica de otra cuenta</string>
     <string name="other_account_detail">¿Borrarla aquí y continuar? Lo que se sincronizó sigue en esa cuenta.</string>
     <string name="erase_and_continue">Borrar y continuar</string>
+    <plurals name="sync_refused">
+        <item quantity="one">No se pudo sincronizar %d cambio. Comprueba que el reloj del teléfono está bien.</item>
+        <item quantity="many">No se pudieron sincronizar %d cambios. Comprueba que el reloj del teléfono está bien.</item>
+        <item quantity="other">No se pudieron sincronizar %d cambios. Comprueba que el reloj del teléfono está bien.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d sesión de otro teléfono aún no se puede abrir aquí.</item>
+        <item quantity="many">%d sesiones de otro teléfono aún no se pueden abrir aquí.</item>
+        <item quantity="other">%d sesiones de otro teléfono aún no se pueden abrir aquí.</item>
+    </plurals>
 </resources>

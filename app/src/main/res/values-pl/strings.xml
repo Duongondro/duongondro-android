@@ -255,8 +255,6 @@
     <string name="syncing">Synchronizowanie…</string>
     <string name="not_yet">Jeszcze nie</string>
     <string name="sync_offline">Ostatnia synchronizacja się nie zakończyła. Twoje liczby są bezpieczne na tym telefonie i zsynchronizują się, gdy serwer będzie dostępny.</string>
-    <string name="sync_refused">Części zmian nie udało się zsynchronizować (%1$d). Sprawdź, czy zegar telefonu jest ustawiony prawidłowo.</string>
-    <string name="sync_unreadable">Części sesji z innego telefonu nie da się jeszcze tu otworzyć (%1$d).</string>
     <string name="sign_out">Wyloguj na tym telefonie</string>
     <string name="sign_out_title">Wylogować na tym telefonie?</string>
     <string name="sign_out_detail">Twoje liczby zostaną na tym telefonie, ale przestaną się synchronizować. Aby znowu je synchronizować, zaloguj się i wpisz kod odzyskiwania.</string>
@@ -270,4 +268,16 @@
     <string name="other_account_title">Ten telefon ma praktykę z innego konta</string>
     <string name="other_account_detail">Usunąć ją tutaj i kontynuować? To, co zostało zsynchronizowane, zostaje w tamtym koncie.</string>
     <string name="erase_and_continue">Usuń i kontynuuj</string>
+    <plurals name="sync_refused">
+        <item quantity="one">Nie udało się zsynchronizować %d zmiany. Sprawdź, czy zegar telefonu jest ustawiony prawidłowo.</item>
+        <item quantity="few">Nie udało się zsynchronizować %d zmian. Sprawdź, czy zegar telefonu jest ustawiony prawidłowo.</item>
+        <item quantity="many">Nie udało się zsynchronizować %d zmian. Sprawdź, czy zegar telefonu jest ustawiony prawidłowo.</item>
+        <item quantity="other">Nie udało się zsynchronizować %d zmiany. Sprawdź, czy zegar telefonu jest ustawiony prawidłowo.</item>
+    </plurals>
+    <plurals name="sync_unreadable">
+        <item quantity="one">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
+        <item quantity="few">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
+        <item quantity="many">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
+        <item quantity="other">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
+    </plurals>
 </resources>
