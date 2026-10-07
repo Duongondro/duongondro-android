@@ -165,6 +165,8 @@ class OnboardingFlow : ViewModel() {
     var inviteCode by mutableStateOf("")
     /** Why the invitation was not accepted, shown under its field. */
     var inviteProblem by mutableStateOf<Int?>(null)
+    /** The invite link opened earlier has been tried, so it is not checked again. */
+    var linkTried = false
     /** A sign-in waits for "erase the other account's practice here, or cancel". */
     var otherAccount by mutableStateOf(false)
     /** The server said the username is taken; shown on the Username step. */
@@ -308,7 +310,7 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             }
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
-            Step.Invite -> InviteStep(flow, accounts, finishLocal)
+            Step.Invite -> InviteStep(flow, model, accounts, finishLocal)
             Step.Consent -> ConsentStep(flow)
             Step.Email -> EmailStep(flow, accounts)
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)

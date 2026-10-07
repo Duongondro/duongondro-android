@@ -275,6 +275,7 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
                 } else {
                     // A link opened earlier brought the invitation: checked here, the step skipped.
                     flow.inviteCode = opened
+                    flow.linkTried = true
                     call.run {
                         if (accounts.checkInvite(opened) == InviteCheck.Valid) flow.go(Step.Consent) else {
                             flow.inviteProblem = R.string.invite_unknown
@@ -301,8 +302,24 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
 
 /** A friend's invitation (24 characters) or an admission code (16): the length tells them apart. */
 @Composable
-internal fun ColumnScope.InviteStep(flow: OnboardingFlow, accounts: AccountManager, finishLocal: () -> Unit) {
+internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finishLocal: () -> Unit) {
     val call = rememberCall()
+    // An invite link opened earlier (Settings' "Make an online account" starts here):
+    // filled in and checked once, so a valid one skips the step as in onboarding.
+    val link by model.inviteCode.collectAsState()
+    LaunchedEffect(link) {
+        val opened = link ?: return@LaunchedEffect
+        if (flow.linkTried || flow.inviteCode.isNotEmpty()) return@LaunchedEffect
+        flow.linkTried = true
+        flow.inviteCode = opened
+        call.run {
+            when (accounts.checkInvite(opened)) {
+                InviteCheck.Valid -> flow.go(Step.Consent)
+                InviteCheck.Unknown -> flow.inviteProblem = R.string.invite_unknown
+                InviteCheck.NotAuthentic -> flow.inviteProblem = R.string.invite_not_authentic
+            }
+        }
+    }
     val length = flow.inviteCode.length
     Page(
         stringResource(R.string.invite_title), plain(stringResource(R.string.invite_detail)),
