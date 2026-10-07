@@ -647,6 +647,8 @@ internal fun ColumnScope.SignInStep(flow: OnboardingFlow, accounts: AccountManag
 /** Survives rotation, so turning the phone never makes a second code; never saved to the instance state. */
 class RecoveryCodeModel : androidx.lifecycle.ViewModel() {
     var checking by mutableStateOf(false)
+    /** An unfinished account whose keys live on another phone: the recovery code restores them here instead. */
+    var restoring by mutableStateOf(false)
 }
 
 /**
@@ -664,8 +666,12 @@ fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
     // rotation shows the same code instead of making a second one.
     val make = {
         call.run {
-            if (accounts.state.value.status == app.duongondro.account.AccountStatus.NEEDS_KEYS) accounts.setUpKeys()
-            else accounts.newRecoveryCode()
+            if (accounts.state.value.status != app.duongondro.account.AccountStatus.NEEDS_KEYS) accounts.newRecoveryCode()
+            else when (accounts.standing()) {
+                Account.Standing.RESTORE -> m.restoring = true
+                Account.Standing.SET_UP -> accounts.setUpKeys()
+                Account.Standing.READY -> back()
+            }
         }
     }
     LaunchedEffect(Unit) { make() }
@@ -676,7 +682,9 @@ fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
             }
         }
         val code by accounts.shownCode.collectAsState()
-        if (m.checking && code != null) {
+        if (m.restoring) {
+            RestoreStep(accounts) { accounts.scheduleSync(0); back() }
+        } else if (m.checking && code != null) {
             RecoveryCheckStep(code!!, back = { m.checking = false }) { accounts.confirmRecoveryCode(); back() }
         } else {
             Page(
