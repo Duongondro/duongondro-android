@@ -157,14 +157,10 @@ object Size {
     val badgeIcon = 48.dp
     /** The cover photo at the top of a practice, below the status bar. */
     val cover = 300.dp
-    /** The Invite screen's round badge, the white tile holding the QR code, and the small vajra above it. */
+    /** The Invite screen's round badge, the white tile holding the QR code, and the emblem above the tile. */
     val qrBadge = 300.dp
     val qrTile = 196.dp
-    val vajraWidth = 16.dp
-    val vajraHeight = 26.dp
-    val vajraStroke = 1.6.dp
-    /** From the badge's top edge to the vajra's centre. */
-    val vajraInset = 29.dp
+    val badgeEmblem = 44.dp
 }
 
 /** Material 3 with a custom shape scale: 4 dp small components, 6 dp buttons, cards and the FAB. */

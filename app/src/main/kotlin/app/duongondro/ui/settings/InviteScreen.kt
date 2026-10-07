@@ -3,15 +3,18 @@ package app.duongondro.ui.settings
 import android.content.ClipData
 import android.content.Intent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -32,13 +35,12 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size as GeometrySize
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.toClipEntry
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -247,15 +249,14 @@ private fun OpenInviteRow(invite: OpenInvite, onScreen: Boolean, revoke: () -> U
 }
 
 /**
- * A burgundy disc with a white tile holding the code, and a small gold vajra
- * above it, outside the code's quiet zone (iOS's QRBadge).
+ * A burgundy disc with a white tile holding the code, and the app's emblem
+ * (the endless knot) above it, outside the code's quiet zone.
  */
 @Composable
 private fun QRBadge(text: String?, loading: Boolean) {
     val code = remember(text) { text?.let { runCatching { QRCode.encode(it, ECC.MEDIUM) }.getOrNull() } }
     val description = stringResource(R.string.invite_qr_description)
     val ink = Theme.colors.qrInk
-    val gold = Theme.colors.gold
     Box(Modifier.size(Size.qrBadge).background(Theme.colors.hero, CircleShape), contentAlignment = Alignment.Center) {
         Box(Modifier.size(Size.qrTile).background(Theme.colors.qrGround, RoundedCornerShape(Radius.bigButton)), contentAlignment = Alignment.Center) {
             when {
@@ -267,8 +268,9 @@ private fun QRBadge(text: String?, loading: Boolean) {
                 loading -> CircularProgressIndicator(color = ink)
             }
         }
-        Canvas(Modifier.align(Alignment.TopCenter).padding(top = Size.vajraInset - Size.vajraHeight / 2).size(Size.vajraWidth, Size.vajraHeight)) {
-            drawPath(vajra(size.width / VAJRA_W, size.height / VAJRA_H), gold, style = Stroke(Size.vajraStroke.toPx(), cap = StrokeCap.Round))
+        // The endless knot, as on Welcome, centred in the band above the tile.
+        Box(Modifier.align(Alignment.TopCenter).height((Size.qrBadge - Size.qrTile) / 2), contentAlignment = Alignment.Center) {
+            Image(painterResource(R.drawable.emblem), contentDescription = null, modifier = Modifier.width(Size.badgeEmblem))
         }
     }
 }
@@ -286,28 +288,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawModules(code: Q
     }
 }
 
-/** The mockup's small vajra on a 16 x 26 grid: a hub with two prongs above and two below. */
-private fun vajra(sx: Float, sy: Float) = Path().apply {
-    fun p(x: Float, y: Float) = Offset(x * sx, y * sy)
-    addOval(androidx.compose.ui.geometry.Rect(p(6f, 11f), p(10f, 15f)))
-    fun move(x: Float, y: Float) = p(x, y).let { moveTo(it.x, it.y) }
-    fun line(x: Float, y: Float) = p(x, y).let { lineTo(it.x, it.y) }
-    fun curve(x1: Float, y1: Float, x2: Float, y2: Float, x: Float, y: Float) {
-        val a = p(x1, y1); val b = p(x2, y2); val c = p(x, y)
-        cubicTo(a.x, a.y, b.x, b.y, c.x, c.y)
-    }
-    move(8f, 11f); line(8f, 2f)
-    move(8f, 11f); curve(8f, 8f, 4f, 7f, 4f, 4.5f); curve(4f, 3.4f, 5f, 2.6f, 6f, 2.2f)
-    move(8f, 11f); curve(8f, 8f, 12f, 7f, 12f, 4.5f); curve(12f, 3.4f, 11f, 2.6f, 10f, 2.2f)
-    move(8f, 15f); line(8f, 24f)
-    move(8f, 15f); curve(8f, 18f, 4f, 19f, 4f, 21.5f); curve(4f, 22.6f, 5f, 23.4f, 6f, 23.8f)
-    move(8f, 15f); curve(8f, 18f, 12f, 19f, 12f, 21.5f); curve(12f, 22.6f, 11f, 23.4f, 10f, 23.8f)
-}
-
 private const val QUIET_ZONE = 4
 private const val DOT_INSET = 0.08f
-private const val VAJRA_W = 16f
-private const val VAJRA_H = 26f
 private const val GROUPS_PER_LINE = 3
 private const val COPIED_MS = 2_000L
 private const val MINUTES_PER_DAY = 1440.0
