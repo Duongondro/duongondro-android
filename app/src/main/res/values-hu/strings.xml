@@ -247,4 +247,5 @@
     <string name="sign_in_existing">Már van fiókom</string>
     <string name="finish_set_up">Beállítás befejezése</string>
     <string name="account_footer_local">Csak ezen a telefonon. Egy fiókkal barátok, nyilvános sorozatok és telefonok közötti szinkronizálás jár; a számaid végig titkosítva maradnak.</string>
+    <string name="sign_out_needs_recovery">Mielőtt itt kijelentkezel, fejezd be a helyreállítási kódot: nélküle a számaid nem jöhetnének vissza.</string>
 </resources>

@@ -253,4 +253,5 @@
     <string name="sign_in_existing">Už mám účet</string>
     <string name="finish_set_up">Dokončit nastavení</string>
     <string name="account_footer_local">Jen v tomto telefonu. Účet přidá přátele, veřejné série a synchronizaci mezi telefony; tvé počty zůstanou šifrované end-to-end.</string>
+    <string name="sign_out_needs_recovery">Než se tu odhlásíš, dokonči obnovovací kód: bez něj by se tvé počty nedaly vrátit.</string>
 </resources>

@@ -1,5 +1,7 @@
 package app.duongondro.ui.settings
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -67,9 +69,8 @@ fun AccountSection(
             ListRow(stringResource(R.string.sign_in_again), titleColor = Theme.colors.accent, semibold = true, onClick = openSignIn)
         }
         AccountStatus.NEEDS_KEYS -> CardSection(stringResource(R.string.section_account)) {
+            // No sign-out here: the keys could not come back without a recovery code.
             ListRow(stringResource(R.string.finish_set_up), titleColor = Theme.colors.accent, semibold = true, onClick = openRecoveryCode)
-            RowDivider()
-            ListRow(stringResource(R.string.sign_out), titleColor = Theme.colors.destructive, onClick = { signingOut = true })
         }
         AccountStatus.READY -> {
             val footer = when {
@@ -93,7 +94,16 @@ fun AccountSection(
                 ListRow(stringResource(R.string.sync), detail = syncDetail(state.syncing, state.lastSync),
                     onClick = { if (!state.syncing) run { accounts.syncNow() } })
                 RowDivider()
-                ListRow(stringResource(R.string.sign_out), titleColor = Theme.colors.destructive, onClick = { signingOut = true })
+                if (state.canSignOut) {
+                    ListRow(stringResource(R.string.sign_out), titleColor = Theme.colors.destructive, onClick = { signingOut = true })
+                } else {
+                    // Signing out forgets the keys: first the recovery code must be stored and confirmed.
+                    Column(Modifier.clickable(onClick = openRecoveryCode).padding(horizontal = Space.l, vertical = Space.m),
+                        verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                        Text(stringResource(R.string.sign_out), style = Theme.type.body, color = Theme.colors.muted)
+                        Text(stringResource(R.string.sign_out_needs_recovery), style = Theme.type.footnote, color = Theme.colors.accent)
+                    }
+                }
             }
         }
     }

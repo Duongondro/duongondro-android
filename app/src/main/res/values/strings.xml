@@ -264,4 +264,5 @@
     <string name="finish_set_up">Finish setting up</string>
     <string name="account_footer_local">Only on this phone. An account adds friends, public streaks and sync between phones; your counts stay end-to-end encrypted.</string>
     <string name="asset_statements" translatable="false">[{\"include\": \"https://duongondro.app/.well-known/assetlinks.json\"}]</string>
+    <string name="sign_out_needs_recovery">Before signing out here, finish your recovery code: without it, your counts could not come back.</string>
 </resources>

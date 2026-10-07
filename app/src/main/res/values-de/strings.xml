@@ -260,4 +260,5 @@
     <string name="sign_in_existing">Ich habe schon ein Konto</string>
     <string name="finish_set_up">Einrichtung abschließen</string>
     <string name="account_footer_local">Nur auf diesem Handy. Ein Konto bringt Freunde, öffentliche Serien und Synchronisierung zwischen Handys; deine Zählungen bleiben Ende-zu-Ende-verschlüsselt.</string>
+    <string name="sign_out_needs_recovery">Bevor du dich hier abmeldest, schließe deinen Wiederherstellungscode ab: Ohne ihn könnten deine Zählungen nicht zurückkommen.</string>
 </resources>

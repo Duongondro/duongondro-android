@@ -59,13 +59,21 @@ data class AccountState(
     val gender: Gender? = null,
     /** A recovery code was made but not yet checked or saved to the password manager. */
     val recoveryUnconfirmed: Boolean = false,
+    /** A recovery code was made but its boxes are not all on the server yet. */
+    val recoveryPending: Boolean = false,
     val syncing: Boolean = false,
     val lastSync: Instant? = null,
     /** The last sync did not finish: offline, or the server away. */
     val offline: Boolean = false,
     val refused: Int = 0,
     val unreadable: Int = 0,
-)
+) {
+    /**
+     * Signing out here forgets the keys, so it is allowed only when they can
+     * come back: keys set up, the recovery code stored on the server and confirmed.
+     */
+    val canSignOut: Boolean get() = status == AccountStatus.READY && !recoveryUnconfirmed && !recoveryPending
+}
 
 sealed interface InviteCheck {
     data object Valid : InviteCheck
@@ -134,6 +142,12 @@ class AccountManager(
                 else -> AccountStatus.NONE
             },
         )
+        refreshPending()
+    }
+
+    private fun refreshPending() {
+        val pending = runCatching { secrets.read(PENDING_RECOVERY) != null }.getOrDefault(true)
+        _state.update { it.copy(recoveryPending = pending) }
     }
 
     private fun open(token: String) {
@@ -340,7 +354,11 @@ class AccountManager(
      */
     suspend fun setUpKeys(): String = withContext(Dispatchers.IO) {
         val a = requireAccount()
-        val code = if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
+        val code = try {
+            if (a.hasKeys()) a.pendingRecoveryCode() ?: a.newRecoveryCode() else a.setUpFirstDevice()
+        } finally {
+            refreshPending()
+        }
         prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
         _state.update { it.copy(status = AccountStatus.READY, recoveryUnconfirmed = true) }
         afterKeys(a)
@@ -363,7 +381,7 @@ class AccountManager(
 
     /** A new recovery code, replacing the old one (which stops working). */
     suspend fun newRecoveryCode(): String = withContext(Dispatchers.IO) {
-        val code = requireAccount().newRecoveryCode()
+        val code = try { requireAccount().newRecoveryCode() } finally { refreshPending() }
         prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
         _state.update { it.copy(recoveryUnconfirmed = true) }
         code
@@ -453,6 +471,7 @@ class AccountManager(
      * local mode. The device key stays too; it holds nothing without its wraps.
      */
     suspend fun signOut() = withContext(Dispatchers.IO) {
+        check(_state.value.canSignOut) { "the recovery code is not finished; signing out would lose the keys" }
         pendingSync?.cancel()
         account?.let { a -> runCatching { a.api.signOut() } }
         account = null
@@ -500,6 +519,7 @@ class AccountManager(
         const val DISPLAY_NAME = "displayName"
         const val GENDER = "gender"
         const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
+        const val PENDING_RECOVERY = app.duongondro.core.sync.SecretName.PENDING_RECOVERY
         const val LAST_SYNC = "lastSync"
         val LINK_LIFETIME: java.time.Duration = java.time.Duration.ofMinutes(15)
     }
