@@ -411,9 +411,12 @@ class SqliteStore(
     override suspend fun applyRemote(record: SyncRecord, practiceName: String?, generation: Int): Boolean = writeFor(generation) { db ->
         val s = record.session
         val id = s.id.toString()
-        val local = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ?", arrayOf(id)).use { c ->
-            if (c.moveToFirst()) (if (c.isNull(0)) 0L else c.getLong(0)) else null
+        var pending = false
+        val local = db.rawQuery("SELECT updated_at, pending_until FROM sessions WHERE id = ?", arrayOf(id)).use { c ->
+            if (c.moveToFirst()) { pending = !c.isNull(1); if (c.isNull(0)) 0L else c.getLong(0) } else null
         }
+        // A session in its undo window is this phone's alone: nothing from the server touches it.
+        if (pending) return@writeFor false
         if (local != null && local >= record.updatedAt.syncMillis()) return@writeFor false
         // A deletion of a session this phone never had changes nothing here.
         if (local == null && record.deletedAt != null) return@writeFor false
@@ -446,7 +449,8 @@ class SqliteStore(
     }
 
     override suspend fun applyRemoteDeletion(id: UUID, updatedAt: Instant, deletedAt: Instant, generation: Int): Boolean = writeFor(generation) { db ->
-        val local = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ?", arrayOf(id.toString())).use { c ->
+        // A pending row is left alone, as in applyRemote.
+        val local = db.rawQuery("SELECT updated_at FROM sessions WHERE id = ? AND pending_until IS NULL", arrayOf(id.toString())).use { c ->
             if (c.moveToFirst()) (if (c.isNull(0)) 0L else c.getLong(0)) else null
         }
         if (local == null || local >= updatedAt.syncMillis()) return@writeFor false

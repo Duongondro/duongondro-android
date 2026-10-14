@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import app.duongondro.core.Catalogue
 import app.duongondro.core.PendingLog
 import app.duongondro.core.TrackedPractice
+import app.duongondro.core.sync.SyncRecord
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -118,5 +119,15 @@ class PendingSessionTest {
 
         assertEquals("a clock moved back cannot hold it", listOf(open.sessionId), store.finaliseDue(t0.minusSeconds(3600)).map { it.id })
         assertTrue(store.snapshot.value.pending.isEmpty())
+    }
+
+    @Test fun aRemoteCopyNeverOverwritesAPendingRow() = runBlocking {
+        val w = window()
+        store.savePending(w.session(zone, emptyList()), w.deadline)
+        val remote = SyncRecord(w.session(zone, emptyList()).copy(amount = 999), t0.plusSeconds(3600))
+        assertTrue(!store.applyRemote(remote, null, store.generation))
+        assertEquals(108, store.snapshot.value.sessions.single().amount)
+        assertTrue(!store.applyRemoteDeletion(w.sessionId, t0.plusSeconds(3600), t0.plusSeconds(3600), store.generation))
+        assertEquals(mapOf(w.sessionId to w.deadline), store.snapshot.value.pending)
     }
 }
