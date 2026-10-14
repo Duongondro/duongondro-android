@@ -26,7 +26,8 @@ object Purge {
     suspend fun run(context: Context, model: AppModel) {
         model.discardInFlight()
         var failure: Throwable? = null
-        try { model.store.eraseAll() } catch (e: CancellationException) { throw e } catch (e: Exception) { failure = e }
+        // In the model's write queue, so no tap or Undo queued before it lands after the erase.
+        try { model.inOrder { model.store.eraseAll() } } catch (e: CancellationException) { throw e } catch (e: Exception) { failure = e }
         // The device key's record and the sealed secrets go with their Keystore keys.
         try { app.duongondro.keys.KeystoreDeviceKeys(context).delete() } catch (e: Exception) { failure = failure ?: e }
         try { deleteKeystoreEntries() } catch (e: Exception) { failure = failure ?: e }

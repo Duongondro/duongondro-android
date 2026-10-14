@@ -285,6 +285,9 @@ class AppModel(
 
     fun updatePreferences(change: (Preferences) -> Preferences) = perform { store.save(change(snapshot.value.preferences)) }
 
+    /** Runs `block` in the write queue, after every write asked for before it (the purge's erase). */
+    suspend fun <T> inOrder(block: suspend () -> T): T = withContext(NonCancellable) { ordered.withLock { block() } }
+
     /**
      * Writes run one at a time, in the order asked: an Undo right after a tap
      * must never reach the database before the tap's own write.
