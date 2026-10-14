@@ -367,4 +367,5 @@
     <string name="usual_title">А не пора ли помедитировать?</string>
     <string name="usual_body">Обычно примерно в это время вы практикуете %s.</string>
     <string name="usual_body_discreet">Обычно вы садитесь практиковать примерно в это время.</string>
+    <string name="server">Сервер</string>
 </resources>

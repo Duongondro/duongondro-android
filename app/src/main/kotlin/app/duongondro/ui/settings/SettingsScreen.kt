@@ -152,7 +152,7 @@ fun SettingsScreen(
             ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)
         }
 
-        AboutSection(openAbout)
+        AboutSection(model.accounts, openAbout)
     }
     if (adding) AddPracticeDialog(model) { adding = false }
 }
@@ -551,37 +551,52 @@ private val shortRevision: String get() {
 }
 
 private const val REPOSITORY = "https://github.com/Duongondro/duongondro-android"
+private const val SERVER_REPOSITORY = "https://github.com/Duongondro/duongondro-api"
 
 /**
  * What is running, so anyone can match the app to its source: version, the
  * short commit with -dirty on development builds. Tap opens the commit on
  * GitHub, a long press copies the full hash.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AboutSection(openAbout: () -> Unit) {
-    val context = LocalContext.current
-    val clipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
+private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openAbout: () -> Unit) {
     val revision = BuildConfig.GIT_REVISION
+    val account = accounts?.state?.collectAsStateWithLifecycle()?.value?.status
+    val server = accounts?.serverVersion?.collectAsStateWithLifecycle()?.value
+    LaunchedEffect(account) { accounts?.loadServerVersion() }
     CardSection(stringResource(R.string.section_about), stringResource(R.string.source_footer)) {
         ListRow(stringResource(R.string.version), detail = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         RowDivider()
-        Row(
-            Modifier.fillMaxWidth().heightIn(min = Size.minTap).combinedClickable(
-                onClick = {
-                    if (revision != "unknown") context.openUrl(Intent(Intent.ACTION_VIEW, "$REPOSITORY/commit/$revision".toUri()))
-                },
-                onLongClick = { scope.launch { clipboard.setClipEntry(ClipData.newPlainText("commit", revision).toClipEntry()) } },
-            ).padding(horizontal = Space.l),
-            horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(stringResource(R.string.source), Modifier.weight(1f).padding(vertical = Space.s), style = Theme.type.body, color = Theme.colors.ink)
-            Text(shortRevision, style = Theme.type.mono, color = Theme.colors.accent)
-            Icon(painterResource(R.drawable.ic_open), contentDescription = null, tint = Theme.colors.muted, modifier = Modifier.size(Space.l))
+        CommitRow(stringResource(R.string.source), shortRevision, revision.takeIf { it != "unknown" }?.let { "$REPOSITORY/commit/$it" }, revision, Theme.colors.accent)
+        // The server's commit, linked like the app's (iOS's About): only with an account, since local mode asks no server.
+        server?.let { s ->
+            RowDivider()
+            val short = s.short.ifEmpty { s.revision.take(7) } + if (s.modified) "-dirty" else ""
+            CommitRow(stringResource(R.string.server), short,
+                s.revision.takeIf { it.isNotEmpty() && it != "unknown" }?.let { "$SERVER_REPOSITORY/commit/$it" }, s.revision, Theme.colors.muted)
         }
         RowDivider()
         ListRow(stringResource(R.string.about_and_contributors), chevron = true, onClick = openAbout)
+    }
+}
+
+/** A commit: tap opens it on GitHub (when known), a long press copies the full hash. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun CommitRow(title: String, short: String, url: String?, full: String, tint: androidx.compose.ui.graphics.Color) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = Size.minTap).combinedClickable(
+            onClick = { url?.let { context.openUrl(Intent(Intent.ACTION_VIEW, it.toUri())) } },
+            onLongClick = { scope.launch { clipboard.setClipEntry(ClipData.newPlainText("commit", full).toClipEntry()) } },
+        ).padding(horizontal = Space.l),
+        horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(title, Modifier.weight(1f).padding(vertical = Space.s), style = Theme.type.body, color = Theme.colors.ink)
+        Text(short, style = Theme.type.mono, color = tint)
+        if (url != null) Icon(painterResource(R.drawable.ic_open), contentDescription = null, tint = Theme.colors.muted, modifier = Modifier.size(Space.l))
     }
 }
 

@@ -374,4 +374,5 @@
     <string name="usual_title">¿No deberías estar meditando?</string>
     <string name="usual_body">Sueles sentarte a practicar %s más o menos a esta hora.</string>
     <string name="usual_body_discreet">Sueles sentarte a meditar más o menos a esta hora.</string>
+    <string name="server">Servidor</string>
 </resources>

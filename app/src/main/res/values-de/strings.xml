@@ -364,4 +364,5 @@
     <string name="usual_title">Wäre jetzt nicht Zeit zum Meditieren?</string>
     <string name="usual_body">Um diese Zeit setzt du dich normalerweise für %s hin.</string>
     <string name="usual_body_discreet">Um diese Zeit setzt du dich normalerweise zum Meditieren hin.</string>
+    <string name="server">Server</string>
 </resources>

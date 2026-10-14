@@ -736,6 +736,18 @@ class AccountManager(
         withContext(Dispatchers.IO) { s.report(friend, reason) }
     }
 
+    // The server
+
+    private val _serverVersion = MutableStateFlow<app.duongondro.core.api.ServerVersion?>(null)
+    /** The commit the server was built from, for About; null until fetched. */
+    val serverVersion: StateFlow<app.duongondro.core.api.ServerVersion?> = _serverVersion.asStateFlow()
+
+    /** Fetches the server's commit, only with an account: local mode makes no network call at all. */
+    suspend fun loadServerVersion() {
+        if (_state.value.status == AccountStatus.NONE) return
+        runCatching { withContext(Dispatchers.IO) { anonymous.version() } }.getOrNull()?.let { _serverVersion.value = it }
+    }
+
     // Sync
 
     /** Syncs a moment after the last change, so a burst of malas is one round trip. */

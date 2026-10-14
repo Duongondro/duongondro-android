@@ -380,4 +380,5 @@
     <string name="usual_title">Może by tak pomedytować?</string>
     <string name="usual_body">Zwykle siadasz do praktyki %s mniej więcej o tej porze.</string>
     <string name="usual_body_discreet">Zwykle siadasz do praktyki mniej więcej o tej porze.</string>
+    <string name="server">Serwer</string>
 </resources>

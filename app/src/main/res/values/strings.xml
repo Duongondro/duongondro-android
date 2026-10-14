@@ -370,4 +370,5 @@
     <string name="usual_title">Shouldn\'t you be meditating?</string>
     <string name="usual_body">You usually sit down for %s around now.</string>
     <string name="usual_body_discreet">You usually sit down around now.</string>
+    <string name="server">Server</string>
 </resources>

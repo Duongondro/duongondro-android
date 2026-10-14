@@ -367,4 +367,5 @@
     <string name="usual_title">Nie je čas na meditáciu?</string>
     <string name="usual_body">Na %s si zvyčajne sadáš okolo tejto doby.</string>
     <string name="usual_body_discreet">Okolo tejto doby si zvyčajne sadáš k meditácii.</string>
+    <string name="server">Server</string>
 </resources>

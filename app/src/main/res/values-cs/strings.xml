@@ -367,4 +367,5 @@
     <string name="usual_title">Nebyl by čas na meditaci?</string>
     <string name="usual_body">Obvykle si kolem téhle doby sedáš k praxi %s.</string>
     <string name="usual_body_discreet">Obvykle si kolem téhle doby sedáš k meditaci.</string>
+    <string name="server">Server</string>
 </resources>

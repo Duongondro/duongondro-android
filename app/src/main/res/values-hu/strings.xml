@@ -351,4 +351,5 @@
     <string name="usual_title">Nem kéne most meditálnod?</string>
     <string name="usual_body">Ilyenkor szoktál leülni ehhez: %s.</string>
     <string name="usual_body_discreet">Ilyenkor szoktál leülni gyakorolni.</string>
+    <string name="server">Szerver</string>
 </resources>
