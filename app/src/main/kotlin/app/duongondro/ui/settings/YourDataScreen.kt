@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.text.font.FontWeight
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,15 +62,30 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
     val scope = rememberCoroutineScope()
     var failure by remember { mutableStateOf<String?>(null) }
     val withAccount = hasAccount(model)
+    var exporting by remember { mutableStateOf(false) }
+    // The export went out without the server's part.
+    var serverMissing by remember { mutableStateOf(false) }
     Page(stringResource(R.string.section_your_data), back) {
-        CardSection(footer = stringResource(R.string.export_footer)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable {
+        CardSection(footer = stringResource(if (serverMissing) R.string.export_server_missing else R.string.export_footer)) {
+            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = !exporting) {
+                exporting = true
+                serverMissing = false
                 scope.launch {
                     try {
                         // Anything still in the undo window belongs in the export.
                         model.commitPendingNow()
+                        // With a ready account the server's rows and sealed sessions come first;
+                        // offline or failed, the phone's part is exported and the screen says so.
+                        val server = try {
+                            model.accounts?.serverExport()
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            serverMissing = true
+                            null
+                        }
                         val file = withContext(Dispatchers.IO) {
-                            val zip = DataExport.zip(model.snapshot.value, null, Covers.all(context),
+                            val zip = DataExport.zip(model.snapshot.value, server, Covers.all(context),
                                 "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
                             Exports.write(context, zip, DataExport.fileName())
                         }
@@ -79,6 +95,8 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                         context.startActivity(Intent.createChooser(send, null))
                     } catch (e: Exception) {
                         failure = e.message ?: e.toString()
+                    } finally {
+                        exporting = false
                     }
                 }
             }.padding(horizontal = Space.l), horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {

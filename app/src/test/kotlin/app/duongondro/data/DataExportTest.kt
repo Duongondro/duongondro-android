@@ -59,4 +59,15 @@ class DataExportTest {
         assertEquals(String(server.account), String(files.getValue("account.json")))
         assertEquals(String(server.raw), String(files.getValue("server-raw.json")))
     }
+
+    @Test fun serverSessionsJoinPracticeJsonOnce() {
+        val local = snapshot.sessions[0]
+        val remote = Session(practiceId = "dorje-sempa", amount = 21, startedAt = Instant.ofEpochSecond(1_790_100_000),
+            startExact = false, zoneId = ams, loggedAt = Instant.ofEpochSecond(1_790_100_000))
+        val server = DataExport.Server("{}".toByteArray(), "{}".toByteArray(), listOf(local, remote), unreadable = 2)
+        val files = unzip(DataExport.zip(snapshot, server, appVersion = "0.1"))
+        val json = Json.parseToJsonElement(files.getValue("practice.json").decodeToString()).jsonObject
+        assertEquals(listOf(108, 21), json.getValue("sessions").jsonArray.map { it.jsonObject.getValue("amount").jsonPrimitive.int })
+        assertTrue(files.getValue("README.txt").decodeToString().contains("2 sealed sessions could not be opened"))
+    }
 }

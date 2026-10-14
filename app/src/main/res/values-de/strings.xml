@@ -198,6 +198,7 @@
     <string name="export_all">Alle meine Daten exportieren</string>
     <string name="export_footer">Eine ZIP-Datei mit jeder Übung, Sitzung und Serie, lesbar auch ohne diese App.</string>
     <string name="export_failed">Export fehlgeschlagen</string>
+    <string name="export_server_missing">Der Teil dieses Exports vom Server konnte nicht abgerufen werden; er enthält nur, was auf diesem Telefon liegt.</string>
     <string name="delete_everything">Alles löschen</string>
     <string name="delete_footer">Entfernt alle deine Daten von diesem Handy. Das lässt sich nicht rückgängig machen.</string>
     <string name="delete_explainer">Das löscht jede Übung, Sitzung und Serie auf diesem Handy, deine Erinnerungen und alle Schlüssel, die die App hält, und kehrt dann zum Anfang zurück.</string>

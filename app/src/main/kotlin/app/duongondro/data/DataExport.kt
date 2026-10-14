@@ -1,6 +1,8 @@
 package app.duongondro.data
 
+import app.duongondro.core.Session
 import app.duongondro.core.civilDate
+import app.duongondro.core.sync.ServerExport
 import app.duongondro.model.Snapshot
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -19,7 +21,24 @@ import java.util.zip.ZipOutputStream
  */
 object DataExport {
     /** What the server returned from `GET /api/me/export`, passed through as is. */
-    class Server(val account: ByteArray, val raw: ByteArray)
+    class Server(
+        val account: ByteArray,
+        val raw: ByteArray,
+        /** The sealed practice sessions, opened on this phone; merged into practice.json unless the phone holds them. */
+        val sessions: List<Session> = emptyList(),
+        /** Sealed logs this phone holds no key for. */
+        val unreadable: Int = 0,
+    ) {
+        constructor(opened: ServerExport.Opened) : this(opened.raw, opened.raw, opened.sessions, opened.unreadable)
+    }
+
+    /** The phone's snapshot plus the server's sessions it does not hold yet, so a session synced from another phone appears once. */
+    fun merged(snapshot: Snapshot, server: Server?): Snapshot {
+        if (server == null || server.sessions.isEmpty()) return snapshot
+        val known = snapshot.sessions.mapTo(HashSet()) { it.id }
+        val extra = server.sessions.sortedWith(compareBy({ it.startedAt }, { it.id.toString() })).filter { known.add(it.id) }
+        return snapshot.copy(sessions = snapshot.sessions + extra)
+    }
 
     fun zip(snapshot: Snapshot, server: Server?, covers: Map<String, ByteArray> = emptyMap(),
             appVersion: String, now: Instant = Instant.now()): ByteArray {
@@ -30,8 +49,8 @@ object DataExport {
                 z.write(bytes)
                 z.closeEntry()
             }
-            add("README.txt", readme(server != null, covers.isNotEmpty()).toByteArray())
-            add("practice.json", practiceJson(snapshot, appVersion, now).toByteArray())
+            add("README.txt", readme(server != null, covers.isNotEmpty(), server?.unreadable ?: 0).toByteArray())
+            add("practice.json", practiceJson(merged(snapshot, server), appVersion, now).toByteArray())
             server?.let {
                 add("account.json", it.account)
                 add("server-raw.json", it.raw)
@@ -99,7 +118,7 @@ object DataExport {
         return json.encodeToString(PracticeFile.serializer(), file)
     }
 
-    internal fun readme(hasServer: Boolean, hasCovers: Boolean): String = buildString {
+    internal fun readme(hasServer: Boolean, hasCovers: Boolean, unreadable: Int = 0): String = buildString {
         appendLine("Duongöndro: all of your data")
         appendLine()
         appendLine("practice.json")
@@ -108,14 +127,21 @@ object DataExport {
         appendLine("  it started in and the day it counts for (YYYY-MM-DD). openingCount is what")
         appendLine("  you entered at onboarding; lifetime adds every session to it.")
         if (hasServer) {
+            appendLine("  Sessions that came from your other phones through sync are included once.")
             appendLine()
             appendLine("account.json")
             appendLine("  Your account, linked sign-ins, devices, friendships, invites, blocks,")
-            appendLine("  reports and public streak statements, as the server holds them.")
+            appendLine("  reports and public streak statements, as the server holds them. Friends")
+            appendLine("  appear with the display name and gender the app shows you.")
             appendLine()
             appendLine("server-raw.json")
             appendLine("  Exactly what the server stores, sealed blobs as base64. The server cannot")
             appendLine("  read them; practice.json is the same data decrypted.")
+            if (unreadable > 0) {
+                appendLine()
+                appendLine("$unreadable sealed sessions could not be opened on this phone (they were sealed")
+                appendLine("with a key it does not hold yet), so they are only in server-raw.json.")
+            }
         } else {
             appendLine()
             appendLine("This phone is in local mode: no account exists, so nothing about you is on")

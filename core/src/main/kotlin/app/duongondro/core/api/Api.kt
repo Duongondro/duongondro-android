@@ -183,6 +183,10 @@ class Api(
 
     fun putRecoveryBox(kind: Int, box: RecoveryBoxInput) = send<Unit>("PUT", "api/me/recovery-boxes/$kind", encode(box))
 
+    // Everything the server stores about this account (GDPR Articles 15 and 20), exactly as sent.
+
+    fun exportMe(): ByteArray = call("GET", "api/me/export", null)
+
     // Sync
 
     fun putLog(id: UUID, log: PracticeLogInput): PracticeLog = send("PUT", "api/practice-logs/${id.lower}", encode(log))

@@ -99,6 +99,9 @@ class Account(
 
     fun practiceKey(version: Long): ByteArray? = secrets.read(SecretName.practiceKey(version))
 
+    /** `GET /api/me/export` with its sealed practice logs opened under this phone's keys. Blocks: run off the main thread. */
+    fun serverExport(): ServerExport.Opened = ServerExport.open(api.exportMe(), ::practiceKey)
+
     /** Keys and a sync state: this phone can sync. */
     suspend fun hasKeys(): Boolean = secrets.read(SecretName.IDENTITY_SEED) != null && database.syncState() != null
 

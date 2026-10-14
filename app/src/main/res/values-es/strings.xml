@@ -202,6 +202,7 @@
     <string name="export_all">Exportar todos mis datos</string>
     <string name="export_footer">Un ZIP con todas tus prácticas, sesiones y rachas, que se puede leer sin esta app.</string>
     <string name="export_failed">Falló la exportación</string>
+    <string name="export_server_missing">No se pudo obtener del servidor la parte de esta exportación, así que solo contiene lo que hay en este teléfono.</string>
     <string name="delete_everything">Eliminar todo</string>
     <string name="delete_footer">Elimina todos tus datos de este teléfono. No se puede deshacer.</string>
     <string name="delete_explainer">Esto elimina todas las prácticas, sesiones y rachas de este teléfono, tus recordatorios y las claves que guarda la app, y luego vuelve al inicio.</string>

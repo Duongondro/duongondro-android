@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.content.edit
 import app.duongondro.BuildConfig
 import app.duongondro.core.api.Api
+import app.duongondro.data.DataExport
 import app.duongondro.core.api.ApiError
 import app.duongondro.core.api.Profile
 import app.duongondro.core.api.SignInResult
@@ -866,6 +867,15 @@ class AccountManager(
      * The server half of "Delete everything": it must succeed before the phone
      * wipes itself, or the server would keep data the person believes gone.
      */
+    /**
+     * The server half of Your data › Export, with its sealed sessions opened on
+     * this phone. Null without a ready account (local mode makes no request).
+     */
+    suspend fun serverExport(): DataExport.Server? = withContext(Dispatchers.IO) {
+        val a = account
+        if (a == null || _state.value.status != AccountStatus.READY) null else DataExport.Server(a.serverExport())
+    }
+
     suspend fun deleteOnServer() = withContext(Dispatchers.IO) {
         pendingSync?.cancel()
         when (_state.value.status) {
