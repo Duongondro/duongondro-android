@@ -12,12 +12,15 @@ import app.duongondro.core.TrackedPractice
 import app.duongondro.core.civilDate
 import app.duongondro.core.headline
 import app.duongondro.core.of
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration
@@ -286,9 +289,13 @@ class AppModel(
      * must never reach the database before the tap's own write.
      */
     fun perform(write: suspend () -> Unit) {
-        val job = viewModelScope.launch {
-            ordered.withLock {
-                try { write() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+        // A write asked for lands even when the scope is cancelled while it
+        // waits its turn (the app closing right after a tap).
+        val job = viewModelScope.launch(start = CoroutineStart.ATOMIC) {
+            withContext(NonCancellable) {
+                ordered.withLock {
+                    try { write() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+                }
             }
         }
         writes.removeAll { it.isCompleted }
