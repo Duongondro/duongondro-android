@@ -47,6 +47,51 @@ class UpgradeTest {
             pinned_at INTEGER NOT NULL)""",
     )
 
+    /** Version 5, the schema before pending sessions: version 3 plus public streaks and the usual-time nudge. */
+    private val version5 = version3 + listOf(
+        "ALTER TABLE friend_pins ADD COLUMN listed INTEGER NOT NULL DEFAULT 1",
+        "CREATE TABLE friend_seqs (user_id TEXT NOT NULL, practice TEXT NOT NULL, seq INTEGER NOT NULL, PRIMARY KEY (user_id, practice))",
+        """CREATE TABLE public_streaks (practice_id TEXT PRIMARY KEY NOT NULL REFERENCES practices (id) ON DELETE CASCADE,
+            seq INTEGER NOT NULL DEFAULT 0)""",
+        "ALTER TABLE preferences ADD COLUMN usual_time_nudge INTEGER NOT NULL DEFAULT 0",
+    )
+
+    /**
+     * Duongondro/duongondro-android#5: version 6 adds `pending_until`. Every
+     * session from before is final: still pushed when dirty, published, and
+     * never touched by the launch's finalisation.
+     */
+    @Test fun aVersion5DatabaseKeepsEverySessionFinal() = runBlocking {
+        val synced = UUID.randomUUID()
+        val dirty = UUID.randomUUID()
+        val t = 1_790_000_000_000L
+        SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(name), null).use { db ->
+            version5.forEach { db.execSQL(it) }
+            db.execSQL("INSERT INTO practices (id, name, grp, target, streak_only_allowed) VALUES ('dorje-sempa', 'Dorje Sempa', 'ngondro', 111111, 0)")
+            for ((id, flag) in listOf(synced to 0, dirty to 1)) {
+                db.execSQL("INSERT INTO sessions (id, practice_id, amount, started_at, start_exact, time_zone, logged_at, updated_at, dirty) " +
+                    "VALUES ('$id', 'dorje-sempa', 108, $t, 0, 'Europe/Warsaw', $t, $t, $flag)")
+            }
+            db.execSQL("INSERT INTO preferences VALUES (1, 1, 1, 0, 108, NULL, 0, 1)")
+            db.execSQL("INSERT INTO public_streaks VALUES ('dorje-sempa', 4)")
+            db.version = 5
+        }
+        val store = SqliteStore(context, name)
+        try {
+            store.load()
+            val snap = store.snapshot.value
+            assertEquals(setOf(synced, dirty), snap.sessions.map { it.id }.toSet())
+            assertTrue("nothing pending", snap.pending.isEmpty())
+            assertTrue(snap.preferences.usualTimeNudge)
+            assertEquals(mapOf("dorje-sempa" to 4L), store.publicStreakSeqs())
+            assertEquals(listOf(dirty), store.dirtySessions().map { it.session.id })
+            assertEquals(2, store.sessionsOf("dorje-sempa").size)
+            assertTrue(store.finaliseDue(Instant.ofEpochMilli(t)).isEmpty())
+        } finally {
+            store.close()
+        }
+    }
+
     @Test fun aVersion3DatabaseKeepsEveryRow() = runBlocking {
         val friend = UUID.randomUUID()
         val session = UUID.randomUUID()

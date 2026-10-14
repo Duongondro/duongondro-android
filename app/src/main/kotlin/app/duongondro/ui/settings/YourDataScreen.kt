@@ -72,8 +72,8 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                 serverMissing = false
                 scope.launch {
                     try {
-                        // Anything still in the undo window belongs in the export.
-                        model.commitPendingNow()
+                        // The export holds final sessions only: the open undo window closes first.
+                        model.finalisePendingNow()
                         // With a ready account the server's rows and sealed sessions come first;
                         // offline or failed, the phone's part is exported and the screen says so.
                         val server = try {

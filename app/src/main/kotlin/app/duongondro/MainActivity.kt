@@ -133,12 +133,12 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.registerReceiver(this, timeChanged, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
-    /** A session in its undo window is written before the process can be killed. */
+    /** Leaving the app closes the undo window: its pending session becomes final and syncs. */
     override fun onStop() {
         unregisterReceiver(timeChanged)
         // Rotation or a language switch recreates the activity; the ViewModel
-        // keeps the undo window alive through it, so only commit when leaving.
-        if (!isChangingConfigurations) model.commitPending()
+        // keeps the undo window alive through it, so only finalise when leaving.
+        if (!isChangingConfigurations) model.finalisePending()
         super.onStop()
     }
 }

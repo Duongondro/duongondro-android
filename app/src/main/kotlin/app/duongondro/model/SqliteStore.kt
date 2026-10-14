@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import app.duongondro.core.Catalogue
+import app.duongondro.core.PendingLog
 import app.duongondro.core.Practice
 import app.duongondro.core.PracticeGroup
 import app.duongondro.core.Session
@@ -75,6 +76,59 @@ class SqliteStore(
             put("chosen_day", session.chosenDay?.toString())
             put("logged_at", session.loggedAt.toEpochMilli())
         })
+    }
+
+    /**
+     * A session in its undo window: written at once with `pending_until`, so the
+     * screen counts it and a crash keeps it; [dirtySessions] skips it until
+     * [finalise]. Extending the window updates the same row.
+     */
+    override suspend fun savePending(session: Session, until: Instant) = write { db ->
+        val values = ContentValues().apply {
+            put("practice_id", session.practiceId)
+            put("amount", session.amount)
+            put("started_at", session.startedAt.toEpochMilli())
+            put("start_exact", session.startExact)
+            put("time_zone", session.zoneId)
+            put("chosen_day", session.chosenDay?.toString())
+            put("logged_at", session.loggedAt.toEpochMilli())
+            put("updated_at", clock().syncMillis())
+            put("pending_until", until.toEpochMilli())
+        }
+        val id = session.id.toString()
+        val exists = db.rawQuery("SELECT 1 FROM sessions WHERE id = ?", arrayOf(id)).use { it.moveToFirst() }
+        if (!exists) {
+            values.put("id", id)
+            db.insertOrThrow("sessions", null, values)
+        } else {
+            // Only a row still pending: a final one is the server's business now.
+            db.update("sessions", values, "id = ? AND pending_until IS NOT NULL", arrayOf(id))
+        }
+    }
+
+    /** Undo: the pending row goes outright. It was never synced, so no tombstone is needed. */
+    override suspend fun discardPending(id: UUID) = write { db ->
+        db.execSQL("DELETE FROM sessions WHERE id = ? AND pending_until IS NOT NULL", arrayOf(id.toString()))
+    }
+
+    override suspend fun finalise(id: UUID): Session? = writeFor(null) { db -> finaliseRow(db, id.toString()) }
+
+    override suspend fun finaliseDue(now: Instant): List<Session> = writeFor(null) { db ->
+        db.rawQuery("SELECT id, pending_until FROM sessions WHERE pending_until IS NOT NULL", null)
+            .all { c -> c.str("id")!! to Instant.ofEpochMilli(c.long("pending_until")) }
+            .filter { (_, until) -> PendingLog.isOver(until, now) }
+            .mapNotNull { (id, _) -> finaliseRow(db, id) }
+    }
+
+    /** Pending becomes final and dirty, stamped now, so the next push sends it. */
+    private fun finaliseRow(db: SQLiteDatabase, id: String): Session? {
+        val values = ContentValues().apply {
+            putNull("pending_until")
+            put("dirty", 1)
+            put("updated_at", nextStamp(db, UUID.fromString(id)))
+        }
+        if (db.update("sessions", values, "id = ? AND pending_until IS NOT NULL", arrayOf(id)) == 0) return null
+        return db.rawQuery("SELECT * FROM sessions WHERE id = ?", arrayOf(id)).all(::sessionOf).firstOrNull()
     }
 
     override suspend fun choose(day: LocalDate?, forSession: UUID) = write { db ->
@@ -295,7 +349,8 @@ class SqliteStore(
         }
     }
 
-    override suspend fun sessionsOf(practice: String) = snapshot.value.sessionsOf(practice)
+    /** For public streaks: final sessions only, so a tap still in its undo window is never published. */
+    override suspend fun sessionsOf(practice: String) = snapshot.value.withoutPending().sessionsOf(practice)
 
     /** Deletes the practice (sessions, seeds, practices) and the sync state, keeping the preferences: another account's data leaving. */
     suspend fun erasePractice() = write { db ->
@@ -323,8 +378,9 @@ class SqliteStore(
         db.execSQL("UPDATE sessions SET dirty = 1")
     }
 
+    /** Changed since the server last acknowledged them; a session in its undo window never goes up. */
     override suspend fun dirtySessions(): List<SyncRecord> = query { db ->
-        db.rawQuery("SELECT * FROM sessions WHERE dirty = 1 ORDER BY updated_at, id", null).all(::syncRecord)
+        db.rawQuery("SELECT * FROM sessions WHERE dirty = 1 AND pending_until IS NULL ORDER BY updated_at, id", null).all(::syncRecord)
     }
 
     override suspend fun markSynced(id: UUID, updatedAt: Instant, generation: Int) = write(generation) { db ->
@@ -487,7 +543,9 @@ class SqliteStore(
             )
         }.firstOrNull() ?: Preferences()
         val public = db.rawQuery("SELECT practice_id FROM public_streaks", null).all { it.getString(0) }.toSet()
-        return Snapshot(practices, sessions, seeds, prefs, public)
+        val pending = db.rawQuery("SELECT id, pending_until FROM sessions WHERE pending_until IS NOT NULL AND deleted_at IS NULL", null)
+            .all { c -> UUID.fromString(c.str("id")) to Instant.ofEpochMilli(c.long("pending_until")) }.toMap()
+        return Snapshot(practices, sessions, seeds, prefs, public, pending)
     }
 
     /** Table names, for the test that every table is exported and erased. */
@@ -614,10 +672,14 @@ class SqliteStore(
             ).forEach { db.execSQL(it.trimIndent()) }
             // Version 5: "Nudge at my usual time", off until turned on.
             if (oldVersion < 5) db.execSQL("ALTER TABLE preferences ADD COLUMN usual_time_nudge INTEGER NOT NULL DEFAULT 0")
+            // Version 6: a session in its undo window is written at once, pending
+            // until the window closes (Unix milliseconds); NULL is final, as every
+            // row from before. Pending rows are never pushed, and Undo deletes them.
+            if (oldVersion < 6) db.execSQL("ALTER TABLE sessions ADD COLUMN pending_until INTEGER")
         }
 
         companion object {
-            const val VERSION = 5
+            const val VERSION = 6
         }
     }
 }

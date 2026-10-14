@@ -68,6 +68,28 @@ class CoreTest {
         assertTrue(p.isDue(t0.plusSeconds(9)))
     }
 
+    @Test fun pendingLogKeepsItsSessionAndEstimatesTheStart() {
+        val t0 = Instant.ofEpochSecond(1_790_000_000)
+        val opened = PendingLog.open("dorje-sempa", 108, t0)
+        val extended = opened.add(108, t0.plusSeconds(3))
+        assertEquals("one row, extended in place", opened.sessionId, extended.sessionId)
+        assertTrue(extended.sessionId.isV7)
+        val s = extended.session(ZoneId.of(ams), listOf(Duration.ofMinutes(20)))
+        assertEquals(extended.sessionId, s.id)
+        assertEquals(216, s.amount)
+        assertEquals(t0, s.loggedAt)
+        assertEquals(t0.minusSeconds(1200), s.startedAt)
+        assertFalse(s.startExact)
+    }
+
+    @Test fun aPendingRowFoundOnLaunchIsOverOnceItsWindowPassed() {
+        val now = Instant.ofEpochSecond(1_790_000_000)
+        assertTrue(PendingLog.isOver(now, now))
+        assertTrue(PendingLog.isOver(now.minusSeconds(60), now))
+        assertFalse(PendingLog.isOver(now.plusSeconds(2), now))
+        assertTrue("a clock moved back cannot keep it pending", PendingLog.isOver(now.plusSeconds(60), now))
+    }
+
     @Test fun startEstimate() {
         val logged = Instant.ofEpochSecond(10_000)
         assertEquals(logged.minusSeconds(3600), SessionStart.estimate(logged, null, emptyList()))

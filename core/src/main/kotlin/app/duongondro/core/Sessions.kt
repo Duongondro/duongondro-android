@@ -52,19 +52,43 @@ data class AfterMidnight(val countedFor: LocalDate, val alternative: LocalDate, 
 }
 
 /**
- * The undo window after +mala: a session is only written when the window
- * closes, so an undone tap leaves no record anywhere.
+ * The undo window after +mala, +custom or "done today". The session is written
+ * to the phone's database at once, marked pending, so every number includes it
+ * and a crash cannot lose it; Undo deletes that row outright. A pending row is
+ * never synced: it becomes final, and syncs, when the window closes.
+ *
+ * @property sessionId the pending row's id, kept when the window is extended.
  */
-data class PendingLog(val practiceId: String, val amount: Int, val openedAt: Instant, val deadline: Instant) {
+data class PendingLog(
+    val practiceId: String,
+    val amount: Int,
+    val openedAt: Instant,
+    val deadline: Instant,
+    val sessionId: UUID = uuidV7(openedAt),
+) {
     /** Another +mala on the same practice inside the window extends it. */
     fun add(more: Int, now: Instant): PendingLog = copy(amount = amount + more, deadline = now + WINDOW)
 
     fun isDue(now: Instant): Boolean = now >= deadline
 
+    /** The session this window writes: its start is estimated from when the window opened. */
+    fun session(zone: ZoneId, timedLengths: List<Duration>) = Session(
+        id = sessionId, practiceId = practiceId, amount = amount,
+        startedAt = SessionStart.estimate(openedAt, null, timedLengths),
+        startExact = false, zoneId = zone.id, loggedAt = openedAt,
+    )
+
     companion object {
         val WINDOW: Duration = Duration.ofSeconds(5)
 
         fun open(practiceId: String, amount: Int, now: Instant) = PendingLog(practiceId, amount, now, now + WINDOW)
+
+        /**
+         * Whether a pending row found on launch is final by now: its window has
+         * passed, or it ends further ahead than a window can (the clock moved
+         * back), so a row can never stay pending for good.
+         */
+        fun isOver(deadline: Instant, now: Instant): Boolean = now >= deadline || deadline > now + WINDOW
     }
 }
 

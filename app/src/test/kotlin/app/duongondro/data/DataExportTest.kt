@@ -53,6 +53,17 @@ class DataExportTest {
         assertTrue(files.getValue("README.txt").decodeToString().contains("local mode"))
     }
 
+    /** Duongondro/duongondro-android#5: a session still in its undo window is not exported, nor counted in lifetime. */
+    @Test fun aPendingSessionIsNotExported() {
+        val open = Session(practiceId = "dorje-sempa", amount = 1_000, startedAt = Instant.ofEpochSecond(1_790_100_000),
+            startExact = false, zoneId = ams, loggedAt = Instant.ofEpochSecond(1_790_100_000))
+        val withPending = snapshot.copy(sessions = snapshot.sessions + open, pending = mapOf(open.id to Instant.ofEpochSecond(1_790_100_005)))
+        val json = Json.parseToJsonElement(DataExport.practiceJson(withPending, "0.3", Instant.EPOCH)).jsonObject
+        assertEquals(listOf(snapshot.sessions.single().id.toString()),
+            json.getValue("sessions").jsonArray.map { it.jsonObject.getValue("id").jsonPrimitive.content })
+        assertEquals(608, json.getValue("practices").jsonArray[0].jsonObject.getValue("lifetime").jsonPrimitive.int)
+    }
+
     @Test fun serverPartsPassThrough() {
         val server = DataExport.Server("""{"id":"a"}""".toByteArray(), """{"blobs":[]}""".toByteArray())
         val files = unzip(DataExport.zip(Snapshot(), server, appVersion = "0.1"))

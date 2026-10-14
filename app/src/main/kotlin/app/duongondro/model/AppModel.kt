@@ -3,7 +3,6 @@ package app.duongondro.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.duongondro.account.AccountManager
-import app.duongondro.core.uuidV7
 import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
@@ -19,17 +18,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** A session just written whose estimated start fell before midnight. */
+/** A session just made final whose estimated start fell before midnight. */
 data class AfterMidnightPrompt(val session: Session, val sheet: AfterMidnight)
 
 /**
- * What the UI shows, from the store, plus the in-memory state that must never
- * reach it early: the undo window.
+ * What the UI shows, from the store, plus the undo window. A session in its
+ * window is already in the store, pending (counted on screen, never synced);
+ * the window itself, its deadline and Undo, lives here.
  */
 class AppModel(
     val store: Store,
@@ -42,7 +44,7 @@ class AppModel(
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
     private val _pending = MutableStateFlow<PendingLog?>(null)
-    /** The open undo window, at most one at a time. */
+    /** The open undo window, at most one at a time; its session is in the store, pending. */
     val pending: StateFlow<PendingLog?> = _pending.asStateFlow()
 
     private val _afterMidnight = MutableStateFlow<AfterMidnightPrompt?>(null)
@@ -58,6 +60,7 @@ class AppModel(
     /** Writes in flight; declared before init, which already writes. */
     private val writes = mutableListOf<Job>()
     private var closeJob: Job? = null
+    private val ordered = Mutex()
 
     private val _loaded = MutableStateFlow(store !is SqliteStore)
     /** False until the database has been read once, so onboarding never flashes. */
@@ -95,6 +98,7 @@ class AppModel(
             // Shown either way: a failed read must not leave a blank screen.
             try {
                 store.load()
+                resumeWindows()
                 accounts?.load()
             } catch (e: Exception) {
                 _storageError.value = e.message ?: e.toString()
@@ -171,48 +175,77 @@ class AppModel(
 
     // Logging
 
-    /** +mala, another amount or "done today" (0): opens or extends the undo window. */
+    /**
+     * +mala, another amount or "done today" (0): opens or extends the undo
+     * window. The session is written at once, pending, so every number includes
+     * it and a crash cannot lose it; it is not synced until the window closes.
+     */
     fun add(amount: Int, practiceId: String) {
         val now = clock()
         val p = _pending.value
-        if (p != null && p.practiceId == practiceId) {
-            _pending.value = p.add(amount, now)
-        } else {
-            commitPending()
-            _pending.value = PendingLog.open(practiceId, amount, now)
+        val next = if (p != null && p.practiceId == practiceId) p.add(amount, now) else {
+            finalisePending()
+            PendingLog.open(practiceId, amount, now)
         }
+        _pending.value = next
+        // Always estimated; the after-midnight sheet corrects a wrong day in one tap.
+        val session = next.session(zone, SessionStart.timedLengths(snapshot.value.sessions))
+        perform { store.savePending(session, next.deadline) }
         scheduleClose()
     }
 
-    /** Undo: the pending session vanishes without a trace. */
+    /** Undo: the pending row is deleted outright; it never left the phone. */
     fun undo() {
-        closeJob?.cancel()
-        _pending.value = null
-    }
-
-    /** Writes the pending session now: the window closed, another practice was logged, or the app went to the background. */
-    fun commitPending() {
         closeJob?.cancel()
         val p = _pending.value ?: return
         _pending.value = null
-        // Always estimated; the after-midnight sheet corrects a wrong day in one tap.
-        val startedAt = SessionStart.estimate(p.openedAt, null, SessionStart.timedLengths(snapshot.value.sessions))
-        val session = Session(id = uuidV7(p.openedAt), practiceId = p.practiceId, amount = p.amount, startedAt = startedAt,
-            startExact = false, zoneId = zone.id, loggedAt = p.openedAt)
+        perform { store.discardPending(p.sessionId) }
+    }
+
+    /**
+     * Ends the undo window now: it closed, another practice was logged, or the
+     * app went to the background. The session becomes final and syncs.
+     */
+    fun finalisePending() {
+        closeJob?.cancel()
+        val p = _pending.value ?: return
+        _pending.value = null
         perform {
-            store.insert(session)
+            val session = store.finalise(p.sessionId) ?: return@perform
             AfterMidnight.check(session)?.let { _afterMidnight.value = AfterMidnightPrompt(session, it) }
             accounts?.scheduleSync()
         }
     }
 
-    /** Commits the pending session and waits for the write, for the export. */
-    suspend fun commitPendingNow() {
-        commitPending()
+    /** Finalises the pending session and waits for the write, for the export. */
+    suspend fun finalisePendingNow() {
+        finalisePending()
         writes.lastOrNull()?.join()
     }
 
-    /** Drops the undo window without writing anything. */
+    /**
+     * On launch: a pending row whose window passed while the app was gone (a
+     * crash, or the system ending the process) becomes final now; one still
+     * inside its window gets its Undo back for the seconds left.
+     */
+    private suspend fun resumeWindows() {
+        val finalised = store.finaliseDue(clock())
+        finalised.maxByOrNull { it.loggedAt }?.let { s ->
+            AfterMidnight.check(s)?.let { _afterMidnight.value = AfterMidnightPrompt(s, it) }
+        }
+        val snap = snapshot.value
+        val open = snap.pending.entries.mapNotNull { (id, until) -> snap.sessions.firstOrNull { it.id == id }?.let { it to until } }
+        // At most one window: any older one closes now.
+        val newest = open.maxByOrNull { (s, _) -> s.loggedAt }
+        open.filter { it !== newest }.forEach { (s, _) -> store.finalise(s.id) }
+        if (newest != null) {
+            val (s, until) = newest
+            _pending.value = PendingLog(s.practiceId, s.amount, s.loggedAt, until, s.id)
+            scheduleClose()
+        }
+    }
+
+    /** Drops the undo window without finalising it (the purge erases its row with everything else). */
     fun discardInFlight() {
         closeJob?.cancel()
         _pending.value = null
@@ -238,7 +271,7 @@ class AppModel(
         closeJob = viewModelScope.launch {
             val wait = Duration.between(clock(), deadline)
             if (!wait.isNegative) delay(wait.toMillis())
-            commitPending()
+            finalisePending()
         }
     }
 
@@ -248,9 +281,15 @@ class AppModel(
 
     fun updatePreferences(change: (Preferences) -> Preferences) = perform { store.save(change(snapshot.value.preferences)) }
 
+    /**
+     * Writes run one at a time, in the order asked: an Undo right after a tap
+     * must never reach the database before the tap's own write.
+     */
     fun perform(write: suspend () -> Unit) {
         val job = viewModelScope.launch {
-            try { write() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+            ordered.withLock {
+                try { write() } catch (e: Exception) { _storageError.value = e.message ?: e.toString() }
+            }
         }
         writes.removeAll { it.isCompleted }
         writes += job

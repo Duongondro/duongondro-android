@@ -7,7 +7,7 @@ Kotlin + Jetpack Compose + Material 3 app for Duongöndro, minSdk 28. The design
 - **Logic lives in `core/`**, a pure Kotlin JVM module tested with `./gradlew :core:test`, mirroring `DuongondroCore` on iOS. `core/src/test/resources/streak-cases.json` (and later `vectors.json`) are copies of `duongondro-api/testdata/`; refresh them from there, never edit them here.
 - **Day keys** are `java.time.LocalDate` built from an instant in an explicit `ZoneId` (`civilDate`), never a formatter with `YYYY`.
 - **Theme tokens only** (`ui/theme/`): colours and the small shape scale (4 dp small components, 6 dp buttons, cards and the FAB), no literals in composables. Light and dark designed together.
-- **Never log from Today.** Counts are logged only on a practice's screen, through `PendingLog` (5-second undo window, written only when it closes, no source recorded).
+- **Never log from Today.** Counts are logged only on a practice's screen, through `PendingLog` (5-second undo window; the session is written at once, pending, counted on screen but never synced until the window closes; Undo deletes it; no source recorded).
 - **Release builds refuse a dirty tree**; debug builds show `<hash>-dirty` in Settings.
 - **Practice names:** Tibetan/Sanskrit first (Dorje Sempa, Chenrezig, Amitabha), English as the second line.
 - Commits end with the attribution trailers the session asks for.

@@ -130,7 +130,9 @@ object DataExport {
 
     private val json = Json { prettyPrint = true; explicitNulls = false; encodeDefaults = true }
 
-    internal fun practiceJson(s: Snapshot, appVersion: String, now: Instant): String {
+    /** Final sessions only: one still in its undo window has not happened yet, as far as anything off the phone knows. */
+    internal fun practiceJson(snapshot: Snapshot, appVersion: String, now: Instant): String {
+        val s = snapshot.withoutPending()
         val p = s.preferences
         val file = PracticeFile(
             exportedAt = now.iso(), appVersion = appVersion,

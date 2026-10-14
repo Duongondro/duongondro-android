@@ -99,7 +99,8 @@ import java.util.Locale
 
 /**
  * A practice's own screen: the only place counts are logged. Each +mala opens
- * a few seconds' Undo; the session is written only when that window closes.
+ * a few seconds' Undo; every number includes the session at once, and it syncs
+ * only when that window closes.
  * The +mala button owns the bottom edge, with the Undo strip above it, so the
  * button never moves under the thumb mid-count.
  */
