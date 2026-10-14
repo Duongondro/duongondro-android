@@ -233,9 +233,10 @@ class AppModel(
      */
     private suspend fun resumeWindows() {
         val finalised = store.finaliseDue(clock())
-        finalised.maxByOrNull { it.loggedAt }?.let { s ->
-            AfterMidnight.check(s)?.let { _afterMidnight.value = AfterMidnightPrompt(s, it) }
-        }
+        // One sheet at a time: the latest finalised session that asks for one.
+        finalised.sortedByDescending { it.loggedAt }
+            .firstNotNullOfOrNull { s -> AfterMidnight.check(s)?.let { AfterMidnightPrompt(s, it) } }
+            ?.let { _afterMidnight.value = it }
         val snap = snapshot.value
         val open = snap.pending.entries.mapNotNull { (id, until) -> snap.sessions.firstOrNull { it.id == id }?.let { it to until } }
         // At most one window: any older one closes now.
