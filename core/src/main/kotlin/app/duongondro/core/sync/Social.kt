@@ -212,16 +212,19 @@ class Social(
 
     /**
      * Makes a practice's streak public (published now) or private (removed from
-     * the server). Private is set here first, so a publish already under way
-     * sees it; it is restored if the server cannot be reached.
+     * the server). Private waits for a publish under way, then is set here first
+     * and restored if the server cannot be reached.
      */
     suspend fun setPublic(practice: String, isPublic: Boolean) {
         if (isPublic) {
             db.setPublic(practice, true)
             publishing.withLock { lastPublished.remove(practice) }
             publishStreaks()
-        } else {
+        } else publishing.withLock {
+            // Under the publishing lock: a publish under way would otherwise merge
+            // the server's list, fetched before this, and send the streak again.
             db.setPublic(practice, false)
+            lastPublished.remove(practice)
             try {
                 api.deleteStreak(practice)
             } catch (_: ApiError.NotFound) {

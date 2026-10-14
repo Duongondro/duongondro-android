@@ -67,7 +67,9 @@ class SocialTest {
         val friendStreaks = mutableListOf<Triple<UUID, String, SignedStatement>>()
         /** This account's own statements, by practice, as PUT stored them. */
         val own = linkedMapOf<String, SignedStatement>()
-        val calls = mutableListOf<String>()
+        val calls = java.util.Collections.synchronizedList(mutableListOf<String>())
+        /** Runs once, on the next GET /api/streaks, after its answer is made and before it arrives. */
+        var onOwnStreaks: (() -> Unit)? = null
         var pokedToday = mutableSetOf<UUID>()
 
         private fun b64(b: ByteArray) = Base64.getEncoder().encodeToString(b)
@@ -86,7 +88,7 @@ class SocialTest {
                 }}]}""")
                 method == "GET" && path == "api/streaks" -> ok("""{"streaks":[${own.entries.joinToString(",") { (p, s) ->
                     """{"userId":"${UUID(0, 0)}","practice":"$p","payload":"${b64(s.payload)}","signature":"${b64(s.signature)}"}"""
-                }}]}""")
+                }}]}""").also { onOwnStreaks?.also { onOwnStreaks = null }?.invoke() }
                 method == "PUT" && path.startsWith("api/streaks/") -> {
                     val o = Api.json.parseToJsonElement(body!!.decodeToString()).jsonObject
                     val st = SignedStatement(Base64.getDecoder().decode(o["payload"]!!.jsonPrimitive.content),
@@ -199,6 +201,28 @@ class SocialTest {
         social.setPublic("dorje-sempa", false)
         assertTrue(server.own.isEmpty())
         assertFalse(db.isPublic("dorje-sempa"))
+    }
+
+    /** Review found it: private while a publish has the server's list in hand must stay private. */
+    @Test
+    fun privateDuringAPublishStaysPrivate() = runBlocking {
+        val server = FakeServer()
+        val db = MemorySyncDatabase()
+        val me = UUID.randomUUID()
+        val identity = Identity.generate()
+        val social = phone(server, db, me, identity)
+        db.insert(SyncRecord(Session(uuidV7(now), "chenrezig", 10, now, true, zone.id, null, now), now))
+        social.setPublic("chenrezig", true)
+        assertTrue("chenrezig" in server.own)
+        var toggler: Thread? = null
+        server.onOwnStreaks = {
+            toggler = Thread { runBlocking { social.setPublic("chenrezig", false) } }.apply { start() }
+            Thread.sleep(300)
+        }
+        social.publishStreaks()
+        toggler!!.join()
+        assertFalse(db.isPublic("chenrezig"))
+        assertTrue(server.own.isEmpty())
     }
 
     @Test
