@@ -53,9 +53,19 @@ fun FriendDetailScreen(model: AppModel, friendId: String, back: () -> Unit) {
     val friends by accounts.friends.collectAsStateWithLifecycle()
     val now by model.now.collectAsStateWithLifecycle()
     val f = friends.friends.firstOrNull { it.user == id }
+    // Opened afresh on this route (after process death): nothing fetched yet, once the account has loaded.
+    val status = accounts.state.collectAsStateWithLifecycle().value.status
+    LaunchedEffect(status) { if (!friends.loaded) accounts.refreshFriends() }
     // Gone (unfriended or blocked, here or elsewhere): back to the list.
     LaunchedEffect(f == null, friends.loaded) { if (f == null && friends.loaded) back() }
-    if (f == null) return
+    if (f == null) {
+        // Until the list arrives: the page with its way back, never a blank screen.
+        Page("", back) {
+            if (friends.failed) Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive,
+                modifier = Modifier.padding(horizontal = Space.l))
+        }
+        return
+    }
     val scope = rememberCoroutineScope()
     var failed by rememberSaveable { mutableStateOf(false) }
     var reported by rememberSaveable { mutableStateOf(false) }
