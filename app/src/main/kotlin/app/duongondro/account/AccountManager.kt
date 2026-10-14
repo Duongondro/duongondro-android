@@ -15,6 +15,7 @@ import app.duongondro.core.sync.AccountKeys
 import app.duongondro.core.sync.Erased
 import app.duongondro.core.sync.Invitation
 import app.duongondro.core.sync.Invites
+import app.duongondro.core.sync.RecoveryCodeOnShow
 import app.duongondro.core.sync.MadeInvite
 import app.duongondro.core.sync.Social
 import app.duongondro.core.sync.SyncEngine
@@ -263,7 +264,7 @@ class AccountManager(
             clear()
             email?.let { putString(EMAIL, it) }
         }
-        _shownCode.value = null
+        forgetShown()
         _state.update { profileState().copy(status = it.status) }
         refreshPending()
     }
@@ -463,9 +464,27 @@ class AccountManager(
     private val _shownCode = MutableStateFlow<String?>(null)
     /**
      * The recovery code being shown, until it is confirmed or saved: a screen
-     * recreated on rotation gets this one back rather than making another.
+     * recreated on rotation gets this one back rather than making another. Only
+     * for the account it was made for: another one signed in during the same
+     * onboarding gets none, and sets up its own keys.
      */
     val shownCode: StateFlow<String?> = _shownCode.asStateFlow()
+    private val onShow = RecoveryCodeOnShow()
+
+    /** The code on show, if it was made for the account this phone now syncs with. */
+    private suspend fun shownForThisAccount(): String? =
+        onShow.codeFor(db.syncState()?.user).also { if (it == null) _shownCode.value = null }
+
+    /** Set-up and new codes both leave this account's sync state behind, so the user is known. */
+    private suspend fun show(code: String) {
+        db.syncState()?.user?.let { onShow.show(code, it) }
+        _shownCode.value = code
+    }
+
+    private fun forgetShown() {
+        onShow.forget()
+        forgetShown()
+    }
 
     /**
      * Runs key work in this manager's scope, one at a time: a screen that goes
@@ -479,7 +498,7 @@ class AccountManager(
      * the same code); returns the recovery code to show once.
      */
     suspend fun setUpKeys(): String = keyed {
-        _shownCode.value ?: run {
+        shownForThisAccount() ?: run {
             val a = requireAccount()
             val code = try {
                 // newRecoveryCode finishes a code left pending, rather than replacing it.
@@ -488,7 +507,7 @@ class AccountManager(
                 refreshPending()
             }
             prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
-            _shownCode.value = code
+            show(code)
             _state.update { it.copy(status = AccountStatus.READY, recoveryUnconfirmed = true) }
             afterKeys(a)
             code
@@ -514,10 +533,10 @@ class AccountManager(
 
     /** A new recovery code, replacing the old one (which stops working); the one being shown, if any. */
     suspend fun newRecoveryCode(): String = keyed {
-        _shownCode.value ?: run {
+        shownForThisAccount() ?: run {
             val code = try { requireAccount().newRecoveryCode() } finally { refreshPending() }
             prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, true) }
-            _shownCode.value = code
+            show(code)
             _state.update { it.copy(recoveryUnconfirmed = true) }
             code
         }
@@ -525,7 +544,7 @@ class AccountManager(
 
     /** The code was written down and checked, or saved to the password manager. */
     fun confirmRecoveryCode() {
-        _shownCode.value = null
+        forgetShown()
         prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, false) }
         _state.update { it.copy(recoveryUnconfirmed = false) }
     }
@@ -900,7 +919,7 @@ class AccountManager(
     /** After the local purge: back to local mode, with nothing of the account left. */
     fun forget() {
         pendingSync?.cancel()
-        _shownCode.value = null
+        forgetShown()
         account = null
         social = null
         _friends.value = FriendsState()

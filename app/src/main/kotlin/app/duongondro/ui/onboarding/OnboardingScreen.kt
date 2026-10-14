@@ -181,8 +181,6 @@ class OnboardingFlow : ViewModel() {
     var username by mutableStateOf("")
     var displayName by mutableStateOf("")
     var gender by mutableStateOf<Gender?>(null)
-    /** Fetched once, so going back and forward shows the same code. */
-    var recoveryCode by mutableStateOf<String?>(null)
 
     val canGoBack: Boolean get() = history.isNotEmpty()
 
@@ -320,7 +318,8 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             Step.Gender -> GenderStep(flow, accounts)
             Step.Passkey -> PasskeyStep(flow, accounts)
             Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
-            Step.RecoveryCheck -> RecoveryCheckStep(flow.recoveryCode.orEmpty(), back = { flow.back() }) {
+            // The code the step before showed: the account's own, never another's.
+            Step.RecoveryCheck -> RecoveryCheckStep(accounts.shownCode.collectAsStateWithLifecycle().value.orEmpty(), back = { flow.back() }) {
                 accounts.confirmRecoveryCode()
                 finishOnline()
             }

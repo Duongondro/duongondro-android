@@ -551,10 +551,11 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
     val setUp = rememberCall()
     val activity = LocalContext.current
     // The work runs in AccountManager's scope under its lock; a rotation only re-asks for the same code.
-    val makeKeys = { setUp.run { if (flow.recoveryCode == null) flow.recoveryCode = accounts.setUpKeys() } }
-    LaunchedEffect(Unit) { if (flow.recoveryCode == null) makeKeys() }
-    val shown by accounts.shownCode.collectAsState()
-    val code = flow.recoveryCode ?: shown
+    // setUpKeys returns the code already on show when it is this account's, and
+    // otherwise sets up this account's own keys.
+    val makeKeys = { setUp.run { accounts.setUpKeys() } }
+    LaunchedEffect(Unit) { makeKeys() }
+    val code by accounts.shownCode.collectAsState()
     Page(
         stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
         actions = {
@@ -566,7 +567,8 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
                 FilledAction(stringResource(R.string.recovery_done), enabled = code != null) { flow.go(Step.RecoveryCheck) }
             }
             TextAction(stringResource(R.string.recovery_gpm)) {
-                if (code != null && !call.busy) call.run { if (accounts.saveRecoveryCode(activity, code)) finish() }
+                val shown = code
+                if (shown != null && !call.busy) call.run { if (accounts.saveRecoveryCode(activity, shown)) finish() }
             }
         },
     ) {
