@@ -205,7 +205,7 @@ class LiveServerTest {
 }
 
 /** The JDK's HTTP client, for PATCH, which the JVM's HttpURLConnection refuses (Android's implements it). */
-private object JdkHttp : app.duongondro.core.api.Http {
+internal object JdkHttp : app.duongondro.core.api.Http {
     private val client = java.net.http.HttpClient.newHttpClient()
 
     override fun send(method: String, url: String, headers: Map<String, String>, body: ByteArray?): app.duongondro.core.api.Http.Response {
