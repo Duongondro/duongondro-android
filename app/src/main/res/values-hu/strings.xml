@@ -186,7 +186,7 @@
     <string name="export_all">Összes adatom exportálása</string>
     <string name="export_footer">Egyetlen ZIP minden gyakorlattal, üléssel és sorozattal, az alkalmazás nélkül is olvasható.</string>
     <string name="export_failed">Az exportálás nem sikerült</string>
-    <string name="export_server_missing">Az exportnak a szerveren tárolt részét nem sikerült lekérni, ezért csak a telefonon lévő adatokat tartalmazza.</string>
+    <string name="export_server_missing">A fiók adatait nem sikerült lekérni a szerverről, ezért az export csak a telefonon lévő adatokat tartalmazza.</string>
     <string name="delete_everything">Minden törlése</string>
     <string name="delete_footer">Minden adatodat eltávolítja erről a telefonról. Nem vonható vissza.</string>
     <string name="delete_explainer">Ez töröl minden gyakorlatot, ülést és sorozatot erről a telefonról, az emlékeztetőidet és az alkalmazás által tárolt kulcsokat, majd visszatér a kezdéshez.</string>

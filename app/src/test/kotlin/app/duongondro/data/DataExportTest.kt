@@ -40,7 +40,7 @@ class DataExportTest {
     )
 
     @Test fun localModeExport() {
-        val files = unzip(DataExport.zip(snapshot, null, mapOf("dorje-sempa" to byteArrayOf(1, 2)), "0.1 (1)"))
+        val files = unzip(DataExport.zip(snapshot, null, mapOf("dorje-sempa" to byteArrayOf(1, 2)), appVersion = "0.1 (1)"))
         assertEquals(setOf("README.txt", "practice.json", "covers/dorje-sempa.jpg"), files.keys)
         val json = Json.parseToJsonElement(files.getValue("practice.json").decodeToString()).jsonObject
         assertEquals("duongondro/practice-export/v1", json.getValue("format").jsonPrimitive.content)
@@ -69,5 +69,30 @@ class DataExportTest {
         val json = Json.parseToJsonElement(files.getValue("practice.json").decodeToString()).jsonObject
         assertEquals(listOf(108, 21), json.getValue("sessions").jsonArray.map { it.jsonObject.getValue("amount").jsonPrimitive.int })
         assertTrue(files.getValue("README.txt").decodeToString().contains("2 sealed sessions could not be opened"))
+    }
+
+    @Test fun aLocalDeletionNotYetPushedStaysDeleted() {
+        val deleted = Session(practiceId = "dorje-sempa", amount = 5, startedAt = Instant.ofEpochSecond(1_790_200_000),
+            startExact = true, zoneId = ams, loggedAt = Instant.ofEpochSecond(1_790_200_000))
+        val server = DataExport.Server("{}".toByteArray(), "{}".toByteArray(), listOf(deleted))
+        val merged = DataExport.merged(snapshot, server, known = setOf(deleted.id))
+        assertEquals(snapshot.sessions, merged.sessions)
+    }
+
+    @Test fun anUnknownPracticeGetsACustomEntry() {
+        val s = Session(practiceId = "my-practice", amount = 3, startedAt = Instant.ofEpochSecond(1_790_300_000),
+            startExact = true, zoneId = ams, loggedAt = Instant.ofEpochSecond(1_790_300_000))
+        val merged = DataExport.merged(snapshot, DataExport.Server("{}".toByteArray(), "{}".toByteArray(), listOf(s), mapOf("my-practice" to "My practice")))
+        val added = merged.practices.last()
+        assertEquals("my-practice", added.id)
+        assertEquals("My practice", added.practice.name)
+        assertTrue(added.practice.isCustom)
+    }
+
+    @Test fun anAccountWithoutItsServerPartIsNotLocalMode() {
+        val files = unzip(DataExport.zip(Snapshot(), null, accountWithoutServer = true, appVersion = "0.1"))
+        val readme = files.getValue("README.txt").decodeToString()
+        assertTrue(readme.contains("has an account"))
+        assertTrue(!readme.contains("local mode"))
     }
 }

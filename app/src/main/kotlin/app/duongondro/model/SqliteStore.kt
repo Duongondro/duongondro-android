@@ -331,6 +331,11 @@ class SqliteStore(
         db.execSQL("UPDATE sessions SET dirty = 0 WHERE id = ? AND updated_at = ?", arrayOf<Any>(id.toString(), updatedAt.syncMillis()))
     }
 
+    /** Every session id, deleted rows included: a deletion not yet pushed must not come back from the server's copy. */
+    suspend fun allSessionIds(): Set<UUID> = query { db ->
+        db.rawQuery("SELECT id FROM sessions", null).all { UUID.fromString(it.getString(0)) }.toSet()
+    }
+
     override suspend fun markAllDirty() = write { db -> db.execSQL("UPDATE sessions SET dirty = 1") }
 
     /**

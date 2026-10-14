@@ -1,6 +1,8 @@
 package app.duongondro.core.sync
 
 import app.duongondro.core.crypto.E2EE
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -33,14 +35,25 @@ class ServerExportTest {
             row("""{"deletedAt":$t,"updatedAt":$t}""", d, deleted = true),
         )
         return ("""{"exportedAt":"2026-10-14T20:00:00Z","users":{"id":"$user","displayName":"Test"},""" +
-            """"practice_logs":[${rows.joinToString(",")}],"friendships":[{"displayName":"Friend","gender":"f"}],"database_generation":"g"}""").toByteArray()
+            """"key_wraps":[{"x":1}],"recovery_boxes":[{"x":1}],"practice_logs":[${rows.joinToString(",")}],"friendships":[{"displayName":"Friend","gender":"f"}],"devices":[],"database_generation":"g"}""").toByteArray()
     }
 
     @Test fun opensTheSealedLogsAndKeepsTheResponseAsSent() {
         val raw = canned()
         val opened = ServerExport.open(raw, keys)
         assertArrayEquals(raw, opened.raw)
+        val account = Json.parseToJsonElement(opened.account.decodeToString()).jsonObject
+        assertEquals(setOf("exportedAt", "users", "friendships", "devices"), account.keys)
+        assertEquals(0, opened.refused)
         assertEquals(listOf(21, 108), opened.sessions.map { it.amount }.sorted())
         assertEquals("a tombstone adds nothing; the key-version-2 log cannot open here", 1, opened.unreadable)
+    }
+
+    @Test fun aSealedTimeThatDisagreesIsRefused() {
+        val wrong = """{"count":1,"practice":"dorje-sempa","start":1,"tz":"Europe/Amsterdam","updatedAt":5}"""
+        val raw = ("""{"users":{"id":"$user"},"practice_logs":[${row(wrong, UUID.randomUUID())}]}""").toByteArray()
+        val opened = ServerExport.open(raw, keys)
+        assertEquals(1, opened.refused)
+        assertEquals(0, opened.sessions.size)
     }
 }

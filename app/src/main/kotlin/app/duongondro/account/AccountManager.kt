@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.core.content.edit
 import app.duongondro.BuildConfig
 import app.duongondro.core.api.Api
-import app.duongondro.data.DataExport
 import app.duongondro.core.api.ApiError
 import app.duongondro.core.api.Profile
 import app.duongondro.core.api.SignInResult
@@ -17,9 +16,11 @@ import app.duongondro.core.sync.Erased
 import app.duongondro.core.sync.Invitation
 import app.duongondro.core.sync.Invites
 import app.duongondro.core.sync.MadeInvite
-import app.duongondro.core.sync.SyncTime
-import app.duongondro.core.sync.SyncEngine
 import app.duongondro.core.sync.Social
+import app.duongondro.core.sync.SyncEngine
+import app.duongondro.core.sync.SyncTime
+import app.duongondro.data.DataExport
+import app.duongondro.data.Exports
 import app.duongondro.keys.KeystoreDeviceKeys
 import app.duongondro.keys.SecretFiles
 import app.duongondro.model.SqliteStore
@@ -39,6 +40,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.Instant
+import java.util.UUID
 
 enum class Gender(val wire: String) { Male("male"), Female("female"), NonBinary("nonbinary") }
 
@@ -860,13 +862,17 @@ class AccountManager(
             clear()
             user?.let { putString(LAST_USER, it.toString()) }
         }
+        // A finished export holds the account's data: it goes with the account.
+        Exports.folder(app).deleteRecursively()
         _state.value = AccountState()
     }
 
-    /**
-     * The server half of "Delete everything": it must succeed before the phone
-     * wipes itself, or the server would keep data the person believes gone.
-     */
+    /** Whether an account is on this phone, ready or not: an export without its server part then says so. */
+    fun hasAccount(): Boolean = _state.value.status != AccountStatus.NONE
+
+    /** Every session id this phone has, deleted ones included (see [DataExport.merged]). */
+    suspend fun knownSessionIds(): Set<UUID> = db.allSessionIds()
+
     /**
      * The server half of Your data › Export, with its sealed sessions opened on
      * this phone. Null without a ready account (local mode makes no request).
@@ -876,6 +882,10 @@ class AccountManager(
         if (a == null || _state.value.status != AccountStatus.READY) null else DataExport.Server(a.serverExport())
     }
 
+    /**
+     * The server half of "Delete everything": it must succeed before the phone
+     * wipes itself, or the server would keep data the person believes gone.
+     */
     suspend fun deleteOnServer() = withContext(Dispatchers.IO) {
         pendingSync?.cancel()
         when (_state.value.status) {

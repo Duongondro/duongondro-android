@@ -20,19 +20,43 @@ import java.util.UUID
 object ServerExport {
     /**
      * @property raw the response, as sent (server-raw.json).
+     * @property account the account's tables of it (account.json): not the sealed logs, key wraps or recovery boxes.
      * @property sessions the sessions that opened; tombstones add none.
+     * @property practiceNames custom practices' names, as sealed with their sessions.
      * @property unreadable sealed logs that did not open here (a key this phone lacks).
+     * @property refused logs that opened but are unusable, or whose sealed time disagrees with the server's (a replay).
      */
-    class Opened(val raw: ByteArray, val sessions: List<Session>, val unreadable: Int)
+    class Opened(
+        val raw: ByteArray,
+        val account: ByteArray,
+        val sessions: List<Session>,
+        val practiceNames: Map<String, String>,
+        val unreadable: Int,
+        val refused: Int,
+    )
 
     private val json = Json { ignoreUnknownKeys = true }
+    private val pretty = Json { prettyPrint = true }
+
+    /** The tables of the export that are the account's own (design: Data export and deletion). */
+    val accountKeys = setOf(
+        "exportedAt", "users", "auth_identities", "credentials", "devices", "device_lists", "sessions",
+        "friendships", "invites", "invite_redemptions", "invite_tree", "admission_codes", "blocks",
+        "reports", "streaks", "push_tokens",
+    )
+
+    /** The account id the export is for. */
+    fun user(raw: ByteArray): UUID =
+        UUID.fromString(json.parseToJsonElement(raw.decodeToString()).jsonObject.getValue("users").jsonObject.getValue("id").jsonPrimitive.content)
 
     /** `practiceKey` returns the key of a version, or null when this phone does not hold it. */
     fun open(raw: ByteArray, practiceKey: (Long) -> ByteArray?): Opened {
         val body = json.parseToJsonElement(raw.decodeToString()).jsonObject
-        val user = UUID.fromString(body.getValue("users").jsonObject.getValue("id").jsonPrimitive.content)
+        val user = user(raw)
         val sessions = mutableListOf<Session>()
+        val names = mutableMapOf<String, String>()
         var unreadable = 0
+        var refused = 0
         for (row in (body["practice_logs"] as? JsonArray).orEmpty()) {
             val log = row.jsonObject
             val sealed = log.string("sealed")?.let { Base64.getDecoder().decode(it) } ?: continue
@@ -41,16 +65,21 @@ object ServerExport {
             val outer = log.string("clientUpdatedAt")?.let(SyncTime::parse)
             val version = log["keyVersion"]?.jsonPrimitive?.longOrNull
             if (outer == null || version == null) {
-                unreadable++
+                refused++
                 continue
             }
             when (val opened = SessionSync.open(id, sealed, version, outer, user, practiceKey)) {
-                is SessionSync.Opened.Record -> if (opened.record.deletedAt == null) sessions += opened.record.session
+                is SessionSync.Opened.Record -> if (opened.record.deletedAt == null) {
+                    sessions += opened.record.session
+                    opened.practiceName?.let { names[opened.record.session.practiceId] = it }
+                }
                 is SessionSync.Opened.Deletion -> {}
-                SessionSync.Opened.Unreadable, SessionSync.Opened.Refused -> unreadable++
+                SessionSync.Opened.Unreadable -> unreadable++
+                SessionSync.Opened.Refused -> refused++
             }
         }
-        return Opened(raw, sessions, unreadable)
+        val account = pretty.encodeToString(JsonObject.serializer(), JsonObject(body.filterKeys { it in accountKeys })).toByteArray()
+        return Opened(raw, account, sessions, names, unreadable, refused)
     }
 
     private fun JsonObject.string(key: String): String? = this[key]?.takeIf { it !is kotlinx.serialization.json.JsonNull }?.jsonPrimitive?.contentOrNull

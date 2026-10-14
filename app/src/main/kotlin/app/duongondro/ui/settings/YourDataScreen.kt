@@ -84,8 +84,12 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                             serverMissing = true
                             null
                         }
+                        // An account that is signed out or still without keys cannot be asked either.
+                        val accountWithoutServer = server == null && model.accounts?.hasAccount() == true
+                        if (accountWithoutServer) serverMissing = true
+                        val known = model.accounts?.knownSessionIds().orEmpty()
                         val file = withContext(Dispatchers.IO) {
-                            val zip = DataExport.zip(model.snapshot.value, server, Covers.all(context),
+                            val zip = DataExport.zip(model.snapshot.value, server, Covers.all(context), known, accountWithoutServer,
                                 "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
                             Exports.write(context, zip, DataExport.fileName())
                         }

@@ -203,7 +203,7 @@
     <string name="export_all">Export all my data</string>
     <string name="export_footer">One ZIP with every practice, session and streak, readable without this app.</string>
     <string name="export_failed">Export failed</string>
-    <string name="export_server_missing">The server part of this export could not be fetched, so it holds only what is on this phone.</string>
+    <string name="export_server_missing">Your account data could not be fetched from the server, so the export holds only what is on this phone.</string>
     <string name="delete_everything">Delete everything</string>
     <string name="delete_footer">Removes all your data from this phone. It cannot be undone.</string>
     <string name="delete_explainer">This deletes every practice, session and streak on this phone, your reminders and any keys the app holds, then returns to the start.</string>

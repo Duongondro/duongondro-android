@@ -192,7 +192,7 @@
     <string name="export_all">Exportovat všechna moje data</string>
     <string name="export_footer">Jeden ZIP se všemi praktikami, sezeními a sériemi, čitelný i bez této aplikace.</string>
     <string name="export_failed">Export se nezdařil</string>
-    <string name="export_server_missing">Část exportu uložená na serveru se nepodařila stáhnout, takže obsahuje jen to, co je v tomto telefonu.</string>
+    <string name="export_server_missing">Data účtu se ze serveru nepodařilo stáhnout, takže export obsahuje jen to, co je v tomto telefonu.</string>
     <string name="delete_everything">Smazat vše</string>
     <string name="delete_footer">Odstraní všechna tvá data z tohoto telefonu. Nelze to vrátit.</string>
     <string name="delete_explainer">Tím se smaže každá praktika, sezení a série v tomto telefonu, tvá připomenutí i všechny klíče, které aplikace drží, a vrátíš se na začátek.</string>

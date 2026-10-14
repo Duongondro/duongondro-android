@@ -1,6 +1,10 @@
 package app.duongondro.data
 
+import app.duongondro.core.Catalogue
+import app.duongondro.core.Practice
+import app.duongondro.core.PracticeGroup
 import app.duongondro.core.Session
+import app.duongondro.core.TrackedPractice
 import app.duongondro.core.civilDate
 import app.duongondro.core.sync.ServerExport
 import app.duongondro.model.Snapshot
@@ -9,6 +13,7 @@ import kotlinx.serialization.json.Json
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.ZoneId
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -20,27 +25,53 @@ import java.util.zip.ZipOutputStream
  * decrypts the sealed sessions itself.
  */
 object DataExport {
-    /** What the server returned from `GET /api/me/export`, passed through as is. */
+    /** What the server returned from `GET /api/me/export`: `raw` as is, `account` the account's part of it. */
     class Server(
         val account: ByteArray,
         val raw: ByteArray,
         /** The sealed practice sessions, opened on this phone; merged into practice.json unless the phone holds them. */
         val sessions: List<Session> = emptyList(),
+        /** Names of custom practices, as sealed with their sessions, for practices this phone does not track. */
+        val practiceNames: Map<String, String> = emptyMap(),
         /** Sealed logs this phone holds no key for. */
         val unreadable: Int = 0,
+        /** Sealed logs that opened but are unusable or whose sealed time disagrees with the server's. */
+        val refused: Int = 0,
     ) {
-        constructor(opened: ServerExport.Opened) : this(opened.raw, opened.raw, opened.sessions, opened.unreadable)
+        constructor(opened: ServerExport.Opened) :
+            this(opened.account, opened.raw, opened.sessions, opened.practiceNames, opened.unreadable, opened.refused)
     }
 
-    /** The phone's snapshot plus the server's sessions it does not hold yet, so a session synced from another phone appears once. */
-    fun merged(snapshot: Snapshot, server: Server?): Snapshot {
+    /**
+     * The phone's snapshot plus the server's sessions it does not hold yet, so a session synced from another
+     * phone appears once. A session deleted here but not yet pushed is in `known` and stays gone. A practice
+     * only the server's sessions mention gets a minimal entry, as sync adds one.
+     */
+    fun merged(snapshot: Snapshot, server: Server?, known: Set<UUID> = emptySet()): Snapshot {
         if (server == null || server.sessions.isEmpty()) return snapshot
-        val known = snapshot.sessions.mapTo(HashSet()) { it.id }
-        val extra = server.sessions.sortedWith(compareBy({ it.startedAt }, { it.id.toString() })).filter { known.add(it.id) }
-        return snapshot.copy(sessions = snapshot.sessions + extra)
+        val seen = HashSet<UUID>(known).apply { snapshot.sessions.forEach { add(it.id) } }
+        val sessions = (snapshot.sessions + server.sessions.filter { seen.add(it.id) })
+            .sortedWith(compareBy({ it.startedAt }, { it.id.toString() }))
+        val tracked = snapshot.practices.mapTo(HashSet()) { it.id }
+        var order = (snapshot.practices.maxOfOrNull { it.sortOrder } ?: -1) + 1
+        val added = sessions.map { it.practiceId }.distinct().filter { tracked.add(it) }.map { id ->
+            val practice = Catalogue.builtIn.firstOrNull { it.id == id }
+                ?: Practice(id, server.practiceNames[id] ?: id, null, PracticeGroup.AnyTime, null, allowStreakOnly = true, isCustom = true)
+            TrackedPractice(practice, wantsStreakOnly = practice.streakOnlyByDefault, sortOrder = order++)
+        }
+        return snapshot.copy(practices = snapshot.practices + added, sessions = sessions)
     }
 
+    /** Where the README says the server part stands: not asked (local mode), included, or an account whose part is missing. */
+    enum class ServerPart { LOCAL, INCLUDED, MISSING }
+
+    /**
+     * `knownSessionIds` are all of this phone's session ids, deleted ones too (the snapshot lacks those).
+     * `accountWithoutServer` is a signed-in account whose server part is missing, which the README says
+     * rather than "local mode".
+     */
     fun zip(snapshot: Snapshot, server: Server?, covers: Map<String, ByteArray> = emptyMap(),
+            knownSessionIds: Set<UUID> = emptySet(), accountWithoutServer: Boolean = false,
             appVersion: String, now: Instant = Instant.now()): ByteArray {
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { z ->
@@ -49,8 +80,9 @@ object DataExport {
                 z.write(bytes)
                 z.closeEntry()
             }
-            add("README.txt", readme(server != null, covers.isNotEmpty(), server?.unreadable ?: 0).toByteArray())
-            add("practice.json", practiceJson(merged(snapshot, server), appVersion, now).toByteArray())
+            add("README.txt", readme(if (server != null) ServerPart.INCLUDED else if (accountWithoutServer) ServerPart.MISSING else ServerPart.LOCAL,
+                covers.isNotEmpty(), server?.unreadable ?: 0, server?.refused ?: 0).toByteArray())
+            add("practice.json", practiceJson(merged(snapshot, server, knownSessionIds), appVersion, now).toByteArray())
             server?.let {
                 add("account.json", it.account)
                 add("server-raw.json", it.raw)
@@ -118,7 +150,8 @@ object DataExport {
         return json.encodeToString(PracticeFile.serializer(), file)
     }
 
-    internal fun readme(hasServer: Boolean, hasCovers: Boolean, unreadable: Int = 0): String = buildString {
+    internal fun readme(part: ServerPart, hasCovers: Boolean, unreadable: Int = 0, refused: Int = 0): String = buildString {
+        val hasServer = part == ServerPart.INCLUDED
         appendLine("Duongöndro: all of your data")
         appendLine()
         appendLine("practice.json")
@@ -131,7 +164,8 @@ object DataExport {
             appendLine()
             appendLine("account.json")
             appendLine("  Your account, linked sign-ins, devices, friendships, invites, blocks,")
-            appendLine("  reports and public streak statements, as the server holds them. Friends")
+            appendLine("  reports and public streak statements, as the server holds them (the")
+            appendLine("  sealed logs and keys are only in server-raw.json). Friends")
             appendLine("  appear with the display name and gender the app shows you.")
             appendLine()
             appendLine("server-raw.json")
@@ -142,6 +176,18 @@ object DataExport {
                 appendLine("$unreadable sealed sessions could not be opened on this phone (they were sealed")
                 appendLine("with a key it does not hold yet), so they are only in server-raw.json.")
             }
+            if (refused > 0) {
+                appendLine()
+                appendLine("$refused sealed sessions were opened but left out of practice.json: their content")
+                appendLine("was unusable, or its sealed time did not match the server's. They are in")
+                appendLine("server-raw.json.")
+            }
+        } else if (part == ServerPart.MISSING) {
+            appendLine()
+            appendLine("This phone has an account, but the server's part of the export could not be")
+            appendLine("fetched (offline, signed out or the server was away), so there is no")
+            appendLine("account.json or server-raw.json, and practice.json holds only what is on this")
+            appendLine("phone. Export again when you are connected to include them.")
         } else {
             appendLine()
             appendLine("This phone is in local mode: no account exists, so nothing about you is on")
