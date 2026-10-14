@@ -24,8 +24,28 @@ class RecoveryCodeOnShowTest {
         assertNull(onShow.codeFor(b))
         onShow.show("BBBB-BBBB", b)
         assertEquals("BBBB-BBBB", onShow.codeFor(b))
+        assertEquals("BBBB-BBBB", onShow.shown.value)
+        assertNull(onShow.codeFor(a))
+    }
+
+    /** What Done on the check, an account switch and the purge do: the screens' code goes too. */
+    @Test
+    fun forgettingClearsWhatTheScreensShow() {
+        val a = UUID.randomUUID()
+        val onShow = RecoveryCodeOnShow()
+        onShow.show("AAAA-AAAA", a)
+        onShow.forget()
+        assertNull(onShow.shown.value)
         assertNull(onShow.codeFor(a))
         onShow.forget()
-        assertNull("confirmed, signed out or switched away", onShow.codeFor(b))
+        assertNull("forgetting twice is harmless", onShow.shown.value)
+    }
+
+    @Test
+    fun aCodeWithoutAUserIsShownButNeverReused() {
+        val onShow = RecoveryCodeOnShow()
+        onShow.show("CCCC-CCCC", null)
+        assertEquals("CCCC-CCCC", onShow.shown.value)
+        assertNull(onShow.codeFor(null))
     }
 }

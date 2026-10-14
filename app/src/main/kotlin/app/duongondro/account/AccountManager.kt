@@ -264,7 +264,7 @@ class AccountManager(
             clear()
             email?.let { putString(EMAIL, it) }
         }
-        forgetShown()
+        onShow.forget()
         _state.update { profileState().copy(status = it.status) }
         refreshPending()
     }
@@ -461,30 +461,21 @@ class AccountManager(
     /** One key operation at a time: a set-up, a restore or a new code. */
     private val keyWork = Mutex()
 
-    private val _shownCode = MutableStateFlow<String?>(null)
+    private val onShow = RecoveryCodeOnShow()
     /**
      * The recovery code being shown, until it is confirmed or saved: a screen
      * recreated on rotation gets this one back rather than making another. Only
      * for the account it was made for: another one signed in during the same
      * onboarding gets none, and sets up its own keys.
      */
-    val shownCode: StateFlow<String?> = _shownCode.asStateFlow()
-    private val onShow = RecoveryCodeOnShow()
+    val shownCode: StateFlow<String?> = onShow.shown
 
     /** The code on show, if it was made for the account this phone now syncs with. */
     private suspend fun shownForThisAccount(): String? =
-        onShow.codeFor(db.syncState()?.user).also { if (it == null) _shownCode.value = null }
+        onShow.codeFor(db.syncState()?.user) ?: run { onShow.forget(); null }
 
     /** Set-up and new codes both leave this account's sync state behind, so the user is known. */
-    private suspend fun show(code: String) {
-        db.syncState()?.user?.let { onShow.show(code, it) }
-        _shownCode.value = code
-    }
-
-    private fun forgetShown() {
-        onShow.forget()
-        forgetShown()
-    }
+    private suspend fun show(code: String) = onShow.show(code, db.syncState()?.user)
 
     /**
      * Runs key work in this manager's scope, one at a time: a screen that goes
@@ -544,7 +535,7 @@ class AccountManager(
 
     /** The code was written down and checked, or saved to the password manager. */
     fun confirmRecoveryCode() {
-        forgetShown()
+        onShow.forget()
         prefs.edit { putBoolean(RECOVERY_UNCONFIRMED, false) }
         _state.update { it.copy(recoveryUnconfirmed = false) }
     }
@@ -919,7 +910,7 @@ class AccountManager(
     /** After the local purge: back to local mode, with nothing of the account left. */
     fun forget() {
         pendingSync?.cancel()
-        forgetShown()
+        onShow.forget()
         account = null
         social = null
         _friends.value = FriendsState()
