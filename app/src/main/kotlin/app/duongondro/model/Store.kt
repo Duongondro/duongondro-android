@@ -119,7 +119,7 @@ class InMemoryStore(initial: Snapshot = Snapshot()) : Store {
     override suspend fun save(preferences: Preferences) = state.update { it.copy(preferences = preferences) }
 
     override suspend fun completeOnboarding(practices: List<TrackedPractice>, seeds: List<StreakSeed>, preferences: Preferences) =
-        state.update { Snapshot(practices.sortedBy { p -> p.sortOrder }, it.sessions, seeds, preferences) }
+        state.update { it.copy(practices = practices.sortedBy { p -> p.sortOrder }, seeds = seeds, preferences = preferences) }
 
     override suspend fun eraseAll() { state.value = Snapshot() }
 }
