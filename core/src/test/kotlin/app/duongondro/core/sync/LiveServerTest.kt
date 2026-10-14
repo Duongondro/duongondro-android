@@ -139,4 +139,81 @@ class LiveServerTest {
         assertEquals(1, SyncEngine(phoneA).sync().pulled)
         assertEquals(216, dbA.rows[session.id]!!.record.session.amount)
     }
+
+    /**
+     * Two people, as iOS's LiveSocialTests: an invitation and its redemption, a
+     * public streak verified against the pinned key, a poke (twice: the second is
+     * the server's 409, counted as sent), private again, and a block.
+     */
+    @Test
+    fun inviteRedeemPublicStreakPokeAndBlock() = runBlocking {
+        assumeTrue("set DUONGONDRO_API_URL to run against a DEV server", base != null)
+        suspend fun person(name: String, gender: String?): Triple<Account, MemorySyncDatabase, Social> {
+            val (token, _) = devSession()
+            val db = MemorySyncDatabase()
+            val account = Account(Api(base!!, token, JdkHttp), MemorySecretStore(), MemoryDeviceKeyStore(), db)
+            account.setUpFirstDevice()
+            account.api.updateMe(displayName = name, gender = gender)
+            return Triple(account, db, Social(account, db))
+        }
+        val (a, dbA, socialA) = person("Tomasz", "male")
+        val (b, dbB, socialB) = person("Ania", null)
+        val userA = dbA.syncState()!!.user
+        val userB = dbB.syncState()!!.user
+
+        val made = Invites.create(a.api, userA, a.identity())
+        val checked = Invitation.check(Api(base!!), made.invite)
+        Invites.redeem(b.api, checked, userB, b.identity())
+        dbB.repin(checked.inviter, checked.inviterIdentityPk, "", Instant.now())
+
+        // A logs Dorje Sempa yesterday and today, and makes it public.
+        for (d in listOf(86_400L, 0L)) {
+            val t = Instant.ofEpochMilli(Instant.now().minusSeconds(d + 60).toEpochMilli())
+            dbA.insert(SyncRecord(Session(uuidV7(t), "dorje-sempa", 108, t, true, java.time.ZoneId.systemDefault().id, null, t), t))
+        }
+        socialA.setPublic("dorje-sempa", true)
+        assertEquals("nothing changed, nothing sent", 0, socialA.publishStreaks())
+
+        val ofB = socialB.friends().single()
+        assertEquals("Tomasz", ofB.displayName)
+        assertEquals("male", ofB.gender)
+        assertEquals(false, ofB.keyChanged)
+        assertEquals("dorje-sempa", ofB.streaks.single().practice)
+        assertEquals(2, ofB.streaks.single().current)
+        assertEquals(1, FriendsBoard.leaders(listOf(ofB), Instant.now()).size)
+
+        val ofA = socialA.friends().single()
+        assertEquals("Ania", ofA.displayName)
+        assertEquals("a gender nobody gave", null, ofA.gender)
+        assertEquals(false, ofA.keyChanged)
+        val day = socialA.poke(userB)
+        assertEquals(day, socialA.poke(userB))
+        socialB.setNotifyDone(userA, true)
+        assertEquals(true, socialB.friends().single().notifyDone)
+
+        // Private again: B sees no streak.
+        socialA.setPublic("dorje-sempa", false)
+        assertTrue(socialB.friends().single().streaks.isEmpty())
+
+        // B reports and blocks A: no friends either way, and the pin is gone.
+        socialB.report(userA, "test report from LiveServerTest")
+        socialB.block(userA)
+        assertTrue(socialB.friends().isEmpty())
+        assertTrue(socialA.friends().isEmpty())
+        assertTrue(dbB.pinnedFriends().isEmpty())
+    }
+}
+
+/** The JDK's HTTP client, for PATCH, which the JVM's HttpURLConnection refuses (Android's implements it). */
+private object JdkHttp : app.duongondro.core.api.Http {
+    private val client = java.net.http.HttpClient.newHttpClient()
+
+    override fun send(method: String, url: String, headers: Map<String, String>, body: ByteArray?): app.duongondro.core.api.Http.Response {
+        val request = java.net.http.HttpRequest.newBuilder(java.net.URI(url)).apply {
+            headers.forEach { (k, v) -> header(k, v) }
+            method(method, body?.let { java.net.http.HttpRequest.BodyPublishers.ofByteArray(it) } ?: java.net.http.HttpRequest.BodyPublishers.noBody())
+        }.build()
+        val r = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofByteArray())
+        return app.duongondro.core.api.Http.Response(r.statusCode(), r.body())
+    }
 }

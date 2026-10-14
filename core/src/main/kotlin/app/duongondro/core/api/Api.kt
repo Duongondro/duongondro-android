@@ -93,7 +93,46 @@ class Api(
     /** Stops an invite from working; friendships it made stay. 404 when this account made no such invite. */
     fun revokeInvite(id: String) = send<Unit>("DELETE", "api/invites/${id.uppercase()}", null)
 
+    // Friends (design: Social)
+
+    /** The authoritative friend list, with each friend's identity key as the server names it. */
     fun friends(): List<Friend> = get<FriendList>("api/friends").friends
+
+    /** The newest signed statement of every public practice of every friend. */
+    fun friendsStreaks(): List<StreakStatement> = get<StreakList>("api/friends/streaks").streaks
+
+    /** Ends the friendship both ways. */
+    fun unfriend(user: UUID) = send<Unit>("DELETE", "api/friends/${user.lower}", null)
+
+    /** Ends any friendship and keeps it from coming back, both ways. */
+    fun block(user: UUID) = send<Unit>("PUT", "api/blocks/${user.lower}", null)
+
+    /** Reports a friend, or someone this account blocked; the reason is at most 1000 characters. */
+    fun report(user: UUID, reason: String) {
+        send<ReportResult>("POST", "api/reports", buildJsonObject {
+            put("userId", user.lower)
+            put("reason", reason)
+        })
+    }
+
+    /** Opts in or out of "done today" pushes from this friend. */
+    fun setNotifyDone(user: UUID, on: Boolean) =
+        send<Unit>("PUT", "api/friends/${user.lower}/settings", buildJsonObject { put("notifyDone", on) })
+
+    /** One per friend per UTC day; a second is the API's Conflict. */
+    fun poke(user: UUID) = send<Unit>("POST", "api/friends/${user.lower}/pokes", null)
+
+    // Public streaks
+
+    /** This account's own public streak statements: the server is the record of which practices are public. */
+    fun ownStreaks(): List<StreakStatement> = get<StreakList>("api/streaks").streaks
+
+    /** Publishes a signed streak statement; Conflict when its seq is not above the stored one. */
+    fun putStreak(practice: String, statement: SignedStatementDto) =
+        send<Unit>("PUT", "api/streaks/$practice", encode(statement))
+
+    /** Makes the practice's streak private again; NotFound when it was not public. */
+    fun deleteStreak(practice: String) = send<Unit>("DELETE", "api/streaks/$practice", null)
 
     // The account
 
@@ -373,9 +412,30 @@ class PracticeLog(
 )
 
 @Serializable
-class Friend(@Serializable(UuidText::class) val userId: UUID, val displayName: String = "")
+class Friend(
+    @Serializable(UuidText::class) val userId: UUID,
+    val displayName: String = "",
+    /** "male", "female" or "nonbinary"; null when not given. */
+    val gender: String? = null,
+    /** This account hears when the friend practises. */
+    val notifyDone: Boolean = false,
+    @Serializable(Base64Bytes::class) val identityPublicKey: ByteArray? = null,
+    val since: String = "",
+)
 
 @Serializable class FriendList(val friends: List<Friend>)
+
+@Serializable
+class StreakStatement(
+    @Serializable(UuidText::class) val userId: UUID,
+    val practice: String,
+    @Serializable(Base64Bytes::class) val payload: ByteArray,
+    @Serializable(Base64Bytes::class) val signature: ByteArray,
+)
+
+@Serializable class StreakList(val streaks: List<StreakStatement>)
+
+@Serializable internal class ReportResult(@Serializable(UuidText::class) val id: UUID)
 
 @Serializable class SyncResponse(val cursor: String, val full: Boolean, val logs: List<PracticeLog>)
 

@@ -16,6 +16,8 @@ data class Snapshot(
     val sessions: List<Session> = emptyList(),
     val seeds: List<StreakSeed> = emptyList(),
     val preferences: Preferences = Preferences(),
+    /** Practices whose streak friends see. */
+    val publicPractices: Set<String> = emptySet(),
 ) {
     val activePractices: List<TrackedPractice> get() = practices.filter { !it.archived }
     fun sessionsOf(practiceId: String): List<Session> = sessions.filter { it.practiceId == practiceId }

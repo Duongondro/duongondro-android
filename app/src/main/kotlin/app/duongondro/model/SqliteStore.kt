@@ -14,6 +14,8 @@ import app.duongondro.core.TrackedPractice
 import app.duongondro.core.parseCivilDate
 import app.duongondro.core.isV7
 import app.duongondro.core.sync.Erased
+import app.duongondro.core.sync.PinnedFriend
+import app.duongondro.core.sync.SocialDatabase
 import app.duongondro.core.sync.SyncDatabase
 import app.duongondro.core.sync.SyncRecord
 import app.duongondro.core.sync.SyncState
@@ -50,7 +52,7 @@ class SqliteStore(
     context: Context,
     name: String? = "duongondro.db",
     private val clock: () -> Instant = Instant::now,
-) : Store, SyncDatabase {
+) : Store, SyncDatabase, SocialDatabase {
     private val helper = Helper(context.applicationContext, name)
     private val lock = Mutex()
     private val state = MutableStateFlow(Snapshot())
@@ -116,6 +118,8 @@ class SqliteStore(
             generationCounter.incrementAndGet()
             db.execSQL("DELETE FROM sync_state")
             db.execSQL("DELETE FROM friend_pins")
+            db.execSQL("DELETE FROM friend_seqs")
+            db.execSQL("DELETE FROM public_streaks")
             db.execSQL("DELETE FROM sessions")
             db.execSQL("DELETE FROM streak_seeds")
             db.execSQL("DELETE FROM practices")
@@ -174,18 +178,54 @@ class SqliteStore(
         }, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
+    // Friends and public streaks (iOS's AppDatabase, phase 4)
+
+    override suspend fun pinnedFriends(): List<PinnedFriend> = query { db ->
+        db.rawQuery("SELECT * FROM friend_pins ORDER BY display_name, user_id", null).all(::pinnedFriend)
+    }
+
+    private fun pinnedFriend(c: Cursor) = PinnedFriend(
+        UUID.fromString(c.str("user_id")), c.getBlob(c.getColumnIndexOrThrow("identity_pk")), c.str("display_name").orEmpty(),
+        Instant.ofEpochMilli(c.long("pinned_at")), c.int("listed") == 1,
+    )
+
+    /** The first key seen is the one kept; the name follows the server, and the friend is listed again. */
+    override suspend fun pin(user: UUID, identityPk: ByteArray, displayName: String, at: Instant, generation: Int?): PinnedFriend =
+        writeFor(generation) { db ->
+            val id = user.toString().lowercase()
+            val updated = db.update("friend_pins", ContentValues().apply {
+                put("display_name", displayName)
+                put("listed", 1)
+            }, "user_id = ?", arrayOf(id))
+            if (updated == 0) db.insertOrThrow("friend_pins", null, ContentValues().apply {
+                put("user_id", id)
+                put("identity_pk", identityPk)
+                put("display_name", displayName)
+                put("pinned_at", at.toEpochMilli())
+                put("listed", 1)
+            })
+            db.rawQuery("SELECT * FROM friend_pins WHERE user_id = ?", arrayOf(id)).all(::pinnedFriend).single()
+        }
+
     /**
      * Pins a friend's identity key as an invitation proved it (its MAC under the
      * link's pin). The key the invite proved wins over anything pinned before,
-     * so a re-invite is how a changed key gets sorted out (iOS's repin).
+     * so a re-invite is how a changed key gets sorted out; an empty name keeps
+     * the one known.
      */
-    suspend fun repin(user: UUID, identityPk: ByteArray, displayName: String, at: Instant) = write { db ->
-        db.insertWithOnConflict("friend_pins", null, ContentValues().apply {
-            put("user_id", user.toString().lowercase())
+    override suspend fun repin(user: UUID, identityPk: ByteArray, displayName: String, at: Instant, generation: Int?) = write(generation) { db ->
+        val id = user.toString().lowercase()
+        val values = ContentValues().apply {
             put("identity_pk", identityPk)
-            put("display_name", displayName)
+            if (displayName.isNotEmpty()) put("display_name", displayName)
             put("pinned_at", at.toEpochMilli())
-        }, SQLiteDatabase.CONFLICT_REPLACE)
+            put("listed", 1)
+        }
+        if (db.update("friend_pins", values, "user_id = ?", arrayOf(id)) == 0) {
+            values.put("user_id", id)
+            values.put("display_name", displayName)
+            db.insertOrThrow("friend_pins", null, values)
+        }
     }
 
     /** The pinned identity key of a friend, or null. */
@@ -195,21 +235,84 @@ class SqliteStore(
         }
     }
 
+    override suspend fun keepFriends(listed: Set<UUID>, generation: Int?) = write(generation) { db ->
+        db.rawQuery("SELECT user_id FROM friend_pins", null).all { it.getString(0) }.forEach { id ->
+            val on = runCatching { UUID.fromString(id) in listed }.getOrDefault(false)
+            db.execSQL("UPDATE friend_pins SET listed = ? WHERE user_id = ?", arrayOf<Any>(on.bit, id))
+        }
+    }
+
+    override suspend fun forgetFriend(user: UUID) = write { db ->
+        val id = user.toString().lowercase()
+        db.execSQL("DELETE FROM friend_pins WHERE user_id = ?", arrayOf(id))
+        db.execSQL("DELETE FROM friend_seqs WHERE user_id = ?", arrayOf(id))
+    }
+
+    override suspend fun seenSeq(user: UUID, practice: String): Long = query { db ->
+        db.rawQuery("SELECT seq FROM friend_seqs WHERE user_id = ? AND practice = ?", arrayOf(user.toString().lowercase(), practice)).use { c ->
+            if (c.moveToFirst()) c.getLong(0) else 0L
+        }
+    }
+
+    override suspend fun noteSeq(user: UUID, practice: String, seq: Long, generation: Int?) = write(generation) { db ->
+        val id = user.toString().lowercase()
+        db.execSQL("UPDATE friend_seqs SET seq = MAX(seq, ?) WHERE user_id = ? AND practice = ?", arrayOf<Any>(seq, id, practice))
+        db.execSQL("INSERT OR IGNORE INTO friend_seqs (user_id, practice, seq) VALUES (?, ?, ?)", arrayOf<Any>(id, practice, seq))
+    }
+
+    override suspend fun publicStreakSeqs(): Map<String, Long> = query { db ->
+        db.rawQuery("SELECT practice_id, seq FROM public_streaks", null).all { it.getString(0) to it.getLong(1) }.toMap()
+    }
+
+    /** Makes a practice's streak public or private here; publishing is Social's. */
+    override suspend fun setPublic(practice: String, isPublic: Boolean) = write { db ->
+        if (isPublic) db.execSQL("INSERT OR IGNORE INTO public_streaks (practice_id) VALUES (?)", arrayOf(practice))
+        else db.execSQL("DELETE FROM public_streaks WHERE practice_id = ?", arrayOf(practice))
+    }
+
+    override suspend fun isPublic(practice: String): Boolean = query { db ->
+        db.rawQuery("SELECT 1 FROM public_streaks WHERE practice_id = ?", arrayOf(practice)).use { it.moveToFirst() }
+    }
+
+    override suspend fun savePublishedSeq(practice: String, seq: Long, generation: Int?) = write(generation) { db ->
+        db.execSQL("UPDATE public_streaks SET seq = MAX(seq, ?) WHERE practice_id = ?", arrayOf<Any>(seq, practice))
+    }
+
+    /** Practices this phone tracks that the server publishes for this account become public here too. */
+    override suspend fun mergePublished(seqs: Map<String, Long>, generation: Int?) = write(generation) { db ->
+        for ((practice, seq) in seqs) {
+            val known = db.rawQuery("SELECT 1 FROM practices WHERE id = ?", arrayOf(practice)).use { it.moveToFirst() }
+            if (!known) continue
+            db.execSQL("UPDATE public_streaks SET seq = MAX(seq, ?) WHERE practice_id = ?", arrayOf<Any>(seq, practice))
+            db.execSQL("INSERT OR IGNORE INTO public_streaks (practice_id, seq) VALUES (?, ?)", arrayOf<Any>(practice, seq))
+        }
+    }
+
+    override suspend fun sessionsOf(practice: String) = snapshot.value.sessionsOf(practice)
+
     /** Deletes the practice (sessions, seeds, practices) and the sync state, keeping the preferences: another account's data leaving. */
     suspend fun erasePractice() = write { db ->
         generationCounter.incrementAndGet()
         db.execSQL("DELETE FROM sync_state")
         db.execSQL("DELETE FROM friend_pins")
+        db.execSQL("DELETE FROM friend_seqs")
+        db.execSQL("DELETE FROM public_streaks")
         db.execSQL("DELETE FROM sessions")
         db.execSQL("DELETE FROM streak_seeds")
         db.execSQL("DELETE FROM practices")
     }
 
-    /** Forgets the account this phone synced with (signing out); the sessions stay, dirty, as in local mode. */
+    /**
+     * Forgets the account this phone synced with (signing out); the sessions stay,
+     * dirty, as in local mode. Its friends and public practices go with it: the
+     * next account starts with none.
+     */
     suspend fun clearSyncState() = write { db ->
         generationCounter.incrementAndGet()
         db.execSQL("DELETE FROM sync_state")
         db.execSQL("DELETE FROM friend_pins")
+        db.execSQL("DELETE FROM friend_seqs")
+        db.execSQL("DELETE FROM public_streaks")
         db.execSQL("UPDATE sessions SET dirty = 1")
     }
 
@@ -369,7 +472,8 @@ class SqliteStore(
                 reminderMinutes = c.int("reminder_minutes"), discreetNotifications = c.int("discreet_notifications") == 1,
             )
         }.firstOrNull() ?: Preferences()
-        return Snapshot(practices, sessions, seeds, prefs)
+        val public = db.rawQuery("SELECT practice_id FROM public_streaks", null).all { it.getString(0) }.toSet()
+        return Snapshot(practices, sessions, seeds, prefs, public)
     }
 
     /** Table names, for the test that every table is exported and erased. */
@@ -379,7 +483,7 @@ class SqliteStore(
 
     fun close() = helper.close()
 
-    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, 3) {
+    private class Helper(context: Context, name: String?) : SQLiteOpenHelper(context, name, null, VERSION) {
         override fun onConfigure(db: SQLiteDatabase) {
             db.setForeignKeyConstraintsEnabled(true)
             db.enableWriteAheadLogging()
@@ -444,7 +548,7 @@ class SqliteStore(
                     discreet_notifications INTEGER NOT NULL
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
-            onUpgrade(db, 1, 3)
+            onUpgrade(db, 1, VERSION)
         }
 
         /**
@@ -475,6 +579,29 @@ class SqliteStore(
                     pinned_at    INTEGER NOT NULL
                 )""".trimIndent(),
             )
+            // Version 4, public streaks: a pin outlives the server's list (`listed` 0
+            // once dropped; only this person's unfriend or block forgets it), the
+            // highest streak seq seen per friend and practice (no replays), and the
+            // practices whose streak friends see, with the seq last published.
+            if (oldVersion < 4) listOf(
+                "ALTER TABLE friend_pins ADD COLUMN listed INTEGER NOT NULL DEFAULT 1",
+                """
+                CREATE TABLE friend_seqs (
+                    user_id  TEXT NOT NULL,
+                    practice TEXT NOT NULL,
+                    seq      INTEGER NOT NULL,
+                    PRIMARY KEY (user_id, practice)
+                )""",
+                """
+                CREATE TABLE public_streaks (
+                    practice_id TEXT PRIMARY KEY NOT NULL REFERENCES practices (id) ON DELETE CASCADE,
+                    seq         INTEGER NOT NULL DEFAULT 0
+                )""",
+            ).forEach { db.execSQL(it.trimIndent()) }
+        }
+
+        companion object {
+            const val VERSION = 4
         }
     }
 }
