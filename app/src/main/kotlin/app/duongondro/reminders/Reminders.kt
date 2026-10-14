@@ -47,6 +47,8 @@ object Reminders {
     internal const val DAY = EXTRA_DAY
     internal const val KIND = EXTRA_KIND
     internal const val USUAL = "usual"
+    private const val EXTRA_TAG = "tag"
+    internal const val TAG = EXTRA_TAG
     private const val USUAL_SCHEDULED = "usualScheduled"
 
     /**
@@ -128,6 +130,7 @@ object Reminders {
         val i = Intent(context, ReminderReceiver::class.java)
             .setData("duongondro-usual:$practice/$day".toUri())
             .putExtra(EXTRA_BODY, body).putExtra(EXTRA_DAY, day.toString()).putExtra(EXTRA_KIND, USUAL)
+            .putExtra(EXTRA_TAG, "$practice $day")
         return PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
@@ -145,7 +148,12 @@ object Reminders {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) &&
             NotificationManagerCompat.from(context).areNotificationsEnabled()
 
-    internal fun post(context: Context, body: String, usual: Boolean = false) {
+    /**
+     * Posts a reminder. Usual-time nudges carry their practice and day as [tag],
+     * so two practices' nudges stand side by side rather than replace each other;
+     * the evening reminder is one notification, replaced.
+     */
+    internal fun post(context: Context, body: String, usual: Boolean = false, tag: String? = null) {
         if (!canNotify(context)) return
         val manager = context.getSystemService(NotificationManager::class.java)
         val channel = if (usual) USUAL_CHANNEL else CHANNEL
@@ -160,7 +168,7 @@ object Reminders {
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()
-        try { NotificationManagerCompat.from(context).notify(channel.hashCode(), n) } catch (_: SecurityException) { }
+        try { NotificationManagerCompat.from(context).notify(tag, channel.hashCode(), n) } catch (_: SecurityException) { }
     }
 
     internal const val BODY = EXTRA_BODY
@@ -173,7 +181,7 @@ class ReminderReceiver : BroadcastReceiver() {
         if (day != null && day != civilDate(Instant.now(), ZoneId.systemDefault())) return
         val usual = intent.getStringExtra(Reminders.KIND) == Reminders.USUAL
         val body = intent.getStringExtra(Reminders.BODY) ?: context.getString(if (usual) R.string.usual_body_discreet else R.string.reminder_short_session)
-        Reminders.post(context, body, usual)
+        Reminders.post(context, body, usual, if (usual) intent.getStringExtra(Reminders.TAG) else null)
     }
 }
 
