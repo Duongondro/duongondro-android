@@ -360,4 +360,6 @@
     <string name="block_detail">Ukončí přátelství na obou stranách a zastaví pozvánky i šťouchance mezi vámi.</string>
     <string name="their_key_changed">Jejich klíč se změnil</string>
     <string name="key_changed_detail">Server teď uvádí pro tohoto přítele jiný klíč než ten, který tento telefon viděl poprvé, proto jsou jeho série skryté. Může jít o nový telefon bez obnovení, nebo o někoho ve spojení mezi vámi. Sejděte se osobně, nebo požádej o novou pozvánku: její přijetí klíč znovu ověří.</string>
+    <string name="friends_see_streak">Přátelé tuto sérii uvidí</string>
+    <string name="friends_see_streak_footer">Jen počet dní praxe v aplikaci, nikdy počty ani součty.</string>
 </resources>

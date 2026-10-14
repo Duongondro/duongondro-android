@@ -357,4 +357,6 @@
     <string name="block_detail">Beendet die Freundschaft für beide Seiten und stoppt Einladungen und Anstupser zwischen euch.</string>
     <string name="their_key_changed">Ihr Schlüssel hat sich geändert</string>
     <string name="key_changed_detail">Der Server nennt für diesen Freund jetzt einen anderen Schlüssel als den, den dieses Handy zuerst gesehen hat, deshalb sind seine Serien ausgeblendet. Vielleicht ist es ein neues Handy ohne Wiederherstellung, oder jemand hängt dazwischen. Triff dich mit ihm oder bitte um eine neue Einladung: Wenn du sie annimmst, wird sein Schlüssel erneut geprüft.</string>
+    <string name="friends_see_streak">Freunde sehen diese Serie</string>
+    <string name="friends_see_streak_footer">Nur die Anzahl der in der App geübten Tage, nie Zählungen oder Summen.</string>
 </resources>

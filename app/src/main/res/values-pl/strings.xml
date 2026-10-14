@@ -373,4 +373,6 @@
     <string name="block_detail">Kończy przyjaźń po obu stronach i wstrzymuje zaproszenia oraz szturchnięcia między wami.</string>
     <string name="their_key_changed">Ich klucz się zmienił</string>
     <string name="key_changed_detail">Serwer podaje teraz dla tego przyjaciela inny klucz niż ten, który telefon zobaczył jako pierwszy, dlatego jego serie są ukryte. Może to być nowy telefon bez przywracania albo ktoś pośrodku. Spotkajcie się lub poproś o nowe zaproszenie: jego przyjęcie sprawdzi klucz ponownie.</string>
+    <string name="friends_see_streak">Przyjaciele widzą tę serię</string>
+    <string name="friends_see_streak_footer">Tylko liczba dni praktyki w aplikacji, nigdy liczby ani sumy.</string>
 </resources>

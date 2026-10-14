@@ -721,6 +721,16 @@ class AccountManager(
         refreshFriends()
     }
 
+    /**
+     * Makes a practice's streak public (published at once) or private (removed
+     * from the server). Throws when the server cannot be reached; private stays
+     * public here then, so the switch shows what friends still see.
+     */
+    suspend fun setPublic(practice: String, on: Boolean) {
+        val s = social ?: return
+        withContext(Dispatchers.IO) { s.setPublic(practice, on) }
+    }
+
     suspend fun report(friend: java.util.UUID, reason: String) {
         val s = social ?: return
         withContext(Dispatchers.IO) { s.report(friend, reason) }
@@ -767,6 +777,16 @@ class AccountManager(
         try {
             _state.update { it.copy(syncing = true) }
             val result = withContext(Dispatchers.IO) { SyncEngine(a).sync() }
+            // Public streaks follow the sessions just synced; a failure here never fails the sync.
+            social?.takeIf { current() }?.let { s ->
+                try {
+                    withContext(Dispatchers.IO) { s.publishStreaks() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "publishing streaks failed: ${e.javaClass.simpleName}")
+                }
+            }
             if (current()) {
                 val now = Instant.now()
                 prefs.edit { putLong(LAST_SYNC, now.toEpochMilli()) }

@@ -421,6 +421,7 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
         } else {
             PracticeName(p.practice, modifier = Modifier.fillMaxWidth().card())
         }
+        model.accounts?.let { PublicStreakRow(it, p.id, p.id in snapshot.publicPractices) }
         if (p.practice.streakOnlyAllowed) {
             Column(Modifier.fillMaxWidth().card()) {
                 SwitchRow(stringResource(R.string.streak_only_switch), stringResource(R.string.streak_only_kept), p.streakOnly) {
@@ -445,6 +446,43 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
             }) { Text(stringResource(if (p.archived) R.string.unarchive else R.string.archive)) }
             Text(stringResource(R.string.archive_detail), style = MaterialTheme.typography.bodySmall, color = Theme.colors.muted)
         }
+    }
+}
+
+/**
+ * "Friends see this streak": private by default, and only the days practised
+ * in the app are shared, never counts. Only for an account with keys here,
+ * since a statement is signed by the account's identity.
+ */
+@Composable
+private fun PublicStreakRow(accounts: app.duongondro.account.AccountManager, practiceId: String, isPublic: Boolean) {
+    val state by accounts.state.collectAsStateWithLifecycle()
+    if (state.status != app.duongondro.account.AccountStatus.READY) return
+    val scope = rememberCoroutineScope()
+    var failed by remember { mutableStateOf(false) }
+    // The switch moves at once; the store follows when the server has answered.
+    var shown by remember(isPublic) { mutableStateOf(isPublic) }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        Column(Modifier.fillMaxWidth().card()) {
+            SwitchRow(stringResource(R.string.friends_see_streak), null, shown) { on ->
+                shown = on
+                failed = false
+                scope.launch {
+                    try {
+                        accounts.setPublic(practiceId, on)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        failed = true
+                        shown = !on
+                    }
+                }
+            }
+        }
+        Text(stringResource(R.string.friends_see_streak_footer), style = Theme.type.footnote, color = Theme.colors.muted,
+            modifier = Modifier.padding(horizontal = Space.l))
+        if (failed) Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive,
+            modifier = Modifier.padding(horizontal = Space.l))
     }
 }
 

@@ -344,4 +344,6 @@
     <string name="block_detail">Mindkét irányban megszünteti a barátságot, és leállítja a meghívókat és a figyelmeztetéseket köztetek.</string>
     <string name="their_key_changed">A kulcsuk megváltozott</string>
     <string name="key_changed_detail">A szerver most más kulcsot jelez ennél a barátnál, mint amit ez a telefon először látott, ezért a sorozataik rejtve vannak. Lehet, hogy új telefont használnak visszaállítás nélkül, vagy valaki közbeékelődött. Találkozzatok, vagy kérj új meghívót: az elfogadása újra ellenőrzi a kulcsukat.</string>
+    <string name="friends_see_streak">A barátok látják ezt a sorozatot</string>
+    <string name="friends_see_streak_footer">Csak az alkalmazásban gyakorolt napok száma, a számok és összegek soha.</string>
 </resources>

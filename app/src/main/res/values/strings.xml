@@ -363,4 +363,6 @@
     <string name="block_detail">Ends the friendship both ways and stops invites and nudges between you.</string>
     <string name="their_key_changed">Their key changed</string>
     <string name="key_changed_detail">The server now names a different key for this friend than the one this phone first saw, so their streaks are hidden. It may be a new phone without a restore, or someone in between. Meet them, or ask for a new invite: accepting it checks their key again.</string>
+    <string name="friends_see_streak">Friends see this streak</string>
+    <string name="friends_see_streak_footer">Only the number of days practised in the app, never counts or totals.</string>
 </resources>
