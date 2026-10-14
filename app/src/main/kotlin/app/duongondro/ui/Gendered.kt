@@ -18,7 +18,9 @@ import app.duongondro.model.AppModel
 enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int, @StringRes val female: Int) {
     FinishedNgondro(R.string.q_finished_ngondro, R.string.q_finished_ngondro_male, R.string.q_finished_ngondro_female),
     FinishedShortRefuge(R.string.q_finished_short_refuge, R.string.q_finished_short_refuge_male, R.string.q_finished_short_refuge_female),
-    StartedAfterMidnight(R.string.started_after_midnight, R.string.started_after_midnight_male, R.string.started_after_midnight_female);
+    StartedAfterMidnight(R.string.started_after_midnight, R.string.started_after_midnight_male, R.string.started_after_midnight_female),
+    FriendFinished(R.string.friend_finished, R.string.friend_finished_male, R.string.friend_finished_female),
+    FriendNotYet(R.string.friend_not_yet, R.string.friend_not_yet_male, R.string.friend_not_yet_female);
 
     @StringRes
     fun id(gender: Gender?): Int = when (gender) {
@@ -27,6 +29,9 @@ enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int,
         Gender.NonBinary, null -> neutral
     }
 }
+
+/** A gender as the API writes it ("male", "female", "nonbinary"); null for none or anything else. */
+fun genderOf(wire: String?): Gender? = Gender.entries.firstOrNull { it.wire == wire }
 
 @Composable
 fun stringResource(s: GenderedString, gender: Gender?, vararg args: Any): String = stringResource(s.id(gender), *args)

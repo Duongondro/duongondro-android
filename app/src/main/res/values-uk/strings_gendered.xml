@@ -2,4 +2,8 @@
 <resources>
     <string name="started_after_midnight_male">Я почав після опівночі</string>
     <string name="started_after_midnight_female">Я почала після опівночі</string>
+    <string name="friend_finished_male">%1$s завершив %2$s</string>
+    <string name="friend_finished_female">%1$s завершила %2$s</string>
+    <string name="friend_not_yet_male">%s ще не практикував</string>
+    <string name="friend_not_yet_female">%s ще не практикувала</string>
 </resources>

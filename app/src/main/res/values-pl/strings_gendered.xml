@@ -6,4 +6,8 @@
     <string name="q_finished_short_refuge_female">Czy ukończyłaś Medytację Schronienia?</string>
     <string name="started_after_midnight_male">Zacząłem po północy</string>
     <string name="started_after_midnight_female">Zaczęłam po północy</string>
+    <string name="friend_finished_male">%1$s ukończył %2$s</string>
+    <string name="friend_finished_female">%1$s ukończyła %2$s</string>
+    <string name="friend_not_yet_male">%s jeszcze nie praktykował</string>
+    <string name="friend_not_yet_female">%s jeszcze nie praktykowała</string>
 </resources>

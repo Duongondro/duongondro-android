@@ -2,4 +2,8 @@
 <resources>
     <string name="started_after_midnight_male">Začal jsem po půlnoci</string>
     <string name="started_after_midnight_female">Začala jsem po půlnoci</string>
+    <string name="friend_finished_male">%1$s dokončil %2$s</string>
+    <string name="friend_finished_female">%1$s dokončila %2$s</string>
+    <string name="friend_not_yet_male">%s zatím nepraktikoval</string>
+    <string name="friend_not_yet_female">%s zatím nepraktikovala</string>
 </resources>

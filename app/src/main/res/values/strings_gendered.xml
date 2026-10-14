@@ -11,4 +11,8 @@
     <string name="q_finished_short_refuge_female">@string/q_finished_short_refuge</string>
     <string name="started_after_midnight_male">@string/started_after_midnight</string>
     <string name="started_after_midnight_female">@string/started_after_midnight</string>
+    <string name="friend_finished_male">@string/friend_finished</string>
+    <string name="friend_finished_female">@string/friend_finished</string>
+    <string name="friend_not_yet_male">@string/friend_not_yet</string>
+    <string name="friend_not_yet_female">@string/friend_not_yet</string>
 </resources>

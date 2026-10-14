@@ -18,6 +18,7 @@ import app.duongondro.core.sync.Invites
 import app.duongondro.core.sync.MadeInvite
 import app.duongondro.core.sync.SyncTime
 import app.duongondro.core.sync.SyncEngine
+import app.duongondro.core.sync.Social
 import app.duongondro.keys.KeystoreDeviceKeys
 import app.duongondro.keys.SecretFiles
 import app.duongondro.model.SqliteStore
@@ -112,6 +113,19 @@ sealed interface Redeem {
     data object OtherAccountData : Redeem
 }
 
+/** Friends as last fetched, each streak verified against the pinned key; [loaded] once a fetch succeeded. */
+data class FriendsState(
+    val friends: List<Social.FriendView> = emptyList(),
+    val loaded: Boolean = false,
+    val loading: Boolean = false,
+    /** The last fetch failed (offline, or the server away); what was fetched before stays. */
+    val failed: Boolean = false,
+    /** Friends poked from this phone, by the UTC day the server counts pokes in. */
+    val poked: Map<java.util.UUID, java.time.LocalDate> = emptyMap(),
+) {
+    fun isPoked(friend: java.util.UUID, now: Instant = Instant.now()): Boolean = poked[friend] == Social.utcDay(now)
+}
+
 /** An invitation this account made that still works: not revoked, not expired. */
 data class OpenInvite(val id: String, val expiresAt: Instant)
 
@@ -144,6 +158,7 @@ class AccountManager(
     val state: StateFlow<AccountState> = _state.asStateFlow()
 
     private var account: Account? = null
+    private var social: Social? = null
     private val syncLock = Mutex()
     private var pendingSync: Job? = null
 
@@ -178,7 +193,7 @@ class AccountManager(
     }
 
     private fun open(token: String) {
-        account = Account(anonymous.withToken(token), secrets, deviceKeys, db)
+        account = Account(anonymous.withToken(token), secrets, deviceKeys, db).also { social = Social(it, db) }
     }
 
     private fun profileState() = AccountState(
@@ -237,6 +252,7 @@ class AccountManager(
      * account's, and redeeming it waits for the new keys.
      */
     private fun forgetOtherAccount() {
+        _friends.value = FriendsState()
         forgetSecrets()
         deviceKeys.delete()
         val email = prefs.getString(EMAIL, null)
@@ -573,6 +589,7 @@ class AccountManager(
         val name = runCatching { a.api.friends().firstOrNull { it.userId == checked.inviter }?.displayName }.getOrNull()
         // The key the invitation proved wins over anything pinned on the server's word.
         db.repin(checked.inviter, checked.inviterIdentityPk, name.orEmpty(), Instant.now())
+        scope.launch { refreshFriends() }
         name?.takeIf { it.isNotBlank() }
     }.await()
 
@@ -644,6 +661,71 @@ class AccountManager(
         }
     }
 
+    // Friends
+
+    private val _friends = MutableStateFlow(FriendsState(poked = storedPokes()))
+    val friends: StateFlow<FriendsState> = _friends.asStateFlow()
+
+    private fun storedPokes(): Map<java.util.UUID, java.time.LocalDate> =
+        prefs.getStringSet(POKED, emptySet()).orEmpty().mapNotNull { e ->
+            runCatching { e.split(' ').let { (u, d) -> java.util.UUID.fromString(u) to java.time.LocalDate.parse(d) } }.getOrNull()
+        }.toMap()
+
+    /** Fetches the friend list and verifies their streaks; only for an account with keys. */
+    suspend fun refreshFriends() {
+        val s = social ?: return
+        if (_state.value.status != AccountStatus.READY) return
+        val a = account
+        _friends.update { it.copy(loading = true) }
+        try {
+            val list = withContext(Dispatchers.IO) { s.friends() }
+            if (account === a) _friends.update { it.copy(friends = list, loaded = true, failed = false) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: ApiError.Unauthorized) {
+            sessionEnded(a)
+        } catch (e: Exception) {
+            Log.w(TAG, "friends failed: ${e.javaClass.simpleName}")
+            _friends.update { it.copy(failed = true) }
+        } finally {
+            _friends.update { it.copy(loading = false) }
+        }
+    }
+
+    /** One poke per friend per UTC day; a second is answered "already" by the server and counts as sent. */
+    suspend fun poke(friend: java.util.UUID) {
+        val s = social ?: return
+        val day = withContext(Dispatchers.IO) { s.poke(friend) }
+        val pokes = _friends.value.poked.filterValues { it == day } + (friend to day)
+        prefs.edit { putStringSet(POKED, pokes.map { (u, d) -> "$u $d" }.toSet()) }
+        _friends.update { it.copy(poked = pokes) }
+    }
+
+    suspend fun setNotifyDone(friend: java.util.UUID, on: Boolean) {
+        val s = social ?: return
+        withContext(Dispatchers.IO) { s.setNotifyDone(friend, on) }
+        refreshFriends()
+    }
+
+    suspend fun unfriend(friend: java.util.UUID) {
+        val s = social ?: return
+        withContext(Dispatchers.IO) { s.unfriend(friend) }
+        _friends.update { f -> f.copy(friends = f.friends.filter { it.user != friend }) }
+        refreshFriends()
+    }
+
+    suspend fun block(friend: java.util.UUID) {
+        val s = social ?: return
+        withContext(Dispatchers.IO) { s.block(friend) }
+        _friends.update { f -> f.copy(friends = f.friends.filter { it.user != friend }) }
+        refreshFriends()
+    }
+
+    suspend fun report(friend: java.util.UUID, reason: String) {
+        val s = social ?: return
+        withContext(Dispatchers.IO) { s.report(friend, reason) }
+    }
+
     // Sync
 
     /** Syncs a moment after the last change, so a burst of malas is one round trip. */
@@ -694,11 +776,7 @@ class AccountManager(
             throw e
         } catch (_: ApiError.Unauthorized) {
             // The session ended (removed elsewhere): keys stay, sign in again.
-            if (current()) {
-                withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
-                account = null
-                _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
-            }
+            if (current()) sessionEnded(a)
         } catch (_: Erased) {
             // "Delete everything" or a sign-out ran meanwhile: nothing to keep.
         } catch (e: IOException) {
@@ -709,6 +787,15 @@ class AccountManager(
         } finally {
             _state.update { it.copy(syncing = false) }
         }
+    }
+
+    /** The server ended the session (removed elsewhere): keys stay, sign in again. */
+    private suspend fun sessionEnded(a: Account?) {
+        if (a == null || account !== a) return
+        withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
+        account = null
+        social = null
+        _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
     }
 
     // Leaving
@@ -729,6 +816,8 @@ class AccountManager(
         val user = db.syncState()?.user
         account?.let { a -> runCatching { a.api.signOut() } }
         account = null
+        social = null
+        _friends.value = FriendsState()
         db.clearSyncState()
         forgetSecrets()
         // A new device key for whichever account comes next: two accounts never share one.
@@ -761,6 +850,8 @@ class AccountManager(
         pendingSync?.cancel()
         _shownCode.value = null
         account = null
+        social = null
+        _friends.value = FriendsState()
         clearInvitation()
         runCatching { forgetSecrets() }
         prefs.edit { clear() }
@@ -786,6 +877,8 @@ class AccountManager(
         /** The invitation on the Invite screen, among the sealed secrets: it is erased with them. */
         const val SHOWN_INVITE = "invite-shown"
         const val INVITE_WITHDRAWN = "inviteWithdrawn"
+        /** Friends poked today, as "<user> <UTC day>". */
+        const val POKED = "poked"
         const val SET_UP_USER = app.duongondro.core.sync.SecretName.SET_UP_USER
         /** An invitation is shown again while it has more than a day to run. */
         val INVITE_REUSE: java.time.Duration = java.time.Duration.ofDays(1)

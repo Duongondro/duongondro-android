@@ -60,6 +60,8 @@ import app.duongondro.ui.settings.SettingsScreen
 import app.duongondro.ui.settings.YourDataScreen
 import app.duongondro.ui.theme.DuongondroTheme
 import app.duongondro.ui.today.TodayScreen
+import app.duongondro.ui.friends.FriendDetailScreen
+import app.duongondro.ui.friends.FriendsScreen
 
 class MainActivity : AppCompatActivity() {
     private val model: AppModel by viewModels {
@@ -156,6 +158,10 @@ private object Routes {
     const val NEW_ACCOUNT = "settings/account/new"
     const val RECOVERY_CODE = "settings/account/recovery-code"
     const val INVITE = "settings/invite"
+    const val FRIENDS = "friends"
+    const val FRIEND = "friends/friend/{id}"
+    const val FRIENDS_INVITE = "friends/invite"
+    fun friend(id: java.util.UUID) = "friends/friend/$id"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
 }
@@ -194,6 +200,15 @@ private fun Home(model: AppModel) {
                     openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
                     openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) })
             }
+            composable(Routes.FRIENDS) {
+                FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
+                    openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) }, openSignIn = { nav.navigate(Routes.SIGN_IN) },
+                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
+            }
+            composable(Routes.FRIEND) { entry ->
+                FriendDetailScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+            }
+            composable(Routes.FRIENDS_INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
             composable(Routes.PRACTICES) {
                 PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
                     openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
@@ -245,6 +260,13 @@ private fun BottomBar(nav: NavHostController) {
             onClick = { nav.navigate(Routes.TODAY) { popUpTo(Routes.TODAY) { inclusive = true }; launchSingleTop = true } },
             icon = { Icon(painterResource(R.drawable.ic_today), contentDescription = null) },
             label = { Text(stringResource(R.string.tab_today)) },
+            colors = navColors(),
+        )
+        NavigationBarItem(
+            selected = route?.startsWith("friends") == true,
+            onClick = { nav.navigate(Routes.FRIENDS) { popUpTo(Routes.TODAY); launchSingleTop = true } },
+            icon = { Icon(painterResource(R.drawable.ic_friends), contentDescription = null) },
+            label = { Text(stringResource(R.string.tab_friends)) },
             colors = navColors(),
         )
         NavigationBarItem(

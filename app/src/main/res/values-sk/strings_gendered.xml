@@ -6,4 +6,8 @@
     <string name="q_finished_short_refuge_female">Dokončila si meditáciu útočiska?</string>
     <string name="started_after_midnight_male">Začal som po polnoci</string>
     <string name="started_after_midnight_female">Začala som po polnoci</string>
+    <string name="friend_finished_male">%1$s dokončil %2$s</string>
+    <string name="friend_finished_female">%1$s dokončila %2$s</string>
+    <string name="friend_not_yet_male">%s ešte necvičil</string>
+    <string name="friend_not_yet_female">%s ešte necvičila</string>
 </resources>
