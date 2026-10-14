@@ -120,8 +120,14 @@ class SqliteStoreTest {
         assertEquals(setOf("chenrezig"), store.snapshot.value.publicPractices)
         store.savePublishedSeq("chenrezig", 3)
         assertEquals("seqs only grow", 7L, store.publicStreakSeqs()["chenrezig"])
+        // Review found it: dropped by the server (private on another phone), private here; never published, kept.
+        store.save(TrackedPractice(pick("amitabha")))
+        store.setPublic("amitabha", true)
+        store.mergePublished(emptyMap())
+        assertEquals(mapOf("amitabha" to 0L), store.publicStreakSeqs())
+        store.mergePublished(mapOf("chenrezig" to 7L))
         store.setPublic("chenrezig", false)
         assertTrue(!store.isPublic("chenrezig"))
-        assertTrue(store.snapshot.value.publicPractices.isEmpty())
+        assertEquals(setOf("amitabha"), store.snapshot.value.publicPractices)
     }
 }

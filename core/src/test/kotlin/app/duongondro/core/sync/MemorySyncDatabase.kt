@@ -105,6 +105,7 @@ class MemorySyncDatabase : SyncDatabase, SocialDatabase {
     override suspend fun mergePublished(seqs: Map<String, Long>, generation: Int?) {
         check(generation)
         seqs.filterKeys { it in practices }.forEach { (p, seq) -> public[p] = maxOf(public[p] ?: 0L, seq) }
+        public.entries.removeAll { (p, seq) -> seq > 0 && p !in seqs }
     }
     override suspend fun sessionsOf(practice: String) =
         rows.values.map { it.record }.filter { it.deletedAt == null && it.session.practiceId == practice }.map { it.session }

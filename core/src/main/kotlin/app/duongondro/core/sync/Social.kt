@@ -55,7 +55,13 @@ interface SocialDatabase {
     suspend fun setPublic(practice: String, isPublic: Boolean)
     suspend fun isPublic(practice: String): Boolean
     suspend fun savePublishedSeq(practice: String, seq: Long, generation: Int? = null)
-    /** Adds practices the server publishes for this account (another phone or a restore made them public), keeping the higher seq. */
+    /**
+     * Makes the public set follow the server's: practices it publishes for this
+     * account become public here (another phone or a restore made them public),
+     * keeping the higher seq; ones published before (seq above 0) that it no
+     * longer lists were made private elsewhere and become private here. A seq
+     * of 0 was never published yet and stays.
+     */
     suspend fun mergePublished(seqs: Map<String, Long>, generation: Int? = null)
     /** The practice's live sessions, for its public streak. */
     suspend fun sessionsOf(practice: String): List<Session>

@@ -278,8 +278,15 @@ class SqliteStore(
         db.execSQL("UPDATE public_streaks SET seq = MAX(seq, ?) WHERE practice_id = ?", arrayOf<Any>(seq, practice))
     }
 
-    /** Practices this phone tracks that the server publishes for this account become public here too. */
+    /**
+     * Practices this phone tracks that the server publishes for this account
+     * become public here too; published ones it no longer lists (made private on
+     * another phone) become private. Seq 0, never published yet, stays.
+     */
     override suspend fun mergePublished(seqs: Map<String, Long>, generation: Int?) = write(generation) { db ->
+        db.rawQuery("SELECT practice_id FROM public_streaks WHERE seq > 0", null).all { it.getString(0) }
+            .filter { it !in seqs }
+            .forEach { db.execSQL("DELETE FROM public_streaks WHERE practice_id = ?", arrayOf(it)) }
         for ((practice, seq) in seqs) {
             val known = db.rawQuery("SELECT 1 FROM practices WHERE id = ?", arrayOf(practice)).use { it.moveToFirst() }
             if (!known) continue

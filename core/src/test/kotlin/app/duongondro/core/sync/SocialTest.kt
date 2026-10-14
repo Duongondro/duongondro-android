@@ -240,6 +240,25 @@ class SocialTest {
         assertEquals("2026-10-14", Statements.parseStreak(server.own.getValue("chenrezig").payload)!!.day)
     }
 
+    /** Review found it: private on another phone reaches this one; a practice not yet published stays public. */
+    @Test
+    fun privateOnAnotherPhoneIsPrivateHere() = runBlocking {
+        val server = FakeServer()
+        val db = MemorySyncDatabase()
+        val me = UUID.randomUUID()
+        val social = phone(server, db, me, Identity.generate())
+        db.insert(SyncRecord(Session(uuidV7(now), "chenrezig", 10, now, true, zone.id, null, now), now))
+        social.setPublic("chenrezig", true)
+        // The other phone makes it private: the server drops it.
+        server.own.clear()
+        // And this phone has one it never managed to publish.
+        db.setPublic("mandala", true)
+        social.publishStreaks()
+        assertFalse(db.isPublic("chenrezig"))
+        assertTrue(server.own.isEmpty())
+        assertTrue("never published, so kept", db.isPublic("mandala"))
+    }
+
     @Test
     fun aSecondPokeTheSameDayCountsAsSent() = runBlocking {
         val server = FakeServer()
