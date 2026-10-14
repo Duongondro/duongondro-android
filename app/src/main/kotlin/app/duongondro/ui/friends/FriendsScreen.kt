@@ -152,6 +152,7 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
     val now by model.now.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var pasting by rememberSaveable { mutableStateOf(false) }
+    var pokeFailed by rememberSaveable { mutableStateOf(false) }
     // Fresh on every return to the tab, and on pulling down.
     LifecycleResumeEffect(Unit) {
         scope.launch { accounts.refreshFriends() }
@@ -170,7 +171,9 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
                 CardSection(stringResource(R.string.today)) {
                     news.forEachIndexed { i, item ->
                         if (i > 0) RowDivider()
-                        NewsRow(item, now, friends.isPoked(item.friend.user, now)) { scope.launch { runCatching { accounts.poke(item.friend.user) } } }
+                        NewsRow(item, now, friends.isPoked(item.friend.user, now)) {
+                            scope.launch { attempt({ pokeFailed = it }) { accounts.poke(item.friend.user) } }
+                        }
                     }
                 }
             }
@@ -194,7 +197,7 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
                     }
                 }
             }
-            if (friends.failed) {
+            if (friends.failed || pokeFailed) {
                 Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive,
                     modifier = Modifier.padding(horizontal = Space.l))
             }
