@@ -359,4 +359,9 @@
     <string name="key_changed_detail">Der Server nennt für diesen Freund jetzt einen anderen Schlüssel als den, den dieses Handy zuerst gesehen hat, deshalb sind seine Serien ausgeblendet. Vielleicht ist es ein neues Handy ohne Wiederherstellung, oder jemand hängt dazwischen. Triff dich mit ihm oder bitte um eine neue Einladung: Wenn du sie annimmst, wird sein Schlüssel erneut geprüft.</string>
     <string name="friends_see_streak">Freunde sehen diese Serie</string>
     <string name="friends_see_streak_footer">Nur die Anzahl der in der App geübten Tage, nie Zählungen oder Summen.</string>
+    <string name="usual_time_nudge">Anstoß zu meiner üblichen Zeit</string>
+    <string name="usual_time_detail">Eine Stunde vor deiner üblichen Übungszeit, auf diesem Handy aus den letzten zwei Wochen gelernt.</string>
+    <string name="usual_title">Wäre jetzt nicht Zeit zum Meditieren?</string>
+    <string name="usual_body">Um diese Zeit setzt du dich normalerweise für %s hin.</string>
+    <string name="usual_body_discreet">Um diese Zeit setzt du dich normalerweise zum Meditieren hin.</string>
 </resources>

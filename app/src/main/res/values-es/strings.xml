@@ -369,4 +369,9 @@
     <string name="key_changed_detail">Ahora el servidor indica una clave distinta para este amigo que la que vio este teléfono al principio, así que sus rachas están ocultas. Puede ser un teléfono nuevo sin restaurar, o alguien en el medio. Encuéntrate con esa persona o pide una invitación nueva: al aceptarla se verifica su clave otra vez.</string>
     <string name="friends_see_streak">Tus amigos ven esta racha</string>
     <string name="friends_see_streak_footer">Solo el número de días practicados en la app, nunca conteos ni totales.</string>
+    <string name="usual_time_nudge">Avisarme a mi hora habitual</string>
+    <string name="usual_time_detail">Una hora antes de la hora en que sueles practicar, calculada en este teléfono con las últimas dos semanas.</string>
+    <string name="usual_title">¿No deberías estar meditando?</string>
+    <string name="usual_body">Sueles sentarte a practicar %s más o menos a esta hora.</string>
+    <string name="usual_body_discreet">Sueles sentarte a meditar más o menos a esta hora.</string>
 </resources>

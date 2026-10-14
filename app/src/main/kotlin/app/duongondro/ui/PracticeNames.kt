@@ -16,6 +16,9 @@ fun Practice.shownName(): String = if (isCustom) name else names[id]?.first?.let
 @Composable
 fun Practice.shownSecondName(): String? = secondName?.let { if (isCustom) it else names[id]?.second?.let { r -> stringResource(r) } ?: it }
 
+/** The string resource of a built-in practice's leading name, for text built outside Compose (notifications). */
+fun practiceNameRes(id: String): Int? = names[id]?.first
+
 private val names: Map<String, Pair<Int, Int?>> = mapOf(
     "short-refuge" to (R.string.practice_short_refuge_name to null),
     "refuge" to (R.string.practice_refuge_name to R.string.practice_refuge_second),

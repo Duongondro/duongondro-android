@@ -34,6 +34,8 @@ data class Preferences(
     /** Minutes after local midnight for the streak-at-risk reminder; null for none. */
     val reminderMinutes: Int? = null,
     val discreetNotifications: Boolean = false,
+    /** "Nudge at my usual time": an hour before the time each practice is usually logged. */
+    val usualTimeNudge: Boolean = false,
 )
 
 /** The local database: every write goes through here, the UI observes `snapshot`. */

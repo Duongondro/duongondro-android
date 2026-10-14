@@ -440,6 +440,7 @@ class SqliteStore(
             put("mala_size", p.malaSize)
             put("reminder_minutes", p.reminderMinutes)
             put("discreet_notifications", p.discreetNotifications)
+            put("usual_time_nudge", p.usualTimeNudge)
         }, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
@@ -470,6 +471,7 @@ class SqliteStore(
                 onboarded = c.int("onboarded") == 1, finishedShortRefuge = c.int("finished_short_refuge") == 1,
                 finishedNgondro = c.int("finished_ngondro") == 1, malaSize = c.int("mala_size") ?: 108,
                 reminderMinutes = c.int("reminder_minutes"), discreetNotifications = c.int("discreet_notifications") == 1,
+                usualTimeNudge = c.int("usual_time_nudge") == 1,
             )
         }.firstOrNull() ?: Preferences()
         val public = db.rawQuery("SELECT practice_id FROM public_streaks", null).all { it.getString(0) }.toSet()
@@ -598,10 +600,12 @@ class SqliteStore(
                     seq         INTEGER NOT NULL DEFAULT 0
                 )""",
             ).forEach { db.execSQL(it.trimIndent()) }
+            // Version 5: "Nudge at my usual time", off until turned on.
+            if (oldVersion < 5) db.execSQL("ALTER TABLE preferences ADD COLUMN usual_time_nudge INTEGER NOT NULL DEFAULT 0")
         }
 
         companion object {
-            const val VERSION = 4
+            const val VERSION = 5
         }
     }
 }

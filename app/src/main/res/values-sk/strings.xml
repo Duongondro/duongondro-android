@@ -362,4 +362,9 @@
     <string name="key_changed_detail">Server teraz uvádza pre tohto priateľa iný kľúč, než aký tento telefón videl prvýkrát, preto sú jeho série skryté. Môže to byť nový telefón bez obnovenia, alebo niekto uprostred. Stretnite sa, alebo požiadaj o novú pozvánku: jej prijatím sa jeho kľúč overí znova.</string>
     <string name="friends_see_streak">Priatelia vidia túto sériu</string>
     <string name="friends_see_streak_footer">Iba počet dní cvičenia v aplikácii, nikdy počty ani súčty.</string>
+    <string name="usual_time_nudge">Pripomenúť v mojom obvyklom čase</string>
+    <string name="usual_time_detail">Hodinu predtým, ako zvyčajne cvičíš. Telefón sa to učí z posledných dvoch týždňov.</string>
+    <string name="usual_title">Nie je čas na meditáciu?</string>
+    <string name="usual_body">Na %s si zvyčajne sadáš okolo tejto doby.</string>
+    <string name="usual_body_discreet">Okolo tejto doby si zvyčajne sadáš k meditácii.</string>
 </resources>

@@ -138,6 +138,8 @@ fun SettingsScreen(
             RowDivider()
             ReminderRows(model, snapshot.preferences.reminderMinutes)
             RowDivider()
+            UsualTimeRow(model, snapshot.preferences.usualTimeNudge)
+            RowDivider()
             SwitchRow(stringResource(R.string.discreet), stringResource(R.string.discreet_detail), snapshot.preferences.discreetNotifications,
                 Modifier.padding(horizontal = Space.l, vertical = Space.s)) { v ->
                 model.updatePreferences { it.copy(discreetNotifications = v) }
@@ -268,6 +270,29 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
             )
         }
     }
+}
+
+/**
+ * "Nudge at my usual time": an hour before each practice's usual logging time,
+ * learned on this phone from the last two weeks (iOS's UsualTime). Asks for
+ * notifications when turned on, as the evening reminder does.
+ */
+@Composable
+private fun UsualTimeRow(model: AppModel, on: Boolean) {
+    val context = LocalContext.current
+    var allowed by remember { mutableStateOf(Reminders.canNotify(context)) }
+    LifecycleResumeEffect(Unit) {
+        allowed = Reminders.canNotify(context)
+        onPauseOrDispose { }
+    }
+    val ask = rememberNotificationPermission { allowed = Reminders.canNotify(context) }
+    SwitchRow(stringResource(R.string.usual_time_nudge), stringResource(R.string.usual_time_detail), on,
+        Modifier.padding(horizontal = Space.l, vertical = Space.s)) { v ->
+        model.updatePreferences { it.copy(usualTimeNudge = v) }
+        if (v && !allowed) ask()
+    }
+    if (on && !allowed) Text(stringResource(R.string.notifications_off), style = Theme.type.footnote, color = Theme.colors.destructive,
+        modifier = Modifier.padding(horizontal = Space.l, vertical = Space.s))
 }
 
 /** What a mala may count as when the person types their own number. */
