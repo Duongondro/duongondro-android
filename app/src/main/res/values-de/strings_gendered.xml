@@ -8,4 +8,6 @@
     <string name="poke_unnamed_female">Eine Freundin anstupsen</string>
     <string name="poked_unnamed_male">Einen Freund angestupst</string>
     <string name="poked_unnamed_female">Eine Freundin angestupst</string>
+    <string name="push_ask_detail_unnamed_male">Damit ein Freund dich anstupsen kann und du erfährst, wenn Freunde üben.</string>
+    <string name="push_ask_detail_unnamed_female">Damit eine Freundin dich anstupsen kann und du erfährst, wenn Freunde üben.</string>
 </resources>

@@ -16,5 +16,6 @@
     <string name="push_generic">Hírek a barátaidtól</string>
     <string name="push_ask_title">Hadd noszogassanak a barátaid</string>
     <string name="push_ask_detail">Így %1$s noszogathat, és megtudod, mikor gyakorolnak a barátaid.</string>
+    <string name="push_ask_detail_unnamed">Így egy barátod noszogathat, és megtudod, mikor gyakorolnak a barátaid.</string>
     <string name="push_ask_turn_on">Értesítések bekapcsolása</string>
 </resources>

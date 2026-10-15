@@ -14,4 +14,6 @@
     <string name="poke_unnamed_female">Šťouchnout přítelkyni</string>
     <string name="poked_unnamed_male">Šťouchnuto: přítel</string>
     <string name="poked_unnamed_female">Šťouchnuto: přítelkyně</string>
+    <string name="push_ask_detail_unnamed_male">Pak tě přítel může popohnat a dozvíš se, když přátelé praktikují.</string>
+    <string name="push_ask_detail_unnamed_female">Pak tě přítelkyně může popohnat a dozvíš se, když přátelé praktikují.</string>
 </resources>

@@ -23,4 +23,6 @@
     <string name="poke_unnamed_female">@string/poke_unnamed</string>
     <string name="poked_unnamed_male">@string/poked_unnamed</string>
     <string name="poked_unnamed_female">@string/poked_unnamed</string>
+    <string name="push_ask_detail_unnamed_male">@string/push_ask_detail_unnamed</string>
+    <string name="push_ask_detail_unnamed_female">@string/push_ask_detail_unnamed</string>
 </resources>

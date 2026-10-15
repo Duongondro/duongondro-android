@@ -16,5 +16,6 @@
     <string name="push_generic">Новости от друзей</string>
     <string name="push_ask_title">Пусть друзья вас подгоняют</string>
     <string name="push_ask_detail">Тогда %1$s сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
+    <string name="push_ask_detail_unnamed">Тогда друг сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
     <string name="push_ask_turn_on">Включить уведомления</string>
 </resources>

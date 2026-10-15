@@ -16,5 +16,6 @@
     <string name="push_generic">Novinky od přátel</string>
     <string name="push_ask_title">Nech se od přátel popohánět</string>
     <string name="push_ask_detail">Pak tě %1$s může popohnat a dozvíš se, když přátelé praktikují.</string>
+    <string name="push_ask_detail_unnamed">Pak tě přítel může popohnat a dozvíš se, když přátelé praktikují.</string>
     <string name="push_ask_turn_on">Zapnout oznámení</string>
 </resources>

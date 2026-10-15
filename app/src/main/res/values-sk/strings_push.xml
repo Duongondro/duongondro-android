@@ -16,5 +16,6 @@
     <string name="push_generic">Novinky od priateľov</string>
     <string name="push_ask_title">Nechaj sa priateľmi postrčiť</string>
     <string name="push_ask_detail">Potom ťa %1$s môže postrčiť a dozvieš sa, keď priatelia cvičia.</string>
+    <string name="push_ask_detail_unnamed">Potom ťa priateľ môže postrčiť a dozvieš sa, keď priatelia cvičia.</string>
     <string name="push_ask_turn_on">Zapnúť oznámenia</string>
 </resources>

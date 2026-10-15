@@ -16,5 +16,6 @@
     <string name="push_generic">Wieści od przyjaciół</string>
     <string name="push_ask_title">Pozwól przyjaciołom cię popędzać</string>
     <string name="push_ask_detail">Wtedy %1$s może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
+    <string name="push_ask_detail_unnamed">Wtedy przyjaciel może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
     <string name="push_ask_turn_on">Włącz powiadomienia</string>
 </resources>

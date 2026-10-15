@@ -178,7 +178,7 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
         ) {
             Title()
             friends.friends.firstOrNull()?.takeIf { offerPush }?.let { first ->
-                PushAskCard(first.shownName(), askPush) {
+                PushAskCard(first.shownName(), first.displayName.isBlank(), genderOf(first.gender), askPush) {
                     Push.dismissCard(context)
                     offerPush = false
                 }

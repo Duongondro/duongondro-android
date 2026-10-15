@@ -16,5 +16,6 @@
     <string name="push_generic">Novedades de tus amigos</string>
     <string name="push_ask_title">Deja que tus amigos te animen</string>
     <string name="push_ask_detail">Así %1$s podrá animarte y sabrás cuándo practican tus amigos.</string>
+    <string name="push_ask_detail_unnamed">Así un amigo podrá animarte y sabrás cuándo practican tus amigos.</string>
     <string name="push_ask_turn_on">Activar notificaciones</string>
 </resources>

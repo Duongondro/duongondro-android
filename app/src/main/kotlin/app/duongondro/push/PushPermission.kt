@@ -15,11 +15,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import app.duongondro.R
+import app.duongondro.account.Gender
 import app.duongondro.model.AppModel
 import app.duongondro.reminders.rememberNotificationPermission
 import app.duongondro.ui.FilledAction
+import app.duongondro.ui.GenderedString
 import app.duongondro.ui.TextAction
 import app.duongondro.ui.card
+import app.duongondro.ui.stringResource
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
@@ -44,13 +47,13 @@ fun rememberPushPermission(model: AppModel, onResult: () -> Unit = {}): () -> Un
 
 /** The Friends card (iOS's NotificationAsk): why, then the system prompt, or "Not now", remembered. */
 @Composable
-fun PushAskCard(friend: String, ask: () -> Unit, notNow: () -> Unit) {
+fun PushAskCard(friend: String, unnamed: Boolean, gender: Gender?, ask: () -> Unit, notNow: () -> Unit) {
     Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.m)) {
         Row(horizontalArrangement = Arrangement.spacedBy(Space.m), verticalAlignment = Alignment.Top) {
             Icon(Icons.Filled.Notifications, contentDescription = null, tint = Theme.colors.accent)
             Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
                 Text(stringResource(R.string.push_ask_title), style = Theme.type.body.copy(fontWeight = FontWeight.Bold), color = Theme.colors.ink)
-                Text(stringResource(R.string.push_ask_detail, friend), style = Theme.type.secondary, color = Theme.colors.muted)
+                Text(if (unnamed) stringResource(GenderedString.PushAskUnnamed, gender) else stringResource(R.string.push_ask_detail, friend), style = Theme.type.secondary, color = Theme.colors.muted)
             }
         }
         FilledAction(stringResource(R.string.push_ask_turn_on), height = Size.secondary, onClick = ask)

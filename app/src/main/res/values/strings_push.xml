@@ -29,5 +29,6 @@
     <!-- The Friends card that asks for notifications; never shown at launch. -->
     <string name="push_ask_title">Let friends nag you</string>
     <string name="push_ask_detail">So %1$s can nag you, and you hear when friends practise.</string>
+    <string name="push_ask_detail_unnamed">So a friend can nag you, and you hear when friends practise.</string>
     <string name="push_ask_turn_on">Turn on notifications</string>
 </resources>
