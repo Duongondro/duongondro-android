@@ -222,7 +222,18 @@ private suspend fun redeemed(result: Redeem, flow: OnboardingFlow, accounts: Acc
     Redeem.NoAccount -> R.string.no_account
     Redeem.InviteGone -> R.string.invite_unknown
     Redeem.TooMany -> R.string.try_later
+    Redeem.InvitationNeeded -> { refused(flow, R.string.invite_needed); null }
     Redeem.OtherAccountData -> { flow.otherAccount = true; null }
+}
+
+/**
+ * A sign-up the server refused for want of a working invitation code (the code
+ * stopped working, open sign-up is off, or this network made too many accounts
+ * this hour): back to the Invitation step, which says why under its field.
+ */
+private fun refused(flow: OnboardingFlow, reason: Int) {
+    flow.inviteProblem = reason
+    flow.backTo(Step.Invite)
 }
 
 /**
@@ -301,7 +312,11 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
     }
 }
 
-/** A friend's invitation (24 characters) or an admission code (16): the length tells them apart. */
+/**
+ * Optional: a friend's invitation (24 characters) or an admission code (16),
+ * the length telling them apart, or Skip for an account without one (open
+ * sign-up, duongondro-api#16).
+ */
 @Composable
 internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finishLocal: () -> Unit) {
     val call = rememberCall()
@@ -326,7 +341,6 @@ internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accou
         stringResource(R.string.invite_title), plain(stringResource(R.string.invite_detail)),
         actions = {
             CallError(call)
-            Text(stringResource(R.string.invite_none), style = Theme.type.secondary, color = Theme.colors.muted)
             FilledAction(stringResource(R.string.continue_),
                 enabled = (length == Crockford.INVITE_LENGTH || length == Crockford.ADMISSION_LENGTH) && !call.busy) {
                 call.run {
@@ -336,6 +350,13 @@ internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accou
                         InviteCheck.NotAuthentic -> flow.inviteProblem = R.string.invite_not_authentic
                     }
                 }
+            }
+            TextAction(stringResource(R.string.skip)) {
+                if (call.busy) return@TextAction
+                accounts.clearInvitation()
+                flow.inviteCode = ""
+                flow.inviteProblem = null
+                flow.go(Step.Consent)
             }
             TextAction(stringResource(R.string.invite_local)) { accounts.clearInvitation(); finishLocal() }
         },
@@ -378,10 +399,12 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManage
     val valid = flow.email.trim().matches(EMAIL)
     val send = {
         call.run {
-            when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn)) {
+            when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
                 LinkRequest.Sent -> flow.go(Step.CheckEmail)
                 LinkRequest.UnknownInvite -> problem = R.string.invite_unknown
                 LinkRequest.TooMany -> problem = R.string.try_later
+                LinkRequest.InvitationNeeded -> refused(flow, R.string.invite_needed)
+                LinkRequest.TooManySignUps -> refused(flow, R.string.signup_too_many)
             }
         }
     }
@@ -429,8 +452,13 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
             FilledAction(stringResource(R.string.continue_), enabled = code.length == Crockford.SIGN_IN_LENGTH && !call.busy) { submit() }
             TextAction(if (again) stringResource(R.string.sent_again) else stringResource(R.string.send_again)) {
                 if (!call.busy && !again) call.run {
-                    if (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn) == LinkRequest.TooMany) problem = R.string.try_later
-                    else again = true
+                    when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
+                        LinkRequest.Sent -> again = true
+                        LinkRequest.UnknownInvite -> refused(flow, R.string.invite_unknown)
+                        LinkRequest.TooMany -> problem = R.string.try_later
+                        LinkRequest.InvitationNeeded -> refused(flow, R.string.invite_needed)
+                        LinkRequest.TooManySignUps -> refused(flow, R.string.signup_too_many)
+                    }
                 }
             }
         },
@@ -509,6 +537,7 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
 internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
     val activity = LocalContext.current
+    var problem by remember { mutableStateOf<Int?>(null) }
     // The passkey made the account with its profile already: keys next.
     OtherAccountDialog(flow, accounts, finish = {}) { flow.go(Step.Recovery) }
     Page(
@@ -523,17 +552,22 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
         },
         actions = {
             CallError(call)
+            problem?.let { ErrorLine(stringResource(it)) }
             FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) {
+                problem = null
                 call.run {
                     // Without an email the passkey makes the account, with the profile given so far.
                     val profile = if (flow.email.isBlank()) {
                         Profile(flow.displayName.trim(), flow.username.ifBlank { null }, flow.gender?.wire)
                     } else null
-                    when (accounts.createPasskey(activity, profile)) {
+                    when (accounts.createPasskey(activity, profile, consent = flow.consented)) {
                         PasskeyResult.Saved -> flow.go(Step.Recovery)
                         PasskeyResult.Cancelled -> Unit
                         PasskeyResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
-                        PasskeyResult.InviteGone -> { flow.inviteProblem = R.string.invite_unknown; flow.backTo(Step.Invite) }
+                        PasskeyResult.InviteGone -> refused(flow, R.string.invite_unknown)
+                        PasskeyResult.InvitationNeeded -> refused(flow, R.string.invite_needed)
+                        PasskeyResult.TooManySignUps -> refused(flow, R.string.signup_too_many)
+                        PasskeyResult.TooMany -> problem = R.string.try_later
                         PasskeyResult.OtherAccountData -> flow.otherAccount = true
                     }
                 }

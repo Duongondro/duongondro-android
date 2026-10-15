@@ -103,12 +103,13 @@
     <string name="where_later">Puedes crear una más tarde en Ajustes</string>
     <string name="where_online">Crear una cuenta en línea</string>
     <string name="where_local">Solo en este teléfono</string>
-    <string name="invite_title">Tu invitación</string>
-    <string name="invite_detail">Por ahora las cuentas son solo por invitación. Abre el enlace que te enviaron o escribe su código.</string>
+    <string name="invite_title">¿Tienes un código de invitación?</string>
+    <string name="invite_detail">Escríbelo u omite este paso. Con un código que te envió alguien, esa persona y tú seréis amigos.</string>
     <string name="invite_label">Código de invitación</string>
     <string name="invite_hint">Escribe o pega el código de invitación, o pega el enlace de invitación completo. Da igual mayúsculas o minúsculas.</string>
     <string name="invite_unknown">No conocemos esta invitación. Revisa el código o pregunta a quien te la envió.</string>
-    <string name="invite_none">¿Sin invitación? Pídesela a alguien que use Duongöndro, o sigue practicando en este teléfono: puedes añadir una cuenta más tarde en Ajustes.</string>
+    <string name="invite_needed">Por ahora, para crear una cuenta hace falta un código de invitación. Escribe uno o sigue practicando en este teléfono.</string>
+    <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o escribe un código de invitación: ese funciona igualmente.</string>
     <string name="invite_local">Solo en este teléfono, por ahora</string>
     <string name="consent_title">Antes de guardar nada</string>
     <string name="consent_detail">Una cuenta en una app de práctica budista dice algo sobre tus creencias, que el RGPD trata como datos especiales. Con tu consentimiento, el servidor guarda tu correo o nombre de usuario, tu nombre, tu género si lo indicas, tus amigos y tus rachas públicas. Tus recuentos siguen cifrados en tus teléfonos.</string>
@@ -226,7 +227,7 @@
     <string name="next_round">Ronda siguiente</string>
 
     <string name="invite_not_authentic">Esta invitación no supera la comprobación: puede que la hayan cambiado por el camino. Pide una nueva a quien te la envió.</string>
-    <string name="no_account">Ninguna cuenta usa este correo. Vuelve atrás y empieza con una invitación.</string>
+    <string name="no_account">Ninguna cuenta usa este correo. Revisa la dirección o vuelve atrás y crea una cuenta.</string>
     <string name="try_later">Demasiados intentos. Espera unos minutos y vuelve a intentarlo.</string>
     <string name="try_again">Reintentar</string>
     <string name="username_taken">Ese nombre de usuario ya está cogido. Prueba con otro.</string>

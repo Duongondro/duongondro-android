@@ -37,11 +37,11 @@ class Api(
     /** The commit the server was built from. */
     fun version(): ServerVersion = get("api/version")
 
-    /** Mails a link and an 8-character code; [proof] makes the redeemed link create the account. */
-    fun requestMagicLink(email: String, proof: SignUpProof?) {
+    /** Mails a link and an 8-character code; with [signUp], the redeemed link creates the account if none uses the address. */
+    fun requestMagicLink(email: String, signUp: SignUp?) {
         val body = buildJsonObject {
             put("email", email)
-            proof?.let { addProof(it) }
+            signUp?.let { addSignUp(it) }
         }
         send<Unit>("POST", "api/auth/magic-links", body)
     }
@@ -53,8 +53,8 @@ class Api(
         send("POST", "api/auth/magic-links/redeem", buildJsonObject { put("email", email); put("code", code) })
 
     /** Starts making an account with a passkey; the profile names the passkey and is set when the account is made. */
-    fun beginPasskeySignUp(proof: SignUpProof, profile: Profile): Ceremony = send("POST", "api/auth/passkeys/sign-up", buildJsonObject {
-        addProof(proof)
+    fun beginPasskeySignUp(signUp: SignUp, profile: Profile): Ceremony = send("POST", "api/auth/passkeys/sign-up", buildJsonObject {
+        addSignUp(signUp)
         profile.username?.let { put("username", it) }
         profile.displayName?.let { put("displayName", it) }
         profile.gender?.let { put("gender", it) }
@@ -233,8 +233,11 @@ class Api(
         runCatching { json.decodeFromString<ErrorBody>(body.decodeToString()).error }.getOrNull()
             ?: body.decodeToString().take(200)
 
-    private fun kotlinx.serialization.json.JsonObjectBuilder.addProof(p: SignUpProof) {
-        when (p) {
+    private fun kotlinx.serialization.json.JsonObjectBuilder.addSignUp(s: SignUp) {
+        put("signUp", true)
+        put("consent", s.consent)
+        when (val p = s.proof) {
+            null -> Unit
             is SignUpProof.Invite -> put("invite", buildJsonObject {
                 put("id", p.id)
                 put("auth", Base64.getEncoder().encodeToString(p.auth))
@@ -251,6 +254,16 @@ class Api(
         }
     }
 }
+
+/**
+ * What marks a request as a sign-up (duongondro-api#16): `signUp: true` makes
+ * an account when none uses the sign-in, with or without an invitation or
+ * admission code ([proof]). [consent] is the onboarding's GDPR Art. 9 checkbox;
+ * the server answers 400 to a sign-up without it. Without a proof, a server
+ * with open sign-up off answers 403 ([ApiError.Forbidden]), and too many
+ * accounts from one network answer 429 ([ApiError.TooManyRequests.signUps]).
+ */
+class SignUp(val consent: Boolean, val proof: SignUpProof? = null)
 
 /** The invitation or admission code a sign-up presents. */
 sealed interface SignUpProof {
@@ -270,7 +283,16 @@ sealed class ApiError(message: String) : Exception(message) {
     class NotFound(message: String) : ApiError(message)
     class Conflict(message: String) : ApiError(message)
     class Forbidden(message: String) : ApiError(message)
-    class TooManyRequests(message: String) : ApiError(message)
+    class TooManyRequests(message: String) : ApiError(message) {
+        /**
+         * A per-network limit on sign-ups without an invitation (duongondro-api#16:
+         * accounts by passkey or provider, and open magic-link requests), rather
+         * than a per-address or per-route one. The status is the same, so it is
+         * read from the server's message, which names the network; any other
+         * wording reads as an ordinary limit.
+         */
+        val signUps: Boolean get() = message.orEmpty().contains("from this network", ignoreCase = true)
+    }
     /** Another phone rotated the practice key; wraps of the new one are waiting. */
     class OldKey(val currentKeyVersion: Long) : ApiError("old key; current is $currentKeyVersion")
     class Status(val code: Int, message: String) : ApiError("$code $message")

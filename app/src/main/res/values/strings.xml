@@ -104,12 +104,13 @@
     <string name="where_later">You can make one later in Settings</string>
     <string name="where_online">Make an online account</string>
     <string name="where_local">Only on this phone</string>
-    <string name="invite_title">Your invitation</string>
-    <string name="invite_detail">Accounts are by invitation for now. Open the link you were sent, or type its code.</string>
+    <string name="invite_title">Have an invitation code?</string>
+    <string name="invite_detail">Enter it, or skip. A code a friend sent you also makes the two of you friends.</string>
     <string name="invite_label">Invitation code</string>
     <string name="invite_hint">Type or paste the invitation code, or paste the whole invitation link. Case doesn\'t matter.</string>
     <string name="invite_unknown">We don\'t know this invitation. Check the code, or ask whoever sent it.</string>
-    <string name="invite_none">No invitation? Ask someone who uses Duongöndro, or keep practising on this phone: you can add an account later in Settings.</string>
+    <string name="invite_needed">For now, an account needs an invitation code. Enter one, or keep practising on this phone.</string>
+    <string name="signup_too_many">Too many sign-ups from this network in the last hour. Try again later, or enter an invitation code: it works regardless.</string>
     <string name="invite_local">Only on this phone for now</string>
     <string name="consent_title">Before we store anything</string>
     <string name="consent_detail">An account in a Buddhist practice app says something about your beliefs, which the GDPR treats as special. With your consent the server keeps your email or username, your name, your gender if you give it, your friends, and your public streaks. Your counts stay encrypted on your phones.</string>
@@ -226,7 +227,7 @@
     <string name="previous_round">Previous round</string>
     <string name="next_round">Next round</string>
     <string name="invite_not_authentic">This invitation doesn\'t check out: it may have been changed on the way. Ask whoever sent it for a new one.</string>
-    <string name="no_account">No account uses this email. Go back and start with an invitation.</string>
+    <string name="no_account">No account uses this email. Check the address, or go back and make an account.</string>
     <string name="try_later">Too many tries. Wait a few minutes and try again.</string>
     <string name="try_again">Try again</string>
     <string name="username_taken">That username is taken. Try another.</string>

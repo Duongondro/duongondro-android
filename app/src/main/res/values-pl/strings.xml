@@ -104,12 +104,13 @@
     <string name="where_later">Konto możesz założyć później w Ustawieniach</string>
     <string name="where_online">Załóż konto online</string>
     <string name="where_local">Tylko na tym telefonie</string>
-    <string name="invite_title">Twoje zaproszenie</string>
-    <string name="invite_detail">Na razie konta są tylko na zaproszenie. Otwórz otrzymany link albo wpisz jego kod.</string>
+    <string name="invite_title">Masz kod zaproszenia?</string>
+    <string name="invite_detail">Wpisz go albo pomiń ten krok. Kod, który ktoś ci wysłał, od razu dodaje was do znajomych.</string>
     <string name="invite_label">Kod zaproszenia</string>
     <string name="invite_hint">Wpisz lub wklej kod zaproszenia albo wklej cały link z zaproszeniem. Wielkość liter nie ma znaczenia.</string>
     <string name="invite_unknown">Nie znamy tego zaproszenia. Sprawdź kod albo zapytaj osobę, która je wysłała.</string>
-    <string name="invite_none">Nie masz zaproszenia? Zapytaj kogoś, kto używa Duongöndro, albo ćwicz dalej na tym telefonie: konto dodasz później w Ustawieniach.</string>
+    <string name="invite_needed">Na razie do założenia konta potrzebny jest kod zaproszenia. Wpisz go albo ćwicz dalej na tym telefonie.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo wpisz kod zaproszenia: on działa mimo to.</string>
     <string name="invite_local">Na razie tylko na tym telefonie</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
     <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Za Twoją zgodą serwer przechowuje Twój e-mail lub nazwę użytkownika, imię, płeć, jeśli ją podasz, przyjaciół i publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
@@ -227,7 +228,7 @@
     <string name="previous_round">Poprzednia runda</string>
     <string name="next_round">Następna runda</string>
     <string name="invite_not_authentic">To zaproszenie nie przeszło weryfikacji: mogło zostać zmienione po drodze. Poproś osobę, która je wysłała, o nowe.</string>
-    <string name="no_account">Żadne konto nie używa tego adresu. Wróć i zacznij od zaproszenia.</string>
+    <string name="no_account">Żadne konto nie używa tego adresu. Sprawdź adres albo wróć i załóż konto.</string>
     <string name="try_later">Za dużo prób. Odczekaj kilka minut i spróbuj ponownie.</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="username_taken">Ta nazwa użytkownika jest zajęta. Wybierz inną.</string>

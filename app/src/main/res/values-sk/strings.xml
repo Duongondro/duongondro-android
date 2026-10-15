@@ -98,12 +98,13 @@
     <string name="where_later">Môžeš si ho vytvoriť neskôr v Nastaveniach</string>
     <string name="where_online">Vytvoriť online účet</string>
     <string name="where_local">Len v tomto telefóne</string>
-    <string name="invite_title">Tvoja pozvánka</string>
-    <string name="invite_detail">Účty sú zatiaľ len na pozvánku. Otvor odkaz, ktorý ti prišiel, alebo prepíš jeho kód.</string>
+    <string name="invite_title">Máš kód pozvánky?</string>
+    <string name="invite_detail">Zadaj ho, alebo tento krok preskoč. Kód, ktorý ti niekto poslal, z vás rovno urobí priateľov.</string>
     <string name="invite_label">Kód pozvánky</string>
     <string name="invite_hint">Napíš alebo vlož kód pozvánky, prípadne vlož celý odkaz s pozvánkou. Na veľkosti písmen nezáleží.</string>
     <string name="invite_unknown">Túto pozvánku nepoznáme. Skontroluj kód alebo sa opýtaj toho, kto ju poslal.</string>
-    <string name="invite_none">Nemáš pozvánku? Opýtaj sa niekoho, kto používa Duongöndro, alebo ďalej cvič v tomto telefóne: účet môžeš pridať neskôr v Nastaveniach.</string>
+    <string name="invite_needed">Zatiaľ je k účtu potrebný kód pozvánky. Zadaj ho, alebo ďalej cvič v tomto telefóne.</string>
+    <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo zadaj kód pozvánky: ten funguje aj tak.</string>
     <string name="invite_local">Zatiaľ len v tomto telefóne</string>
     <string name="consent_title">Skôr než niečo uložíme</string>
     <string name="consent_detail">Účet v aplikácii pre budhistickú prax vypovedá o tvojom presvedčení, ktoré GDPR považuje za osobitné. S tvojím súhlasom server uchováva tvoj e-mail alebo používateľské meno, tvoje meno, pohlavie, ak ho uvedieš, tvojich priateľov a verejné série. Tvoje počty zostávajú zašifrované v tvojich telefónoch.</string>
@@ -214,7 +215,7 @@
     <string name="previous_round">Predchádzajúce kolo</string>
     <string name="next_round">Nasledujúce kolo</string>
     <string name="invite_not_authentic">Táto pozvánka neprešla kontrolou: mohla byť cestou zmenená. Popros odosielateľa o novú.</string>
-    <string name="no_account">Tento e-mail nepoužíva žiadny účet. Vráť sa a začni s pozvánkou.</string>
+    <string name="no_account">Tento e-mail nepoužíva žiadny účet. Skontroluj adresu, alebo sa vráť a vytvor si účet.</string>
     <string name="try_later">Príliš veľa pokusov. Počkaj pár minút a skús to znova.</string>
     <string name="try_again">Skúsiť znova</string>
     <string name="username_taken">Toto používateľské meno je obsadené. Skús iné.</string>

@@ -100,12 +100,13 @@
     <string name="where_later">Du kannst später in den Einstellungen eines anlegen</string>
     <string name="where_online">Online-Konto anlegen</string>
     <string name="where_local">Nur auf diesem Handy</string>
-    <string name="invite_title">Deine Einladung</string>
-    <string name="invite_detail">Konten gibt es vorerst nur auf Einladung. Öffne den Link, den du bekommen hast, oder tippe seinen Code ein.</string>
+    <string name="invite_title">Hast du einen Einladungscode?</string>
+    <string name="invite_detail">Gib ihn ein oder überspring den Schritt. Ein Code, den dir jemand geschickt hat, macht euch auch gleich zu Freunden.</string>
     <string name="invite_label">Einladungscode</string>
     <string name="invite_hint">Tippe den Einladungscode ein oder füge ihn ein, oder füge den ganzen Einladungslink ein. Groß- und Kleinschreibung spielt keine Rolle.</string>
     <string name="invite_unknown">Diese Einladung kennen wir nicht. Prüfe den Code oder frag, wer sie geschickt hat.</string>
-    <string name="invite_none">Keine Einladung? Frag jemanden, der Duongöndro nutzt, oder übe weiter auf diesem Handy: Ein Konto kannst du später in den Einstellungen anlegen.</string>
+    <string name="invite_needed">Vorerst braucht ein Konto einen Einladungscode. Gib einen ein oder übe weiter auf diesem Handy.</string>
+    <string name="signup_too_many">Aus diesem Netz gab es in der letzten Stunde zu viele Registrierungen. Versuch es später, oder gib einen Einladungscode ein: Der funktioniert trotzdem.</string>
     <string name="invite_local">Vorerst nur auf diesem Handy</string>
     <string name="consent_title">Bevor wir etwas speichern</string>
     <string name="consent_detail">Ein Konto in einer App für buddhistische Praxis sagt etwas über deine Überzeugungen aus, die die DSGVO als besonders schützenswert behandelt. Mit deiner Einwilligung speichert der Server deine E-Mail-Adresse oder deinen Benutzernamen, deinen Namen, dein Geschlecht, falls du es angibst, deine Freunde und deine öffentlichen Serien. Deine Zähler bleiben auf deinen Handys verschlüsselt.</string>
@@ -221,7 +222,7 @@
     <string name="previous_round">Vorherige Runde</string>
     <string name="next_round">Nächste Runde</string>
     <string name="invite_not_authentic">Diese Einladung hält der Prüfung nicht stand: Sie wurde unterwegs vielleicht verändert. Bitte um eine neue.</string>
-    <string name="no_account">Kein Konto nutzt diese E-Mail-Adresse. Geh zurück und beginne mit einer Einladung.</string>
+    <string name="no_account">Kein Konto nutzt diese E-Mail-Adresse. Prüf die Adresse, oder geh zurück und leg ein Konto an.</string>
     <string name="try_later">Zu viele Versuche. Warte ein paar Minuten und versuche es dann noch einmal.</string>
     <string name="try_again">Noch einmal versuchen</string>
     <string name="username_taken">Dieser Benutzername ist vergeben. Versuche einen anderen.</string>
