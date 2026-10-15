@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FRIEND_DONE">%1$s acaba de practicar</string>
+    <string name="FRIEND_DONE_MALE">%1$s acaba de practicar</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s acaba de practicar</string>
+    <string name="POKE">%1$s te dio un toque. ¿Hora de sentarte a meditar?</string>
+    <string name="POKE_MALE">%1$s te dio un toque. ¿Hora de sentarte a meditar?</string>
+    <string name="POKE_FEMALE">%1$s te dio un toque. ¿Hora de sentarte a meditar?</string>
+    <string name="STREAK_AT_RISK">Una de tus rachas termina en menos de dos horas</string>
+    <string name="push_generic">Novedades de tus amigos</string>
+    <string name="push_ask_title">Deja que tus amigos te animen</string>
+    <string name="push_ask_detail">Así %1$s podrá animarte y sabrás cuándo practican tus amigos.</string>
+    <string name="push_ask_turn_on">Activar notificaciones</string>
+</resources>

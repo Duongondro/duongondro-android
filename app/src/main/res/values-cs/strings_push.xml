@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FRIEND_DONE">%1$s právě praktikoval(a)</string>
+    <string name="FRIEND_DONE_MALE">%1$s právě praktikoval</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s právě praktikovala</string>
+    <string name="POKE">%1$s do tebe šťouchá. Nesedneš si k meditaci?</string>
+    <string name="POKE_MALE">%1$s do tebe šťouchl. Nesedneš si k meditaci?</string>
+    <string name="POKE_FEMALE">%1$s do tebe šťouchla. Nesedneš si k meditaci?</string>
+    <string name="STREAK_AT_RISK">Jedna z tvých sérií skončí za necelé dvě hodiny</string>
+    <string name="push_generic">Novinky od přátel</string>
+    <string name="push_ask_title">Nech se od přátel popohánět</string>
+    <string name="push_ask_detail">Pak tě %1$s může popohnat a dozvíš se, když přátelé praktikují.</string>
+    <string name="push_ask_turn_on">Zapnout oznámení</string>
+</resources>

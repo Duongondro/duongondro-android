@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FRIEND_DONE">%1$s właśnie praktykował(a)</string>
+    <string name="FRIEND_DONE_MALE">%1$s właśnie praktykował</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s właśnie praktykowała</string>
+    <string name="POKE">%1$s cię szturcha. Czas usiąść do praktyki?</string>
+    <string name="POKE_MALE">%1$s cię szturchnął. Czas usiąść do praktyki?</string>
+    <string name="POKE_FEMALE">%1$s cię szturchnęła. Czas usiąść do praktyki?</string>
+    <string name="STREAK_AT_RISK">Jedna z twoich serii kończy się za mniej niż dwie godziny</string>
+    <string name="push_generic">Wieści od przyjaciół</string>
+    <string name="push_ask_title">Pozwól przyjaciołom cię popędzać</string>
+    <string name="push_ask_detail">Wtedy %1$s może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
+    <string name="push_ask_turn_on">Włącz powiadomienia</string>
+</resources>
