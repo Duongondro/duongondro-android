@@ -103,13 +103,14 @@ import app.duongondro.reminders.rememberNotificationPermission
 /** The language picker waits for the translations; only English exists yet. */
 private const val SHOW_LANGUAGE = true
 
-/** The nine launch languages (design: Localisation). */
-private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es")
+/** The ten languages (design: Localisation). */
+private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es", "fr")
 
 @Composable
 fun SettingsScreen(
     model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit,
     openSignIn: () -> Unit, openNewAccount: () -> Unit, openRecoveryCode: () -> Unit, openInvite: () -> Unit,
+    openPrfCheck: () -> Unit = {},
 ) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
@@ -152,7 +153,7 @@ fun SettingsScreen(
             ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)
         }
 
-        AboutSection(model.accounts, openAbout)
+        AboutSection(model.accounts, openAbout, openPrfCheck)
     }
     if (adding) AddPracticeDialog(model) { adding = false }
 }
@@ -558,14 +559,17 @@ private const val SERVER_REPOSITORY = "https://github.com/Duongondro/duongondro-
  * short commit with -dirty on development builds. Tap opens the commit on
  * GitHub, a long press copies the full hash.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openAbout: () -> Unit) {
+private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openAbout: () -> Unit, openPrfCheck: () -> Unit) {
     val revision = BuildConfig.GIT_REVISION
     val account = accounts?.state?.collectAsStateWithLifecycle()?.value?.status
     val server = accounts?.serverVersion?.collectAsStateWithLifecycle()?.value
     LaunchedEffect(account) { accounts?.loadServerVersion() }
     CardSection(stringResource(R.string.section_about), stringResource(R.string.source_footer)) {
-        ListRow(stringResource(R.string.version), detail = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        // A long press opens the passkey PRF check (PrfCheckScreen), a diagnostic.
+        ListRow(stringResource(R.string.version), Modifier.combinedClickable(onClick = {}, onLongClick = openPrfCheck),
+            detail = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         RowDivider()
         CommitRow(stringResource(R.string.source), shortRevision, revision.takeIf { it != "unknown" }?.let { "$REPOSITORY/commit/$it" }, revision, Theme.colors.accent)
         // The server's commit, linked like the app's (iOS's About): only with an account, since local mode asks no server.

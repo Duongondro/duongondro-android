@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  French needs no gendered variant for any of the current gendered names:
+  each takes the passé composé with "avoir" ("As-tu terminé le ngöndro ?",
+  "J'ai commencé après minuit", "%1$s a terminé %2$s", "%s n'a pas encore
+  pratiqué"), whose participle does not agree with the subject. The defaults in
+  values/strings_gendered.xml fall back to the French neutral strings.
+  Add <name>_male / <name>_female here when a new gendered string needs them.
+-->
+<resources>
+</resources>

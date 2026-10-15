@@ -35,7 +35,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.core.content.FileProvider
 import app.duongondro.BuildConfig
 import app.duongondro.R
-import app.duongondro.data.Covers
 import app.duongondro.data.DataExport
 import app.duongondro.data.Exports
 import app.duongondro.model.AppModel
@@ -89,7 +88,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                         if (accountWithoutServer) serverMissing = true
                         val known = model.accounts?.knownSessionIds().orEmpty()
                         val file = withContext(Dispatchers.IO) {
-                            val zip = DataExport.zip(model.snapshot.value, server, Covers.all(context), known, accountWithoutServer,
+                            val zip = DataExport.zip(model.snapshot.value, server, known, accountWithoutServer,
                                 "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
                             Exports.write(context, zip, DataExport.fileName())
                         }
