@@ -17,6 +17,12 @@
     <string name="POKE">%1$s poked you. Time to sit down?</string>
     <string name="POKE_MALE">%1$s poked you. Time to sit down?</string>
     <string name="POKE_FEMALE">%1$s poked you. Time to sit down?</string>
+    <string name="FRIEND_DONE_UNNAMED">A friend just practised</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">A friend just practised</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">A friend just practised</string>
+    <string name="POKE_UNNAMED">A friend poked you</string>
+    <string name="POKE_UNNAMED_MALE">A friend poked you</string>
+    <string name="POKE_UNNAMED_FEMALE">A friend poked you</string>
     <string name="STREAK_AT_RISK">One of your streaks ends in under two hours</string>
     <!-- A push with a key this version does not know, drawn by the app in the foreground. -->
     <string name="push_generic">News from your friends</string>

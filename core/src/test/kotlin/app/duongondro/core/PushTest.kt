@@ -34,14 +34,17 @@ class PushTest {
     }
 
     @Test fun keysAreTheServers() {
-        // A copy of duongondro-api internal/service/nudges.go: its three base keys,
+        // A copy of duongondro-api internal/service/nudges.go: its five base keys,
         // each with _MALE and _FEMALE variants but STREAK_AT_RISK.
-        val expected = listOf("FRIEND_DONE", "FRIEND_DONE_MALE", "FRIEND_DONE_FEMALE", "POKE", "POKE_MALE", "POKE_FEMALE", "STREAK_AT_RISK")
+        val expected = listOf("FRIEND_DONE", "FRIEND_DONE_MALE", "FRIEND_DONE_FEMALE",
+            "FRIEND_DONE_UNNAMED", "FRIEND_DONE_UNNAMED_MALE", "FRIEND_DONE_UNNAMED_FEMALE",
+            "POKE", "POKE_MALE", "POKE_FEMALE", "POKE_UNNAMED", "POKE_UNNAMED_MALE", "POKE_UNNAMED_FEMALE",
+            "STREAK_AT_RISK")
         assertEquals(expected, PushKey.entries.map { it.wire })
         // Checked against the server's source when a checkout of it is beside this one.
         val nudges = generateSequence(File("").absoluteFile) { it.parentFile }
             .map { File(it, "duongondro-api/internal/service/nudges.go") }.firstOrNull { it.isFile } ?: return
         val base = Regex("""Loc\w+\s*=\s*"([A-Z_]+)"""").findAll(nudges.readText()).map { it.groupValues[1] }.toList()
-        assertEquals(listOf("FRIEND_DONE", "POKE", "STREAK_AT_RISK"), base)
+        assertEquals(listOf("FRIEND_DONE", "FRIEND_DONE_UNNAMED", "POKE", "POKE_UNNAMED", "STREAK_AT_RISK"), base)
     }
 }

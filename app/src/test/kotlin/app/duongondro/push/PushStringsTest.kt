@@ -57,7 +57,7 @@ class PushStringsTest {
                     n!!
                 }.toSet()
                 assertTrue("$folder ${key.wire} uses $used, allowed ${key.allowedArguments}: $text", key.allowedArguments.containsAll(used))
-                if (key != PushKey.STREAK_AT_RISK) assertEquals("$folder ${key.wire} must name the sender: $text", setOf(1), used)
+                if (key.namesSender) assertEquals("$folder ${key.wire} must name the sender: $text", setOf(1), used)
             }
         }
     }

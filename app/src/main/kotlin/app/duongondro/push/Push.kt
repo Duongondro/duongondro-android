@@ -254,7 +254,7 @@ object Push {
     internal fun text(res: Resources, key: PushKey?, args: Array<out String>): String {
         key ?: return res.getString(R.string.push_generic)
         // A friend with no display name: "A friend", as the Friends tab says.
-        val shown = args.mapIndexed { i, a -> if (i == 0 && key != PushKey.STREAK_AT_RISK && a.isBlank()) res.getString(R.string.a_friend) else a }
+        val shown = args.mapIndexed { i, a -> if (i == 0 && key.namesSender && a.isBlank()) res.getString(R.string.a_friend) else a }
         return runCatching { res.getString(string(key), *shown.toTypedArray()) }.getOrElse { res.getString(R.string.push_generic) }
     }
 
@@ -265,6 +265,12 @@ object Push {
         PushKey.POKE -> R.string.POKE
         PushKey.POKE_MALE -> R.string.POKE_MALE
         PushKey.POKE_FEMALE -> R.string.POKE_FEMALE
+        PushKey.FRIEND_DONE_UNNAMED -> R.string.FRIEND_DONE_UNNAMED
+        PushKey.FRIEND_DONE_UNNAMED_MALE -> R.string.FRIEND_DONE_UNNAMED_MALE
+        PushKey.FRIEND_DONE_UNNAMED_FEMALE -> R.string.FRIEND_DONE_UNNAMED_FEMALE
+        PushKey.POKE_UNNAMED -> R.string.POKE_UNNAMED
+        PushKey.POKE_UNNAMED_MALE -> R.string.POKE_UNNAMED_MALE
+        PushKey.POKE_UNNAMED_FEMALE -> R.string.POKE_UNNAMED_FEMALE
         PushKey.STREAK_AT_RISK -> R.string.STREAK_AT_RISK
     }
 }

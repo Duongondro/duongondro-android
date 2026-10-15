@@ -6,6 +6,12 @@
     <string name="POKE">%1$s підштовхує вас. Час сідати практикувати?</string>
     <string name="POKE_MALE">%1$s підштовхнув вас. Час сідати практикувати?</string>
     <string name="POKE_FEMALE">%1$s підштовхнула вас. Час сідати практикувати?</string>
+    <string name="FRIEND_DONE_UNNAMED">Друг щойно виконав практику</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Друг щойно виконав практику</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Подруга щойно виконала практику</string>
+    <string name="POKE_UNNAMED">Друг підштовхнув вас</string>
+    <string name="POKE_UNNAMED_MALE">Друг підштовхнув вас</string>
+    <string name="POKE_UNNAMED_FEMALE">Подруга підштовхнула вас</string>
     <string name="STREAK_AT_RISK">Одна з ваших серій закінчиться менш ніж за дві години</string>
     <string name="push_generic">Новини від друзів</string>
     <string name="push_ask_title">Нехай друзі вас підганяють</string>

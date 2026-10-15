@@ -6,6 +6,12 @@
     <string name="POKE">%1$s do teba štuchá. Nesadneš si k meditácii?</string>
     <string name="POKE_MALE">%1$s do teba štuchol. Nesadneš si k meditácii?</string>
     <string name="POKE_FEMALE">%1$s do teba štuchla. Nesadneš si k meditácii?</string>
+    <string name="FRIEND_DONE_UNNAMED">Priateľ práve cvičil</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Priateľ práve cvičil</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Priateľka práve cvičila</string>
+    <string name="POKE_UNNAMED">Priateľ ťa štuchol</string>
+    <string name="POKE_UNNAMED_MALE">Priateľ ťa štuchol</string>
+    <string name="POKE_UNNAMED_FEMALE">Priateľka ťa štuchla</string>
     <string name="STREAK_AT_RISK">Jedna z tvojich sérií skončí o necelé dve hodiny</string>
     <string name="push_generic">Novinky od priateľov</string>
     <string name="push_ask_title">Nechaj sa priateľmi postrčiť</string>

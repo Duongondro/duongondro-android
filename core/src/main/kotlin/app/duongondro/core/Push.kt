@@ -22,10 +22,18 @@ enum class PushKey(val wire: String) {
     FRIEND_DONE("FRIEND_DONE"),
     FRIEND_DONE_MALE("FRIEND_DONE_MALE"),
     FRIEND_DONE_FEMALE("FRIEND_DONE_FEMALE"),
+    /** A sender without a display name. Args: practice id, day count. */
+    FRIEND_DONE_UNNAMED("FRIEND_DONE_UNNAMED"),
+    FRIEND_DONE_UNNAMED_MALE("FRIEND_DONE_UNNAMED_MALE"),
+    FRIEND_DONE_UNNAMED_FEMALE("FRIEND_DONE_UNNAMED_FEMALE"),
     /** Args: name. */
     POKE("POKE"),
     POKE_MALE("POKE_MALE"),
     POKE_FEMALE("POKE_FEMALE"),
+    /** A sender without a display name. No args. */
+    POKE_UNNAMED("POKE_UNNAMED"),
+    POKE_UNNAMED_MALE("POKE_UNNAMED_MALE"),
+    POKE_UNNAMED_FEMALE("POKE_UNNAMED_FEMALE"),
     /** Args: practice id, day count. */
     STREAK_AT_RISK("STREAK_AT_RISK");
 
@@ -35,7 +43,11 @@ enum class PushKey(val wire: String) {
      * practice and the day count.
      */
     val allowedArguments: Set<Int>
-        get() = if (this == STREAK_AT_RISK) emptySet() else setOf(1)
+        get() = if (namesSender) setOf(1) else emptySet()
+
+    /** Whether the first argument is the sender's display name (the _UNNAMED keys have none). */
+    val namesSender: Boolean
+        get() = this != STREAK_AT_RISK && !wire.contains("_UNNAMED")
 
     companion object {
         fun of(wire: String?): PushKey? = entries.firstOrNull { it.wire == wire }
