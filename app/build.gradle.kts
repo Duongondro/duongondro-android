@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    // Reads app/google-services.json (Firebase project duongondro-43f6c) into resources.
+    alias(libs.plugins.google.services)
 }
 
 // Build identity (design: Settings and build identity): the commit this build
@@ -146,6 +148,10 @@ dependencies {
     // provides them below Android 14.
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
+    // Friends' pushes. Messaging only: no Analytics, and nothing starts before an
+    // account with keys turns it on (AndroidManifest.xml, push/Push.kt).
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.compose.ui)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.ui.tooling.preview)

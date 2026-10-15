@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Only with an account: local mode makes no network call. -->
+    <!-- Only with an account: local mode makes no network call. Firebase (push) is
+         off until an account with keys turns it on (push/Push.kt). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -21,6 +22,23 @@
         <meta-data
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
+        <!-- Friends' pushes (FCM). No token, no Firebase Installation and no network
+             until an account with keys turns auto-init on (push/Push.kt); signing out
+             turns it off again. No Analytics is included; deactivated in case a
+             dependency ever brings it. -->
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
+        <!-- What the system draws a notification message with while the app is in the background. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="friends" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_flame" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -81,6 +99,14 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".push.PushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <!-- Per-app language on API 28–32: AppCompat stores the choice itself. -->
         <service

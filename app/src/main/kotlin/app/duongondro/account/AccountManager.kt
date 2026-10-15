@@ -26,6 +26,7 @@ import app.duongondro.data.Exports
 import app.duongondro.keys.KeystoreDeviceKeys
 import app.duongondro.keys.SecretFiles
 import app.duongondro.model.SqliteStore
+import app.duongondro.push.Push
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +44,9 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.Instant
 import java.util.UUID
+
+/** The session token among the sealed secrets; the push token upload reads it too. */
+internal const val SESSION_TOKEN = "session-token"
 
 enum class Gender(val wire: String) { Male("male"), Female("female"), NonBinary("nonbinary") }
 
@@ -269,6 +273,8 @@ class AccountManager(
      */
     private fun forgetOtherAccount() {
         _friends.value = FriendsState()
+        // Its session is gone, so the server keeps its token, but FCM stops delivering to a deleted one.
+        Push.forget(app)
         forgetSecrets()
         deviceKeys.delete()
         prefs.edit { clear() }
@@ -955,6 +961,8 @@ class AccountManager(
     private suspend fun sessionEnded(a: Account?) {
         if (a == null || account !== a) return
         withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
+        // The server dropped the push token with the session: send it again after signing in.
+        Push.forgetSent(app)
         account = null
         social = null
         signUpFinished()
@@ -977,7 +985,12 @@ class AccountManager(
 
     private suspend fun signOutLocked() {
         val user = db.syncState()?.user
-        account?.let { a -> runCatching { a.api.signOut() } }
+        account?.let { a ->
+            // No more pushes to this phone for this account, while the session can still say so.
+            runCatching { a.deviceId()?.let { a.api.deletePushToken(it) } }
+            runCatching { a.api.signOut() }
+        }
+        Push.forget(app)
         account = null
         social = null
         _friends.value = FriendsState()
@@ -1029,6 +1042,8 @@ class AccountManager(
     fun forget() {
         pendingSync?.cancel()
         onShow.forget()
+        // The server deleted the token with the account; FCM's goes too.
+        Push.forget(app)
         account = null
         social = null
         _friends.value = FriendsState()
@@ -1044,7 +1059,7 @@ class AccountManager(
 
     private companion object {
         const val TAG = "Account"
-        const val TOKEN = "session-token"
+        const val TOKEN = SESSION_TOKEN
         const val PREFS = "account"
         const val EMAIL = "email"
         const val USERNAME = "username"

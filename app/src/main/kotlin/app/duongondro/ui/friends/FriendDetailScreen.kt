@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.R
 import app.duongondro.core.sync.Social
 import app.duongondro.model.AppModel
+import app.duongondro.push.rememberPushPermission
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.ListRow
 import app.duongondro.ui.RowDivider
@@ -73,6 +74,7 @@ fun FriendDetailScreen(model: AppModel, friendId: String, back: () -> Unit) {
     var confirmingBlock by rememberSaveable { mutableStateOf(false) }
     var reporting by rememberSaveable { mutableStateOf(false) }
     val run = { work: suspend () -> Unit -> scope.launch { attempt({ failed = it }, work) }; Unit }
+    val askPush = rememberPushPermission(model)
 
     Page(f.shownName(), back) {
         if (f.keyChanged) {
@@ -96,13 +98,18 @@ fun FriendDetailScreen(model: AppModel, friendId: String, back: () -> Unit) {
         CardSection(stringResource(R.string.notifications)) {
             SwitchRow(stringResource(R.string.tell_me_when), null, f.notifyDone, Modifier.padding(horizontal = Space.l, vertical = Space.s)) { on ->
                 run { accounts.setNotifyDone(f.user, on) }
+                if (on) askPush()
             }
         }
         val poked = friends.isPoked(f.user, now)
         CardSection(footer = if (reported) stringResource(R.string.reported) else null) {
             ListRow(stringResource(if (poked) R.string.poked else R.string.poke),
                 titleColor = if (poked) Theme.colors.muted else Theme.colors.accent, semibold = !poked,
-                onClick = if (poked) null else ({ run { accounts.poke(f.user) } }))
+                onClick = if (poked) null else ({
+                    run { accounts.poke(f.user) }
+                    // So they can poke back.
+                    askPush()
+                }))
             RowDivider()
             ListRow(stringResource(R.string.unfriend), onClick = { confirmingUnfriend = true })
             RowDivider()

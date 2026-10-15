@@ -3,6 +3,10 @@ package app.duongondro.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.duongondro.account.AccountManager
+import app.duongondro.account.AccountStatus
+import app.duongondro.push.Push
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
@@ -43,6 +47,8 @@ class AppModel(
 ) : ViewModel() {
     /** Every server and key operation; none for previews and tests without a database. */
     val accounts: AccountManager? = (store as? SqliteStore)?.let { s -> context?.let { AccountManager(it, s, viewModelScope, onInvitationUsed = { usedInvite() }) } }
+
+    private val appContext = context?.applicationContext
 
     val snapshot: StateFlow<Snapshot> = store.snapshot
 
@@ -109,12 +115,28 @@ class AppModel(
             _loaded.value = true
             accounts?.syncNow()
         }
+        accounts?.let { a ->
+            // Push follows the account: on when it is ready here (and notifications
+            // are allowed), never in local mode.
+            viewModelScope.launch {
+                a.state.map { it.status }.distinctUntilChanged().collect { if (it == AccountStatus.READY) refreshPush() }
+            }
+            // A friend's push while the app runs: their news is worth fetching.
+            viewModelScope.launch { Push.received.collect { a.refreshFriends() } }
+        }
+    }
+
+    /** Turns push on and sends the token, for an account with keys only; again at every return to the foreground. */
+    fun refreshPush() {
+        val context = appContext ?: return
+        if (accounts?.state?.value?.status == AccountStatus.READY) Push.refresh(context)
     }
 
     /** Back in the foreground: sync, if there is an account. */
     fun resumed() {
         tick()
         if (_loaded.value) viewModelScope.launch { accounts?.syncNow() }
+        refreshPush()
     }
 
     /**
