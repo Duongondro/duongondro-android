@@ -49,6 +49,7 @@ import app.duongondro.ui.onboarding.Step
 import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
+import app.duongondro.ui.settings.PrfCheckScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
 import app.duongondro.ui.settings.AboutScreen
 import app.duongondro.ui.settings.PracticeListScreen
@@ -154,6 +155,7 @@ private object Routes {
     const val DELETE = "settings/data/delete"
     const val ABOUT = "settings/about"
     const val LICENCES = "settings/licences"
+    const val PRF_CHECK = "settings/prf-check"
     const val SIGN_IN = "settings/account/sign-in"
     const val NEW_ACCOUNT = "settings/account/new"
     const val RECOVERY_CODE = "settings/account/recovery-code"
@@ -198,8 +200,10 @@ private fun Home(model: AppModel) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
                     openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
                     openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
-                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) })
+                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
+                    openPrfCheck = { nav.navigate(Routes.PRF_CHECK) })
             }
+            composable(Routes.PRF_CHECK) { PrfCheckScreen { nav.popBackStack() } }
             composable(Routes.FRIENDS) {
                 FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
                     openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) }, openSignIn = { nav.navigate(Routes.SIGN_IN) },
