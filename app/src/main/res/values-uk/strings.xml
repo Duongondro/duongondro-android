@@ -138,7 +138,7 @@
     <string name="gender_nonbinary">Небінарна</string>
     <string name="add_email_title">Додати пошту?</string>
     <string name="add_email_detail">Другий спосіб входу, наприклад на новому телефоні.</string>
-    <string name="add_email_sent">Введіть код, який ми надіслали на %s.</string>
+    <string name="add_email_sent">Введіть код, який ми надіслали на %1$s.</string>
     <string name="email_taken">Ця пошта належить іншому обліковому запису.</string>
     <string name="passkey_title">Збережіть ключ доступу</string>
     <string name="passkey_detail">Наступного разу ви увійдете за відбитком пальця або блокуванням екрана. Менеджер паролів Google зберігає ключ, тож він буде й на новому телефоні з Android.</string>

@@ -138,7 +138,7 @@
     <string name="gender_nonbinary">Non-binary</string>
     <string name="add_email_title">Add an email?</string>
     <string name="add_email_detail">A second way to sign in, for example on a new phone.</string>
-    <string name="add_email_sent">Type the code we sent to %s.</string>
+    <string name="add_email_sent">Type the code we sent to %1$s.</string>
     <string name="email_taken">This email belongs to another account.</string>
     <string name="passkey_title">Save a passkey</string>
     <string name="passkey_detail">Next time you sign in with your fingerprint or screen lock. Google Password Manager keeps it, so a new Android phone has it too.</string>

@@ -484,8 +484,11 @@ private fun ColumnScope.Practices(flow: OnboardingFlow) {
                 }
                 if (on && p.streakOnlyAllowed) {
                     Box(Modifier.padding(start = Size.minTap + Space.s, end = Space.l, bottom = Space.s)) {
-                        SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen[i].streakOnly) {
-                            flow.chosen[i] = flow.chosen[i].copy(streakOnly = it)
+                        // Bound by id, never by the index this row was drawn with: unticking a
+                        // practice shifts the list before this row is gone.
+                        SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen.getOrNull(i)?.streakOnly == true) { on ->
+                            val at = flow.chosen.indexOfFirst { it.practice.id == p.id }
+                            if (at >= 0) flow.chosen[at] = flow.chosen[at].copy(streakOnly = on)
                         }
                     }
                 }

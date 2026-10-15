@@ -125,9 +125,9 @@
     <string name="gender_male">Férfi</string>
     <string name="gender_female">Nő</string>
     <string name="gender_nonbinary">Nem bináris</string>
-    <string name="add_email_title">Hozzáadsz egy e-mail-címet?</string>
-    <string name="add_email_detail">Egy második bejelentkezési mód, például új telefonon.</string>
-    <string name="add_email_sent">Írd be a kódot, amelyet a(z) %s címre küldtünk.</string>
+    <string name="add_email_title">Megadsz egy e-mail-címet?</string>
+    <string name="add_email_detail">Egy második bejelentkezési mód, például egy új telefonon.</string>
+    <string name="add_email_sent">Írd be a kódot, amit a(z) %1$s címre küldtünk.</string>
     <string name="email_taken">Ez az e-mail-cím egy másik fiókhoz tartozik.</string>
     <string name="passkey_title">Mentsd el a hozzáférési kulcsot</string>
     <string name="passkey_detail">Legközelebb ujjlenyomattal vagy képernyőzárral jelentkezel be. A Google Jelszókezelő megőrzi, így egy új Androidos telefonon is megvan.</string>
