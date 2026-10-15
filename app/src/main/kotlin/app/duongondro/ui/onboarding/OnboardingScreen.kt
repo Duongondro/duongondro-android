@@ -235,7 +235,29 @@ class OnboardingFlow : ViewModel() {
         chosen.removeAll { !it.practice.isCustom && it.practice.id !in allowed }
     }
 
+    /** Resumed after a relaunch at the name: the practices were saved at sign-up, and this flow holds none of the answers. */
+    var resumed = false
+
     fun finish(model: AppModel, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
+        if (resumed) {
+            // Keep what was saved when the account was made; only the onboarding ends.
+            val prefs = model.snapshot.value.preferences.copy(onboarded = true)
+            model.perform {
+                model.store.completeOnboarding(emptyList(), emptyList(), prefs)
+                model.accounts?.scheduleSync(0)
+            }
+            return
+        }
+        save(model, onboarded = true, now, zone)
+    }
+
+    /**
+     * Writes the practices, seeds and preferences answered so far; [onboarded]
+     * false when the account was just made and its optional steps follow, so a
+     * relaunch keeps them. Practices and seeds are keyed by id, so saving again
+     * at the end adds nothing twice.
+     */
+    fun save(model: AppModel, onboarded: Boolean, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
         val today = civilDate(now, zone)
         val practices = chosen.mapIndexed { i, c ->
             TrackedPractice(
@@ -248,7 +270,7 @@ class OnboardingFlow : ViewModel() {
             StreakSeed(it.practice.id, it.streak, it.longest, if (it.lastWasToday) today else today.minusDays(1), zone.id)
         }
         val prefs = Preferences(
-            onboarded = true,
+            onboarded = onboarded,
             finishedNgondro = finishedNgondro,
             finishedShortRefuge = finishedShortRefuge || finishedNgondro,
             // Signing in skips the practice questions, the reminder's among them.
@@ -256,9 +278,12 @@ class OnboardingFlow : ViewModel() {
         )
         model.perform {
             model.store.completeOnboarding(practices, seeds, prefs)
-            model.accounts?.scheduleSync(0)
+            if (onboarded) model.accounts?.scheduleSync(0)
         }
     }
+
+    /** Set by the first-run screen: what to keep once the account exists (the practices answered before it). */
+    var onAccount: (() -> Unit)? = null
 }
 
 /** How far along the bar a step is, and out of how many: five practice questions, then three account steps. */
@@ -294,8 +319,11 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
         // A sign-up whose account exists but whose optional steps were cut short
         // (the app closed) resumes at the name rather than starting over.
         val resume = done == null && start == Step.Welcome && accounts.signUpUnfinished
+        if (resume) flow.resumed = true
         flow.begin(if (resume) Step.Name else start, signingIn = start == Step.SignIn)
     }
+    // The first run keeps its practices as soon as the account exists; from Settings there are none to keep.
+    flow.onAccount = if (done == null && !flow.resumed) ({ flow.save(model, onboarded = false) }) else null
     val leave = { done?.invoke() ?: Unit }
     BackHandler(enabled = flow.canGoBack || done != null) { if (flow.canGoBack) flow.back() else leave() }
     // Local mode keeps the onboarding's answers; from Settings, nothing about the practices changes.

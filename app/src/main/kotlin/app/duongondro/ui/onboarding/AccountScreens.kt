@@ -221,6 +221,7 @@ private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, create
  */
 private suspend fun accountMade(flow: OnboardingFlow, accounts: AccountManager) {
     flow.signingIn = false
+    flow.onAccount?.invoke()
     try {
         accounts.setUpKeys()
     } catch (e: CancellationException) {
@@ -320,15 +321,17 @@ private fun OtherAccountDialog(
 @Composable
 internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finishLocal: () -> Unit) {
     val accounts = model.accounts
+    val status = accounts?.state?.collectAsState()?.value?.status
+    val made = !flow.signingIn && (status == AccountStatus.NEEDS_KEYS || status == AccountStatus.READY)
     Page(
         stringResource(R.string.where_title), plain(stringResource(R.string.where_detail)), centered = true,
         actions = {
             FilledAction(stringResource(R.string.where_online), enabled = accounts != null) {
                 flow.signingIn = false
-                val made = accounts?.state?.value?.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }
                 if (made) flow.afterAccount(Step.Name) else flow.go(Step.Consent)
             }
-            OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
+            // An account that exists is finished through name, gender and recovery code, never left half made.
+            if (!made) OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
                 container = androidx.compose.ui.graphics.Color.Transparent) { accounts?.clearInvitation(); finishLocal() }
         },
     ) {
