@@ -318,7 +318,7 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
  * sign-up, duongondro-api#16).
  */
 @Composable
-internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
+internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finishLocal: () -> Unit) {
     val call = rememberCall()
     // An invite link opened earlier (Settings' "Make an online account" starts here):
     // filled in and checked once, so a valid one skips the step as in onboarding.
@@ -358,6 +358,7 @@ internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accou
                 flow.inviteProblem = null
                 flow.go(Step.Consent)
             }
+            TextAction(stringResource(R.string.invite_local)) { accounts.clearInvitation(); finishLocal() }
         },
     ) {
         LabelledField(stringResource(R.string.invite_label), flow.inviteCode,
@@ -536,6 +537,7 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
 internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
     val activity = LocalContext.current
+    var problem by remember { mutableStateOf<Int?>(null) }
     // The passkey made the account with its profile already: keys next.
     OtherAccountDialog(flow, accounts, finish = {}) { flow.go(Step.Recovery) }
     Page(
@@ -550,7 +552,9 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
         },
         actions = {
             CallError(call)
+            problem?.let { ErrorLine(stringResource(it)) }
             FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) {
+                problem = null
                 call.run {
                     // Without an email the passkey makes the account, with the profile given so far.
                     val profile = if (flow.email.isBlank()) {
@@ -563,6 +567,7 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
                         PasskeyResult.InviteGone -> refused(flow, R.string.invite_unknown)
                         PasskeyResult.InvitationNeeded -> refused(flow, R.string.invite_needed)
                         PasskeyResult.TooManySignUps -> refused(flow, R.string.signup_too_many)
+                        PasskeyResult.TooMany -> problem = R.string.try_later
                         PasskeyResult.OtherAccountData -> flow.otherAccount = true
                     }
                 }

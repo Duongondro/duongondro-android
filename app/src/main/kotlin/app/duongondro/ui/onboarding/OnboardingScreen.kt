@@ -309,7 +309,7 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             is Step.Counts -> Counts(flow, step.index)
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
-            Step.Invite -> InviteStep(flow, model, accounts)
+            Step.Invite -> InviteStep(flow, model, accounts, finishLocal)
             Step.Consent -> ConsentStep(flow)
             Step.Email -> EmailStep(flow, accounts)
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)

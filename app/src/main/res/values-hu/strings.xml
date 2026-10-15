@@ -99,8 +99,9 @@
     <string name="invite_label">Meghívókód</string>
     <string name="invite_hint">Írd be vagy illeszd be a meghívókódot, vagy illeszd be a teljes meghívólinket. A kis- és nagybetű mindegy.</string>
     <string name="invite_unknown">Ezt a meghívót nem ismerjük. Ellenőrizd a kódot, vagy kérdezd meg, aki küldte.</string>
-    <string name="invite_needed">Új fiókhoz egyelőre meghívókód kell.</string>
+    <string name="invite_needed">Egyelőre a fiókhoz meghívókód kell. Írj be egyet, vagy gyakorolj tovább ezen a telefonon.</string>
     <string name="signup_too_many">Erről a hálózatról az elmúlt órában túl sok regisztráció történt. Próbáld újra később, vagy írj be egy meghívókódot: az így is működik.</string>
+    <string name="invite_local">Egyelőre csak ezen a telefonon</string>
     <string name="consent_title">Mielőtt bármit tárolunk</string>
     <string name="consent_detail">Egy buddhista gyakorlóalkalmazásban lévő fiók mond valamit a meggyőződésedről, amit a GDPR különleges adatként kezel. A hozzájárulásoddal a szerver tárolja az e-mail-címedet vagy felhasználónevedet, a neved, a nemedet, ha megadod, a barátaidat és a nyilvános sorozataidat. A számlálóid titkosítva maradnak a telefonjaidon.</string>
     <string name="consent_check">Hozzájárulok, hogy a Duongöndro ezt tárolja a fiókom működtetéséhez. A Beállításokban mindent exportálhatok vagy törölhetek.</string>

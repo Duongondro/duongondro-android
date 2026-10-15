@@ -144,7 +144,7 @@ data class OpenInvite(val id: String, val expiresAt: Instant)
 
 enum class ProfileResult { Saved, UsernameTaken }
 
-enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, OtherAccountData }
+enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -443,7 +443,7 @@ class AccountManager(
             } catch (_: ApiError.Forbidden) {
                 return PasskeyResult.InvitationNeeded
             } catch (e: ApiError.TooManyRequests) {
-                if (e.signUps) return PasskeyResult.TooManySignUps else throw e
+                return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
             val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
             val result = try {
@@ -455,7 +455,7 @@ class AccountManager(
             } catch (_: ApiError.Forbidden) {
                 return PasskeyResult.InvitationNeeded
             } catch (e: ApiError.TooManyRequests) {
-                if (e.signUps) return PasskeyResult.TooManySignUps else throw e
+                return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
             if (!signedIn(result)) return PasskeyResult.OtherAccountData
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }

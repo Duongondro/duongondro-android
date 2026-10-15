@@ -109,8 +109,9 @@
     <string name="invite_label">Invitation code</string>
     <string name="invite_hint">Type or paste the invitation code, or paste the whole invitation link. Case doesn\'t matter.</string>
     <string name="invite_unknown">We don\'t know this invitation. Check the code, or ask whoever sent it.</string>
-    <string name="invite_needed">For now, a new account needs an invitation code.</string>
+    <string name="invite_needed">For now, an account needs an invitation code. Enter one, or keep practising on this phone.</string>
     <string name="signup_too_many">Too many sign-ups from this network in the last hour. Try again later, or enter an invitation code: it works regardless.</string>
+    <string name="invite_local">Only on this phone for now</string>
     <string name="consent_title">Before we store anything</string>
     <string name="consent_detail">An account in a Buddhist practice app says something about your beliefs, which the GDPR treats as special. With your consent the server keeps your email or username, your name, your gender if you give it, your friends, and your public streaks. Your counts stay encrypted on your phones.</string>
     <string name="consent_check">I agree that Duongöndro stores this to run my account. I can export or delete it all in Settings.</string>

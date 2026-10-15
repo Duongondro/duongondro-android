@@ -103,8 +103,9 @@
     <string name="invite_label">Kód pozvánky</string>
     <string name="invite_hint">Napíš alebo vlož kód pozvánky, prípadne vlož celý odkaz s pozvánkou. Na veľkosti písmen nezáleží.</string>
     <string name="invite_unknown">Túto pozvánku nepoznáme. Skontroluj kód alebo sa opýtaj toho, kto ju poslal.</string>
-    <string name="invite_needed">Nový účet zatiaľ potrebuje kód pozvánky.</string>
+    <string name="invite_needed">Zatiaľ je k účtu potrebný kód pozvánky. Zadaj ho, alebo ďalej cvič v tomto telefóne.</string>
     <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo zadaj kód pozvánky: ten funguje aj tak.</string>
+    <string name="invite_local">Zatiaľ len v tomto telefóne</string>
     <string name="consent_title">Skôr než niečo uložíme</string>
     <string name="consent_detail">Účet v aplikácii pre budhistickú prax vypovedá o tvojom presvedčení, ktoré GDPR považuje za osobitné. S tvojím súhlasom server uchováva tvoj e-mail alebo používateľské meno, tvoje meno, pohlavie, ak ho uvedieš, tvojich priateľov a verejné série. Tvoje počty zostávajú zašifrované v tvojich telefónoch.</string>
     <string name="consent_check">Súhlasím, že Duongöndro toto ukladá kvôli prevádzke môjho účtu. Všetko môžem exportovať alebo vymazať v Nastaveniach.</string>

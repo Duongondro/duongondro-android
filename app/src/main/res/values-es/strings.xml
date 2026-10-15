@@ -108,8 +108,9 @@
     <string name="invite_label">Código de invitación</string>
     <string name="invite_hint">Escribe o pega el código de invitación, o pega el enlace de invitación completo. Da igual mayúsculas o minúsculas.</string>
     <string name="invite_unknown">No conocemos esta invitación. Revisa el código o pregunta a quien te la envió.</string>
-    <string name="invite_needed">Por ahora, una cuenta nueva necesita un código de invitación.</string>
+    <string name="invite_needed">Por ahora, para crear una cuenta hace falta un código de invitación. Escribe uno o sigue practicando en este teléfono.</string>
     <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o escribe un código de invitación: ese funciona igualmente.</string>
+    <string name="invite_local">Solo en este teléfono, por ahora</string>
     <string name="consent_title">Antes de guardar nada</string>
     <string name="consent_detail">Una cuenta en una app de práctica budista dice algo sobre tus creencias, que el RGPD trata como datos especiales. Con tu consentimiento, el servidor guarda tu correo o nombre de usuario, tu nombre, tu género si lo indicas, tus amigos y tus rachas públicas. Tus recuentos siguen cifrados en tus teléfonos.</string>
     <string name="consent_check">Acepto que Duongöndro guarde esto para gestionar mi cuenta. Puedo exportarlo o borrarlo todo en Ajustes.</string>
