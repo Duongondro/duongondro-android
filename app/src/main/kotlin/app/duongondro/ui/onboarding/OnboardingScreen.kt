@@ -167,8 +167,8 @@ class OnboardingFlow : ViewModel() {
 
     /** True after "I already have an account": the email steps then sign in rather than sign up. */
     var signingIn by mutableStateOf(false)
-    /** The friendship link opened before sign-up has been checked, so it is not checked again. */
-    var linkTried = false
+    /** The friendship link checked last (null: none), so an unchanged one is not checked again before each sign-up attempt. */
+    var checkedLink: String? = null
     /** A sign-in waits for "erase the other account's practice here, or cancel". */
     var otherAccount by mutableStateOf(false)
     var consented by mutableStateOf(false)
@@ -199,6 +199,17 @@ class OnboardingFlow : ViewModel() {
 
     fun back() {
         history.removeLastOrNull()?.let { step = it }
+    }
+
+    /**
+     * The account exists: on to [next], and the steps that led to it (consent,
+     * passkey, email) leave the back stack, so Back cannot make a second one.
+     */
+    fun afterAccount(next: Step) {
+        if (step == next) return
+        history.removeAll { it == Step.Consent || it == Step.Passkey || it == Step.Email || it == Step.CheckEmail }
+        if (step != Step.Consent && step != Step.Passkey && step != Step.Email && step != Step.CheckEmail) history += step
+        step = next
     }
 
     /** Back to an earlier step, keeping the answers. */
@@ -279,12 +290,18 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
     val flow: OnboardingFlow = viewModel(key = if (done != null) "account-$start" else "onboarding-$generation")
     // The account steps need the network layer, which every real model has.
     val accounts = model.accounts ?: return
-    LaunchedEffect(flow) { flow.begin(start, signingIn = start == Step.SignIn) }
+    LaunchedEffect(flow) {
+        // A sign-up whose account exists but whose optional steps were cut short
+        // (the app closed) resumes at the name rather than starting over.
+        val resume = done == null && start == Step.Welcome && accounts.signUpUnfinished
+        flow.begin(if (resume) Step.Name else start, signingIn = start == Step.SignIn)
+    }
     val leave = { done?.invoke() ?: Unit }
     BackHandler(enabled = flow.canGoBack || done != null) { if (flow.canGoBack) flow.back() else leave() }
     // Local mode keeps the onboarding's answers; from Settings, nothing about the practices changes.
     val finishLocal = { if (done != null) leave() else flow.finish(model) }
     val finishOnline = {
+        accounts.signUpFinished()
         if (done != null) {
             model.accounts?.scheduleSync(0)
             leave()
@@ -305,12 +322,12 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             is Step.Counts -> Counts(flow, step.index)
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
-            Step.Consent -> ConsentStep(flow, model, accounts)
-            Step.Email -> EmailStep(flow, accounts)
+            Step.Consent -> ConsentStep(flow, accounts)
+            Step.Email -> EmailStep(flow, model, accounts)
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)
             Step.Name -> NameStep(flow, accounts)
             Step.Gender -> GenderStep(flow, accounts)
-            Step.Passkey -> PasskeyStep(flow, accounts)
+            Step.Passkey -> PasskeyStep(flow, model, accounts)
             Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
             // The code the step before showed: the account's own, never another's.
             Step.RecoveryCheck -> RecoveryCheckStep(accounts.shownCode.collectAsStateWithLifecycle().value.orEmpty(), back = { flow.back() }) {

@@ -6,4 +6,12 @@
     <string name="friend_finished_female">%1$s dokončila %2$s</string>
     <string name="friend_not_yet_male">%s zatím nepraktikoval</string>
     <string name="friend_not_yet_female">%s zatím nepraktikovala</string>
+    <string name="friend_finished_unnamed_male">Přítel dokončil %1$s</string>
+    <string name="friend_finished_unnamed_female">Přítelkyně dokončila %1$s</string>
+    <string name="friend_not_yet_unnamed_male">Přítel zatím nepraktikoval</string>
+    <string name="friend_not_yet_unnamed_female">Přítelkyně zatím nepraktikovala</string>
+    <string name="poke_unnamed_male">Šťouchnout přítele</string>
+    <string name="poke_unnamed_female">Šťouchnout přítelkyni</string>
+    <string name="poked_unnamed_male">Šťouchnuto: přítel</string>
+    <string name="poked_unnamed_female">Šťouchnuto: přítelkyně</string>
 </resources>

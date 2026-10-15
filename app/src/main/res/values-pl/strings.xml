@@ -105,9 +105,12 @@
     <string name="where_online">Załóż konto online</string>
     <string name="where_local">Tylko na tym telefonie</string>
     <string name="invite_label">Kod przyjaźni</string>
-    <string name="invite_unknown">Nie znamy tego kodu przyjaźni. Sprawdź go albo zapytaj osobę, która go wysłała.</string>
     <string name="invite_needed">Teraz nie da się zakładać nowych kont. Spróbuj później albo ćwicz dalej na tym telefonie.</string>
-    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo wpisz kod przyjaźni: on działa mimo to.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo otwórz link z kodem przyjaźni od znajomego.</string>
+    <string name="signup_link_gone">Ten link z kodem przyjaźni już nie działa. Kontynuuj, aby założyć konto bez niego.</string>
+    <string name="link_check_failed">Nie udało się sprawdzić linku z kodem przyjaźni. Spróbuj ponownie albo kontynuuj bez niego.</string>
+    <string name="link_skip">Kontynuuj bez linku</string>
+    <string name="passkey_unavailable">Ten telefon nie może utworzyć klucza dostępu. Użyj adresu e-mail.</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
     <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Za Twoją zgodą serwer przechowuje Twoich przyjaciół i publiczne serie, a jeśli je podasz, także Twój e-mail, imię i płeć. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
     <string name="consent_check">Zgadzam się, aby Duongöndro przechowywało te dane na potrzeby mojego konta. Wszystko mogę wyeksportować lub usunąć w Ustawieniach.</string>
@@ -285,8 +288,8 @@
     <string name="invite_share_text">Praktykuj ze mną w Duongöndro: %s</string>
     <string name="invite_make">Utwórz kod przyjaźni</string>
     <string name="invite_open">Twoje otwarte kody przyjaźni</string>
-    <string name="invite_open_until">Ważne do %s</string>
-    <string name="invite_open_shown">Pokazane wyżej</string>
+    <string name="invite_open_until">Ważny do %s</string>
+    <string name="invite_open_shown">Pokazany wyżej</string>
     <string name="invite_open_none">Brak otwartych.</string>
     <string name="invite_open_footer">Po wycofaniu kodu przyjaźni kod i jego link od razu przestają działać. Przyjaźnie, które już z niego powstały, zostają.</string>
     <string name="invite_revoke">Wycofaj</string>
@@ -341,6 +344,10 @@
     <string name="poked">Szturchnięto</string>
     <string name="poke_named">Szturchnij %s</string>
     <string name="poked_named">Szturchnięto: %s</string>
+    <string name="friend_finished_unnamed">Przyjaciel ukończył %1$s</string>
+    <string name="friend_not_yet_unnamed">Przyjaciel jeszcze nie praktykował</string>
+    <string name="poke_unnamed">Szturchnij przyjaciela</string>
+    <string name="poked_unnamed">Szturchnięto przyjaciela</string>
     <string name="their_own_practice">ich własna praktyka</string>
     <string name="public_streaks">Publiczne serie</string>
     <string name="public_streaks_footer">Dni praktyki w aplikacji, podpisane przez te osoby. Liczby pozostają prywatne.</string>

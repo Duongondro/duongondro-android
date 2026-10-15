@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import app.duongondro.R
 import androidx.compose.ui.platform.LocalContext
 import app.duongondro.account.AccountManager
+import app.duongondro.account.AccountStatus
 import app.duongondro.account.Crockford
 import app.duongondro.account.Gender
 import app.duongondro.account.InviteCheck
@@ -199,11 +200,10 @@ private fun ErrorLine(text: String) {
     Text(text, style = Theme.type.footnote, color = Theme.colors.destructive)
 }
 
-/** After any sign-in or sign-up: a new account gets its optional profile next; an existing one sets up, restores, or is done. */
+/** After any sign-in or sign-up: a new account gets its keys and then its optional profile; an existing one sets up, restores, or is done. */
 private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, created: Boolean, finish: () -> Unit) {
     if (created) {
-        flow.signingIn = false
-        flow.go(Step.Name)
+        accountMade(flow, accounts)
         return
     }
     when (accounts.standing()) {
@@ -213,12 +213,71 @@ private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, create
     }
 }
 
+/**
+ * The account exists: its keys are made at once, silently (design 07), so the
+ * friendship link's proof is redeemed now and the recovery code waits on its
+ * own step. A failure here only means the Recovery step makes them instead.
+ * The steps before the account leave the back stack.
+ */
+private suspend fun accountMade(flow: OnboardingFlow, accounts: AccountManager) {
+    flow.signingIn = false
+    try {
+        accounts.setUpKeys()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        // The Recovery step tries again and says so.
+    }
+    flow.afterAccount(Step.Name)
+}
+
+/** A sign-up step reached again once the account exists (Back, or Settings): straight on to the name. */
+@Composable
+private fun SkipOnceAccountExists(flow: OnboardingFlow, accounts: AccountManager) {
+    LaunchedEffect(Unit) {
+        if (!flow.signingIn && accounts.state.value.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }) {
+            flow.afterAccount(Step.Name)
+        }
+    }
+}
+
+/**
+ * Checks the friendship link opened before sign-up, if it is not the one
+ * checked last: a valid one goes with the sign-up as proof, any other is
+ * dropped. False when it could not be checked (offline, the server busy).
+ */
+private suspend fun checkLink(flow: OnboardingFlow, model: AppModel, accounts: AccountManager): Boolean {
+    val opened = model.inviteCode.value
+    if (opened == flow.checkedLink) return true
+    if (opened == null) {
+        accounts.clearInvitation()
+        flow.checkedLink = null
+        return true
+    }
+    val valid = try {
+        accounts.checkInvite(opened) == InviteCheck.Valid
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        return false
+    }
+    if (!valid) accounts.clearInvitation()
+    flow.checkedLink = opened
+    return true
+}
+
+/** "Continue without the link": the sign-up goes on without its proof; the link can still be accepted afterwards. */
+private fun skipLink(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
+    accounts.clearInvitation()
+    flow.checkedLink = model.inviteCode.value
+}
+
 /** A redemption's answer: signed in, or the reason it was not, shown under the field. */
 private suspend fun redeemed(result: Redeem, flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit): Int? = when (result) {
     is Redeem.SignedIn -> { route(flow, accounts, result.created, finish); null }
     Redeem.Wrong -> R.string.code_wrong
     Redeem.NoAccount -> R.string.no_account
-    Redeem.InviteGone -> { accounts.clearInvitation(); R.string.invite_unknown }
+    Redeem.InviteGone -> { accounts.clearInvitation(); R.string.signup_link_gone }
     Redeem.TooMany -> R.string.try_later
     Redeem.InvitationNeeded -> R.string.invite_needed
     Redeem.OtherAccountData -> { flow.otherAccount = true; null }
@@ -266,7 +325,8 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
         actions = {
             FilledAction(stringResource(R.string.where_online), enabled = accounts != null) {
                 flow.signingIn = false
-                flow.go(Step.Consent)
+                val made = accounts?.state?.value?.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }
+                if (made) flow.afterAccount(Step.Name) else flow.go(Step.Consent)
             }
             OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
                 container = androidx.compose.ui.graphics.Color.Transparent) { accounts?.clearInvitation(); finishLocal() }
@@ -284,30 +344,14 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
     }
 }
 
-/**
- * Consent first (GDPR Art. 9): nothing is created before it. A friendship link
- * opened before sign-up is checked here, so the sign-up carries it as proof
- * and the friendship follows once keys exist; one that does not check out is
- * dropped, and the link is answered after sign-up like any other.
- */
+/** Consent first (GDPR Art. 9): nothing is created before it. */
 @Composable
-internal fun ColumnScope.ConsentStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
+internal fun ColumnScope.ConsentStep(flow: OnboardingFlow, accounts: AccountManager) {
     val uri = LocalUriHandler.current
-    val call = rememberCall()
-    val link by model.inviteCode.collectAsState()
+    SkipOnceAccountExists(flow, accounts)
     Page(
         stringResource(R.string.consent_title), plain(stringResource(R.string.consent_detail)), centered = true,
-        actions = {
-            CallError(call)
-            FilledAction(stringResource(R.string.continue_), enabled = flow.consented && !call.busy) {
-                val opened = link
-                if (opened == null || flow.linkTried) flow.go(Step.Passkey) else call.run {
-                    if (accounts.checkInvite(opened) != InviteCheck.Valid) accounts.clearInvitation()
-                    flow.linkTried = true
-                    flow.go(Step.Passkey)
-                }
-            }
-        },
+        actions = { FilledAction(stringResource(R.string.continue_), enabled = flow.consented) { flow.go(Step.Passkey) } },
     ) {
         Row(
             Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium)
@@ -327,15 +371,25 @@ internal fun ColumnScope.ConsentStep(flow: OnboardingFlow, model: AppModel, acco
 }
 
 @Composable
-internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+internal fun ColumnScope.EmailStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
     val call = rememberCall()
     var problem by remember { mutableStateOf<Int?>(null) }
+    var linkFailed by remember { mutableStateOf(false) }
+    SkipOnceAccountExists(flow, accounts)
     val valid = flow.email.trim().matches(EMAIL)
-    val send = {
+    val send = { withoutLink: Boolean ->
+        problem = null
         call.run {
+            if (withoutLink) skipLink(flow, model, accounts)
+            if (!flow.signingIn && !checkLink(flow, model, accounts)) {
+                linkFailed = true
+                problem = R.string.link_check_failed
+                return@run
+            }
+            linkFailed = false
             when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
                 LinkRequest.Sent -> flow.go(Step.CheckEmail)
-                LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.invite_unknown }
+                LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
                 LinkRequest.TooMany -> problem = R.string.try_later
                 LinkRequest.InvitationNeeded -> problem = R.string.invite_needed
                 LinkRequest.TooManySignUps -> problem = R.string.signup_too_many
@@ -346,13 +400,14 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManage
         stringResource(R.string.email_title), plain(stringResource(R.string.email_detail)),
         actions = {
             CallError(call)
-            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send() }
+            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send(false) }
+            if (linkFailed) TextAction(stringResource(R.string.link_skip)) { if (valid && !call.busy) send(true) }
         },
     ) {
         LabelledField(stringResource(R.string.email_label), flow.email, { flow.email = it; problem = null },
             error = problem?.let { stringResource(it) },
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
-            onDone = if (valid) ({ send() }) else null)
+            onDone = if (valid) ({ send(false) }) else null)
     }
 }
 
@@ -378,6 +433,7 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
         call.run { problem = redeemed(accounts.redeemCode(flow.email.trim(), code), flow, accounts, finish) }
     }
     OtherAccountDialog(flow, accounts, finish)
+    SkipOnceAccountExists(flow, accounts)
     Page(
         stringResource(R.string.check_title), plain(stringResource(R.string.check_detail, flow.email.trim())),
         actions = {
@@ -387,7 +443,7 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
                 if (!call.busy && !again) call.run {
                     when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
                         LinkRequest.Sent -> again = true
-                        LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.invite_unknown }
+                        LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
                         LinkRequest.TooMany -> problem = R.string.try_later
                         LinkRequest.InvitationNeeded -> problem = R.string.invite_needed
                         LinkRequest.TooManySignUps -> problem = R.string.signup_too_many
@@ -473,11 +529,37 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
  * cannot make one: the emailed link or code makes the account instead.
  */
 @Composable
-internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
+internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
     val call = rememberCall()
     val activity = LocalContext.current
     var problem by remember { mutableStateOf<Int?>(null) }
-    OtherAccountDialog(flow, accounts, finish = {}) { flow.go(Step.Name) }
+    var linkFailed by remember { mutableStateOf(false) }
+    SkipOnceAccountExists(flow, accounts)
+    OtherAccountDialog(flow, accounts, finish = {}) { accountMade(flow, accounts) }
+    val save = { withoutLink: Boolean ->
+        problem = null
+        call.run {
+            if (withoutLink) skipLink(flow, model, accounts)
+            if (!checkLink(flow, model, accounts)) {
+                linkFailed = true
+                problem = R.string.link_check_failed
+                return@run
+            }
+            linkFailed = false
+            when (accounts.createPasskey(activity, profile = null, consent = flow.consented)) {
+                PasskeyResult.Saved -> accountMade(flow, accounts)
+                PasskeyResult.Cancelled -> Unit
+                PasskeyResult.Unavailable -> problem = R.string.passkey_unavailable
+                // No username is sent, so the server has none to refuse.
+                PasskeyResult.UsernameTaken -> problem = R.string.account_error
+                PasskeyResult.InviteGone -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
+                PasskeyResult.InvitationNeeded -> problem = R.string.invite_needed
+                PasskeyResult.TooManySignUps -> problem = R.string.signup_too_many
+                PasskeyResult.TooMany -> problem = R.string.try_later
+                PasskeyResult.OtherAccountData -> flow.otherAccount = true
+            }
+        }
+    }
     Page(
         stringResource(R.string.passkey_title), plain(stringResource(R.string.passkey_detail)), centered = true,
         top = {
@@ -491,22 +573,8 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
         actions = {
             CallError(call)
             problem?.let { ErrorLine(stringResource(it)) }
-            FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) {
-                problem = null
-                call.run {
-                    when (accounts.createPasskey(activity, profile = null, consent = flow.consented)) {
-                        PasskeyResult.Saved -> flow.go(Step.Name)
-                        PasskeyResult.Cancelled -> Unit
-                        // No username is sent, so the server has none to refuse.
-                        PasskeyResult.UsernameTaken -> problem = R.string.account_error
-                        PasskeyResult.InviteGone -> { accounts.clearInvitation(); problem = R.string.invite_unknown }
-                        PasskeyResult.InvitationNeeded -> problem = R.string.invite_needed
-                        PasskeyResult.TooManySignUps -> problem = R.string.signup_too_many
-                        PasskeyResult.TooMany -> problem = R.string.try_later
-                        PasskeyResult.OtherAccountData -> flow.otherAccount = true
-                    }
-                }
-            }
+            FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) { save(false) }
+            if (linkFailed) TextAction(stringResource(R.string.link_skip)) { if (!call.busy) save(true) }
             TextAction(stringResource(R.string.passkey_use_email)) { if (!call.busy) flow.go(Step.Email) }
         },
     )

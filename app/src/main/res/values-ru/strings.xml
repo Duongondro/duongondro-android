@@ -99,9 +99,12 @@
     <string name="where_online">Создать онлайн-аккаунт</string>
     <string name="where_local">Только на этом телефоне</string>
     <string name="invite_label">Код дружбы</string>
-    <string name="invite_unknown">Такого кода дружбы мы не знаем. Проверьте его или спросите того, кто его прислал.</string>
     <string name="invite_needed">Сейчас новые аккаунты создать нельзя. Попробуйте позже или продолжайте практиковаться на этом телефоне.</string>
-    <string name="signup_too_many">Из этой сети за последний час было слишком много регистраций. Попробуйте позже или введите код дружбы: он работает в любом случае.</string>
+    <string name="signup_too_many">Из этой сети за последний час было слишком много регистраций. Попробуйте позже или откройте ссылку с кодом дружбы от друга.</string>
+    <string name="signup_link_gone">Эта ссылка с кодом дружбы больше не работает. Продолжите, чтобы создать аккаунт без неё.</string>
+    <string name="link_check_failed">Не удалось проверить ссылку с кодом дружбы. Попробуйте ещё раз или продолжите без неё.</string>
+    <string name="link_skip">Продолжить без ссылки</string>
+    <string name="passkey_unavailable">Этот телефон не может создать ключ доступа. Используйте почту.</string>
     <string name="consent_title">Прежде чем что-либо сохранять</string>
     <string name="consent_detail">Аккаунт в приложении для буддийской практики говорит о ваших убеждениях, а GDPR относит их к особой категории. С вашего согласия сервер хранит ваших друзей и публичные серии, а также почту, имя и пол, если вы их укажете. Ваши счётчики остаются зашифрованными на ваших телефонах.</string>
     <string name="consent_check">Даю согласие на хранение этого в Duongöndro для работы моего аккаунта. Всё это можно экспортировать или удалить в настройках.</string>
@@ -328,6 +331,10 @@
     <string name="poked">Подтолкнули</string>
     <string name="poke_named">Подтолкнуть: %s</string>
     <string name="poked_named">Подтолкнули: %s</string>
+    <string name="friend_finished_unnamed">Друг завершил %1$s</string>
+    <string name="friend_not_yet_unnamed">Друг ещё не практиковал</string>
+    <string name="poke_unnamed">Подтолкнуть друга</string>
+    <string name="poked_unnamed">Подтолкнули друга</string>
     <string name="their_own_practice">своя практика</string>
     <string name="public_streaks">Публичные серии</string>
     <string name="public_streaks_footer">Дни практики в приложении, подписанные самим другом. Счётчики остаются приватными.</string>

@@ -142,7 +142,7 @@ data class FriendsState(
 /** An invitation this account made that still works: not revoked, not expired. */
 data class OpenInvite(val id: String, val expiresAt: Instant)
 
-enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
+enum class PasskeyResult { Saved, Cancelled, Unavailable, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -293,8 +293,22 @@ class AccountManager(
         db.erasePractice()
         forgetOtherAccount()
         keep(result)
+        markSignUp(result.created)
         result.created
     }
+
+    /**
+     * A sign-up made its account on this phone and has not finished the
+     * optional steps: a relaunch resumes them (at the name) rather than starting over.
+     */
+    val signUpUnfinished: Boolean get() = prefs.getBoolean(SIGN_UP_UNFINISHED, false)
+
+    private fun markSignUp(created: Boolean) {
+        if (created) prefs.edit { putBoolean(SIGN_UP_UNFINISHED, true) }
+    }
+
+    /** The sign-up's last step is done. */
+    fun signUpFinished() = prefs.edit { remove(SIGN_UP_UNFINISHED) }
 
     /** "Cancel": the held session ends on the server, and nothing was uploaded. */
     suspend fun abandonHeldSignIn() = withContext(Dispatchers.IO) {
@@ -389,7 +403,7 @@ class AccountManager(
     private suspend fun redeem(signUp: Boolean, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
             val result = call()
-            if (signedIn(result)) Redeem.SignedIn(result.created) else Redeem.OtherAccountData
+            if (signedIn(result)) Redeem.SignedIn(result.created).also { markSignUp(result.created) } else Redeem.OtherAccountData
         } catch (e: ApiError.Status) {
             if (e.code == 400) Redeem.Wrong else throw e
         } catch (_: ApiError.Forbidden) {
@@ -456,7 +470,11 @@ class AccountManager(
             } catch (e: ApiError.TooManyRequests) {
                 return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
-            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            val credential = try {
+                passkeys.create(activity, ceremony.publicKeyJson)
+            } catch (_: Passkeys.Unavailable) {
+                return PasskeyResult.Unavailable
+            } ?: return PasskeyResult.Cancelled
             val result = try {
                 withContext(Dispatchers.IO) { anonymous.finishPasskey(ceremony.sessionId, credential) }
             } catch (_: ApiError.Conflict) {
@@ -469,10 +487,15 @@ class AccountManager(
                 return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
             if (!signedIn(result)) return PasskeyResult.OtherAccountData
+            markSignUp(result.created)
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
         } else {
             val ceremony = withContext(Dispatchers.IO) { current.api.beginPasskeyAdd() }
-            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            val credential = try {
+                passkeys.create(activity, ceremony.publicKeyJson)
+            } catch (_: Passkeys.Unavailable) {
+                return PasskeyResult.Unavailable
+            } ?: return PasskeyResult.Cancelled
             withContext(Dispatchers.IO) { current.api.finishPasskeyAdd(ceremony.sessionId, credential) }
         }
         return PasskeyResult.Saved
@@ -583,8 +606,11 @@ class AccountManager(
 
     /** Offers the code to Google Password Manager, named after the account; false when declined. */
     suspend fun saveRecoveryCode(activity: Context, code: String): Boolean {
+        // One entry per account, so a second account's code never overwrites the first's.
         val s = _state.value
-        val id = s.username ?: s.email ?: "Duongöndro recovery"
+        val account = db.syncState()?.user?.toString()?.take(8)
+        // The name or address to recognise it by, the account id's start to keep it unique.
+        val id = listOfNotNull("Duongöndro", s.displayName ?: s.email, account).joinToString(" · ")
         return passkeys.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
     }
 
@@ -974,6 +1000,7 @@ class AccountManager(
         const val DISPLAY_NAME = "displayName"
         const val GENDER = "gender"
         const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
+        const val SIGN_UP_UNFINISHED = "signUpUnfinished"
         const val PENDING_RECOVERY = app.duongondro.core.sync.SecretName.PENDING_RECOVERY
         const val LAST_SYNC = "lastSync"
         const val LAST_USER = "lastUser"

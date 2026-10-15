@@ -106,9 +106,12 @@
     <string name="where_online">Створити онлайн-обліковий запис</string>
     <string name="where_local">Лише на цьому телефоні</string>
     <string name="invite_label">Код дружби</string>
-    <string name="invite_unknown">Такого коду дружби ми не знаємо. Перевірте його або запитайте того, хто його надіслав.</string>
     <string name="invite_needed">Зараз нові облікові записи створити не можна. Спробуйте пізніше або практикуйте далі на цьому телефоні.</string>
-    <string name="signup_too_many">З цієї мережі за останню годину було забагато реєстрацій. Спробуйте пізніше або введіть код дружби: він спрацює в будь-якому разі.</string>
+    <string name="signup_too_many">З цієї мережі за останню годину було забагато реєстрацій. Спробуйте пізніше або відкрийте посилання з кодом дружби від друга.</string>
+    <string name="signup_link_gone">Це посилання з кодом дружби більше не працює. Продовжте, щоб створити обліковий запис без нього.</string>
+    <string name="link_check_failed">Не вдалося перевірити посилання з кодом дружби. Спробуйте ще раз або продовжте без нього.</string>
+    <string name="link_skip">Продовжити без посилання</string>
+    <string name="passkey_unavailable">Цей телефон не може створити ключ доступу. Скористайтеся поштою.</string>
     <string name="consent_title">Перш ніж щось зберігати</string>
     <string name="consent_detail">Обліковий запис у застосунку для буддійської практики говорить про ваші переконання, а GDPR відносить їх до особливої категорії. За вашою згодою сервер зберігає ваших друзів і публічні серії, а також пошту, ім’я та стать, якщо ви їх вкажете. Ваші лічильники залишаються зашифрованими на ваших телефонах.</string>
     <string name="consent_check">Даю згоду на зберігання цього в Duongöndro для роботи мого облікового запису. Усе це можна експортувати або видалити в налаштуваннях.</string>
@@ -342,6 +345,10 @@
     <string name="poked">Підштовхнуто</string>
     <string name="poke_named">Підштовхнути %s</string>
     <string name="poked_named">Підштовхнуто: %s</string>
+    <string name="friend_finished_unnamed">Друг завершив %1$s</string>
+    <string name="friend_not_yet_unnamed">Друг ще не практикував</string>
+    <string name="poke_unnamed">Підштовхнути друга</string>
+    <string name="poked_unnamed">Підштовхнуто друга</string>
     <string name="their_own_practice">їхня власна практика</string>
     <string name="public_streaks">Публічні серії</string>
     <string name="public_streaks_footer">Дні практики в застосунку, підписані самим другом. Кількості залишаються приватними.</string>

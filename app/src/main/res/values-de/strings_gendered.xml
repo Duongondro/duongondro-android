@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="friend_finished_unnamed_male">Ein Freund hat %1$s abgeschlossen</string>
+    <string name="friend_finished_unnamed_female">Eine Freundin hat %1$s abgeschlossen</string>
+    <string name="friend_not_yet_unnamed_male">Ein Freund hat noch nicht geübt</string>
+    <string name="friend_not_yet_unnamed_female">Eine Freundin hat noch nicht geübt</string>
+    <string name="poke_unnamed_male">Einen Freund anstupsen</string>
+    <string name="poke_unnamed_female">Eine Freundin anstupsen</string>
+    <string name="poked_unnamed_male">Einen Freund angestupst</string>
+    <string name="poked_unnamed_female">Eine Freundin angestupst</string>
+</resources>

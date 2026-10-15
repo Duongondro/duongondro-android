@@ -9,6 +9,9 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.NoCredentialException
 import app.duongondro.core.api.parseCredentialJson
@@ -24,13 +27,26 @@ import kotlinx.serialization.json.JsonElement
 class Passkeys(context: Context) {
     private val manager = CredentialManager.create(context.applicationContext)
 
-    /** The authenticator's registration response (WebAuthn JSON), or null when the person backed out. */
+    /**
+     * The authenticator's registration response (WebAuthn JSON), or null when the
+     * person backed out. Throws [Unavailable] when this phone has no provider that
+     * can make a passkey (none set up, unsupported, or misconfigured).
+     */
     suspend fun create(activity: Context, publicKeyOptions: String): JsonElement? = try {
         val response = manager.createCredential(activity, CreatePublicKeyCredentialRequest(publicKeyOptions)) as CreatePublicKeyCredentialResponse
         parseCredentialJson(response.registrationResponseJson)
     } catch (_: CreateCredentialCancellationException) {
         null
+    } catch (e: CreateCredentialNoCreateOptionException) {
+        throw Unavailable(e)
+    } catch (e: CreateCredentialUnsupportedException) {
+        throw Unavailable(e)
+    } catch (e: CreateCredentialProviderConfigurationException) {
+        throw Unavailable(e)
     }
+
+    /** No passkey can be made on this phone; e-mail is the way in. */
+    class Unavailable(cause: Throwable) : Exception("no passkey provider", cause)
 
     /** The assertion (WebAuthn JSON) for a discoverable sign-in, or null when there is no passkey or the person backed out. */
     suspend fun get(activity: Context, publicKeyOptions: String): JsonElement? = try {

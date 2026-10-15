@@ -99,9 +99,12 @@
     <string name="where_online">Vytvoriť online účet</string>
     <string name="where_local">Len v tomto telefóne</string>
     <string name="invite_label">Kód priateľstva</string>
-    <string name="invite_unknown">Tento kód priateľstva nepoznáme. Skontroluj ho alebo sa opýtaj toho, kto ho poslal.</string>
     <string name="invite_needed">Nové účty sa teraz nedajú zakladať. Skús to neskôr, alebo ďalej cvič v tomto telefóne.</string>
-    <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo zadaj kód priateľstva: ten funguje aj tak.</string>
+    <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo otvor odkaz s kódom priateľstva od kamaráta.</string>
+    <string name="signup_link_gone">Tento odkaz s kódom priateľstva už nefunguje. Pokračuj a účet sa vytvorí bez neho.</string>
+    <string name="link_check_failed">Odkaz s kódom priateľstva sa nepodarilo overiť. Skús to znova, alebo pokračuj bez neho.</string>
+    <string name="link_skip">Pokračovať bez odkazu</string>
+    <string name="passkey_unavailable">Tento telefón nevie vytvoriť prístupový kľúč. Použi namiesto toho e-mail.</string>
     <string name="consent_title">Skôr než niečo uložíme</string>
     <string name="consent_detail">Účet v aplikácii pre budhistickú prax vypovedá o tvojom presvedčení, ktoré GDPR považuje za osobitné. S tvojím súhlasom server uchováva tvojich priateľov a verejné série, a ak ich uvedieš, aj tvoj e-mail, meno a pohlavie. Tvoje počty zostávajú zašifrované v tvojich telefónoch.</string>
     <string name="consent_check">Súhlasím, že Duongöndro toto ukladá kvôli prevádzke môjho účtu. Všetko môžem exportovať alebo vymazať v Nastaveniach.</string>
@@ -273,7 +276,7 @@
     <string name="invite_make">Vytvoriť kód priateľstva</string>
     <string name="invite_open">Tvoje otvorené kódy priateľstva</string>
     <string name="invite_open_until">Platí do %s</string>
-    <string name="invite_open_shown">Zobrazená vyššie</string>
+    <string name="invite_open_shown">Zobrazený vyššie</string>
     <string name="invite_open_none">Žiadne otvorené.</string>
     <string name="invite_open_footer">Po zrušení kódu priateľstva prestanú kód aj jeho odkaz okamžite fungovať. Priateľstvá, ktoré už vďaka nemu vznikli, zostanú.</string>
     <string name="invite_revoke">Zrušiť</string>
@@ -328,6 +331,10 @@
     <string name="poked">Šťuchnuté</string>
     <string name="poke_named">Šťuchnúť %s</string>
     <string name="poked_named">Šťuchnutie pre %s</string>
+    <string name="friend_finished_unnamed">Priateľ dokončil %1$s</string>
+    <string name="friend_not_yet_unnamed">Priateľ ešte necvičil</string>
+    <string name="poke_unnamed">Šťuchnúť priateľa</string>
+    <string name="poked_unnamed">Šťuchnutie pre priateľa</string>
     <string name="their_own_practice">ich vlastné cvičenie</string>
     <string name="public_streaks">Verejné série</string>
     <string name="public_streaks_footer">Dni cvičenia v aplikácii, podpísané samotným priateľom. Počty zostávajú súkromné.</string>
@@ -352,7 +359,7 @@
     <string name="block_title">Zablokovať?</string>
     <string name="block_detail">Ukončí priateľstvo na oboch stranách a zastaví kódy priateľstva a šťuchnutia medzi vami.</string>
     <string name="their_key_changed">Jeho kľúč sa zmenil</string>
-    <string name="key_changed_detail">Server teraz uvádza pre tohto priateľa iný kľúč, než aký tento telefón videl prvýkrát, preto sú jeho série skryté. Môže to byť nový telefón bez obnovenia, alebo niekto uprostred. Stretnite sa, alebo požiadaj o nový kód priateľstva: jej prijatím sa jeho kľúč overí znova.</string>
+    <string name="key_changed_detail">Server teraz uvádza pre tohto priateľa iný kľúč, než aký tento telefón videl prvýkrát, preto sú jeho série skryté. Môže to byť nový telefón bez obnovenia, alebo niekto uprostred. Stretnite sa, alebo požiadaj o nový kód priateľstva: jeho prijatím sa jeho kľúč overí znova.</string>
     <string name="friends_see_streak">Priatelia vidia túto sériu</string>
     <string name="friends_see_streak_footer">Iba počet dní cvičenia v aplikácii, nikdy počty ani súčty.</string>
     <string name="usual_time_nudge">Pripomenúť v mojom obvyklom čase</string>

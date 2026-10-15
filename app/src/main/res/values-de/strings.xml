@@ -101,9 +101,12 @@
     <string name="where_online">Online-Konto anlegen</string>
     <string name="where_local">Nur auf diesem Handy</string>
     <string name="invite_label">Freundschaftscode</string>
-    <string name="invite_unknown">Diesen Freundschaftscode kennen wir nicht. Prüf ihn oder frag, wer ihn geschickt hat.</string>
     <string name="invite_needed">Neue Konten lassen sich gerade nicht anlegen. Versuch es später oder übe weiter auf diesem Handy.</string>
-    <string name="signup_too_many">Aus diesem Netz gab es in der letzten Stunde zu viele Registrierungen. Versuch es später, oder gib einen Freundschaftscode ein: Der funktioniert trotzdem.</string>
+    <string name="signup_too_many">Aus diesem Netz gab es in der letzten Stunde zu viele Registrierungen. Versuch es später, oder öffne den Freundschaftslink eines Freundes.</string>
+    <string name="signup_link_gone">Dieser Freundschaftslink funktioniert nicht mehr. Mach weiter, um das Konto ohne ihn anzulegen.</string>
+    <string name="link_check_failed">Der Freundschaftslink ließ sich nicht prüfen. Versuch es noch einmal oder mach ohne ihn weiter.</string>
+    <string name="link_skip">Ohne den Link weiter</string>
+    <string name="passkey_unavailable">Dieses Handy kann keinen Passkey erstellen. Nutze stattdessen deine E-Mail-Adresse.</string>
     <string name="consent_title">Bevor wir etwas speichern</string>
     <string name="consent_detail">Ein Konto in einer App für buddhistische Praxis sagt etwas über deine Überzeugungen aus, die die DSGVO als besonders schützenswert behandelt. Mit deiner Einwilligung speichert der Server deine Freunde und deine öffentlichen Serien und, falls du sie angibst, deine E-Mail-Adresse, deinen Namen und dein Geschlecht. Deine Zähler bleiben auf deinen Handys verschlüsselt.</string>
     <string name="consent_check">Ich willige ein, dass Duongöndro das speichert, um mein Konto zu betreiben. In den Einstellungen kann ich alles exportieren oder löschen.</string>
@@ -327,6 +330,10 @@
     <string name="poked">Angestupst</string>
     <string name="poke_named">%s anstupsen</string>
     <string name="poked_named">%s angestupst</string>
+    <string name="friend_finished_unnamed">Ein Freund hat %1$s abgeschlossen</string>
+    <string name="friend_not_yet_unnamed">Ein Freund hat noch nicht geübt</string>
+    <string name="poke_unnamed">Einen Freund anstupsen</string>
+    <string name="poked_unnamed">Einen Freund angestupst</string>
     <string name="their_own_practice">ihre eigene Übung</string>
     <string name="public_streaks">Öffentliche Serien</string>
     <string name="public_streaks_footer">In der App geübte Tage, von ihnen signiert. Zählungen bleiben privat.</string>

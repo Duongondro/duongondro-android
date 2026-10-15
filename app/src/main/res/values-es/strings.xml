@@ -104,9 +104,12 @@
     <string name="where_online">Crear una cuenta en línea</string>
     <string name="where_local">Solo en este teléfono</string>
     <string name="invite_label">Código de amistad</string>
-    <string name="invite_unknown">No conocemos este código de amistad. Revísalo o pregunta a quien te lo envió.</string>
     <string name="invite_needed">Ahora mismo no se pueden crear cuentas nuevas. Inténtalo más tarde o sigue practicando en este teléfono.</string>
-    <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o escribe un código de amistad: ese funciona igualmente.</string>
+    <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o abre el enlace de amistad de un amigo.</string>
+    <string name="signup_link_gone">Este enlace de amistad ya no funciona. Continúa para crear la cuenta sin él.</string>
+    <string name="link_check_failed">No se pudo comprobar el enlace de amistad. Inténtalo de nuevo o continúa sin él.</string>
+    <string name="link_skip">Continuar sin el enlace</string>
+    <string name="passkey_unavailable">Este teléfono no puede crear una llave de acceso. Usa tu correo.</string>
     <string name="consent_title">Antes de guardar nada</string>
     <string name="consent_detail">Una cuenta en una app de práctica budista dice algo sobre tus creencias, que el RGPD trata como datos especiales. Con tu consentimiento, el servidor guarda tus amigos y tus rachas públicas, y tu correo, tu nombre y tu género si los indicas. Tus recuentos siguen cifrados en tus teléfonos.</string>
     <string name="consent_check">Acepto que Duongöndro guarde esto para gestionar mi cuenta. Puedo exportarlo o borrarlo todo en Ajustes.</string>
@@ -283,8 +286,8 @@
     <string name="invite_make">Crear un código de amistad</string>
     <string name="invite_open">Tus códigos de amistad abiertos</string>
     <string name="invite_open_until">Vale hasta %s</string>
-    <string name="invite_open_shown">Mostrada arriba</string>
-    <string name="invite_open_none">Ninguna abierta.</string>
+    <string name="invite_open_shown">Mostrado arriba</string>
+    <string name="invite_open_none">Ninguno abierto.</string>
     <string name="invite_open_footer">Al revocar un código de amistad, el código y su enlace dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
     <string name="invite_revoke">Revocar</string>
     <string name="invite_revoke_title">¿Revocar este código de amistad?</string>
@@ -336,6 +339,10 @@
     <string name="poked">Toque enviado</string>
     <string name="poke_named">Dar un toque a %s</string>
     <string name="poked_named">Le diste un toque a %s</string>
+    <string name="friend_finished_unnamed">Un amigo terminó %1$s</string>
+    <string name="friend_not_yet_unnamed">Un amigo aún no ha practicado</string>
+    <string name="poke_unnamed">Dar un toque a un amigo</string>
+    <string name="poked_unnamed">Le diste un toque a un amigo</string>
     <string name="their_own_practice">su propia práctica</string>
     <string name="public_streaks">Rachas públicas</string>
     <string name="public_streaks_footer">Días practicados en la app, firmados por cada persona. Los conteos siguen siendo privados.</string>
