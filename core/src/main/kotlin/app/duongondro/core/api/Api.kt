@@ -285,12 +285,13 @@ sealed class ApiError(message: String) : Exception(message) {
     class Forbidden(message: String) : ApiError(message)
     class TooManyRequests(message: String) : ApiError(message) {
         /**
-         * The limit on accounts made without an invitation from one network
-         * (duongondro-api#16), rather than a per-address or per-route one. Read
-         * from the server's message, which names new accounts; a different
+         * A per-network limit on sign-ups without an invitation (duongondro-api#16:
+         * accounts by passkey or provider, and open magic-link requests), rather
+         * than a per-address or per-route one. The status is the same, so it is
+         * read from the server's message, which names the network; any other
          * wording reads as an ordinary limit.
          */
-        val signUps: Boolean get() = message.orEmpty().contains("new accounts", ignoreCase = true)
+        val signUps: Boolean get() = message.orEmpty().contains("from this network", ignoreCase = true)
     }
     /** Another phone rotated the practice key; wraps of the new one are waiting. */
     class OldKey(val currentKeyVersion: Long) : ApiError("old key; current is $currentKeyVersion")

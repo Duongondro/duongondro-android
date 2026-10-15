@@ -124,6 +124,13 @@ class SignUpRequestTest {
         } catch (e: ApiError.TooManyRequests) {
             assertTrue(e.signUps)
         }
+        http.answer = """{"error":"too many sign-up mails requested from this network; try again later, or use an invitation"}"""
+        try {
+            api.requestMagicLink("a@example.com", SignUp(consent = true))
+            fail()
+        } catch (e: ApiError.TooManyRequests) {
+            assertTrue(e.signUps)
+        }
         for (other in listOf("too many sign-in links to this address; try again in a few minutes", "too many requests; try again later", "")) {
             http.answer = if (other.isEmpty()) "" else """{"error":"$other"}"""
             try {

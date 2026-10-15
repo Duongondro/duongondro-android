@@ -106,7 +106,7 @@
     <string name="invite_hint">Tippe den Einladungscode ein oder füge ihn ein, oder füge den ganzen Einladungslink ein. Groß- und Kleinschreibung spielt keine Rolle.</string>
     <string name="invite_unknown">Diese Einladung kennen wir nicht. Prüfe den Code oder frag, wer sie geschickt hat.</string>
     <string name="invite_needed">Ein neues Konto braucht vorerst einen Einladungscode.</string>
-    <string name="signup_too_many">Aus diesem Netz wurden in der letzten Stunde zu viele Konten angelegt. Versuch es später, oder gib einen Einladungscode ein: Der funktioniert trotzdem.</string>
+    <string name="signup_too_many">Aus diesem Netz gab es in der letzten Stunde zu viele Registrierungen. Versuch es später, oder gib einen Einladungscode ein: Der funktioniert trotzdem.</string>
     <string name="consent_title">Bevor wir etwas speichern</string>
     <string name="consent_detail">Ein Konto in einer App für buddhistische Praxis sagt etwas über deine Überzeugungen aus, die die DSGVO als besonders schützenswert behandelt. Mit deiner Einwilligung speichert der Server deine E-Mail-Adresse oder deinen Benutzernamen, deinen Namen, dein Geschlecht, falls du es angibst, deine Freunde und deine öffentlichen Serien. Deine Zähler bleiben auf deinen Handys verschlüsselt.</string>
     <string name="consent_check">Ich willige ein, dass Duongöndro das speichert, um mein Konto zu betreiben. In den Einstellungen kann ich alles exportieren oder löschen.</string>

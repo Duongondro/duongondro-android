@@ -110,7 +110,7 @@
     <string name="invite_hint">Wpisz lub wklej kod zaproszenia albo wklej cały link z zaproszeniem. Wielkość liter nie ma znaczenia.</string>
     <string name="invite_unknown">Nie znamy tego zaproszenia. Sprawdź kod albo zapytaj osobę, która je wysłała.</string>
     <string name="invite_needed">Na razie nowe konto wymaga kodu zaproszenia.</string>
-    <string name="signup_too_many">Z tej sieci założono w ostatniej godzinie zbyt wiele kont. Spróbuj później albo wpisz kod zaproszenia: on działa mimo to.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo wpisz kod zaproszenia: on działa mimo to.</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
     <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Za Twoją zgodą serwer przechowuje Twój e-mail lub nazwę użytkownika, imię, płeć, jeśli ją podasz, przyjaciół i publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
     <string name="consent_check">Zgadzam się, aby Duongöndro przechowywało te dane na potrzeby mojego konta. Wszystko mogę wyeksportować lub usunąć w Ustawieniach.</string>
