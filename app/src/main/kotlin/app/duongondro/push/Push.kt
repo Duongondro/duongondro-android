@@ -25,6 +25,8 @@ import app.duongondro.core.api.Api
 import app.duongondro.core.sync.SecretName
 import app.duongondro.keys.SecretFiles
 import app.duongondro.reminders.Reminders
+import com.google.android.gms.tasks.Task
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -63,6 +65,8 @@ object Push {
     private const val ASKED = "asked"
     /** Friends › "Not now" on the permission card. */
     private const val DISMISSED = "askDismissed"
+    /** A left account's token (and Installation) not yet deleted in Firebase: retried until it is. */
+    private const val PENDING_DELETE = "pendingDelete"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -96,6 +100,13 @@ object Push {
     fun refresh(context: Context) {
         val app = context.applicationContext
         if (!Reminders.canNotify(app)) return
+        // A previous account's token still being deleted: FCM would hand it back
+        // from its cache, and it would go up for this account. Wait for the
+        // deletion; if it fails, the next refresh tries both again.
+        retryDeletion(app)?.let { deleting ->
+            deleting.addOnCompleteListener { if (it.isSuccessful) refresh(app) }
+            return
+        }
         prefs(app).edit { putBoolean(ENABLED, true) }
         val messaging = FirebaseMessaging.getInstance()
         messaging.isAutoInitEnabled = true
@@ -139,21 +150,58 @@ object Push {
     }
 
     /**
-     * Leaving the account (signing out, switching, deleting everything): no
-     * more pushes here even if the server kept the token, since FCM no longer
-     * delivers to a deleted one; auto-init off again, so local mode stays
-     * offline. The caller deletes the token on the server first if it can.
+     * Leaving the account (signing out, switching, deleting everything, or a
+     * session the server ended): no more pushes here even if the server kept
+     * the token, since FCM stops delivering to a deleted one and the server
+     * drops a token FCM calls unregistered. Auto-init goes off again, and the
+     * Firebase Installation is deleted after the token, so nothing of it stays
+     * with Google. The caller deletes the token on the server first if it can.
+     *
+     * Offline, deleteToken fails and FCM keeps the token, so the deletion is
+     * remembered and retried at every launch and return to the foreground
+     * ([retryDeletion]) until it succeeds, in local mode too: it is a deletion.
      * A phone that never turned Firebase on does not touch it now.
      */
-    @Suppress("DEPRECATION") // deleteToken, as in refresh
     fun forget(context: Context) {
-        val prefs = prefs(context)
+        val app = context.applicationContext
+        val prefs = prefs(app)
         val enabled = prefs.getBoolean(ENABLED, false)
-        prefs.edit { remove(ENABLED); remove(SENT); remove(SENT_AT) }
+        prefs.edit {
+            remove(ENABLED); remove(SENT); remove(SENT_AT)
+            if (enabled) putBoolean(PENDING_DELETE, true)
+        }
         if (!enabled) return
-        val messaging = FirebaseMessaging.getInstance()
-        messaging.isAutoInitEnabled = false
-        messaging.deleteToken().addOnFailureListener { Log.w(TAG, "push token not deleted: ${it.javaClass.simpleName}") }
+        runCatching { FirebaseMessaging.getInstance().isAutoInitEnabled = false }
+        retryDeletion(app)
+    }
+
+    /** The deletion in flight, so a refresh waits for it and a retry does not start a second one. */
+    private var deleting: Task<Void>? = null
+
+    /**
+     * Deletes the token, then the Firebase Installation, of an account this
+     * phone left, if that has not succeeded yet; null when nothing is left to
+     * delete. Called by [forget], and at launch and on return to the foreground.
+     */
+    @Suppress("DEPRECATION") // deleteToken, as in refresh
+    @Synchronized
+    fun retryDeletion(context: Context): Task<Void>? {
+        val app = context.applicationContext
+        if (!prefs(app).getBoolean(PENDING_DELETE, false)) return null
+        deleting?.let { return it }
+        val messaging = runCatching { FirebaseMessaging.getInstance() }.getOrNull() ?: return null
+        val task = messaging.deleteToken()
+            .continueWithTask { deleted ->
+                if (!deleted.isSuccessful) throw deleted.exception ?: IllegalStateException("deleteToken failed")
+                FirebaseInstallations.getInstance().delete()
+            }
+            .addOnCompleteListener { done ->
+                synchronized(this) { deleting = null }
+                if (done.isSuccessful) prefs(app).edit { remove(PENDING_DELETE) }
+                else Log.w(TAG, "push token not deleted yet: ${done.exception?.javaClass?.simpleName}")
+            }
+        deleting = task
+        return task
     }
 
     // The permission

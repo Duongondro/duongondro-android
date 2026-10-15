@@ -130,6 +130,8 @@ class AppModel(
     fun refreshPush() {
         val context = appContext ?: return
         if (accounts?.state?.value?.status == AccountStatus.READY) Push.refresh(context)
+        // A left account's token that could not be deleted (offline): tried again, also in local mode.
+        else Push.retryDeletion(context)
     }
 
     /** Back in the foreground: sync, if there is an account. */
