@@ -131,6 +131,10 @@
     <string name="gender_male">Männlich</string>
     <string name="gender_female">Weiblich</string>
     <string name="gender_nonbinary">Nicht-binär</string>
+    <string name="add_email_title">E-Mail-Adresse hinzufügen?</string>
+    <string name="add_email_detail">Ein zweiter Weg, dich anzumelden, zum Beispiel auf einem neuen Handy.</string>
+    <string name="add_email_sent">Tippe den Code ein, den wir an %s geschickt haben.</string>
+    <string name="email_taken">Diese E-Mail-Adresse gehört zu einem anderen Konto.</string>
     <string name="passkey_title">Passkey speichern</string>
     <string name="passkey_detail">Beim nächsten Mal meldest du dich mit Fingerabdruck oder Displaysperre an. Der Google Passwortmanager bewahrt ihn auf, also hat ihn auch ein neues Android-Handy.</string>
     <string name="passkey_save">Passkey speichern</string>

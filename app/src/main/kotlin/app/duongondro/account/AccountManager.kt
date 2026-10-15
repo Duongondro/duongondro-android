@@ -142,6 +142,9 @@ data class FriendsState(
 /** An invitation this account made that still works: not revoked, not expired. */
 data class OpenInvite(val id: String, val expiresAt: Instant)
 
+enum class EmailAdd { Sent, NotAnAddress, TooMany }
+enum class EmailVerify { Added, Wrong, Taken, TooMany }
+
 enum class PasskeyResult { Saved, Cancelled, Unavailable, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
@@ -301,7 +304,14 @@ class AccountManager(
      * A sign-up made its account on this phone and has not finished the
      * optional steps: a relaunch resumes them (at the name) rather than starting over.
      */
-    val signUpUnfinished: Boolean get() = prefs.getBoolean(SIGN_UP_UNFINISHED, false)
+    val signUpUnfinished: Boolean
+        get() {
+            if (!prefs.getBoolean(SIGN_UP_UNFINISHED, false)) return false
+            // Only while the session lives: after a 401 (or none) there is nothing to resume.
+            val live = _state.value.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }
+            if (!live) signUpFinished()
+            return live
+        }
 
     private fun markSignUp(created: Boolean) {
         if (created) prefs.edit { putBoolean(SIGN_UP_UNFINISHED, true) }
@@ -422,9 +432,11 @@ class AccountManager(
      * sign-up's name step to show; empty when there is none.
      */
     suspend fun serverDisplayName(): String = withContext(Dispatchers.IO) {
-        val name = requireAccount().api.me().displayName
-        saveProfile(displayName = name)
-        name
+        val me = requireAccount().api.me()
+        // The server's word on the address, so a stale one from an earlier account never skips the e-mail step.
+        if (me.email == null) prefs.edit { remove(EMAIL) }
+        saveProfile(displayName = me.displayName, email = me.email)
+        me.displayName
     }
 
     /**
@@ -446,6 +458,34 @@ class AccountManager(
         val trimmed = trimName(name)
         requireAccount().api.updateMe(displayName = trimmed)
         saveProfile(displayName = trimmed)
+    }
+
+    // E-mail, added after sign-up
+
+    /** Mails a code to [email]; the address is added once [verifyEmail] gets it back. */
+    suspend fun requestEmail(email: String): EmailAdd = withContext(Dispatchers.IO) {
+        try {
+            requireAccount().api.requestEmail(email)
+            EmailAdd.Sent
+        } catch (e: ApiError.Status) {
+            if (e.code == 400) EmailAdd.NotAnAddress else throw e
+        } catch (_: ApiError.TooManyRequests) {
+            EmailAdd.TooMany
+        }
+    }
+
+    suspend fun verifyEmail(email: String, code: String): EmailVerify = withContext(Dispatchers.IO) {
+        try {
+            requireAccount().api.verifyEmail(code)
+            saveProfile(email = email.trim().lowercase())
+            EmailVerify.Added
+        } catch (e: ApiError.Status) {
+            if (e.code == 400) EmailVerify.Wrong else throw e
+        } catch (_: ApiError.Conflict) {
+            EmailVerify.Taken
+        } catch (_: ApiError.TooManyRequests) {
+            EmailVerify.TooMany
+        }
     }
 
     // Passkeys
@@ -516,7 +556,7 @@ class AccountManager(
         if (standing == Account.Standing.READY) _state.update { it.copy(status = AccountStatus.READY) }
         // The profile as the server has it, for a sign-in on a new phone.
         runCatching { requireAccount().api.me() }.getOrNull()?.let { me ->
-            saveProfile(username = me.username, displayName = me.displayName.ifEmpty { null },
+            saveProfile(email = me.email, username = me.username, displayName = me.displayName.ifEmpty { null },
                 gender = Gender.entries.firstOrNull { it.wire == me.gender })
         }
         standing
@@ -907,6 +947,7 @@ class AccountManager(
         withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
         account = null
         social = null
+        signUpFinished()
         _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
     }
 

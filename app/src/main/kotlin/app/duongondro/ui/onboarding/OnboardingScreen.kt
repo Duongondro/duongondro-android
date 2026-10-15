@@ -129,6 +129,9 @@ sealed interface Step {
     /** The rest of sign-up is optional: a display name, then gender. */
     data object Name : Step
     data object Gender : Step
+    /** Optional, after a passkey sign-up: an e-mail as a second way to sign in, confirmed by a mailed code. */
+    data object AddEmail : Step
+    data object CheckAddedEmail : Step
     data object Recovery : Step
     /** Two groups of the recovery code typed back. */
     data object RecoveryCheck : Step
@@ -173,6 +176,8 @@ class OnboardingFlow : ViewModel() {
     var otherAccount by mutableStateOf(false)
     var consented by mutableStateOf(false)
     var email by mutableStateOf("")
+    /** The address being added after sign-up (not the one an e-mail sign-up used). */
+    var addedEmail by mutableStateOf("")
     /** The name the server gave the new account (random, or none); null until fetched. */
     var serverName by mutableStateOf<String?>(null)
     var displayName by mutableStateOf("")
@@ -296,11 +301,12 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
     Step.Passkey, Step.Email, Step.CheckEmail -> if (signingIn) null else 1 to ACCOUNT_STEPS
     Step.Name -> if (signingIn) null else 2 to ACCOUNT_STEPS
     Step.Gender -> if (signingIn) null else 3 to ACCOUNT_STEPS
+    Step.AddEmail, Step.CheckAddedEmail -> if (signingIn) null else 4 to ACCOUNT_STEPS
     else -> null
 }
 
 private const val PRACTICE_STEPS = 5
-private const val ACCOUNT_STEPS = 3
+private const val ACCOUNT_STEPS = 4
 
 /**
  * The first run, from Welcome; or, from Settings with [done] set, only the
@@ -355,6 +361,8 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)
             Step.Name -> NameStep(flow, accounts)
             Step.Gender -> GenderStep(flow, accounts)
+            Step.AddEmail -> AddEmailStep(flow, accounts)
+            Step.CheckAddedEmail -> CheckAddedEmailStep(flow, accounts)
             Step.Passkey -> PasskeyStep(flow, model, accounts)
             Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
             // The code the step before showed: the account's own, never another's.

@@ -64,6 +64,8 @@ import androidx.compose.ui.platform.LocalContext
 import app.duongondro.account.AccountManager
 import app.duongondro.account.AccountStatus
 import app.duongondro.account.Crockford
+import app.duongondro.account.EmailAdd
+import app.duongondro.account.EmailVerify
 import app.duongondro.account.Gender
 import app.duongondro.account.InviteCheck
 import app.duongondro.account.LinkRequest
@@ -499,7 +501,7 @@ internal fun ColumnScope.NameStep(flow: OnboardingFlow, accounts: AccountManager
     }
 }
 
-/** Optional; then the name and gender are saved, only what changed, and keys come next. */
+/** Optional; then the name and gender are saved, only what changed, and an e-mail is offered unless the account has one. */
 @Composable
 internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
@@ -509,7 +511,8 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
             val name = flow.displayName.trim().takeIf { it != flow.serverName.orEmpty() }
             accounts.setProfile(name, g)
             if (name != null) flow.serverName = name
-            flow.go(Step.Recovery)
+            // An account made by e-mail has its address already.
+            flow.go(if (accounts.state.value.email != null) Step.Recovery else Step.AddEmail)
         }
     }
     Page(
@@ -524,6 +527,78 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
             TextAction(stringResource(R.string.skip)) { if (!call.busy) pick(null) }
         },
     )
+}
+
+/** Optional: an e-mail as a second way to sign in (a new phone, a lost passkey), confirmed with a mailed code. */
+@Composable
+internal fun ColumnScope.AddEmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+    val call = rememberCall()
+    var problem by remember { mutableStateOf<Int?>(null) }
+    val valid = flow.addedEmail.trim().matches(EMAIL)
+    val send = {
+        problem = null
+        call.run {
+            when (accounts.requestEmail(flow.addedEmail.trim())) {
+                EmailAdd.Sent -> flow.go(Step.CheckAddedEmail)
+                EmailAdd.NotAnAddress -> problem = R.string.account_error
+                EmailAdd.TooMany -> problem = R.string.try_later
+            }
+        }
+    }
+    Page(
+        stringResource(R.string.add_email_title), plain(stringResource(R.string.add_email_detail)),
+        actions = {
+            CallError(call)
+            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send() }
+            TextAction(stringResource(R.string.skip)) { if (!call.busy) flow.go(Step.Recovery) }
+        },
+    ) {
+        LabelledField(stringResource(R.string.email_label), flow.addedEmail, { flow.addedEmail = it; problem = null },
+            error = problem?.let { stringResource(it) },
+            keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
+            onDone = if (valid) send else null)
+    }
+}
+
+/** The code mailed to the address being added; Back changes the address. */
+@Composable
+internal fun ColumnScope.CheckAddedEmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+    val call = rememberCall()
+    var code by remember { mutableStateOf("") }
+    var problem by remember { mutableStateOf<Int?>(null) }
+    var again by remember { mutableStateOf(false) }
+    val submit = {
+        problem = null
+        call.run {
+            when (accounts.verifyEmail(flow.addedEmail, code)) {
+                EmailVerify.Added -> flow.go(Step.Recovery)
+                EmailVerify.Wrong -> problem = R.string.code_wrong
+                EmailVerify.Taken -> problem = R.string.email_taken
+                EmailVerify.TooMany -> problem = R.string.try_later
+            }
+        }
+    }
+    Page(
+        stringResource(R.string.check_title), plain(stringResource(R.string.add_email_sent, flow.addedEmail.trim())),
+        actions = {
+            CallError(call)
+            FilledAction(stringResource(R.string.continue_), enabled = code.length == Crockford.SIGN_IN_LENGTH && !call.busy) { submit() }
+            TextAction(if (again) stringResource(R.string.sent_again) else stringResource(R.string.send_again)) {
+                if (!call.busy && !again) call.run {
+                    when (accounts.requestEmail(flow.addedEmail.trim())) {
+                        EmailAdd.Sent -> again = true
+                        EmailAdd.NotAnAddress -> problem = R.string.account_error
+                        EmailAdd.TooMany -> problem = R.string.try_later
+                    }
+                }
+            }
+            TextAction(stringResource(R.string.skip)) { if (!call.busy) flow.go(Step.Recovery) }
+        },
+    ) {
+        LabelledField(stringResource(R.string.code_label), code, { code = Crockford.normalise(it, Crockford.SIGN_IN_LENGTH); problem = null },
+            hint = stringResource(R.string.code_hint), error = problem?.let { stringResource(it) },
+            keyboard = codeKeyboard, transformation = Grouped, onDone = if (code.length == Crockford.SIGN_IN_LENGTH) submit else null)
+    }
 }
 
 /**

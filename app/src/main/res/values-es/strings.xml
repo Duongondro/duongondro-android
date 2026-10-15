@@ -134,6 +134,10 @@
     <string name="gender_male">Hombre</string>
     <string name="gender_female">Mujer</string>
     <string name="gender_nonbinary">No binario</string>
+    <string name="add_email_title">¿Añadir un correo?</string>
+    <string name="add_email_detail">Una segunda forma de iniciar sesión, por ejemplo en un teléfono nuevo.</string>
+    <string name="add_email_sent">Escribe el código que enviamos a %s.</string>
+    <string name="email_taken">Este correo pertenece a otra cuenta.</string>
     <string name="passkey_title">Guarda una clave de acceso</string>
     <string name="passkey_detail">La próxima vez accedes con tu huella o el bloqueo de pantalla. El Gestor de contraseñas de Google la guarda, así que un teléfono Android nuevo también la tiene.</string>
     <string name="passkey_save">Guardar una clave de acceso</string>

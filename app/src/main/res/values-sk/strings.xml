@@ -129,6 +129,10 @@
     <string name="gender_male">Muž</string>
     <string name="gender_female">Žena</string>
     <string name="gender_nonbinary">Nebinárne</string>
+    <string name="add_email_title">Pridať e-mail?</string>
+    <string name="add_email_detail">Druhý spôsob prihlásenia, napríklad na novom telefóne.</string>
+    <string name="add_email_sent">Opíš kód, ktorý sme poslali na %s.</string>
+    <string name="email_taken">Tento e-mail patrí inému účtu.</string>
     <string name="passkey_title">Ulož prístupový kľúč</string>
     <string name="passkey_detail">Nabudúce sa prihlásiš odtlačkom prsta alebo zámkou obrazovky. Správca hesiel Google ho uchová, takže ho má aj nový telefón s Androidom.</string>
     <string name="passkey_save">Uložiť prístupový kľúč</string>
