@@ -189,9 +189,8 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
                         if (i > 0) RowDivider()
                         NewsRow(item, now, friends.isPoked(item.friend.user, now)) {
                             scope.launch {
-                                attempt({ pokeFailed = it }) { accounts.poke(item.friend.user) }
-                                // So they can poke back.
-                                askPush()
+                                // So they can poke back; only once the poke went.
+                                if (attempt({ pokeFailed = it }) { accounts.poke(item.friend.user) }) askPush()
                             }
                         }
                     }

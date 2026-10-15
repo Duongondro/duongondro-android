@@ -106,9 +106,9 @@ fun FriendDetailScreen(model: AppModel, friendId: String, back: () -> Unit) {
             ListRow(stringResource(if (poked) R.string.poked else R.string.poke),
                 titleColor = if (poked) Theme.colors.muted else Theme.colors.accent, semibold = !poked,
                 onClick = if (poked) null else ({
-                    run { accounts.poke(f.user) }
-                    // So they can poke back.
-                    askPush()
+                    // So they can poke back; only once the poke went.
+                    scope.launch { if (attempt({ failed = it }) { accounts.poke(f.user) }) askPush() }
+                    Unit
                 }))
             RowDivider()
             ListRow(stringResource(R.string.unfriend), onClick = { confirmingUnfriend = true })

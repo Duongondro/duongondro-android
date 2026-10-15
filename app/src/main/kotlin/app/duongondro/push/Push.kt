@@ -76,7 +76,7 @@ object Push {
 
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    /** Created (and renamed in the app's language) at every start; creating it is local. */
+    /** Created, and renamed in the app's language, whenever push is refreshed or a push is drawn. */
     fun createChannel(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(NotificationChannel(CHANNEL,
@@ -107,8 +107,11 @@ object Push {
             deleting.addOnCompleteListener { if (it.isSuccessful) refresh(app) }
             return
         }
+        val messaging = runCatching { FirebaseMessaging.getInstance() }
+            .onFailure { Log.w(TAG, "Firebase unavailable: ${it.javaClass.simpleName}") }.getOrNull() ?: return
+        // Only with push on: a phone in local mode has no Friends channel to show.
+        createChannel(app)
         prefs(app).edit { putBoolean(ENABLED, true) }
-        val messaging = FirebaseMessaging.getInstance()
         messaging.isAutoInitEnabled = true
         messaging.token
             .addOnSuccessListener { token -> scope.launch { upload(app, token) } }
@@ -211,6 +214,13 @@ object Push {
     fun offersCard(context: Context): Boolean = canAsk(context) && !prefs(context).getBoolean(DISMISSED, false)
 
     fun asked(context: Context) = prefs(context).edit { putBoolean(ASKED, true) }
+
+    /**
+     * "Delete everything": what this phone remembered about push goes, the
+     * permission card's answers with it. A deletion still pending stays, so
+     * it is retried until it succeeds.
+     */
+    fun reset(context: Context) = prefs(context).edit { remove(ASKED); remove(DISMISSED); remove(SENT); remove(SENT_AT) }
 
     fun dismissCard(context: Context) = prefs(context).edit { putBoolean(DISMISSED, true) }
 

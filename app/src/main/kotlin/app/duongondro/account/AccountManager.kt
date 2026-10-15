@@ -1046,6 +1046,7 @@ class AccountManager(
         onShow.forget()
         // The server deleted the token with the account; FCM's goes too.
         Push.forget(app)
+        Push.reset(app)
         account = null
         social = null
         _friends.value = FriendsState()

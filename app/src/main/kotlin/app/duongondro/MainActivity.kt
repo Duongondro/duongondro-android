@@ -33,7 +33,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.duongondro.account.Crockford
 import app.duongondro.reminders.Reminders
-import app.duongondro.push.Push
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
@@ -88,8 +87,6 @@ class MainActivity : AppCompatActivity() {
         setContent {
             DuongondroTheme { App(model) }
         }
-        // Local, no network: the channel friends' pushes arrive in, named in the app's language.
-        Push.createChannel(this)
         // Recreated (rotation, a language switch, process death): the link was handled already.
         if (savedInstanceState == null) {
             handleLink(intent)
