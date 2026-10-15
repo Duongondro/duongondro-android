@@ -10,4 +10,12 @@
     <string name="friend_finished_female">%1$s ukończyła %2$s</string>
     <string name="friend_not_yet_male">%s jeszcze nie praktykował</string>
     <string name="friend_not_yet_female">%s jeszcze nie praktykowała</string>
+    <string name="friend_finished_unnamed_male">Przyjaciel ukończył %1$s</string>
+    <string name="friend_finished_unnamed_female">Przyjaciółka ukończyła %1$s</string>
+    <string name="friend_not_yet_unnamed_male">Przyjaciel jeszcze nie praktykował</string>
+    <string name="friend_not_yet_unnamed_female">Przyjaciółka jeszcze nie praktykowała</string>
+    <string name="poke_unnamed_male">Szturchnij przyjaciela</string>
+    <string name="poke_unnamed_female">Szturchnij przyjaciółkę</string>
+    <string name="poked_unnamed_male">Szturchnięto przyjaciela</string>
+    <string name="poked_unnamed_female">Szturchnięto przyjaciółkę</string>
 </resources>

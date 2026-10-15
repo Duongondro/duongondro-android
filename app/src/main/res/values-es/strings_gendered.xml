@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="friend_finished_unnamed_male">Un amigo terminó %1$s</string>
+    <string name="friend_finished_unnamed_female">Una amiga terminó %1$s</string>
+    <string name="friend_not_yet_unnamed_male">Un amigo aún no ha practicado</string>
+    <string name="friend_not_yet_unnamed_female">Una amiga aún no ha practicado</string>
+    <string name="poke_unnamed_male">Dar un toque a un amigo</string>
+    <string name="poke_unnamed_female">Dar un toque a una amiga</string>
+    <string name="poked_unnamed_male">Le diste un toque a un amigo</string>
+    <string name="poked_unnamed_female">Le diste un toque a una amiga</string>
+</resources>

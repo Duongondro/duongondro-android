@@ -130,7 +130,7 @@ fun AccountSection(
                 }
             },
             confirmButton = {
-                TextButton(enabled = name.isNotBlank(), onClick = { naming = false; run { accounts.setDisplayName(name) } }) {
+                TextButton(onClick = { naming = false; run { accounts.setDisplayName(name) } }) {
                     Text(stringResource(R.string.save))
                 }
             },

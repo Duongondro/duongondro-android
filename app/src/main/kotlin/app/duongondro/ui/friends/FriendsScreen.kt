@@ -234,8 +234,14 @@ private fun NewsRow(item: FriendsBoard.NewsItem, now: Instant, poked: Boolean, p
     val name = item.friend.shownName()
     val practice = practiceName(item.streak.practice)
     val gender = genderOf(item.friend.gender)
-    val title = if (item.doneToday) stringResource(GenderedString.FriendFinished, gender, name, practice)
-    else stringResource(GenderedString.FriendNotYet, gender, name)
+    // Without a name the sentence says "a friend" itself, in the right case and gender.
+    val unnamed = item.friend.displayName.isBlank()
+    val title = when {
+        item.doneToday && unnamed -> stringResource(GenderedString.FriendFinishedUnnamed, gender, practice)
+        item.doneToday -> stringResource(GenderedString.FriendFinished, gender, name, practice)
+        unnamed -> stringResource(GenderedString.FriendNotYetUnnamed, gender)
+        else -> stringResource(GenderedString.FriendNotYet, gender, name)
+    }
     val locale = LocalConfiguration.current.locales[0]
     val detail = if (item.doneToday) {
         // Statements from this app carry their sending time as seq.
@@ -260,7 +266,8 @@ private fun NewsRow(item: FriendsBoard.NewsItem, now: Instant, poked: Boolean, p
             Text(detail, style = Theme.type.footnote, color = Theme.colors.muted)
         }
         if (!item.doneToday) {
-            val label = stringResource(if (poked) R.string.poked_named else R.string.poke_named, name)
+            val label = if (unnamed) stringResource(if (poked) GenderedString.PokedUnnamed else GenderedString.PokeUnnamed, gender)
+            else stringResource(if (poked) R.string.poked_named else R.string.poke_named, name)
             FilledTonalButton(
                 onClick = poke, enabled = !poked, shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.filledTonalButtonColors(

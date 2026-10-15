@@ -62,14 +62,15 @@ import androidx.compose.ui.text.style.TextAlign
 import app.duongondro.R
 import androidx.compose.ui.platform.LocalContext
 import app.duongondro.account.AccountManager
+import app.duongondro.account.AccountStatus
 import app.duongondro.account.Crockford
+import app.duongondro.account.EmailAdd
+import app.duongondro.account.EmailVerify
 import app.duongondro.account.Gender
 import app.duongondro.account.InviteCheck
 import app.duongondro.account.LinkRequest
 import app.duongondro.account.PasskeyResult
-import app.duongondro.account.ProfileResult
 import app.duongondro.account.Redeem
-import app.duongondro.core.api.Profile
 import app.duongondro.core.sync.Account
 import app.duongondro.core.sync.RecoveryCode
 import app.duongondro.model.AppModel
@@ -201,11 +202,10 @@ private fun ErrorLine(text: String) {
     Text(text, style = Theme.type.footnote, color = Theme.colors.destructive)
 }
 
-/** After any sign-in or sign-up: a new account gives its profile next; an existing one sets up, restores, or is done. */
+/** After any sign-in or sign-up: a new account gets its keys and then its optional profile; an existing one sets up, restores, or is done. */
 private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, created: Boolean, finish: () -> Unit) {
     if (created) {
-        flow.signingIn = false
-        flow.go(Step.Name)
+        accountMade(flow, accounts)
         return
     }
     when (accounts.standing()) {
@@ -215,25 +215,75 @@ private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, create
     }
 }
 
+/**
+ * The account exists: its keys are made at once, silently (design 07), so the
+ * friendship link's proof is redeemed now and the recovery code waits on its
+ * own step. A failure here only means the Recovery step makes them instead.
+ * The steps before the account leave the back stack.
+ */
+private suspend fun accountMade(flow: OnboardingFlow, accounts: AccountManager) {
+    flow.signingIn = false
+    flow.onAccount?.invoke()
+    try {
+        accounts.setUpKeys()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        // The Recovery step tries again and says so.
+    }
+    flow.afterAccount(Step.Name)
+}
+
+/** A sign-up step reached again once the account exists (Back, or Settings): straight on to the name. */
+@Composable
+private fun SkipOnceAccountExists(flow: OnboardingFlow, accounts: AccountManager) {
+    LaunchedEffect(Unit) {
+        if (!flow.signingIn && accounts.state.value.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }) {
+            flow.afterAccount(Step.Name)
+        }
+    }
+}
+
+/**
+ * Checks the friendship link opened before sign-up, if it is not the one
+ * checked last: a valid one goes with the sign-up as proof, any other is
+ * dropped. False when it could not be checked (offline, the server busy).
+ */
+private suspend fun checkLink(flow: OnboardingFlow, model: AppModel, accounts: AccountManager): Boolean {
+    val opened = model.inviteCode.value
+    if (opened == flow.checkedLink) return true
+    if (opened == null) {
+        accounts.clearInvitation()
+        flow.checkedLink = null
+        return true
+    }
+    val valid = try {
+        accounts.checkInvite(opened) == InviteCheck.Valid
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        return false
+    }
+    if (!valid) accounts.clearInvitation()
+    flow.checkedLink = opened
+    return true
+}
+
+/** "Continue without the link": the sign-up goes on without its proof; the link can still be accepted afterwards. */
+private fun skipLink(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
+    accounts.clearInvitation()
+    flow.checkedLink = model.inviteCode.value
+}
+
 /** A redemption's answer: signed in, or the reason it was not, shown under the field. */
 private suspend fun redeemed(result: Redeem, flow: OnboardingFlow, accounts: AccountManager, finish: () -> Unit): Int? = when (result) {
     is Redeem.SignedIn -> { route(flow, accounts, result.created, finish); null }
     Redeem.Wrong -> R.string.code_wrong
     Redeem.NoAccount -> R.string.no_account
-    Redeem.InviteGone -> R.string.invite_unknown
+    Redeem.InviteGone -> { accounts.clearInvitation(); R.string.signup_link_gone }
     Redeem.TooMany -> R.string.try_later
-    Redeem.InvitationNeeded -> { refused(flow, R.string.invite_needed); null }
+    Redeem.InvitationNeeded -> R.string.invite_needed
     Redeem.OtherAccountData -> { flow.otherAccount = true; null }
-}
-
-/**
- * A sign-up the server refused for want of a working invitation code (the code
- * stopped working, open sign-up is off, or this network made too many accounts
- * this hour): back to the Invitation step, which says why under its field.
- */
-private fun refused(flow: OnboardingFlow, reason: Int) {
-    flow.inviteProblem = reason
-    flow.backTo(Step.Invite)
 }
 
 /**
@@ -272,32 +322,19 @@ private fun OtherAccountDialog(
 /** The screen that asks whether the account exists at all. */
 @Composable
 internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finishLocal: () -> Unit) {
-    val link by model.inviteCode.collectAsState()
     val accounts = model.accounts
-    val call = rememberCall()
+    val status = accounts?.state?.collectAsState()?.value?.status
+    val made = !flow.signingIn && (status == AccountStatus.NEEDS_KEYS || status == AccountStatus.READY)
     Page(
         stringResource(R.string.where_title), plain(stringResource(R.string.where_detail)), centered = true,
         actions = {
-            CallError(call)
-            FilledAction(stringResource(R.string.where_online), enabled = accounts != null && !call.busy) {
+            FilledAction(stringResource(R.string.where_online), enabled = accounts != null) {
                 flow.signingIn = false
-                val opened = link
-                if (opened == null || accounts == null) {
-                    flow.go(Step.Invite)
-                } else {
-                    // A link opened earlier brought the invitation: checked here, the step skipped.
-                    flow.inviteCode = opened
-                    flow.linkTried = true
-                    call.run {
-                        if (accounts.checkInvite(opened) == InviteCheck.Valid) flow.go(Step.Consent) else {
-                            flow.inviteProblem = R.string.invite_unknown
-                            flow.go(Step.Invite)
-                        }
-                    }
-                }
+                if (made) flow.afterAccount(Step.Name) else flow.go(Step.Consent)
             }
-            OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
-                container = androidx.compose.ui.graphics.Color.Transparent, onClick = finishLocal)
+            // An account that exists is finished through name, gender and recovery code, never left half made.
+            if (!made) OutlinedAction(stringResource(R.string.where_local), border = Theme.colors.buttonOutline, borderWidth = Size.hairline,
+                container = androidx.compose.ui.graphics.Color.Transparent) { accounts?.clearInvitation(); finishLocal() }
         },
     ) {
         Column(Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium).padding(Space.l),
@@ -312,68 +349,14 @@ internal fun ColumnScope.WhereStep(flow: OnboardingFlow, model: AppModel, finish
     }
 }
 
-/**
- * Optional: a friend's invitation (24 characters) or an admission code (16),
- * the length telling them apart, or Skip for an account without one (open
- * sign-up, duongondro-api#16).
- */
+/** Consent first (GDPR Art. 9): nothing is created before it. */
 @Composable
-internal fun ColumnScope.InviteStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager, finishLocal: () -> Unit) {
-    val call = rememberCall()
-    // An invite link opened earlier (Settings' "Make an online account" starts here):
-    // filled in and checked once, so a valid one skips the step as in onboarding.
-    val link by model.inviteCode.collectAsState()
-    LaunchedEffect(link) {
-        val opened = link ?: return@LaunchedEffect
-        if (flow.linkTried || flow.inviteCode.isNotEmpty()) return@LaunchedEffect
-        flow.linkTried = true
-        flow.inviteCode = opened
-        call.run {
-            when (accounts.checkInvite(opened)) {
-                InviteCheck.Valid -> flow.go(Step.Consent)
-                InviteCheck.Unknown -> flow.inviteProblem = R.string.invite_unknown
-                InviteCheck.NotAuthentic -> flow.inviteProblem = R.string.invite_not_authentic
-            }
-        }
-    }
-    val length = flow.inviteCode.length
-    Page(
-        stringResource(R.string.invite_title), plain(stringResource(R.string.invite_detail)),
-        actions = {
-            CallError(call)
-            FilledAction(stringResource(R.string.continue_),
-                enabled = (length == Crockford.INVITE_LENGTH || length == Crockford.ADMISSION_LENGTH) && !call.busy) {
-                call.run {
-                    when (accounts.checkInvite(flow.inviteCode)) {
-                        InviteCheck.Valid -> flow.go(Step.Consent)
-                        InviteCheck.Unknown -> flow.inviteProblem = R.string.invite_unknown
-                        InviteCheck.NotAuthentic -> flow.inviteProblem = R.string.invite_not_authentic
-                    }
-                }
-            }
-            TextAction(stringResource(R.string.skip)) {
-                if (call.busy) return@TextAction
-                accounts.clearInvitation()
-                flow.inviteCode = ""
-                flow.inviteProblem = null
-                flow.go(Step.Consent)
-            }
-            TextAction(stringResource(R.string.invite_local)) { accounts.clearInvitation(); finishLocal() }
-        },
-    ) {
-        LabelledField(stringResource(R.string.invite_label), flow.inviteCode,
-            { flow.inviteCode = Crockford.normalise(it, Crockford.INVITE_LENGTH); flow.inviteProblem = null },
-            hint = stringResource(R.string.invite_hint), error = flow.inviteProblem?.let { stringResource(it) },
-            keyboard = codeKeyboard, transformation = Grouped)
-    }
-}
-
-@Composable
-internal fun ColumnScope.ConsentStep(flow: OnboardingFlow) {
+internal fun ColumnScope.ConsentStep(flow: OnboardingFlow, accounts: AccountManager) {
     val uri = LocalUriHandler.current
+    SkipOnceAccountExists(flow, accounts)
     Page(
         stringResource(R.string.consent_title), plain(stringResource(R.string.consent_detail)), centered = true,
-        actions = { FilledAction(stringResource(R.string.continue_), enabled = flow.consented) { flow.go(Step.Email) } },
+        actions = { FilledAction(stringResource(R.string.continue_), enabled = flow.consented) { flow.go(Step.Passkey) } },
     ) {
         Row(
             Modifier.fillMaxWidth().background(Theme.colors.card, MaterialTheme.shapes.medium)
@@ -393,18 +376,28 @@ internal fun ColumnScope.ConsentStep(flow: OnboardingFlow) {
 }
 
 @Composable
-internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+internal fun ColumnScope.EmailStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
     val call = rememberCall()
     var problem by remember { mutableStateOf<Int?>(null) }
+    var linkFailed by remember { mutableStateOf(false) }
+    SkipOnceAccountExists(flow, accounts)
     val valid = flow.email.trim().matches(EMAIL)
-    val send = {
+    val send = { withoutLink: Boolean ->
+        problem = null
         call.run {
+            if (withoutLink) skipLink(flow, model, accounts)
+            if (!flow.signingIn && !checkLink(flow, model, accounts)) {
+                linkFailed = true
+                problem = R.string.link_check_failed
+                return@run
+            }
+            linkFailed = false
             when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
                 LinkRequest.Sent -> flow.go(Step.CheckEmail)
-                LinkRequest.UnknownInvite -> problem = R.string.invite_unknown
+                LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
                 LinkRequest.TooMany -> problem = R.string.try_later
-                LinkRequest.InvitationNeeded -> refused(flow, R.string.invite_needed)
-                LinkRequest.TooManySignUps -> refused(flow, R.string.signup_too_many)
+                LinkRequest.InvitationNeeded -> problem = R.string.invite_needed
+                LinkRequest.TooManySignUps -> problem = R.string.signup_too_many
             }
         }
     }
@@ -412,14 +405,14 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, accounts: AccountManage
         stringResource(R.string.email_title), plain(stringResource(R.string.email_detail)),
         actions = {
             CallError(call)
-            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send() }
-            if (!flow.signingIn) TextAction(stringResource(R.string.email_skip)) { flow.email = ""; flow.go(Step.Username) }
+            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send(false) }
+            if (linkFailed) TextAction(stringResource(R.string.link_skip)) { if (valid && !call.busy) send(true) }
         },
     ) {
         LabelledField(stringResource(R.string.email_label), flow.email, { flow.email = it; problem = null },
             error = problem?.let { stringResource(it) },
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
-            onDone = if (valid) ({ send() }) else null)
+            onDone = if (valid) ({ send(false) }) else null)
     }
 }
 
@@ -445,6 +438,7 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
         call.run { problem = redeemed(accounts.redeemCode(flow.email.trim(), code), flow, accounts, finish) }
     }
     OtherAccountDialog(flow, accounts, finish)
+    SkipOnceAccountExists(flow, accounts)
     Page(
         stringResource(R.string.check_title), plain(stringResource(R.string.check_detail, flow.email.trim())),
         actions = {
@@ -454,10 +448,10 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
                 if (!call.busy && !again) call.run {
                     when (accounts.requestMagicLink(flow.email.trim(), signUp = !flow.signingIn, consent = flow.consented)) {
                         LinkRequest.Sent -> again = true
-                        LinkRequest.UnknownInvite -> refused(flow, R.string.invite_unknown)
+                        LinkRequest.UnknownInvite -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
                         LinkRequest.TooMany -> problem = R.string.try_later
-                        LinkRequest.InvitationNeeded -> refused(flow, R.string.invite_needed)
-                        LinkRequest.TooManySignUps -> refused(flow, R.string.signup_too_many)
+                        LinkRequest.InvitationNeeded -> problem = R.string.invite_needed
+                        LinkRequest.TooManySignUps -> problem = R.string.signup_too_many
                     }
                 }
             }
@@ -469,54 +463,56 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
     }
 }
 
+/**
+ * Optional, after the account exists: the name the server gave it (a random
+ * one, or none) is filled in; Continue keeps what is in the box, cleared or
+ * not (no name shows as "A friend"), Skip keeps the server's.
+ */
 @Composable
-internal fun ColumnScope.UsernameStep(flow: OnboardingFlow) {
+internal fun ColumnScope.NameStep(flow: OnboardingFlow, accounts: AccountManager) {
+    val call = rememberCall()
+    val load = {
+        call.run {
+            val name = accounts.serverDisplayName()
+            flow.serverName = name
+            flow.displayName = name
+        }
+    }
+    LaunchedEffect(Unit) { if (flow.serverName == null) load() }
+    val loaded = flow.serverName != null
+    val next = { flow.go(Step.Gender) }
     Page(
-        stringResource(R.string.username_title), plain(stringResource(R.string.username_detail)),
+        stringResource(R.string.name_title),
+        plain(stringResource(if (flow.serverName.isNullOrEmpty()) R.string.name_detail else R.string.name_random_detail)),
         actions = {
-            FilledAction(stringResource(R.string.continue_), enabled = flow.username.length >= USERNAME_MIN && !flow.usernameTaken) {
-                flow.go(Step.Name)
+            CallError(call)
+            if (call.failed) FilledAction(stringResource(R.string.try_again), enabled = !call.busy) { load() }
+            else FilledAction(stringResource(R.string.continue_), enabled = loaded, onClick = next)
+            TextAction(stringResource(R.string.skip)) {
+                if (call.busy) return@TextAction
+                flow.displayName = flow.serverName.orEmpty()
+                next()
             }
-            TextAction(stringResource(R.string.skip)) { flow.username = ""; flow.usernameTaken = false; flow.go(Step.Name) }
         },
     ) {
-        LabelledField(stringResource(R.string.username_label), flow.username,
-            {
-                flow.username = it.filter { c -> c.isLetterOrDigit() && c.code < 128 || c == '.' || c == '_' }.take(USERNAME_MAX).lowercase()
-                flow.usernameTaken = false
-            },
-            hint = stringResource(R.string.username_hint), error = if (flow.usernameTaken) stringResource(R.string.username_taken) else null,
-            keyboard = KeyboardOptions(keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false))
-    }
-}
-
-private const val USERNAME_MIN = 3
-private const val USERNAME_MAX = 32
-
-@Composable
-internal fun ColumnScope.NameStep(flow: OnboardingFlow) {
-    Page(
-        stringResource(R.string.name_title), plain(stringResource(R.string.name_detail)),
-        actions = { FilledAction(stringResource(R.string.continue_), enabled = flow.displayName.isNotBlank()) { flow.go(Step.Gender) } },
-    ) {
-        LabelledField(stringResource(R.string.name_label), flow.displayName, { flow.displayName = it.take(64) },
+        LabelledField(stringResource(R.string.name_label), flow.displayName, { if (loaded) flow.displayName = it.take(64) },
             keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-            onDone = if (flow.displayName.isNotBlank()) ({ flow.go(Step.Gender) }) else null)
+            onDone = if (loaded) next else null)
     }
 }
 
+/** Optional; then the name and gender are saved, only what changed, and an e-mail is offered unless the account has one. */
 @Composable
 internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
     val pick = { g: Gender? ->
         flow.gender = g
-        // With an email the account exists already and takes its profile now; without
-        // one, the passkey sign-up carries it.
-        if (flow.email.isBlank()) flow.go(Step.Passkey) else call.run {
-            when (accounts.setProfile(flow.displayName.trim(), flow.username.ifBlank { null }, g)) {
-                ProfileResult.Saved -> flow.go(Step.Passkey)
-                ProfileResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
-            }
+        call.run {
+            val name = flow.displayName.trim().takeIf { it != flow.serverName.orEmpty() }
+            accounts.setProfile(name, g)
+            if (name != null) flow.serverName = name
+            // An account made by e-mail has its address already.
+            flow.go(if (accounts.state.value.email != null) Step.Recovery else Step.AddEmail)
         }
     }
     Page(
@@ -533,13 +529,117 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
     )
 }
 
+/** Optional: an e-mail as a second way to sign in (a new phone, a lost passkey), confirmed with a mailed code. */
 @Composable
-internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountManager) {
+internal fun ColumnScope.AddEmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+    val call = rememberCall()
+    // A 409 from the code step comes back here with its reason.
+    var problem by remember { mutableStateOf(flow.addEmailProblem) }
+    LaunchedEffect(Unit) { flow.addEmailProblem = null }
+    val valid = flow.addedEmail.trim().matches(EMAIL)
+    val send = {
+        problem = null
+        call.run {
+            when (accounts.requestEmail(flow.addedEmail.trim())) {
+                EmailAdd.Sent -> flow.go(Step.CheckAddedEmail)
+                EmailAdd.NotAnAddress -> problem = R.string.email_invalid
+                EmailAdd.TooMany -> problem = R.string.try_later
+            }
+        }
+    }
+    Page(
+        stringResource(R.string.add_email_title), plain(stringResource(R.string.add_email_detail)),
+        actions = {
+            CallError(call)
+            FilledAction(stringResource(R.string.continue_), enabled = valid && !call.busy) { send() }
+            TextAction(stringResource(R.string.skip)) { if (!call.busy) flow.go(Step.Recovery) }
+        },
+    ) {
+        LabelledField(stringResource(R.string.email_label), flow.addedEmail, { flow.addedEmail = it; problem = null },
+            error = problem?.let { stringResource(it) },
+            keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
+            onDone = if (valid) send else null)
+    }
+}
+
+/** The code mailed to the address being added; Back changes the address. */
+@Composable
+internal fun ColumnScope.CheckAddedEmailStep(flow: OnboardingFlow, accounts: AccountManager) {
+    val call = rememberCall()
+    var code by remember { mutableStateOf("") }
+    var problem by remember { mutableStateOf<Int?>(null) }
+    var again by remember { mutableStateOf(false) }
+    val submit = {
+        problem = null
+        call.run {
+            when (accounts.verifyEmail(flow.addedEmail, code)) {
+                EmailVerify.Added -> flow.go(Step.Recovery)
+                EmailVerify.Wrong -> problem = R.string.code_wrong
+                EmailVerify.Taken -> { flow.addEmailProblem = R.string.email_taken; flow.back() }
+                EmailVerify.TooMany -> problem = R.string.try_later
+            }
+        }
+    }
+    Page(
+        stringResource(R.string.check_title), plain(stringResource(R.string.add_email_sent, flow.addedEmail.trim())),
+        actions = {
+            CallError(call)
+            FilledAction(stringResource(R.string.continue_), enabled = code.length == Crockford.SIGN_IN_LENGTH && !call.busy) { submit() }
+            TextAction(if (again) stringResource(R.string.sent_again) else stringResource(R.string.send_again)) {
+                if (!call.busy && !again) call.run {
+                    when (accounts.requestEmail(flow.addedEmail.trim())) {
+                        EmailAdd.Sent -> again = true
+                        EmailAdd.NotAnAddress -> problem = R.string.email_invalid
+                        EmailAdd.TooMany -> problem = R.string.try_later
+                    }
+                }
+            }
+            TextAction(stringResource(R.string.skip)) { if (!call.busy) flow.go(Step.Recovery) }
+        },
+    ) {
+        LabelledField(stringResource(R.string.code_label), code, { code = Crockford.normalise(it, Crockford.SIGN_IN_LENGTH); problem = null },
+            hint = stringResource(R.string.code_hint), error = problem?.let { stringResource(it) },
+            keyboard = codeKeyboard, transformation = Grouped, onDone = if (code.length == Crockford.SIGN_IN_LENGTH) submit else null)
+    }
+}
+
+/**
+ * Sign-up's first step after consent: the passkey makes the account, with no
+ * profile at all. "Use email instead" is for a phone or password manager that
+ * cannot make one: the emailed link or code makes the account instead.
+ */
+@Composable
+internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, model: AppModel, accounts: AccountManager) {
     val call = rememberCall()
     val activity = LocalContext.current
     var problem by remember { mutableStateOf<Int?>(null) }
-    // The passkey made the account with its profile already: keys next.
-    OtherAccountDialog(flow, accounts, finish = {}) { flow.go(Step.Recovery) }
+    var linkFailed by remember { mutableStateOf(false) }
+    SkipOnceAccountExists(flow, accounts)
+    OtherAccountDialog(flow, accounts, finish = {}) { accountMade(flow, accounts) }
+    val save = { withoutLink: Boolean ->
+        problem = null
+        call.run {
+            if (withoutLink) skipLink(flow, model, accounts)
+            if (!checkLink(flow, model, accounts)) {
+                linkFailed = true
+                problem = R.string.link_check_failed
+                return@run
+            }
+            linkFailed = false
+            when (accounts.createPasskey(activity, profile = null, consent = flow.consented)) {
+                PasskeyResult.Saved -> accountMade(flow, accounts)
+                PasskeyResult.Cancelled -> Unit
+                PasskeyResult.Unavailable -> problem = R.string.passkey_unavailable
+                // No username is sent, so the server has none to refuse.
+                PasskeyResult.UsernameTaken -> problem = R.string.account_error
+                PasskeyResult.InviteGone -> { accounts.clearInvitation(); problem = R.string.signup_link_gone }
+                PasskeyResult.InvitationNeeded -> problem = R.string.invite_needed
+                PasskeyResult.TooManySignUps -> problem = R.string.signup_too_many
+                PasskeyResult.TooMany -> problem = R.string.try_later
+                PasskeyResult.OtherAccountData -> flow.otherAccount = true
+            }
+        }
+    }
     Page(
         stringResource(R.string.passkey_title), plain(stringResource(R.string.passkey_detail)), centered = true,
         top = {
@@ -553,27 +653,9 @@ internal fun ColumnScope.PasskeyStep(flow: OnboardingFlow, accounts: AccountMana
         actions = {
             CallError(call)
             problem?.let { ErrorLine(stringResource(it)) }
-            FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) {
-                problem = null
-                call.run {
-                    // Without an email the passkey makes the account, with the profile given so far.
-                    val profile = if (flow.email.isBlank()) {
-                        Profile(flow.displayName.trim(), flow.username.ifBlank { null }, flow.gender?.wire)
-                    } else null
-                    when (accounts.createPasskey(activity, profile, consent = flow.consented)) {
-                        PasskeyResult.Saved -> flow.go(Step.Recovery)
-                        PasskeyResult.Cancelled -> Unit
-                        PasskeyResult.UsernameTaken -> { flow.usernameTaken = true; flow.backTo(Step.Username) }
-                        PasskeyResult.InviteGone -> refused(flow, R.string.invite_unknown)
-                        PasskeyResult.InvitationNeeded -> refused(flow, R.string.invite_needed)
-                        PasskeyResult.TooManySignUps -> refused(flow, R.string.signup_too_many)
-                        PasskeyResult.TooMany -> problem = R.string.try_later
-                        PasskeyResult.OtherAccountData -> flow.otherAccount = true
-                    }
-                }
-            }
-            // With an email there is a way back in without it; with only a username the passkey is the account.
-            if (flow.email.isNotBlank()) TextAction(stringResource(R.string.passkey_later)) { if (!call.busy) flow.go(Step.Recovery) }
+            FilledAction(stringResource(R.string.passkey_save), enabled = !call.busy) { save(false) }
+            if (linkFailed) TextAction(stringResource(R.string.link_skip)) { if (!call.busy) save(true) }
+            TextAction(stringResource(R.string.passkey_use_email)) { if (!call.busy) flow.go(Step.Email) }
         },
     )
 }
@@ -608,6 +690,7 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
     ) {
         RecoveryGrid(code)
         Text(stringResource(R.string.recovery_note), style = Theme.type.secondary, color = Theme.colors.muted)
+        if (flow.newRecoveryCode) Text(stringResource(R.string.recovery_replaced), style = Theme.type.secondary, color = Theme.colors.muted)
     }
 }
 

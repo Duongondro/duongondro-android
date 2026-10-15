@@ -15,4 +15,12 @@
     <string name="friend_finished_female">@string/friend_finished</string>
     <string name="friend_not_yet_male">@string/friend_not_yet</string>
     <string name="friend_not_yet_female">@string/friend_not_yet</string>
+    <string name="friend_finished_unnamed_male">@string/friend_finished_unnamed</string>
+    <string name="friend_finished_unnamed_female">@string/friend_finished_unnamed</string>
+    <string name="friend_not_yet_unnamed_male">@string/friend_not_yet_unnamed</string>
+    <string name="friend_not_yet_unnamed_female">@string/friend_not_yet_unnamed</string>
+    <string name="poke_unnamed_male">@string/poke_unnamed</string>
+    <string name="poke_unnamed_female">@string/poke_unnamed</string>
+    <string name="poked_unnamed_male">@string/poked_unnamed</string>
+    <string name="poked_unnamed_female">@string/poked_unnamed</string>
 </resources>

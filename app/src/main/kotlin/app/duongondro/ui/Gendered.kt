@@ -20,7 +20,12 @@ enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int,
     FinishedShortRefuge(R.string.q_finished_short_refuge, R.string.q_finished_short_refuge_male, R.string.q_finished_short_refuge_female),
     StartedAfterMidnight(R.string.started_after_midnight, R.string.started_after_midnight_male, R.string.started_after_midnight_female),
     FriendFinished(R.string.friend_finished, R.string.friend_finished_male, R.string.friend_finished_female),
-    FriendNotYet(R.string.friend_not_yet, R.string.friend_not_yet_male, R.string.friend_not_yet_female);
+    FriendNotYet(R.string.friend_not_yet, R.string.friend_not_yet_male, R.string.friend_not_yet_female),
+    // A friend without a display name: "A friend" said in the sentence, agreeing with their gender.
+    FriendFinishedUnnamed(R.string.friend_finished_unnamed, R.string.friend_finished_unnamed_male, R.string.friend_finished_unnamed_female),
+    FriendNotYetUnnamed(R.string.friend_not_yet_unnamed, R.string.friend_not_yet_unnamed_male, R.string.friend_not_yet_unnamed_female),
+    PokeUnnamed(R.string.poke_unnamed, R.string.poke_unnamed_male, R.string.poke_unnamed_female),
+    PokedUnnamed(R.string.poked_unnamed, R.string.poked_unnamed_male, R.string.poked_unnamed_female);
 
     @StringRes
     fun id(gender: Gender?): Int = when (gender) {

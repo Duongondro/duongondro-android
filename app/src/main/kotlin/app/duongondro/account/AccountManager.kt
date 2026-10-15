@@ -142,9 +142,10 @@ data class FriendsState(
 /** An invitation this account made that still works: not revoked, not expired. */
 data class OpenInvite(val id: String, val expiresAt: Instant)
 
-enum class ProfileResult { Saved, UsernameTaken }
+enum class EmailAdd { Sent, NotAnAddress, TooMany }
+enum class EmailVerify { Added, Wrong, Taken, TooMany }
 
-enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
+enum class PasskeyResult { Saved, Cancelled, Unavailable, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -212,7 +213,7 @@ class AccountManager(
     private fun profileState() = AccountState(
         email = prefs.getString(EMAIL, null),
         username = prefs.getString(USERNAME, null),
-        displayName = prefs.getString(DISPLAY_NAME, null),
+        displayName = prefs.getString(DISPLAY_NAME, null)?.ifEmpty { null },
         gender = prefs.getString(GENDER, null)?.let { g -> Gender.entries.firstOrNull { it.wire == g } },
         recoveryUnconfirmed = prefs.getBoolean(RECOVERY_UNCONFIRMED, false),
         lastSync = prefs.getLong(LAST_SYNC, 0).takeIf { it > 0 }?.let(Instant::ofEpochMilli),
@@ -230,6 +231,8 @@ class AccountManager(
 
     /** A sign-in held back because this phone holds another account's practice; see [eraseOtherAccountAndContinue]. */
     private var heldSignIn: SignInResult? = null
+    /** The address the held sign-in redeemed a link for, stored once it goes on. */
+    private var heldEmail: String? = null
 
     /**
      * Keeps the session, unless this phone holds practice from another account
@@ -259,20 +262,16 @@ class AccountManager(
 
     /**
      * Forgets what this phone kept for the account it is switching away from:
-     * its keys and device key, its profile and settings in the preferences (all
-     * but the email this sign-in was asked for), a recovery code on show and a
-     * pending one. The sign-in's own invitation, if any, stays: it is the new
+     * its keys and device key, its profile and settings in the preferences, a
+     * recovery code on show and a pending one (the sign-in's own address is
+     * stored after, once the sign-in is kept). The sign-in's own invitation, if any, stays: it is the new
      * account's, and redeeming it waits for the new keys.
      */
     private fun forgetOtherAccount() {
         _friends.value = FriendsState()
         forgetSecrets()
         deviceKeys.delete()
-        val email = prefs.getString(EMAIL, null)
-        prefs.edit {
-            clear()
-            email?.let { putString(EMAIL, it) }
-        }
+        prefs.edit { clear() }
         onShow.forget()
         _state.update { profileState().copy(status = it.status) }
         refreshPending()
@@ -295,8 +294,31 @@ class AccountManager(
         db.erasePractice()
         forgetOtherAccount()
         keep(result)
+        heldEmail?.let { saveProfile(email = it) }
+        heldEmail = null
+        markSignUp(result.created)
         result.created
     }
+
+    /**
+     * A sign-up made its account on this phone and has not finished the
+     * optional steps: a relaunch resumes them (at the name) rather than starting over.
+     */
+    val signUpUnfinished: Boolean
+        get() {
+            if (!prefs.getBoolean(SIGN_UP_UNFINISHED, false)) return false
+            // Only while the session lives: after a 401 (or none) there is nothing to resume.
+            val live = _state.value.status.let { it == AccountStatus.NEEDS_KEYS || it == AccountStatus.READY }
+            if (!live) signUpFinished()
+            return live
+        }
+
+    private fun markSignUp(created: Boolean) {
+        if (created) prefs.edit { putBoolean(SIGN_UP_UNFINISHED, true) }
+    }
+
+    /** The sign-up's last step is done. */
+    fun signUpFinished() = prefs.edit { remove(SIGN_UP_UNFINISHED) }
 
     /** "Cancel": the held session ends on the server, and nothing was uploaded. */
     suspend fun abandonHeldSignIn() = withContext(Dispatchers.IO) {
@@ -369,7 +391,8 @@ class AccountManager(
             anonymous.requestMagicLink(email, if (signUp) signUpWith(consent) else null)
             linkRequestedAt = Instant.now()
             linkSignsUp = signUp
-            saveProfile(email = email)
+            // Stored only once a link or code redeems: asking proves nothing.
+            requestedEmail = email
             LinkRequest.Sent
         } catch (_: ApiError.NotFound) {
             LinkRequest.UnknownInvite
@@ -380,18 +403,27 @@ class AccountManager(
         }
     }
 
-    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp) { anonymous.redeemMagicLinkCode(email, code) }
+    /** The address the last magic link was asked for. */
+    @Volatile private var requestedEmail: String? = null
+
+    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
 
     /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
     suspend fun redeemLink(token: String): Redeem? {
         if (!expectsLink()) return null
-        return redeem(linkSignsUp) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
+        return redeem(linkSignsUp, requestedEmail) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
     }
 
-    private suspend fun redeem(signUp: Boolean, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
+    private suspend fun redeem(signUp: Boolean, email: String? = null, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
             val result = call()
-            if (signedIn(result)) Redeem.SignedIn(result.created) else Redeem.OtherAccountData
+            if (signedIn(result)) {
+                email?.let { saveProfile(email = it.trim().lowercase()) }
+                Redeem.SignedIn(result.created).also { markSignUp(result.created) }
+            } else {
+                heldEmail = email?.trim()?.lowercase()
+                Redeem.OtherAccountData
+            }
         } catch (e: ApiError.Status) {
             if (e.code == 400) Redeem.Wrong else throw e
         } catch (_: ApiError.Forbidden) {
@@ -405,29 +437,72 @@ class AccountManager(
 
     // Profile
 
-    /** PATCH /api/me after a sign-up by email; the name is required, username and gender optional. */
-    suspend fun setProfile(name: String, username: String?, gender: Gender?): ProfileResult = withContext(Dispatchers.IO) {
+    /**
+     * The name the server gave a new account (a random one, or none), for the
+     * sign-up's name step to show; empty when there is none.
+     */
+    suspend fun serverDisplayName(): String = withContext(Dispatchers.IO) {
+        val me = requireAccount().api.me()
+        // The server's word on the address, so a stale one from an earlier account never skips the e-mail step.
+        if (me.email == null) prefs.edit { remove(EMAIL) }
+        saveProfile(displayName = me.displayName, email = me.email)
+        me.displayName
+    }
+
+    /**
+     * PATCH /api/me during sign-up: only what was given changes (null leaves it);
+     * an empty name clears it, which friends see as "A friend".
+     */
+    suspend fun setProfile(name: String?, gender: Gender?) = withContext(Dispatchers.IO) {
+        if (name == null && gender == null) return@withContext
+        val trimmed = name?.let(::trimName)
+        requireAccount().api.updateMe(displayName = trimmed, gender = gender?.wire)
+        saveProfile(displayName = trimmed, gender = gender)
+    }
+
+    /** The server counts code points, at most 64. */
+    private fun trimName(name: String): String =
+        name.trim().let { it.substring(0, it.offsetByCodePoints(0, minOf(64, it.codePointCount(0, it.length)))) }
+
+    suspend fun setDisplayName(name: String) = withContext(Dispatchers.IO) {
+        val trimmed = trimName(name)
+        requireAccount().api.updateMe(displayName = trimmed)
+        saveProfile(displayName = trimmed)
+    }
+
+    // E-mail, added after sign-up
+
+    /** Mails a code to [email]; the address is added once [verifyEmail] gets it back. */
+    suspend fun requestEmail(email: String): EmailAdd = withContext(Dispatchers.IO) {
         try {
-            requireAccount().api.updateMe(displayName = name, username = username?.lowercase(), gender = gender?.wire)
-            saveProfile(username = username?.lowercase(), displayName = name, gender = gender)
-            ProfileResult.Saved
-        } catch (_: ApiError.Conflict) {
-            ProfileResult.UsernameTaken
+            requireAccount().api.requestEmail(email)
+            EmailAdd.Sent
+        } catch (e: ApiError.Status) {
+            if (e.code == 400) EmailAdd.NotAnAddress else throw e
+        } catch (_: ApiError.TooManyRequests) {
+            EmailAdd.TooMany
         }
     }
 
-    suspend fun setDisplayName(name: String) = withContext(Dispatchers.IO) {
-        // The server counts code points, at most 64.
-        val trimmed = name.trim().let { it.substring(0, it.offsetByCodePoints(0, minOf(64, it.codePointCount(0, it.length)))) }
-        requireAccount().api.updateMe(displayName = trimmed)
-        saveProfile(displayName = trimmed)
+    suspend fun verifyEmail(email: String, code: String): EmailVerify = withContext(Dispatchers.IO) {
+        try {
+            requireAccount().api.verifyEmail(code)
+            saveProfile(email = email.trim().lowercase())
+            EmailVerify.Added
+        } catch (e: ApiError.Status) {
+            if (e.code == 400) EmailVerify.Wrong else throw e
+        } catch (_: ApiError.Conflict) {
+            EmailVerify.Taken
+        } catch (_: ApiError.TooManyRequests) {
+            EmailVerify.TooMany
+        }
     }
 
     // Passkeys
 
     /**
-     * Without a session, makes the account with a passkey and the profile (the
-     * no-email path); signed in, adds a passkey to the account. [activity] must
+     * Without a session, makes the account with a passkey (the first step of
+     * sign-up; the profile, all optional, follows); signed in, adds a passkey to the account. [activity] must
      * be the Activity, which the system sheet attaches to.
      */
     suspend fun createPasskey(activity: Context, profile: Profile?, consent: Boolean = false): PasskeyResult {
@@ -445,7 +520,11 @@ class AccountManager(
             } catch (e: ApiError.TooManyRequests) {
                 return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
-            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            val credential = try {
+                passkeys.create(activity, ceremony.publicKeyJson)
+            } catch (_: Passkeys.Unavailable) {
+                return PasskeyResult.Unavailable
+            } ?: return PasskeyResult.Cancelled
             val result = try {
                 withContext(Dispatchers.IO) { anonymous.finishPasskey(ceremony.sessionId, credential) }
             } catch (_: ApiError.Conflict) {
@@ -458,10 +537,15 @@ class AccountManager(
                 return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
             if (!signedIn(result)) return PasskeyResult.OtherAccountData
+            markSignUp(result.created)
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
         } else {
             val ceremony = withContext(Dispatchers.IO) { current.api.beginPasskeyAdd() }
-            val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
+            val credential = try {
+                passkeys.create(activity, ceremony.publicKeyJson)
+            } catch (_: Passkeys.Unavailable) {
+                return PasskeyResult.Unavailable
+            } ?: return PasskeyResult.Cancelled
             withContext(Dispatchers.IO) { current.api.finishPasskeyAdd(ceremony.sessionId, credential) }
         }
         return PasskeyResult.Saved
@@ -482,7 +566,8 @@ class AccountManager(
         if (standing == Account.Standing.READY) _state.update { it.copy(status = AccountStatus.READY) }
         // The profile as the server has it, for a sign-in on a new phone.
         runCatching { requireAccount().api.me() }.getOrNull()?.let { me ->
-            saveProfile(username = me.username, displayName = me.displayName.ifEmpty { null },
+            if (me.email == null) prefs.edit { remove(EMAIL) }
+            saveProfile(email = me.email, username = me.username, displayName = me.displayName.ifEmpty { null },
                 gender = Gender.entries.firstOrNull { it.wire == me.gender })
         }
         standing
@@ -572,8 +657,10 @@ class AccountManager(
 
     /** Offers the code to Google Password Manager, named after the account; false when declined. */
     suspend fun saveRecoveryCode(activity: Context, code: String): Boolean {
-        val s = _state.value
-        val id = s.username ?: s.email ?: "Duongöndro recovery"
+        // One entry per account, from stable parts only (a name or address can change):
+        // a second account's code never overwrites the first's.
+        val account = db.syncState()?.user?.toString()?.take(8)
+        val id = listOfNotNull("Duongöndro", account).joinToString(" · ")
         return passkeys.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
     }
 
@@ -870,6 +957,7 @@ class AccountManager(
         withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
         account = null
         social = null
+        signUpFinished()
         _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
     }
 
@@ -963,6 +1051,7 @@ class AccountManager(
         const val DISPLAY_NAME = "displayName"
         const val GENDER = "gender"
         const val RECOVERY_UNCONFIRMED = "recoveryUnconfirmed"
+        const val SIGN_UP_UNFINISHED = "signUpUnfinished"
         const val PENDING_RECOVERY = app.duongondro.core.sync.SecretName.PENDING_RECOVERY
         const val LAST_SYNC = "lastSync"
         const val LAST_USER = "lastUser"

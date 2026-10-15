@@ -147,6 +147,12 @@ class Api(
         })
     }
 
+    /** Mails [email] a code that adds it to this account as a second way to sign in; 204 also when the account has it already. 400: not an address. */
+    fun requestEmail(email: String) = send<Unit>("POST", "api/me/email", buildJsonObject { put("email", email) })
+
+    /** Adds the address the code was mailed to. 400: wrong or expired code; 409: another account signs in with it. */
+    fun verifyEmail(code: String) = send<Unit>("POST", "api/me/email/verify", buildJsonObject { put("code", code) })
+
     /** Deletes everything the server holds about this account (GDPR Article 17). */
     fun deleteMe() = send<Unit>("DELETE", "api/me", null)
 
@@ -370,6 +376,8 @@ class Me(
     val displayName: String = "",
     val username: String? = null,
     val gender: String? = null,
+    /** The address that signs in by magic link, if any. */
+    val email: String? = null,
     val devices: List<Device> = emptyList(),
 )
 

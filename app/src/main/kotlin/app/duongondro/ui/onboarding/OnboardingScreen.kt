@@ -77,6 +77,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.duongondro.R
+import app.duongondro.account.AccountStatus
 import app.duongondro.account.Gender
 import app.duongondro.ui.Bar
 import androidx.compose.ui.draw.clip
@@ -120,14 +121,18 @@ sealed interface Step {
     data object Reminder : Step
     /** "Keep it on this phone, or online?" */
     data object Where : Step
-    data object Invite : Step
+    /** GDPR Art. 9 consent: nothing is created before it. */
     data object Consent : Step
+    /** Makes the account; "Use email instead" goes to [Email]. */
+    data object Passkey : Step
     data object Email : Step
     data object CheckEmail : Step
-    data object Username : Step
+    /** The rest of sign-up is optional: a display name, then gender. */
     data object Name : Step
     data object Gender : Step
-    data object Passkey : Step
+    /** Optional, after a passkey sign-up: an e-mail as a second way to sign in, confirmed by a mailed code. */
+    data object AddEmail : Step
+    data object CheckAddedEmail : Step
     data object Recovery : Step
     /** Two groups of the recovery code typed back. */
     data object RecoveryCheck : Step
@@ -166,19 +171,16 @@ class OnboardingFlow : ViewModel() {
 
     /** True after "I already have an account": the email steps then sign in rather than sign up. */
     var signingIn by mutableStateOf(false)
-    /** The invitation code, from a link opened earlier or typed in. */
-    var inviteCode by mutableStateOf("")
-    /** Why the invitation was not accepted, shown under its field. */
-    var inviteProblem by mutableStateOf<Int?>(null)
-    /** The invite link opened earlier has been tried, so it is not checked again. */
-    var linkTried = false
+    /** The friendship link checked last (null: none), so an unchanged one is not checked again before each sign-up attempt. */
+    var checkedLink: String? = null
     /** A sign-in waits for "erase the other account's practice here, or cancel". */
     var otherAccount by mutableStateOf(false)
-    /** The server said the username is taken; shown on the Username step. */
-    var usernameTaken by mutableStateOf(false)
     var consented by mutableStateOf(false)
     var email by mutableStateOf("")
-    var username by mutableStateOf("")
+    /** The address being added after sign-up (not the one an e-mail sign-up used). */
+    var addedEmail by mutableStateOf("")
+    /** The name the server gave the new account (random, or none); null until fetched. */
+    var serverName by mutableStateOf<String?>(null)
     var displayName by mutableStateOf("")
     var gender by mutableStateOf<Gender?>(null)
 
@@ -205,7 +207,23 @@ class OnboardingFlow : ViewModel() {
         history.removeLastOrNull()?.let { step = it }
     }
 
-    /** Back to an earlier step (a taken username, a spent invitation), keeping the answers. */
+    /**
+     * The account exists: on to [next], and the steps that led to it (consent,
+     * passkey, email) leave the back stack, so Back cannot make a second one.
+     */
+    fun afterAccount(next: Step) {
+        // Nothing before the account is reachable again: not consent or the sign-up
+        // steps, nor Welcome, the practice questions or "online?".
+        history.clear()
+        step = next
+    }
+
+    /** Resumed with keys already on this phone: the recovery code shown is a new one, replacing any written down before. */
+    var newRecoveryCode by mutableStateOf(false)
+    /** Why the address was not added (another account has it), shown on the address step after going back to it. */
+    var addEmailProblem by mutableStateOf<Int?>(null)
+
+    /** Back to an earlier step, keeping the answers. */
     fun backTo(target: Step) {
         val i = history.lastIndexOf(target)
         if (i < 0) return go(target)
@@ -228,7 +246,29 @@ class OnboardingFlow : ViewModel() {
         chosen.removeAll { !it.practice.isCustom && it.practice.id !in allowed }
     }
 
+    /** Resumed after a relaunch at the name: the practices were saved at sign-up, and this flow holds none of the answers. */
+    var resumed = false
+
     fun finish(model: AppModel, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
+        if (resumed) {
+            // Keep what was saved when the account was made; only the onboarding ends.
+            val prefs = model.snapshot.value.preferences.copy(onboarded = true)
+            model.perform {
+                model.store.completeOnboarding(emptyList(), emptyList(), prefs)
+                model.accounts?.scheduleSync(0)
+            }
+            return
+        }
+        save(model, onboarded = true, now, zone)
+    }
+
+    /**
+     * Writes the practices, seeds and preferences answered so far; [onboarded]
+     * false when the account was just made and its optional steps follow, so a
+     * relaunch keeps them. Practices and seeds are keyed by id, so saving again
+     * at the end adds nothing twice.
+     */
+    fun save(model: AppModel, onboarded: Boolean, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
         val today = civilDate(now, zone)
         val practices = chosen.mapIndexed { i, c ->
             TrackedPractice(
@@ -241,7 +281,7 @@ class OnboardingFlow : ViewModel() {
             StreakSeed(it.practice.id, it.streak, it.longest, if (it.lastWasToday) today else today.minusDays(1), zone.id)
         }
         val prefs = Preferences(
-            onboarded = true,
+            onboarded = onboarded,
             finishedNgondro = finishedNgondro,
             finishedShortRefuge = finishedShortRefuge || finishedNgondro,
             // Signing in skips the practice questions, the reminder's among them.
@@ -249,9 +289,12 @@ class OnboardingFlow : ViewModel() {
         )
         model.perform {
             model.store.completeOnboarding(practices, seeds, prefs)
-            model.accounts?.scheduleSync(0)
+            if (onboarded) model.accounts?.scheduleSync(0)
         }
     }
+
+    /** Set by the first-run screen: what to keep once the account exists (the practices answered before it). */
+    var onAccount: (() -> Unit)? = null
 }
 
 /** How far along the bar a step is, and out of how many: five practice questions, then three account steps. */
@@ -261,14 +304,18 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
     Step.Practices -> 3 to PRACTICE_STEPS
     is Step.Counts -> 4 to PRACTICE_STEPS
     Step.Reminder -> 5 to PRACTICE_STEPS
-    Step.Email, Step.CheckEmail, Step.Username -> if (signingIn) null else 1 to ACCOUNT_STEPS
+    Step.Passkey, Step.Email, Step.CheckEmail -> if (signingIn) null else 1 to ACCOUNT_STEPS
     Step.Name -> if (signingIn) null else 2 to ACCOUNT_STEPS
     Step.Gender -> if (signingIn) null else 3 to ACCOUNT_STEPS
+    Step.AddEmail, Step.CheckAddedEmail -> if (signingIn) null else 4 to ACCOUNT_STEPS
     else -> null
 }
 
 private const val PRACTICE_STEPS = 5
-private const val ACCOUNT_STEPS = 3
+private const val ACCOUNT_STEPS = 4
+
+/** The sign-up steps after the account exists, which are finished rather than left. */
+private val AFTER_ACCOUNT = setOf(Step.Name, Step.Gender, Step.AddEmail, Step.CheckAddedEmail)
 
 /**
  * The first run, from Welcome; or, from Settings with [done] set, only the
@@ -283,12 +330,25 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
     val flow: OnboardingFlow = viewModel(key = if (done != null) "account-$start" else "onboarding-$generation")
     // The account steps need the network layer, which every real model has.
     val accounts = model.accounts ?: return
-    LaunchedEffect(flow) { flow.begin(start, signingIn = start == Step.SignIn) }
+    LaunchedEffect(flow) {
+        // A sign-up whose account exists but whose optional steps were cut short
+        // (the app closed) resumes at the name rather than starting over.
+        val resume = done == null && start == Step.Welcome && accounts.signUpUnfinished
+        if (resume) flow.resumed = true
+        // A resumed sign-up (first run, or one made from Settings) whose keys exist shows a fresh recovery code.
+        if (resume || (done != null && start == Step.Name)) flow.newRecoveryCode = accounts.state.value.status == AccountStatus.READY
+        flow.begin(if (resume) Step.Name else start, signingIn = start == Step.SignIn)
+    }
+    // The first run keeps its practices as soon as the account exists; from Settings there are none to keep.
+    flow.onAccount = if (done == null && !flow.resumed) ({ flow.save(model, onboarded = false) }) else null
     val leave = { done?.invoke() ?: Unit }
-    BackHandler(enabled = flow.canGoBack || done != null) { if (flow.canGoBack) flow.back() else leave() }
+    // Once the account exists its optional steps are finished, not left (from Settings too).
+    val noLeave = !flow.signingIn && flow.step in AFTER_ACCOUNT
+    BackHandler(enabled = flow.canGoBack || (done != null && !noLeave)) { if (flow.canGoBack) flow.back() else leave() }
     // Local mode keeps the onboarding's answers; from Settings, nothing about the practices changes.
     val finishLocal = { if (done != null) leave() else flow.finish(model) }
     val finishOnline = {
+        accounts.signUpFinished()
         if (done != null) {
             model.accounts?.scheduleSync(0)
             leave()
@@ -296,7 +356,7 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
     }
     val ground = if (flow.step == Step.Welcome) Theme.colors.welcomeGround else Theme.colors.ground
     Column(Modifier.fillMaxSize().background(ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
-        if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack) leave else null)
+        if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack && !noLeave) leave else null)
         when (val step = flow.step) {
             Step.Welcome -> Welcome(flow)
             Step.FinishedNgondro -> YesNo(stringResource(GenderedString.FinishedNgondro, model.ownGender()), stringResource(R.string.q_finished_ngondro_detail),
@@ -309,14 +369,14 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             is Step.Counts -> Counts(flow, step.index)
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
-            Step.Invite -> InviteStep(flow, model, accounts, finishLocal)
-            Step.Consent -> ConsentStep(flow)
-            Step.Email -> EmailStep(flow, accounts)
+            Step.Consent -> ConsentStep(flow, accounts)
+            Step.Email -> EmailStep(flow, model, accounts)
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)
-            Step.Username -> UsernameStep(flow)
-            Step.Name -> NameStep(flow)
+            Step.Name -> NameStep(flow, accounts)
             Step.Gender -> GenderStep(flow, accounts)
-            Step.Passkey -> PasskeyStep(flow, accounts)
+            Step.AddEmail -> AddEmailStep(flow, accounts)
+            Step.CheckAddedEmail -> CheckAddedEmailStep(flow, accounts)
+            Step.Passkey -> PasskeyStep(flow, model, accounts)
             Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
             // The code the step before showed: the account's own, never another's.
             Step.RecoveryCheck -> RecoveryCheckStep(accounts.shownCode.collectAsStateWithLifecycle().value.orEmpty(), back = { flow.back() }) {
@@ -437,8 +497,11 @@ private fun ColumnScope.Practices(flow: OnboardingFlow) {
                 }
                 if (on && p.streakOnlyAllowed) {
                     Box(Modifier.padding(start = Size.minTap + Space.s, end = Space.l, bottom = Space.s)) {
-                        SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen[i].streakOnly) {
-                            flow.chosen[i] = flow.chosen[i].copy(streakOnly = it)
+                        // Bound by id, never by the index this row was drawn with: unticking a
+                        // practice shifts the list before this row is gone.
+                        SwitchRow(stringResource(R.string.streak_only_switch), null, flow.chosen.getOrNull(i)?.streakOnly == true) { on ->
+                            val at = flow.chosen.indexOfFirst { it.practice.id == p.id }
+                            if (at >= 0) flow.chosen[at] = flow.chosen[at].copy(streakOnly = on)
                         }
                     }
                 }
