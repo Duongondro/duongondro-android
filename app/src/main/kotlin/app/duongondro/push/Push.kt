@@ -41,10 +41,10 @@ import java.util.UUID
 
 /**
  * Friends' pushes over Firebase Cloud Messaging (design: Social › Nudges), as
- * iOS's PushModel. Local mode never touches Firebase: auto-init is off in the
- * manifest, and only an account with keys on this phone, with notifications
- * allowed, turns it on and fetches a token ([refresh]). Leaving the account
- * deletes the token and turns auto-init off again ([forget]).
+ * iOS's PushModel. Firebase initialises locally at launch; no network call and
+ * no Installation ID until an account with keys on this phone, with
+ * notifications allowed, turns auto-init on and fetches a token ([refresh]).
+ * Leaving the account deletes the token and turns auto-init off again ([forget]).
  *
  * The server sends notification messages, which the system draws itself while
  * the app is in the background, from the string resource named by the loc-key.

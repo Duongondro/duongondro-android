@@ -22,16 +22,21 @@
         <meta-data
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
-        <!-- Friends' pushes (FCM). No token, no Firebase Installation and no network
-             until an account with keys turns auto-init on (push/Push.kt); signing out
-             turns it off again. No Analytics is included; deactivated in case a
-             dependency ever brings it. -->
+        <!-- Friends' pushes (FCM). Firebase initialises locally at launch; no network
+             call and no Installation ID until an account with keys and notifications
+             allowed turns auto-init on (push/Push.kt); leaving the account turns it off
+             again. No Analytics is included; deactivated in case a dependency ever
+             brings it. Notification delegation (Google Play services drawing pushes
+             for the app) stays off: the app's own strings and channel draw them. -->
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
             android:value="false" />
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
             android:value="true" />
+        <meta-data
+            android:name="firebase_messaging_notification_delegation_enabled"
+            android:value="false" />
         <!-- What the system draws a notification message with while the app is in the background. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
