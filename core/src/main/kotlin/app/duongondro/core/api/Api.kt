@@ -185,6 +185,16 @@ class Api(
 
     fun putWrap(device: UUID, wrap: WrapInput) = send<Unit>("POST", "api/devices/${device.lower}/wraps", encode(wrap))
 
+    /** Stores this device's push token ([platform] "fcm" here); the server drops it when FCM reports it unregistered. */
+    fun putPushToken(device: UUID, platform: String, token: String) =
+        send<Unit>("PUT", "api/devices/${device.lower}/push-token", buildJsonObject {
+            put("platform", platform)
+            put("token", token)
+        })
+
+    /** No more pushes to this device. */
+    fun deletePushToken(device: UUID) = send<Unit>("DELETE", "api/devices/${device.lower}/push-token", null)
+
     fun recoveryBoxes(): List<RecoveryBox> = get<RecoveryBoxList>("api/me/recovery-boxes").boxes
 
     fun putRecoveryBox(kind: Int, box: RecoveryBoxInput) = send<Unit>("PUT", "api/me/recovery-boxes/$kind", encode(box))
