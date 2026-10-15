@@ -30,8 +30,8 @@ android {
         applicationId = "app.duongondro"
         minSdk = 28
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2"
+        versionCode = 3
+        versionName = "0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "GIT_REVISION", "\"${gitRevision.get()}\"")
         buildConfigField("boolean", "GIT_DIRTY", gitStatus.get().isNotEmpty().toString())
