@@ -94,13 +94,13 @@
     <string name="where_later">Később is csinálhatsz egyet a Beállításokban</string>
     <string name="where_online">Online fiók létrehozása</string>
     <string name="where_local">Csak ezen a telefonon</string>
-    <string name="invite_title">A meghívód</string>
-    <string name="invite_detail">A fiókok egyelőre csak meghívóval érhetők el. Nyisd meg a kapott linket, vagy írd be a kódját.</string>
+    <string name="invite_title">Van meghívókódod?</string>
+    <string name="invite_detail">Írd be, vagy hagyd ki ezt a lépést. Ha valaki küldte neked a kódot, barátok is lesztek.</string>
     <string name="invite_label">Meghívókód</string>
     <string name="invite_hint">Írd be vagy illeszd be a meghívókódot, vagy illeszd be a teljes meghívólinket. A kis- és nagybetű mindegy.</string>
     <string name="invite_unknown">Ezt a meghívót nem ismerjük. Ellenőrizd a kódot, vagy kérdezd meg, aki küldte.</string>
-    <string name="invite_none">Nincs meghívód? Kérdezz meg valakit, aki használja a Duongöndrót, vagy gyakorolj tovább ezen a telefonon: fiókot később is hozzáadhatsz a Beállításokban.</string>
-    <string name="invite_local">Egyelőre csak ezen a telefonon</string>
+    <string name="invite_needed">Új fiókhoz egyelőre meghívókód kell.</string>
+    <string name="signup_too_many">Erről a hálózatról az elmúlt órában túl sok fiók készült. Próbáld újra később, vagy írj be egy meghívókódot: az így is működik.</string>
     <string name="consent_title">Mielőtt bármit tárolunk</string>
     <string name="consent_detail">Egy buddhista gyakorlóalkalmazásban lévő fiók mond valamit a meggyőződésedről, amit a GDPR különleges adatként kezel. A hozzájárulásoddal a szerver tárolja az e-mail-címedet vagy felhasználónevedet, a neved, a nemedet, ha megadod, a barátaidat és a nyilvános sorozataidat. A számlálóid titkosítva maradnak a telefonjaidon.</string>
     <string name="consent_check">Hozzájárulok, hogy a Duongöndro ezt tárolja a fiókom működtetéséhez. A Beállításokban mindent exportálhatok vagy törölhetek.</string>
@@ -208,7 +208,7 @@
     <string name="previous_round">Előző kör</string>
     <string name="next_round">Következő kör</string>
     <string name="invite_not_authentic">Ez a meghívó nem ellenőrizhető: útközben megváltozhatott. Kérj újat attól, aki küldte.</string>
-    <string name="no_account">Ehhez az e-mail-címhez nem tartozik fiók. Lépj vissza, és kezdd egy meghívóval.</string>
+    <string name="no_account">Ehhez az e-mail-címhez nem tartozik fiók. Ellenőrizd a címet, vagy lépj vissza, és hozz létre egy fiókot.</string>
     <string name="try_later">Túl sok próbálkozás. Várj néhány percet, és próbáld újra.</string>
     <string name="try_again">Újrapróbálás</string>
     <string name="username_taken">Ez a felhasználónév foglalt. Próbálj másikat.</string>

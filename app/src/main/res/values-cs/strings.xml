@@ -98,13 +98,13 @@
     <string name="where_later">Můžeš si ho vytvořit později v Nastavení</string>
     <string name="where_online">Vytvořit online účet</string>
     <string name="where_local">Jen v tomto telefonu</string>
-    <string name="invite_title">Tvoje pozvánka</string>
-    <string name="invite_detail">Účty jsou zatím jen na pozvánku. Otevři odkaz, který ti přišel, nebo opiš jeho kód.</string>
+    <string name="invite_title">Máš kód pozvánky?</string>
+    <string name="invite_detail">Zadej ho, nebo tento krok přeskoč. Kód, který ti někdo poslal, z vás rovnou udělá přátele.</string>
     <string name="invite_label">Kód pozvánky</string>
     <string name="invite_hint">Napiš nebo vlož kód pozvánky, případně vlož celý odkaz s pozvánkou. Na velikosti písmen nezáleží.</string>
     <string name="invite_unknown">Tuto pozvánku neznáme. Zkontroluj kód nebo se zeptej toho, kdo ji poslal.</string>
-    <string name="invite_none">Nemáš pozvánku? Zeptej se někoho, kdo Duongöndro používá, nebo dál cvič v tomto telefonu: účet můžeš přidat později v Nastavení.</string>
-    <string name="invite_local">Zatím jen v tomto telefonu</string>
+    <string name="invite_needed">Nový účet zatím potřebuje kód pozvánky.</string>
+    <string name="signup_too_many">Z této sítě vzniklo za poslední hodinu příliš mnoho účtů. Zkus to později, nebo zadej kód pozvánky: ten funguje i tak.</string>
     <string name="consent_title">Než cokoli uložíme</string>
     <string name="consent_detail">Účet v aplikaci pro buddhistickou praxi vypovídá o tvém přesvědčení, které GDPR považuje za zvláštní. S tvým souhlasem server uchovává tvůj e-mail nebo uživatelské jméno, jméno, pohlaví, pokud ho uvedeš, tvé přátele a veřejné série. Tvé počty zůstávají zašifrované v tvých telefonech.</string>
     <string name="consent_check">Souhlasím, že Duongöndro tohle ukládá kvůli provozu mého účtu. Vše mohu exportovat nebo smazat v Nastavení.</string>
@@ -214,7 +214,7 @@
     <string name="previous_round">Předchozí kolo</string>
     <string name="next_round">Další kolo</string>
     <string name="invite_not_authentic">Tahle pozvánka neprošla kontrolou: mohla být cestou změněna. Požádej odesílatele o novou.</string>
-    <string name="no_account">Tento e-mail nepoužívá žádný účet. Vrať se a začni s pozvánkou.</string>
+    <string name="no_account">Tento e-mail nepoužívá žádný účet. Zkontroluj adresu, nebo se vrať a vytvoř si účet.</string>
     <string name="try_later">Příliš mnoho pokusů. Počkej pár minut a zkus to znovu.</string>
     <string name="try_again">Zkusit znovu</string>
     <string name="username_taken">Toto uživatelské jméno je obsazené. Zkus jiné.</string>

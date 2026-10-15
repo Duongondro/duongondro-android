@@ -9,6 +9,7 @@ import app.duongondro.core.api.Api
 import app.duongondro.core.api.ApiError
 import app.duongondro.core.api.Profile
 import app.duongondro.core.api.SignInResult
+import app.duongondro.core.api.SignUp
 import app.duongondro.core.api.SignUpProof
 import app.duongondro.core.sync.Account
 import app.duongondro.core.sync.AccountKeys
@@ -101,7 +102,13 @@ sealed interface AcceptCheck {
     data object NotAuthentic : AcceptCheck
 }
 
-enum class LinkRequest { Sent, UnknownInvite, TooMany }
+enum class LinkRequest {
+    Sent, UnknownInvite, TooMany,
+    /** A sign-up without an invitation, and the server makes no account without one (open sign-up off). */
+    InvitationNeeded,
+    /** Too many accounts made without an invitation from this network in the last hour; a code still works. */
+    TooManySignUps,
+}
 
 sealed interface Redeem {
     /** Signed in; [created] when the link or passkey made the account. */
@@ -113,6 +120,8 @@ sealed interface Redeem {
     /** The invitation or admission code stopped being valid since the link was sent. */
     data object InviteGone : Redeem
     data object TooMany : Redeem
+    /** The link was a sign-up without an invitation, and sign-up closed since it was sent. */
+    data object InvitationNeeded : Redeem
     /** Signed in, but this phone holds another account's practice: erase it, or cancel. */
     data object OtherAccountData : Redeem
 }
@@ -135,7 +144,7 @@ data class OpenInvite(val id: String, val expiresAt: Instant)
 
 enum class ProfileResult { Saved, UsernameTaken }
 
-enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, OtherAccountData }
+enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, OtherAccountData }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -326,6 +335,12 @@ class AccountManager(
             null -> null
         }
 
+    /** A sign-up with the invitation held, if any; consent (GDPR Art. 9) is given before any sign-up call. */
+    private fun signUpWith(consent: Boolean): SignUp {
+        check(consent) { "a sign-up needs consent first" }
+        return SignUp(consent = true, proof = proof)
+    }
+
     /** Forgets an invitation from an abandoned sign-up, so a later sign-in does not carry it. */
     fun clearInvitation() {
         invitation = null
@@ -345,35 +360,42 @@ class AccountManager(
     fun expectsLink(now: Instant = Instant.now()): Boolean =
         linkRequestedAt?.let { !now.isBefore(it) && java.time.Duration.between(it, now) <= LINK_LIFETIME } == true
 
-    suspend fun requestMagicLink(email: String, signUp: Boolean): LinkRequest = withContext(Dispatchers.IO) {
+    /** Whether the link asked for last makes an account: its 403 then means sign-up closed, not "no account". */
+    @Volatile private var linkSignsUp = false
+
+    /** A sign-up ([signUp]) sends the flag, the invitation if any, and [consent], which it needs. */
+    suspend fun requestMagicLink(email: String, signUp: Boolean, consent: Boolean = false): LinkRequest = withContext(Dispatchers.IO) {
         try {
-            anonymous.requestMagicLink(email, if (signUp) proof else null)
+            anonymous.requestMagicLink(email, if (signUp) signUpWith(consent) else null)
             linkRequestedAt = Instant.now()
+            linkSignsUp = signUp
             saveProfile(email = email)
             LinkRequest.Sent
         } catch (_: ApiError.NotFound) {
             LinkRequest.UnknownInvite
-        } catch (_: ApiError.TooManyRequests) {
-            LinkRequest.TooMany
+        } catch (_: ApiError.Forbidden) {
+            LinkRequest.InvitationNeeded
+        } catch (e: ApiError.TooManyRequests) {
+            if (e.signUps) LinkRequest.TooManySignUps else LinkRequest.TooMany
         }
     }
 
-    suspend fun redeemCode(email: String, code: String): Redeem = redeem { anonymous.redeemMagicLinkCode(email, code) }
+    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp) { anonymous.redeemMagicLinkCode(email, code) }
 
     /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
     suspend fun redeemLink(token: String): Redeem? {
         if (!expectsLink()) return null
-        return redeem { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
+        return redeem(linkSignsUp) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
     }
 
-    private suspend fun redeem(call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
+    private suspend fun redeem(signUp: Boolean, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
             val result = call()
             if (signedIn(result)) Redeem.SignedIn(result.created) else Redeem.OtherAccountData
         } catch (e: ApiError.Status) {
             if (e.code == 400) Redeem.Wrong else throw e
         } catch (_: ApiError.Forbidden) {
-            Redeem.NoAccount
+            if (signUp) Redeem.InvitationNeeded else Redeem.NoAccount
         } catch (_: ApiError.NotFound) {
             Redeem.InviteGone
         } catch (_: ApiError.TooManyRequests) {
@@ -408,16 +430,20 @@ class AccountManager(
      * no-email path); signed in, adds a passkey to the account. [activity] must
      * be the Activity, which the system sheet attaches to.
      */
-    suspend fun createPasskey(activity: Context, profile: Profile?): PasskeyResult {
+    suspend fun createPasskey(activity: Context, profile: Profile?, consent: Boolean = false): PasskeyResult {
         val current = account
         if (current == null) {
-            val p = proof ?: throw IllegalStateException("a passkey sign-up needs an invitation")
+            val signUp = signUpWith(consent)
             val ceremony = try {
-                withContext(Dispatchers.IO) { anonymous.beginPasskeySignUp(p, profile ?: Profile()) }
+                withContext(Dispatchers.IO) { anonymous.beginPasskeySignUp(signUp, profile ?: Profile()) }
             } catch (_: ApiError.Conflict) {
                 return PasskeyResult.UsernameTaken
             } catch (_: ApiError.NotFound) {
                 return PasskeyResult.InviteGone
+            } catch (_: ApiError.Forbidden) {
+                return PasskeyResult.InvitationNeeded
+            } catch (e: ApiError.TooManyRequests) {
+                if (e.signUps) return PasskeyResult.TooManySignUps else throw e
             }
             val credential = passkeys.create(activity, ceremony.publicKeyJson) ?: return PasskeyResult.Cancelled
             val result = try {
@@ -426,6 +452,10 @@ class AccountManager(
                 return PasskeyResult.UsernameTaken
             } catch (_: ApiError.NotFound) {
                 return PasskeyResult.InviteGone
+            } catch (_: ApiError.Forbidden) {
+                return PasskeyResult.InvitationNeeded
+            } catch (e: ApiError.TooManyRequests) {
+                if (e.signUps) return PasskeyResult.TooManySignUps else throw e
             }
             if (!signedIn(result)) return PasskeyResult.OtherAccountData
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
@@ -441,7 +471,7 @@ class AccountManager(
     suspend fun signInWithPasskey(activity: Context): Redeem? {
         val ceremony = withContext(Dispatchers.IO) { anonymous.beginPasskeySignIn() }
         val credential = passkeys.get(activity, ceremony.publicKeyJson) ?: return null
-        return redeem { anonymous.finishPasskey(ceremony.sessionId, credential) }
+        return redeem(signUp = false) { anonymous.finishPasskey(ceremony.sessionId, credential) }
     }
 
     // Keys
