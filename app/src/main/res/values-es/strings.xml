@@ -103,13 +103,13 @@
     <string name="where_later">Puedes crear una más tarde en Ajustes</string>
     <string name="where_online">Crear una cuenta en línea</string>
     <string name="where_local">Solo en este teléfono</string>
-    <string name="invite_title">¿Tienes un código de invitación?</string>
-    <string name="invite_detail">Escríbelo u omite este paso. Con un código que te envió alguien, esa persona y tú seréis amigos.</string>
-    <string name="invite_label">Código de invitación</string>
-    <string name="invite_hint">Escribe o pega el código de invitación, o pega el enlace de invitación completo. Da igual mayúsculas o minúsculas.</string>
-    <string name="invite_unknown">No conocemos esta invitación. Revisa el código o pregunta a quien te la envió.</string>
-    <string name="invite_needed">Por ahora, para crear una cuenta hace falta un código de invitación. Escribe uno o sigue practicando en este teléfono.</string>
-    <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o escribe un código de invitación: ese funciona igualmente.</string>
+    <string name="invite_title">¿Tienes un código de amistad?</string>
+    <string name="invite_detail">Escríbelo para que tú y quien te lo envió seáis amigos, u omite este paso.</string>
+    <string name="invite_label">Código de amistad</string>
+    <string name="invite_hint">Escribe o pega el código de amistad, o pega el enlace completo. Da igual mayúsculas o minúsculas.</string>
+    <string name="invite_unknown">No conocemos este código de amistad. Revísalo o pregunta a quien te lo envió.</string>
+    <string name="invite_needed">Ahora mismo no se pueden crear cuentas nuevas. Inténtalo más tarde o sigue practicando en este teléfono.</string>
+    <string name="signup_too_many">Desde esta red ha habido demasiados registros en la última hora. Inténtalo más tarde o escribe un código de amistad: ese funciona igualmente.</string>
     <string name="invite_local">Solo en este teléfono, por ahora</string>
     <string name="consent_title">Antes de guardar nada</string>
     <string name="consent_detail">Una cuenta en una app de práctica budista dice algo sobre tus creencias, que el RGPD trata como datos especiales. Con tu consentimiento, el servidor guarda tu correo o nombre de usuario, tu nombre, tu género si lo indicas, tus amigos y tus rachas públicas. Tus recuentos siguen cifrados en tus teléfonos.</string>
@@ -208,7 +208,7 @@
     <string name="delete_footer">Elimina todos tus datos de este teléfono. No se puede deshacer.</string>
     <string name="delete_explainer">Esto elimina todas las prácticas, sesiones y rachas de este teléfono, tus recordatorios y las claves que guarda la app, y luego vuelve al inicio.</string>
     <string name="delete_footer_account">Elimina tu cuenta y sus datos del servidor, y todo lo que hay en este teléfono. Tus otros teléfonos cierran sesión, pero conservan su copia. No se puede deshacer.</string>
-    <string name="delete_explainer_account">Esto elimina tu cuenta y todo lo que se guarda con ella en el servidor: tus sesiones cifradas, amigos, rachas públicas, invitaciones, llaves de acceso y formas de iniciar sesión. Tus otros teléfonos cierran sesión y conservan su propia copia hasta que la elimines allí. En este teléfono elimina todas las prácticas, sesiones y rachas, tus recordatorios y las claves de la app, y luego vuelve al inicio.</string>
+    <string name="delete_explainer_account">Esto elimina tu cuenta y todo lo que se guarda con ella en el servidor: tus sesiones cifradas, amigos, rachas públicas, códigos de amistad, llaves de acceso y formas de iniciar sesión. Tus otros teléfonos cierran sesión y conservan su propia copia hasta que la elimines allí. En este teléfono elimina todas las prácticas, sesiones y rachas, tus recordatorios y las claves de la app, y luego vuelve al inicio.</string>
     <string name="export_first">Exporta primero si quieres una copia.</string>
     <string name="delete_word">eliminar</string>
     <string name="type_to_confirm">Escribe “%1$s” para confirmar</string>
@@ -226,7 +226,7 @@
     <string name="previous_round">Ronda anterior</string>
     <string name="next_round">Ronda siguiente</string>
 
-    <string name="invite_not_authentic">Esta invitación no supera la comprobación: puede que la hayan cambiado por el camino. Pide una nueva a quien te la envió.</string>
+    <string name="invite_not_authentic">Este código de amistad no supera la comprobación: puede que lo hayan cambiado por el camino. Pide uno nuevo a quien te lo envió.</string>
     <string name="no_account">Ninguna cuenta usa este correo. Revisa la dirección o vuelve atrás y crea una cuenta.</string>
     <string name="try_later">Demasiados intentos. Espera unos minutos y vuelve a intentarlo.</string>
     <string name="try_again">Reintentar</string>
@@ -281,42 +281,42 @@
         <item quantity="other">%d sesiones de otro teléfono aún no se pueden abrir aquí.</item>
     </plurals>
 
-    <!-- Inviting (Settings › Account › Invite someone) -->
-    <string name="invite_someone">Invitar a alguien</string>
-    <string name="invite_screen_title">Invitar a un amigo</string>
+    <!-- Friendship codes (Settings › Account › Share a friendship code) -->
+    <string name="invite_someone">Compartir un código de amistad</string>
+    <string name="invite_screen_title">Código de amistad</string>
     <string name="invite_scan">Escanéalo con la cámara de cualquier teléfono</string>
-    <string name="invite_code_caption">O escribe este código de invitación</string>
+    <string name="invite_code_caption">O escribe este código</string>
     <string name="invite_copy">Copiar código</string>
-    <string name="invite_share">Compartir invitación</string>
+    <string name="invite_share">Compartir el enlace</string>
     <string name="invite_share_text">Practica conmigo en Duongöndro: %s</string>
-    <string name="invite_make">Crear una invitación</string>
-    <string name="invite_open">Tus invitaciones abiertas</string>
+    <string name="invite_make">Crear un código de amistad</string>
+    <string name="invite_open">Tus códigos de amistad abiertos</string>
     <string name="invite_open_until">Vale hasta %s</string>
     <string name="invite_open_shown">Mostrada arriba</string>
     <string name="invite_open_none">Ninguna abierta.</string>
-    <string name="invite_open_footer">Al revocar una invitación, su enlace y su código dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
+    <string name="invite_open_footer">Al revocar un código de amistad, el código y su enlace dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
     <string name="invite_revoke">Revocar</string>
-    <string name="invite_revoke_title">¿Revocar esta invitación?</string>
-    <string name="invite_revoke_detail">Su enlace y su código dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
-    <string name="invite_qr_description">Código QR del enlace de invitación</string>
+    <string name="invite_revoke_title">¿Revocar este código de amistad?</string>
+    <string name="invite_revoke_detail">El código y su enlace dejan de funcionar al instante. Las amistades que ya hizo se quedan.</string>
+    <string name="invite_qr_description">Código QR del enlace de amistad</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Cualquiera con esta invitación puede unirse · vale %d día</item>
-        <item quantity="many">Cualquiera con esta invitación puede unirse · vale %d días</item>
-        <item quantity="other">Cualquiera con esta invitación puede unirse · vale %d días</item>
+        <item quantity="one">Cualquiera con este código se hace tu amigo · vale %d día</item>
+        <item quantity="many">Cualquiera con este código se hace tu amigo · vale %d días</item>
+        <item quantity="other">Cualquiera con este código se hace tu amigo · vale %d días</item>
     </plurals>
 
-    <!-- Accepting an invitation while signed in -->
-    <string name="accept_title">¿Aceptar esta invitación?</string>
+    <!-- Accepting a friendship code while signed in -->
+    <string name="accept_title">¿Aceptar este código de amistad?</string>
     <string name="accept_detail">Al aceptarla, tú y quien la envió seréis amigos: cada uno ve las rachas públicas del otro, nunca los recuentos.</string>
     <string name="accept_confirm">Ser amigos</string>
     <string name="not_now">Ahora no</string>
     <string name="accept_done_title">Ya sois amigos</string>
     <string name="accept_done">Ya sois amigos.</string>
     <string name="accept_done_named">Tú y %s ya sois amigos.</string>
-    <string name="accept_already">Ya sois amigos: esta invitación no cambia nada.</string>
-    <string name="accept_already_named">Tú y %s ya sois amigos: esta invitación no cambia nada.</string>
-    <string name="accept_own">Es tu propia invitación. Envíasela a un amigo.</string>
-    <string name="accept_gone">Esta invitación no se puede usar: puede que haya caducado o se haya revocado.</string>
+    <string name="accept_already">Ya sois amigos: este código de amistad no cambia nada.</string>
+    <string name="accept_already_named">Tú y %s ya sois amigos: este código de amistad no cambia nada.</string>
+    <string name="accept_own">Es tu propio código de amistad. Envíaselo a un amigo.</string>
+    <string name="accept_gone">Este código de amistad no se puede usar: puede que haya caducado o se haya revocado.</string>
     <string name="counted_for">Contado para el %1$s</string>
     <string name="started_after_midnight">Empecé después de medianoche</string>
     <string name="tab_friends">Amigos</string>
@@ -324,12 +324,12 @@
     <string name="friends_local_detail">Tus amigos ven tus rachas públicas y nada más.</string>
     <string name="friends_leaderboard">Clasificación · registrada en la app</string>
     <string name="friends_yours">Tus amigos</string>
-    <string name="friends_none">Aún no tienes amigos. Una invitación los hace amigos a los dos; ellos ven tus rachas públicas, nunca tus conteos.</string>
+    <string name="friends_none">Aún no tienes amigos. Un código de amistad os hace amigos a los dos; ven tus rachas públicas, nunca tus conteos.</string>
     <string name="a_friend">Un amigo</string>
     <string name="key_changed">La clave cambió</string>
-    <string name="invite_short">Invitar</string>
-    <string name="paste_invite">Pegar un enlace de invitación</string>
-    <string name="paste_invite_title">Pegar invitación</string>
+    <string name="invite_short">Añadir amigo</string>
+    <string name="paste_invite">Pegar un enlace de amistad</string>
+    <string name="paste_invite_title">Pegar enlace</string>
     <string name="paste_invite_detail">Pega el enlace que te envió tu amigo.</string>
     <string name="friend_finished">%1$s terminó %2$s</string>
     <string name="friend_not_yet">%s aún no ha practicado</string>
@@ -358,7 +358,7 @@
     <string name="tell_me_when">Avisarme cuando practiquen</string>
     <string name="unfriend">Quitar amistad</string>
     <string name="unfriend_title">¿Quitar amistad?</string>
-    <string name="unfriend_detail">Ninguno de los dos verá ya las rachas del otro. Una invitación puede volver a hacerlos amigos.</string>
+    <string name="unfriend_detail">Ninguno de los dos verá ya las rachas del otro. Un código de amistad puede volver a haceros amigos.</string>
     <string name="report">Reportar</string>
     <string name="report_detail">Los reportes llegan a las personas que administran Duongöndro.</string>
     <string name="report_hint">¿Qué pasó?</string>
@@ -366,9 +366,9 @@
     <string name="reported">Reportado. Gracias.</string>
     <string name="block">Bloquear</string>
     <string name="block_title">¿Bloquear?</string>
-    <string name="block_detail">Termina la amistad para ambos y detiene las invitaciones y los toques entre los dos.</string>
+    <string name="block_detail">Termina la amistad para ambos y detiene los códigos de amistad y los toques entre los dos.</string>
     <string name="their_key_changed">Su clave cambió</string>
-    <string name="key_changed_detail">Ahora el servidor indica una clave distinta para este amigo que la que vio este teléfono al principio, así que sus rachas están ocultas. Puede ser un teléfono nuevo sin restaurar, o alguien en el medio. Encuéntrate con esa persona o pide una invitación nueva: al aceptarla se verifica su clave otra vez.</string>
+    <string name="key_changed_detail">Ahora el servidor indica una clave distinta para este amigo que la que vio este teléfono al principio, así que sus rachas están ocultas. Puede ser un teléfono nuevo sin restaurar, o alguien en el medio. Encuéntrate con esa persona o pide un código de amistad nuevo: al aceptarlo se verifica su clave otra vez.</string>
     <string name="friends_see_streak">Tus amigos ven esta racha</string>
     <string name="friends_see_streak_footer">Solo el número de días practicados en la app, nunca conteos ni totales.</string>
     <string name="usual_time_nudge">Avisarme a mi hora habitual</string>

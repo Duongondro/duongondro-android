@@ -104,13 +104,13 @@
     <string name="where_later">You can make one later in Settings</string>
     <string name="where_online">Make an online account</string>
     <string name="where_local">Only on this phone</string>
-    <string name="invite_title">Have an invitation code?</string>
-    <string name="invite_detail">Enter it, or skip. A code a friend sent you also makes the two of you friends.</string>
-    <string name="invite_label">Invitation code</string>
-    <string name="invite_hint">Type or paste the invitation code, or paste the whole invitation link. Case doesn\'t matter.</string>
-    <string name="invite_unknown">We don\'t know this invitation. Check the code, or ask whoever sent it.</string>
-    <string name="invite_needed">For now, an account needs an invitation code. Enter one, or keep practising on this phone.</string>
-    <string name="signup_too_many">Too many sign-ups from this network in the last hour. Try again later, or enter an invitation code: it works regardless.</string>
+    <string name="invite_title">Have a friendship code?</string>
+    <string name="invite_detail">Enter it to become friends with whoever sent it, or skip.</string>
+    <string name="invite_label">Friendship code</string>
+    <string name="invite_hint">Type or paste the friendship code, or paste the whole link. Case doesn\'t matter.</string>
+    <string name="invite_unknown">We don\'t know this friendship code. Check it, or ask whoever sent it.</string>
+    <string name="invite_needed">New accounts can\'t be made right now. Try again later, or keep practising on this phone.</string>
+    <string name="signup_too_many">Too many sign-ups from this network in the last hour. Try again later, or enter a friendship code: it works regardless.</string>
     <string name="invite_local">Only on this phone for now</string>
     <string name="consent_title">Before we store anything</string>
     <string name="consent_detail">An account in a Buddhist practice app says something about your beliefs, which the GDPR treats as special. With your consent the server keeps your email or username, your name, your gender if you give it, your friends, and your public streaks. Your counts stay encrypted on your phones.</string>
@@ -209,7 +209,7 @@
     <string name="delete_footer">Removes all your data from this phone. It cannot be undone.</string>
     <string name="delete_explainer">This deletes every practice, session and streak on this phone, your reminders and any keys the app holds, then returns to the start.</string>
     <string name="delete_footer_account">Deletes your account and its data on the server, and everything on this phone. Your other phones are signed out but keep their copy. It cannot be undone.</string>
-    <string name="delete_explainer_account">This deletes your account and everything stored with it on the server: your encrypted sessions, friends, public streaks, invitations, passkeys and sign-ins. Your other phones are signed out and keep their own copy until you delete it there. On this phone it deletes every practice, session and streak, your reminders and the app\'s keys, then returns to the start.</string>
+    <string name="delete_explainer_account">This deletes your account and everything stored with it on the server: your encrypted sessions, friends, public streaks, friendship codes, passkeys and sign-ins. Your other phones are signed out and keep their own copy until you delete it there. On this phone it deletes every practice, session and streak, your reminders and the app\'s keys, then returns to the start.</string>
     <string name="export_first">Export first if you want a copy.</string>
     <string name="delete_word" translatable="true">delete</string>
     <string name="type_to_confirm">Type “%1$s” to confirm</string>
@@ -226,7 +226,7 @@
     <string name="storage_error">Something could not be saved</string>
     <string name="previous_round">Previous round</string>
     <string name="next_round">Next round</string>
-    <string name="invite_not_authentic">This invitation doesn\'t check out: it may have been changed on the way. Ask whoever sent it for a new one.</string>
+    <string name="invite_not_authentic">This friendship code doesn\'t check out: it may have been changed on the way. Ask whoever sent it for a new one.</string>
     <string name="no_account">No account uses this email. Check the address, or go back and make an account.</string>
     <string name="try_later">Too many tries. Wait a few minutes and try again.</string>
     <string name="try_again">Try again</string>
@@ -280,41 +280,41 @@
         <item quantity="other">%d sessions from another phone cannot be opened here yet.</item>
     </plurals>
 
-    <!-- Inviting (Settings › Account › Invite someone) -->
-    <string name="invite_someone">Invite someone</string>
-    <string name="invite_screen_title">Invite a friend</string>
+    <!-- Friendship codes (Settings › Account › Share a friendship code) -->
+    <string name="invite_someone">Share a friendship code</string>
+    <string name="invite_screen_title">Friendship code</string>
     <string name="invite_scan">Scan with any phone camera</string>
-    <string name="invite_code_caption">Or type this invitation code</string>
+    <string name="invite_code_caption">Or type this code</string>
     <string name="invite_copy">Copy code</string>
-    <string name="invite_share">Share invitation</string>
+    <string name="invite_share">Share the link</string>
     <string name="invite_share_text">Practise with me on Duongöndro: %s</string>
-    <string name="invite_make">Make an invitation</string>
-    <string name="invite_open">Your open invitations</string>
+    <string name="invite_make">Make a friendship code</string>
+    <string name="invite_open">Your open friendship codes</string>
     <string name="invite_open_until">Works until %s</string>
     <string name="invite_open_shown">On this screen</string>
     <string name="invite_open_none">None open.</string>
-    <string name="invite_open_footer">Revoking an invitation stops its link and code at once. Friends it already made stay.</string>
+    <string name="invite_open_footer">Revoking a friendship code stops the code and its link at once. Friends it already made stay.</string>
     <string name="invite_revoke">Revoke</string>
-    <string name="invite_revoke_title">Revoke this invitation?</string>
-    <string name="invite_revoke_detail">Its link and code stop working at once. Friends it already made stay.</string>
-    <string name="invite_qr_description">QR code of the invitation link</string>
+    <string name="invite_revoke_title">Revoke this friendship code?</string>
+    <string name="invite_revoke_detail">The code and its link stop working at once. Friends it already made stay.</string>
+    <string name="invite_qr_description">QR code of the friendship link</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Anyone with this invitation can join · works for %d day</item>
-        <item quantity="other">Anyone with this invitation can join · works for %d days</item>
+        <item quantity="one">Anyone with this code becomes your friend · works for %d day</item>
+        <item quantity="other">Anyone with this code becomes your friend · works for %d days</item>
     </plurals>
 
-    <!-- Accepting an invitation while signed in -->
-    <string name="accept_title">Accept this invitation?</string>
+    <!-- Accepting a friendship code while signed in -->
+    <string name="accept_title">Accept this friendship code?</string>
     <string name="accept_detail">Accepting makes you and the person who sent it friends: each sees the other\'s public streaks, never counts.</string>
     <string name="accept_confirm">Become friends</string>
     <string name="not_now">Not now</string>
     <string name="accept_done_title">Friends now</string>
     <string name="accept_done">You are now friends.</string>
     <string name="accept_done_named">You and %s are now friends.</string>
-    <string name="accept_already">You are friends already: this invitation adds nothing.</string>
-    <string name="accept_already_named">You and %s are friends already: this invitation adds nothing.</string>
-    <string name="accept_own">This is your own invitation. Send it to a friend instead.</string>
-    <string name="accept_gone">This invitation can\'t be used: it may have expired or been revoked.</string>
+    <string name="accept_already">You are friends already: this friendship code adds nothing.</string>
+    <string name="accept_already_named">You and %s are friends already: this friendship code adds nothing.</string>
+    <string name="accept_own">This is your own friendship code. Send it to a friend instead.</string>
+    <string name="accept_gone">This friendship code can\'t be used: it may have expired or been revoked.</string>
     <string name="counted_for">Counted for %1$s</string>
     <string name="started_after_midnight">I started after midnight</string>
     <string name="tab_friends">Friends</string>
@@ -322,12 +322,12 @@
     <string name="friends_local_detail">Friends see your public streaks and nothing else.</string>
     <string name="friends_leaderboard">Leaderboard · tracked in the app</string>
     <string name="friends_yours">Your friends</string>
-    <string name="friends_none">No friends yet. An invite makes the two of you friends; they see your public streaks, never your counts.</string>
+    <string name="friends_none">No friends yet. A friendship code makes the two of you friends; they see your public streaks, never your counts.</string>
     <string name="a_friend">A friend</string>
     <string name="key_changed">Key changed</string>
-    <string name="invite_short">Invite</string>
-    <string name="paste_invite">Paste an invite link</string>
-    <string name="paste_invite_title">Paste invite</string>
+    <string name="invite_short">Add friend</string>
+    <string name="paste_invite">Paste a friendship link</string>
+    <string name="paste_invite_title">Paste link</string>
     <string name="paste_invite_detail">Paste the link your friend sent.</string>
     <string name="friend_finished">%1$s finished %2$s</string>
     <string name="friend_not_yet">%s hasn\'t practised yet</string>
@@ -354,7 +354,7 @@
     <string name="tell_me_when">Tell me when they practise</string>
     <string name="unfriend">Unfriend</string>
     <string name="unfriend_title">Unfriend?</string>
-    <string name="unfriend_detail">You stop seeing each other\'s streaks. An invite can make you friends again.</string>
+    <string name="unfriend_detail">You stop seeing each other\'s streaks. A friendship code can make you friends again.</string>
     <string name="report">Report</string>
     <string name="report_detail">Reports go to the people who run Duongöndro.</string>
     <string name="report_hint">What happened?</string>
@@ -362,9 +362,9 @@
     <string name="reported">Reported. Thank you.</string>
     <string name="block">Block</string>
     <string name="block_title">Block?</string>
-    <string name="block_detail">Ends the friendship both ways and stops invites and nudges between you.</string>
+    <string name="block_detail">Ends the friendship both ways and stops friendship codes and nudges between you.</string>
     <string name="their_key_changed">Their key changed</string>
-    <string name="key_changed_detail">The server now names a different key for this friend than the one this phone first saw, so their streaks are hidden. It may be a new phone without a restore, or someone in between. Meet them, or ask for a new invite: accepting it checks their key again.</string>
+    <string name="key_changed_detail">The server now names a different key for this friend than the one this phone first saw, so their streaks are hidden. It may be a new phone without a restore, or someone in between. Meet them, or ask for a new friendship code: accepting it checks their key again.</string>
     <string name="friends_see_streak">Friends see this streak</string>
     <string name="friends_see_streak_footer">Only the number of days practised in the app, never counts or totals.</string>
     <string name="usual_time_nudge">Nudge at my usual time</string>

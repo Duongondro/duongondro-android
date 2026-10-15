@@ -165,7 +165,7 @@ object DataExport {
             appendLine("  Sessions that came from your other phones through sync are included once.")
             appendLine()
             appendLine("account.json")
-            appendLine("  Your account, linked sign-ins, devices, friendships, invites, blocks,")
+            appendLine("  Your account, linked sign-ins, devices, friendships, friendship codes, blocks,")
             appendLine("  reports and public streak statements, as the server holds them (the")
             appendLine("  sealed logs and keys are only in server-raw.json). Friends")
             appendLine("  appear with the display name and gender the app shows you.")

@@ -104,13 +104,13 @@
     <string name="where_later">Konto możesz założyć później w Ustawieniach</string>
     <string name="where_online">Załóż konto online</string>
     <string name="where_local">Tylko na tym telefonie</string>
-    <string name="invite_title">Masz kod zaproszenia?</string>
-    <string name="invite_detail">Wpisz go albo pomiń ten krok. Kod, który ktoś ci wysłał, od razu dodaje was do znajomych.</string>
-    <string name="invite_label">Kod zaproszenia</string>
-    <string name="invite_hint">Wpisz lub wklej kod zaproszenia albo wklej cały link z zaproszeniem. Wielkość liter nie ma znaczenia.</string>
-    <string name="invite_unknown">Nie znamy tego zaproszenia. Sprawdź kod albo zapytaj osobę, która je wysłała.</string>
-    <string name="invite_needed">Na razie do założenia konta potrzebny jest kod zaproszenia. Wpisz go albo ćwicz dalej na tym telefonie.</string>
-    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo wpisz kod zaproszenia: on działa mimo to.</string>
+    <string name="invite_title">Masz kod przyjaźni?</string>
+    <string name="invite_detail">Wpisz go, żeby zaprzyjaźnić się z osobą, która go wysłała, albo pomiń ten krok.</string>
+    <string name="invite_label">Kod przyjaźni</string>
+    <string name="invite_hint">Wpisz lub wklej kod przyjaźni albo wklej cały link. Wielkość liter nie ma znaczenia.</string>
+    <string name="invite_unknown">Nie znamy tego kodu przyjaźni. Sprawdź go albo zapytaj osobę, która go wysłała.</string>
+    <string name="invite_needed">Teraz nie da się zakładać nowych kont. Spróbuj później albo ćwicz dalej na tym telefonie.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo wpisz kod przyjaźni: on działa mimo to.</string>
     <string name="invite_local">Na razie tylko na tym telefonie</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
     <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Za Twoją zgodą serwer przechowuje Twój e-mail lub nazwę użytkownika, imię, płeć, jeśli ją podasz, przyjaciół i publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
@@ -210,7 +210,7 @@
     <string name="delete_footer">Usuwa wszystkie Twoje dane z tego telefonu. Nie można tego cofnąć.</string>
     <string name="delete_explainer">Usunie to każdą praktykę, sesję i serię na tym telefonie, Twoje przypomnienia i wszystkie klucze przechowywane przez aplikację, a potem wróci do początku.</string>
     <string name="delete_footer_account">Usuwa Twoje konto i jego dane na serwerze oraz wszystko na tym telefonie. Twoje inne telefony zostaną wylogowane, ale zachowają swoją kopię. Nie można tego cofnąć.</string>
-    <string name="delete_explainer_account">Usunie to Twoje konto i wszystko, co jest z nim zapisane na serwerze: zaszyfrowane sesje, znajomych, publiczne serie, zaproszenia, klucze dostępu i sposoby logowania. Twoje inne telefony zostaną wylogowane i zachowają swoją kopię, dopóki jej tam nie usuniesz. Na tym telefonie usunie każdą praktykę, sesję i serię, Twoje przypomnienia i klucze aplikacji, a potem wróci do początku.</string>
+    <string name="delete_explainer_account">Usunie to Twoje konto i wszystko, co jest z nim zapisane na serwerze: zaszyfrowane sesje, znajomych, publiczne serie, kody przyjaźni, klucze dostępu i sposoby logowania. Twoje inne telefony zostaną wylogowane i zachowają swoją kopię, dopóki jej tam nie usuniesz. Na tym telefonie usunie każdą praktykę, sesję i serię, Twoje przypomnienia i klucze aplikacji, a potem wróci do początku.</string>
     <string name="export_first">Jeśli chcesz mieć kopię, najpierw wyeksportuj dane.</string>
     <string name="delete_word">usuń</string>
     <string name="type_to_confirm">Wpisz „%1$s”, aby potwierdzić</string>
@@ -227,7 +227,7 @@
     <string name="storage_error">Czegoś nie udało się zapisać</string>
     <string name="previous_round">Poprzednia runda</string>
     <string name="next_round">Następna runda</string>
-    <string name="invite_not_authentic">To zaproszenie nie przeszło weryfikacji: mogło zostać zmienione po drodze. Poproś osobę, która je wysłała, o nowe.</string>
+    <string name="invite_not_authentic">Ten kod przyjaźni nie przeszedł weryfikacji: mógł zostać zmieniony po drodze. Poproś osobę, która go wysłała, o nowy.</string>
     <string name="no_account">Żadne konto nie używa tego adresu. Sprawdź adres albo wróć i załóż konto.</string>
     <string name="try_later">Za dużo prób. Odczekaj kilka minut i spróbuj ponownie.</string>
     <string name="try_again">Spróbuj ponownie</string>
@@ -284,43 +284,43 @@
         <item quantity="other">%d sesji z innego telefonu nie da się jeszcze tu otworzyć.</item>
     </plurals>
 
-    <!-- Inviting (Settings › Account › Invite someone) -->
-    <string name="invite_someone">Zaproś kogoś</string>
-    <string name="invite_screen_title">Zaproś przyjaciela</string>
+    <!-- Friendship codes (Settings › Account › Share a friendship code) -->
+    <string name="invite_someone">Udostępnij kod przyjaźni</string>
+    <string name="invite_screen_title">Kod przyjaźni</string>
     <string name="invite_scan">Zeskanuj aparatem dowolnego telefonu</string>
-    <string name="invite_code_caption">Albo wpisz ten kod zaproszenia</string>
+    <string name="invite_code_caption">Albo wpisz ten kod</string>
     <string name="invite_copy">Kopiuj kod</string>
-    <string name="invite_share">Udostępnij zaproszenie</string>
+    <string name="invite_share">Udostępnij link</string>
     <string name="invite_share_text">Praktykuj ze mną w Duongöndro: %s</string>
-    <string name="invite_make">Utwórz zaproszenie</string>
-    <string name="invite_open">Twoje otwarte zaproszenia</string>
+    <string name="invite_make">Utwórz kod przyjaźni</string>
+    <string name="invite_open">Twoje otwarte kody przyjaźni</string>
     <string name="invite_open_until">Ważne do %s</string>
     <string name="invite_open_shown">Pokazane wyżej</string>
     <string name="invite_open_none">Brak otwartych.</string>
-    <string name="invite_open_footer">Po wycofaniu zaproszenia jego link i kod od razu przestają działać. Przyjaźnie, które już z niego powstały, zostają.</string>
+    <string name="invite_open_footer">Po wycofaniu kodu przyjaźni kod i jego link od razu przestają działać. Przyjaźnie, które już z niego powstały, zostają.</string>
     <string name="invite_revoke">Wycofaj</string>
-    <string name="invite_revoke_title">Wycofać to zaproszenie?</string>
-    <string name="invite_revoke_detail">Jego link i kod od razu przestaną działać. Przyjaźnie, które już z niego powstały, zostaną.</string>
-    <string name="invite_qr_description">Kod QR linku z zaproszeniem</string>
+    <string name="invite_revoke_title">Wycofać ten kod przyjaźni?</string>
+    <string name="invite_revoke_detail">Kod i jego link od razu przestaną działać. Przyjaźnie, które już z niego powstały, zostaną.</string>
+    <string name="invite_qr_description">Kod QR linku z kodem przyjaźni</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dzień</item>
-        <item quantity="few">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dni</item>
-        <item quantity="many">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dni</item>
-        <item quantity="other">Każdy z tym zaproszeniem może dołączyć · ważne przez %d dnia</item>
+        <item quantity="one">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dzień</item>
+        <item quantity="few">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dni</item>
+        <item quantity="many">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dni</item>
+        <item quantity="other">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dnia</item>
     </plurals>
 
-    <!-- Accepting an invitation while signed in -->
-    <string name="accept_title">Przyjąć to zaproszenie?</string>
+    <!-- Accepting a friendship code while signed in -->
+    <string name="accept_title">Przyjąć ten kod przyjaźni?</string>
     <string name="accept_detail">Po przyjęciu Ty i osoba, która je wysłała, zostaniecie znajomymi: każde widzi publiczne serie drugiego, nigdy liczby powtórzeń.</string>
     <string name="accept_confirm">Zostańmy znajomymi</string>
     <string name="not_now">Nie teraz</string>
     <string name="accept_done_title">Jesteście znajomymi</string>
     <string name="accept_done">Jesteście teraz znajomymi.</string>
     <string name="accept_done_named">Ty i %s jesteście teraz znajomymi.</string>
-    <string name="accept_already">Jesteście już znajomymi: to zaproszenie niczego nie zmieni.</string>
-    <string name="accept_already_named">Ty i %s jesteście już znajomymi: to zaproszenie niczego nie zmieni.</string>
-    <string name="accept_own">To Twoje własne zaproszenie. Wyślij je komuś innemu.</string>
-    <string name="accept_gone">Tego zaproszenia nie da się użyć: mogło wygasnąć albo zostać wycofane.</string>
+    <string name="accept_already">Jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
+    <string name="accept_already_named">Ty i %s jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
+    <string name="accept_own">To Twój własny kod przyjaźni. Wyślij go komuś innemu.</string>
+    <string name="accept_gone">Tego kodu przyjaźni nie da się użyć: mógł wygasnąć albo zostać wycofany.</string>
     <string name="counted_for">Zaliczone na dzień: %1$s</string>
     <string name="started_after_midnight">Zacząłem/zaczęłam po północy</string>
     <string name="tab_friends">Przyjaciele</string>
@@ -328,12 +328,12 @@
     <string name="friends_local_detail">Przyjaciele widzą tylko Twoje publiczne serie i nic więcej.</string>
     <string name="friends_leaderboard">Ranking · śledzony w aplikacji</string>
     <string name="friends_yours">Twoi przyjaciele</string>
-    <string name="friends_none">Na razie bez przyjaciół. Zaproszenie sprawia, że zostajecie przyjaciółmi; widzą Twoje publiczne serie, nigdy liczby.</string>
+    <string name="friends_none">Na razie bez przyjaciół. Kod przyjaźni sprawia, że zostajecie przyjaciółmi; widzą Twoje publiczne serie, nigdy liczby.</string>
     <string name="a_friend">Przyjaciel</string>
     <string name="key_changed">Klucz się zmienił</string>
-    <string name="invite_short">Zaproś</string>
-    <string name="paste_invite">Wklej link zaproszenia</string>
-    <string name="paste_invite_title">Wklej zaproszenie</string>
+    <string name="invite_short">Dodaj przyjaciela</string>
+    <string name="paste_invite">Wklej link z kodem przyjaźni</string>
+    <string name="paste_invite_title">Wklej link</string>
     <string name="paste_invite_detail">Wklej link od przyjaciela.</string>
     <string name="friend_finished">%1$s ukończył(a) %2$s</string>
     <string name="friend_not_yet">%s jeszcze nie praktykował(a)</string>
@@ -364,7 +364,7 @@
     <string name="tell_me_when">Powiadom mnie, gdy praktykują</string>
     <string name="unfriend">Usuń z przyjaciół</string>
     <string name="unfriend_title">Usunąć z przyjaciół?</string>
-    <string name="unfriend_detail">Przestajecie widzieć swoje serie. Zaproszenie może ponownie uczynić was przyjaciółmi.</string>
+    <string name="unfriend_detail">Przestajecie widzieć swoje serie. Kod przyjaźni może ponownie uczynić was przyjaciółmi.</string>
     <string name="report">Zgłoś</string>
     <string name="report_detail">Zgłoszenia trafiają do osób prowadzących Duongöndro.</string>
     <string name="report_hint">Co się stało?</string>
@@ -372,9 +372,9 @@
     <string name="reported">Zgłoszono. Dziękujemy.</string>
     <string name="block">Zablokuj</string>
     <string name="block_title">Zablokować?</string>
-    <string name="block_detail">Kończy przyjaźń po obu stronach i wstrzymuje zaproszenia oraz szturchnięcia między wami.</string>
+    <string name="block_detail">Kończy przyjaźń po obu stronach i wstrzymuje kody przyjaźni oraz szturchnięcia między wami.</string>
     <string name="their_key_changed">Ich klucz się zmienił</string>
-    <string name="key_changed_detail">Serwer podaje teraz dla tego przyjaciela inny klucz niż ten, który telefon zobaczył jako pierwszy, dlatego jego serie są ukryte. Może to być nowy telefon bez przywracania albo ktoś pośrodku. Spotkajcie się lub poproś o nowe zaproszenie: jego przyjęcie sprawdzi klucz ponownie.</string>
+    <string name="key_changed_detail">Serwer podaje teraz dla tego przyjaciela inny klucz niż ten, który telefon zobaczył jako pierwszy, dlatego jego serie są ukryte. Może to być nowy telefon bez przywracania albo ktoś pośrodku. Spotkajcie się lub poproś o nowy kod przyjaźni: jego przyjęcie sprawdzi klucz ponownie.</string>
     <string name="friends_see_streak">Przyjaciele widzą tę serię</string>
     <string name="friends_see_streak_footer">Tylko liczba dni praktyki w aplikacji, nigdy liczby ani sumy.</string>
     <string name="usual_time_nudge">Przypomnij o mojej zwykłej porze</string>
