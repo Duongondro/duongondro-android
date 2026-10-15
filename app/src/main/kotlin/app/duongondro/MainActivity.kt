@@ -19,6 +19,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -171,9 +174,13 @@ fun App(model: AppModel) {
     val loaded by model.loaded.collectAsStateWithLifecycle()
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     StorageErrorDialog(model)
+    // An account made from Settings whose optional steps were cut short (the app
+    // closed) resumes them at the name, as the first run does.
+    var resumeSignUp by remember(loaded) { mutableStateOf(loaded && snapshot.preferences.onboarded && model.accounts?.signUpUnfinished == true) }
     when {
         !loaded -> Unit
         !snapshot.preferences.onboarded -> OnboardingScreen(model)
+        resumeSignUp -> OnboardingScreen(model, start = Step.Name) { resumeSignUp = false }
         else -> Home(model)
     }
 }

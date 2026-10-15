@@ -133,6 +133,7 @@
     <string name="add_email_detail">Второй способ входа, например на новом телефоне.</string>
     <string name="add_email_sent">Введите код, который мы отправили на %1$s.</string>
     <string name="email_taken">Эта почта принадлежит другому аккаунту.</string>
+    <string name="email_invalid">Это не похоже на адрес почты.</string>
     <string name="passkey_title">Сохраните ключ доступа</string>
     <string name="passkey_detail">В следующий раз вы войдёте по отпечатку пальца или блокировке экрана. Менеджер паролей Google хранит ключ, так что он будет и на новом телефоне с Android.</string>
     <string name="passkey_save">Сохранить ключ доступа</string>
@@ -140,6 +141,7 @@
     <string name="recovery_title">Запишите код восстановления</string>
     <string name="recovery_detail">Если вы потеряете этот телефон, этот код — единственный путь к вашим счётчикам. Больше его нет ни у кого, даже у нас.</string>
     <string name="recovery_note">Дальше мы попросим две из этих групп, для проверки. O и 0, I и 1 считаются одним и тем же.</string>
+    <string name="recovery_replaced">Это новый код восстановления. Записанный ранее код больше не работает.</string>
     <string name="recovery_done">Код записан</string>
     <string name="recovery_gpm">Вместо этого сохранить в Менеджере паролей Google</string>
     <string name="signin_title">С возвращением</string>

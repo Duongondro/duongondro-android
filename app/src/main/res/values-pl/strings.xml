@@ -139,6 +139,7 @@
     <string name="add_email_detail">Drugi sposób logowania, na przykład na nowym telefonie.</string>
     <string name="add_email_sent">Wpisz kod wysłany na %1$s.</string>
     <string name="email_taken">Ten adres e-mail należy do innego konta.</string>
+    <string name="email_invalid">To nie wygląda na adres e-mail.</string>
     <string name="passkey_title">Zapisz klucz dostępu</string>
     <string name="passkey_detail">Następnym razem zalogujesz się odciskiem palca lub blokadą ekranu. Menedżer haseł Google go przechowuje, więc nowy telefon z Androidem też go ma.</string>
     <string name="passkey_save">Zapisz klucz dostępu</string>
@@ -146,6 +147,7 @@
     <string name="recovery_title">Zapisz kod odzyskiwania</string>
     <string name="recovery_detail">Jeśli stracisz ten telefon, ten kod to jedyna droga z powrotem do Twoich liczników. Nikt inny go nie ma, nawet my.</string>
     <string name="recovery_note">Zaraz poprosimy o dwie z tych grup, dla pewności. O i 0 oraz I i 1 traktujemy jak to samo.</string>
+    <string name="recovery_replaced">To nowy kod odzyskiwania. Zapisany wcześniej kod już nie działa.</string>
     <string name="recovery_done">Mam to zapisane</string>
     <string name="recovery_gpm">Zapisz go zamiast tego w Menedżerze haseł Google</string>
     <string name="signin_title">Witaj ponownie</string>

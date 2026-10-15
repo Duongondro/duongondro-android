@@ -77,6 +77,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.duongondro.R
+import app.duongondro.account.AccountStatus
 import app.duongondro.account.Gender
 import app.duongondro.ui.Bar
 import androidx.compose.ui.draw.clip
@@ -211,11 +212,16 @@ class OnboardingFlow : ViewModel() {
      * passkey, email) leave the back stack, so Back cannot make a second one.
      */
     fun afterAccount(next: Step) {
-        if (step == next) return
-        history.removeAll { it == Step.Consent || it == Step.Passkey || it == Step.Email || it == Step.CheckEmail }
-        if (step != Step.Consent && step != Step.Passkey && step != Step.Email && step != Step.CheckEmail) history += step
+        // Nothing before the account is reachable again: not consent or the sign-up
+        // steps, nor Welcome, the practice questions or "online?".
+        history.clear()
         step = next
     }
+
+    /** Resumed with keys already on this phone: the recovery code shown is a new one, replacing any written down before. */
+    var newRecoveryCode by mutableStateOf(false)
+    /** Why the address was not added (another account has it), shown on the address step after going back to it. */
+    var addEmailProblem by mutableStateOf<Int?>(null)
 
     /** Back to an earlier step, keeping the answers. */
     fun backTo(target: Step) {
@@ -308,6 +314,9 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
 private const val PRACTICE_STEPS = 5
 private const val ACCOUNT_STEPS = 4
 
+/** The sign-up steps after the account exists, which are finished rather than left. */
+private val AFTER_ACCOUNT = setOf(Step.Name, Step.Gender, Step.AddEmail, Step.CheckAddedEmail)
+
 /**
  * The first run, from Welcome; or, from Settings with [done] set, only the
  * account steps from [start] (sign in again, or make an account later),
@@ -326,12 +335,16 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
         // (the app closed) resumes at the name rather than starting over.
         val resume = done == null && start == Step.Welcome && accounts.signUpUnfinished
         if (resume) flow.resumed = true
+        // A resumed sign-up (first run, or one made from Settings) whose keys exist shows a fresh recovery code.
+        if (resume || (done != null && start == Step.Name)) flow.newRecoveryCode = accounts.state.value.status == AccountStatus.READY
         flow.begin(if (resume) Step.Name else start, signingIn = start == Step.SignIn)
     }
     // The first run keeps its practices as soon as the account exists; from Settings there are none to keep.
     flow.onAccount = if (done == null && !flow.resumed) ({ flow.save(model, onboarded = false) }) else null
     val leave = { done?.invoke() ?: Unit }
-    BackHandler(enabled = flow.canGoBack || done != null) { if (flow.canGoBack) flow.back() else leave() }
+    // Once the account exists its optional steps are finished, not left (from Settings too).
+    val noLeave = !flow.signingIn && flow.step in AFTER_ACCOUNT
+    BackHandler(enabled = flow.canGoBack || (done != null && !noLeave)) { if (flow.canGoBack) flow.back() else leave() }
     // Local mode keeps the onboarding's answers; from Settings, nothing about the practices changes.
     val finishLocal = { if (done != null) leave() else flow.finish(model) }
     val finishOnline = {
@@ -343,7 +356,7 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
     }
     val ground = if (flow.step == Step.Welcome) Theme.colors.welcomeGround else Theme.colors.ground
     Column(Modifier.fillMaxSize().background(ground).safeDrawingPadding().padding(horizontal = Space.xl)) {
-        if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack) leave else null)
+        if (flow.step != Step.Welcome) StepTopBar(flow, if (done != null && !flow.canGoBack && !noLeave) leave else null)
         when (val step = flow.step) {
             Step.Welcome -> Welcome(flow)
             Step.FinishedNgondro -> YesNo(stringResource(GenderedString.FinishedNgondro, model.ownGender()), stringResource(R.string.q_finished_ngondro_detail),

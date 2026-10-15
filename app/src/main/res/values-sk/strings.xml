@@ -133,6 +133,7 @@
     <string name="add_email_detail">Druhý spôsob prihlásenia, napríklad na novom telefóne.</string>
     <string name="add_email_sent">Napíš kód, ktorý sme poslali na %1$s.</string>
     <string name="email_taken">Tento e-mail patrí inému účtu.</string>
+    <string name="email_invalid">Toto nevyzerá ako e-mailová adresa.</string>
     <string name="passkey_title">Ulož prístupový kľúč</string>
     <string name="passkey_detail">Nabudúce sa prihlásiš odtlačkom prsta alebo zámkou obrazovky. Správca hesiel Google ho uchová, takže ho má aj nový telefón s Androidom.</string>
     <string name="passkey_save">Uložiť prístupový kľúč</string>
@@ -140,6 +141,7 @@
     <string name="recovery_title">Prepíš si kód na obnovenie</string>
     <string name="recovery_detail">Ak stratíš tento telefón, tento kód je jediná cesta späť k tvojim počtom. Nikto iný ho nemá, ani my.</string>
     <string name="recovery_note">Potom sa ťa opýtame na dve z týchto skupín, pre istotu. O a 0, I a 1 sa berú ako to isté.</string>
+    <string name="recovery_replaced">Toto je nový obnovovací kód. Skôr zapísaný kód už nefunguje.</string>
     <string name="recovery_done">Mám to zapísané</string>
     <string name="recovery_gpm">Uložiť ho radšej do Správcu hesiel Google</string>
     <string name="signin_title">Vitaj späť</string>

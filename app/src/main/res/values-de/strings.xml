@@ -135,6 +135,7 @@
     <string name="add_email_detail">Eine zweite Art, dich anzumelden, zum Beispiel auf einem neuen Handy.</string>
     <string name="add_email_sent">Gib den Code ein, den wir an %1$s geschickt haben.</string>
     <string name="email_taken">Diese E-Mail-Adresse gehört zu einem anderen Konto.</string>
+    <string name="email_invalid">Das sieht nicht nach einer E-Mail-Adresse aus.</string>
     <string name="passkey_title">Passkey speichern</string>
     <string name="passkey_detail">Beim nächsten Mal meldest du dich mit Fingerabdruck oder Displaysperre an. Der Google Passwortmanager bewahrt ihn auf, also hat ihn auch ein neues Android-Handy.</string>
     <string name="passkey_save">Passkey speichern</string>
@@ -142,6 +143,7 @@
     <string name="recovery_title">Schreib deinen Wiederherstellungscode auf</string>
     <string name="recovery_detail">Wenn du dieses Handy verlierst, ist dieser Code der einzige Weg zurück zu deinen Zählern. Niemand sonst hat ihn, nicht einmal wir.</string>
     <string name="recovery_note">Als Nächstes fragen wir zwei dieser Gruppen ab, zur Sicherheit. O und 0, I und 1 gelten als gleich.</string>
+    <string name="recovery_replaced">Das ist ein neuer Wiederherstellungscode. Ein Code, den du früher aufgeschrieben hast, funktioniert nicht mehr.</string>
     <string name="recovery_done">Ich habe ihn aufgeschrieben</string>
     <string name="recovery_gpm">Stattdessen im Google Passwortmanager speichern</string>
     <string name="signin_title">Willkommen zurück</string>

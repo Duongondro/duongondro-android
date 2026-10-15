@@ -138,6 +138,7 @@
     <string name="add_email_detail">Una segunda forma de iniciar sesión, por ejemplo en un teléfono nuevo.</string>
     <string name="add_email_sent">Escribe el código que enviamos a %1$s.</string>
     <string name="email_taken">Este correo pertenece a otra cuenta.</string>
+    <string name="email_invalid">Eso no parece una dirección de correo.</string>
     <string name="passkey_title">Guarda una clave de acceso</string>
     <string name="passkey_detail">La próxima vez accedes con tu huella o el bloqueo de pantalla. El Gestor de contraseñas de Google la guarda, así que un teléfono Android nuevo también la tiene.</string>
     <string name="passkey_save">Guardar una clave de acceso</string>
@@ -145,6 +146,7 @@
     <string name="recovery_title">Apunta tu código de recuperación</string>
     <string name="recovery_detail">Si pierdes este teléfono, este código es la única vía de vuelta a tus recuentos. Nadie más lo tiene, ni siquiera nosotros.</string>
     <string name="recovery_note">Después te pediremos dos de estos grupos, para comprobarlo. O y 0, I y 1 cuentan como iguales.</string>
+    <string name="recovery_replaced">Este es un código de recuperación nuevo. El código que anotaste antes ya no funciona.</string>
     <string name="recovery_done">Ya lo apunté</string>
     <string name="recovery_gpm">Guardarlo mejor en el Gestor de contraseñas de Google</string>
     <string name="signin_title">Hola de nuevo</string>

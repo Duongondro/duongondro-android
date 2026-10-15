@@ -129,6 +129,7 @@
     <string name="add_email_detail">Egy második bejelentkezési mód, például egy új telefonon.</string>
     <string name="add_email_sent">Írd be a kódot, amit a(z) %1$s címre küldtünk.</string>
     <string name="email_taken">Ez az e-mail-cím egy másik fiókhoz tartozik.</string>
+    <string name="email_invalid">Ez nem tűnik e-mail-címnek.</string>
     <string name="passkey_title">Mentsd el a hozzáférési kulcsot</string>
     <string name="passkey_detail">Legközelebb ujjlenyomattal vagy képernyőzárral jelentkezel be. A Google Jelszókezelő megőrzi, így egy új Androidos telefonon is megvan.</string>
     <string name="passkey_save">Hozzáférési kulcs mentése</string>
@@ -136,6 +137,7 @@
     <string name="recovery_title">Írd fel a helyreállítási kódot</string>
     <string name="recovery_detail">Ha elveszíted ezt a telefont, ez a kód az egyetlen út vissza a számlálóidhoz. Senki másnak nincs meg, még nekünk sem.</string>
     <string name="recovery_note">Ezután bekérjük ezek közül két csoportot, az ellenőrzéshez. Az O és a 0, az I és az 1 egynek számít.</string>
+    <string name="recovery_replaced">Ez egy új helyreállítási kód. A korábban leírt kód már nem érvényes.</string>
     <string name="recovery_done">Felírtam</string>
     <string name="recovery_gpm">Inkább mentsd el a Google Jelszókezelőbe</string>
     <string name="signin_title">Üdv újra</string>

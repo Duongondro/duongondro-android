@@ -533,14 +533,16 @@ internal fun ColumnScope.GenderStep(flow: OnboardingFlow, accounts: AccountManag
 @Composable
 internal fun ColumnScope.AddEmailStep(flow: OnboardingFlow, accounts: AccountManager) {
     val call = rememberCall()
-    var problem by remember { mutableStateOf<Int?>(null) }
+    // A 409 from the code step comes back here with its reason.
+    var problem by remember { mutableStateOf(flow.addEmailProblem) }
+    LaunchedEffect(Unit) { flow.addEmailProblem = null }
     val valid = flow.addedEmail.trim().matches(EMAIL)
     val send = {
         problem = null
         call.run {
             when (accounts.requestEmail(flow.addedEmail.trim())) {
                 EmailAdd.Sent -> flow.go(Step.CheckAddedEmail)
-                EmailAdd.NotAnAddress -> problem = R.string.account_error
+                EmailAdd.NotAnAddress -> problem = R.string.email_invalid
                 EmailAdd.TooMany -> problem = R.string.try_later
             }
         }
@@ -573,7 +575,7 @@ internal fun ColumnScope.CheckAddedEmailStep(flow: OnboardingFlow, accounts: Acc
             when (accounts.verifyEmail(flow.addedEmail, code)) {
                 EmailVerify.Added -> flow.go(Step.Recovery)
                 EmailVerify.Wrong -> problem = R.string.code_wrong
-                EmailVerify.Taken -> problem = R.string.email_taken
+                EmailVerify.Taken -> { flow.addEmailProblem = R.string.email_taken; flow.back() }
                 EmailVerify.TooMany -> problem = R.string.try_later
             }
         }
@@ -587,7 +589,7 @@ internal fun ColumnScope.CheckAddedEmailStep(flow: OnboardingFlow, accounts: Acc
                 if (!call.busy && !again) call.run {
                     when (accounts.requestEmail(flow.addedEmail.trim())) {
                         EmailAdd.Sent -> again = true
-                        EmailAdd.NotAnAddress -> problem = R.string.account_error
+                        EmailAdd.NotAnAddress -> problem = R.string.email_invalid
                         EmailAdd.TooMany -> problem = R.string.try_later
                     }
                 }
@@ -688,6 +690,7 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
     ) {
         RecoveryGrid(code)
         Text(stringResource(R.string.recovery_note), style = Theme.type.secondary, color = Theme.colors.muted)
+        if (flow.newRecoveryCode) Text(stringResource(R.string.recovery_replaced), style = Theme.type.secondary, color = Theme.colors.muted)
     }
 }
 
