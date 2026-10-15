@@ -144,11 +144,6 @@ object Push {
         }
     }
 
-    /** The server dropped the token with an ended session: send it again after the next sign-in. */
-    fun forgetSent(context: Context) {
-        prefs(context).edit { remove(SENT); remove(SENT_AT) }
-    }
-
     /**
      * Leaving the account (signing out, switching, deleting everything, or a
      * session the server ended): no more pushes here even if the server kept

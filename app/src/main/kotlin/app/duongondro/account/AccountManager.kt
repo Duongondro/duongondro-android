@@ -961,8 +961,10 @@ class AccountManager(
     private suspend fun sessionEnded(a: Account?) {
         if (a == null || account !== a) return
         withContext(Dispatchers.IO) { secrets.delete(TOKEN) }
-        // The server dropped the push token with the session: send it again after signing in.
-        Push.forgetSent(app)
+        // The server drops the push token only on its own sign-out, not when it ends a
+        // session otherwise (signed out elsewhere, expired): delete it in FCM, so this
+        // phone gets no pushes for an account it is no longer signed in to.
+        Push.forget(app)
         account = null
         social = null
         signUpFinished()
