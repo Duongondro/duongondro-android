@@ -70,7 +70,7 @@ object DataExport {
      * `accountWithoutServer` is a signed-in account whose server part is missing, which the README says
      * rather than "local mode".
      */
-    fun zip(snapshot: Snapshot, server: Server?, covers: Map<String, ByteArray> = emptyMap(),
+    fun zip(snapshot: Snapshot, server: Server?,
             knownSessionIds: Set<UUID> = emptySet(), accountWithoutServer: Boolean = false,
             appVersion: String, now: Instant = Instant.now()): ByteArray {
         val out = ByteArrayOutputStream()
@@ -81,13 +81,12 @@ object DataExport {
                 z.closeEntry()
             }
             add("README.txt", readme(if (server != null) ServerPart.INCLUDED else if (accountWithoutServer) ServerPart.MISSING else ServerPart.LOCAL,
-                covers.isNotEmpty(), server?.unreadable ?: 0, server?.refused ?: 0).toByteArray())
+                server?.unreadable ?: 0, server?.refused ?: 0).toByteArray())
             add("practice.json", practiceJson(merged(snapshot, server, knownSessionIds), appVersion, now).toByteArray())
             server?.let {
                 add("account.json", it.account)
                 add("server-raw.json", it.raw)
             }
-            covers.toSortedMap().forEach { (id, image) -> add("covers/$id.jpg", image) }
         }
         return out.toByteArray()
     }
@@ -152,7 +151,7 @@ object DataExport {
         return json.encodeToString(PracticeFile.serializer(), file)
     }
 
-    internal fun readme(part: ServerPart, hasCovers: Boolean, unreadable: Int = 0, refused: Int = 0): String = buildString {
+    internal fun readme(part: ServerPart, unreadable: Int = 0, refused: Int = 0): String = buildString {
         val hasServer = part == ServerPart.INCLUDED
         appendLine("Duongöndro: all of your data")
         appendLine()
@@ -194,11 +193,6 @@ object DataExport {
             appendLine()
             appendLine("This phone is in local mode: no account exists, so nothing about you is on")
             appendLine("any server, and there is no account.json or server-raw.json.")
-        }
-        if (hasCovers) {
-            appendLine()
-            appendLine("covers/")
-            appendLine("  Your own cover photos, which never left the phone.")
         }
     }
 

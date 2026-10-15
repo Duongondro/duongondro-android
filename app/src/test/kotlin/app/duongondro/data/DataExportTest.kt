@@ -40,8 +40,9 @@ class DataExportTest {
     )
 
     @Test fun localModeExport() {
-        val files = unzip(DataExport.zip(snapshot, null, mapOf("dorje-sempa" to byteArrayOf(1, 2)), appVersion = "0.1 (1)"))
-        assertEquals(setOf("README.txt", "practice.json", "covers/dorje-sempa.jpg"), files.keys)
+        val files = unzip(DataExport.zip(snapshot, null, appVersion = "0.1 (1)"))
+        // Cover photos never reach the server, so the export leaves them out (design decision 26).
+        assertEquals(setOf("README.txt", "practice.json"), files.keys)
         val json = Json.parseToJsonElement(files.getValue("practice.json").decodeToString()).jsonObject
         assertEquals("duongondro/practice-export/v1", json.getValue("format").jsonPrimitive.content)
         assertEquals(608, json.getValue("practices").jsonArray[0].jsonObject.getValue("lifetime").jsonPrimitive.int)
