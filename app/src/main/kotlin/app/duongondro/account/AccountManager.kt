@@ -231,6 +231,8 @@ class AccountManager(
 
     /** A sign-in held back because this phone holds another account's practice; see [eraseOtherAccountAndContinue]. */
     private var heldSignIn: SignInResult? = null
+    /** The address the held sign-in redeemed a link for, stored once it goes on. */
+    private var heldEmail: String? = null
 
     /**
      * Keeps the session, unless this phone holds practice from another account
@@ -260,20 +262,16 @@ class AccountManager(
 
     /**
      * Forgets what this phone kept for the account it is switching away from:
-     * its keys and device key, its profile and settings in the preferences (all
-     * but the email this sign-in was asked for), a recovery code on show and a
-     * pending one. The sign-in's own invitation, if any, stays: it is the new
+     * its keys and device key, its profile and settings in the preferences, a
+     * recovery code on show and a pending one (the sign-in's own address is
+     * stored after, once the sign-in is kept). The sign-in's own invitation, if any, stays: it is the new
      * account's, and redeeming it waits for the new keys.
      */
     private fun forgetOtherAccount() {
         _friends.value = FriendsState()
         forgetSecrets()
         deviceKeys.delete()
-        val email = prefs.getString(EMAIL, null)
-        prefs.edit {
-            clear()
-            email?.let { putString(EMAIL, it) }
-        }
+        prefs.edit { clear() }
         onShow.forget()
         _state.update { profileState().copy(status = it.status) }
         refreshPending()
@@ -296,6 +294,8 @@ class AccountManager(
         db.erasePractice()
         forgetOtherAccount()
         keep(result)
+        heldEmail?.let { saveProfile(email = it) }
+        heldEmail = null
         markSignUp(result.created)
         result.created
     }
@@ -391,7 +391,8 @@ class AccountManager(
             anonymous.requestMagicLink(email, if (signUp) signUpWith(consent) else null)
             linkRequestedAt = Instant.now()
             linkSignsUp = signUp
-            saveProfile(email = email)
+            // Stored only once a link or code redeems: asking proves nothing.
+            requestedEmail = email
             LinkRequest.Sent
         } catch (_: ApiError.NotFound) {
             LinkRequest.UnknownInvite
@@ -402,18 +403,27 @@ class AccountManager(
         }
     }
 
-    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp) { anonymous.redeemMagicLinkCode(email, code) }
+    /** The address the last magic link was asked for. */
+    @Volatile private var requestedEmail: String? = null
+
+    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
 
     /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
     suspend fun redeemLink(token: String): Redeem? {
         if (!expectsLink()) return null
-        return redeem(linkSignsUp) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
+        return redeem(linkSignsUp, requestedEmail) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
     }
 
-    private suspend fun redeem(signUp: Boolean, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
+    private suspend fun redeem(signUp: Boolean, email: String? = null, call: () -> SignInResult): Redeem = withContext(Dispatchers.IO) {
         try {
             val result = call()
-            if (signedIn(result)) Redeem.SignedIn(result.created).also { markSignUp(result.created) } else Redeem.OtherAccountData
+            if (signedIn(result)) {
+                email?.let { saveProfile(email = it.trim().lowercase()) }
+                Redeem.SignedIn(result.created).also { markSignUp(result.created) }
+            } else {
+                heldEmail = email?.trim()?.lowercase()
+                Redeem.OtherAccountData
+            }
         } catch (e: ApiError.Status) {
             if (e.code == 400) Redeem.Wrong else throw e
         } catch (_: ApiError.Forbidden) {
@@ -556,6 +566,7 @@ class AccountManager(
         if (standing == Account.Standing.READY) _state.update { it.copy(status = AccountStatus.READY) }
         // The profile as the server has it, for a sign-in on a new phone.
         runCatching { requireAccount().api.me() }.getOrNull()?.let { me ->
+            if (me.email == null) prefs.edit { remove(EMAIL) }
             saveProfile(email = me.email, username = me.username, displayName = me.displayName.ifEmpty { null },
                 gender = Gender.entries.firstOrNull { it.wire == me.gender })
         }
@@ -646,11 +657,10 @@ class AccountManager(
 
     /** Offers the code to Google Password Manager, named after the account; false when declined. */
     suspend fun saveRecoveryCode(activity: Context, code: String): Boolean {
-        // One entry per account, so a second account's code never overwrites the first's.
-        val s = _state.value
+        // One entry per account, from stable parts only (a name or address can change):
+        // a second account's code never overwrites the first's.
         val account = db.syncState()?.user?.toString()?.take(8)
-        // The name or address to recognise it by, the account id's start to keep it unique.
-        val id = listOfNotNull("Duongöndro", s.displayName ?: s.email, account).joinToString(" · ")
+        val id = listOfNotNull("Duongöndro", account).joinToString(" · ")
         return passkeys.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
     }
 
