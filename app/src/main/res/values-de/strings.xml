@@ -101,14 +101,14 @@
     <string name="where_online">Online-Konto anlegen</string>
     <string name="where_local">Nur auf diesem Handy</string>
     <string name="invite_label">Freundschaftscode</string>
-    <string name="invite_needed">Neue Konten lassen sich gerade nicht anlegen. Versuch es später oder übe weiter auf diesem Handy.</string>
+    <string name="invite_needed">Neue Konten können gerade nicht angelegt werden. Versuch es später oder übe weiter auf diesem Handy.</string>
     <string name="signup_too_many">Aus diesem Netz gab es in der letzten Stunde zu viele Registrierungen. Versuch es später, oder öffne den Freundschaftslink eines Freundes.</string>
     <string name="signup_link_gone">Dieser Freundschaftslink funktioniert nicht mehr. Mach weiter, um das Konto ohne ihn anzulegen.</string>
     <string name="link_check_failed">Der Freundschaftslink ließ sich nicht prüfen. Versuch es noch einmal oder mach ohne ihn weiter.</string>
     <string name="link_skip">Ohne den Link weiter</string>
     <string name="passkey_unavailable">Dieses Handy kann keinen Passkey erstellen. Nutze stattdessen deine E-Mail-Adresse.</string>
     <string name="consent_title">Bevor wir etwas speichern</string>
-    <string name="consent_detail">Ein Konto in einer App für buddhistische Praxis sagt etwas über deine Überzeugungen aus, die die DSGVO als besonders schützenswert behandelt. Mit deiner Einwilligung speichert der Server deine Freunde und deine öffentlichen Serien und, falls du sie angibst, deine E-Mail-Adresse, deinen Namen und dein Geschlecht. Deine Zähler bleiben auf deinen Handys verschlüsselt.</string>
+    <string name="consent_detail">Ein Konto in einer App für buddhistische Praxis sagt etwas über deine Überzeugungen aus, die die DSGVO als besonders schützenswert behandelt. Der Server speichert dein Konto: deine Passkeys und deine E-Mail-Adresse, falls du eine hinzufügst; den Namen, den Freunde sehen; deinen Benutzernamen und dein Geschlecht, falls du sie angibst; deine Freunde; und deine öffentlichen Serien. Deine Zähler bleiben auf deinen Handys verschlüsselt.</string>
     <string name="consent_check">Ich willige ein, dass Duongöndro das speichert, um mein Konto zu betreiben. In den Einstellungen kann ich alles exportieren oder löschen.</string>
     <string name="privacy_policy">Datenschutzerklärung</string>
     <string name="email_title">Wie lautet deine E-Mail-Adresse?</string>
@@ -271,7 +271,7 @@
     <!-- Friendship codes (Settings › Account › Share a friendship code) -->
     <string name="invite_someone">Freundschaftscode teilen</string>
     <string name="invite_screen_title">Freundschaftscode</string>
-    <string name="invite_scan">Mit einer beliebigen Handykamera scannen</string>
+    <string name="invite_scan">Mit jeder Handykamera scannen</string>
     <string name="invite_code_caption">Oder diesen Code eintippen</string>
     <string name="invite_copy">Code kopieren</string>
     <string name="invite_share">Link teilen</string>
@@ -301,7 +301,7 @@
     <string name="accept_done_named">Du und %s seid jetzt befreundet.</string>
     <string name="accept_already">Ihr seid schon befreundet: Dieser Freundschaftscode ändert nichts.</string>
     <string name="accept_already_named">Du und %s seid schon befreundet: Dieser Freundschaftscode ändert nichts.</string>
-    <string name="accept_own">Das ist dein eigener Freundschaftscode. Schick ihn lieber einem Freund.</string>
+    <string name="accept_own">Das ist dein eigener Freundschaftscode. Schick ihn stattdessen einem Freund.</string>
     <string name="accept_gone">Dieser Freundschaftscode lässt sich nicht verwenden: Er ist vielleicht abgelaufen oder wurde zurückgezogen.</string>
     <string name="counted_for">Gezählt für %1$s</string>
     <string name="started_after_midnight">Ich habe nach Mitternacht angefangen</string>

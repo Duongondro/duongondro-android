@@ -112,7 +112,7 @@
     <string name="link_skip">Continue without the link</string>
     <string name="passkey_unavailable">This phone can\'t make a passkey. Use email instead.</string>
     <string name="consent_title">Before we store anything</string>
-    <string name="consent_detail">An account in a Buddhist practice app says something about your beliefs, which the GDPR treats as special. With your consent the server keeps your friends and your public streaks, and your email, name and gender if you give them. Your counts stay encrypted on your phones.</string>
+    <string name="consent_detail">An account in a Buddhist practice app says something about your beliefs, which the GDPR treats as special. The server keeps your account: your passkeys, and your email if you add one; the name friends see; your username and gender if you give them; your friends; and your public streaks. Your counts stay encrypted on your phones.</string>
     <string name="consent_check">I agree that Duongöndro stores this to run my account. I can export or delete it all in Settings.</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="privacy_url" translatable="false">https://duongondro.app/privacy/</string>

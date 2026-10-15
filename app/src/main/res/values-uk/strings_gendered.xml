@@ -12,6 +12,6 @@
     <string name="friend_not_yet_unnamed_female">Подруга ще не практикувала</string>
     <string name="poke_unnamed_male">Підштовхнути друга</string>
     <string name="poke_unnamed_female">Підштовхнути подругу</string>
-    <string name="poked_unnamed_male">Підштовхнуто друга</string>
-    <string name="poked_unnamed_female">Підштовхнуто подругу</string>
+    <string name="poked_unnamed_male">Підштовхнуто: друг</string>
+    <string name="poked_unnamed_female">Підштовхнуто: подруга</string>
 </resources>

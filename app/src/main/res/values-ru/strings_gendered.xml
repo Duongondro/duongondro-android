@@ -12,6 +12,6 @@
     <string name="friend_not_yet_unnamed_female">Подруга ещё не практиковала</string>
     <string name="poke_unnamed_male">Подтолкнуть друга</string>
     <string name="poke_unnamed_female">Подтолкнуть подругу</string>
-    <string name="poked_unnamed_male">Подтолкнули друга</string>
-    <string name="poked_unnamed_female">Подтолкнули подругу</string>
+    <string name="poked_unnamed_male">Подтолкнули: друг</string>
+    <string name="poked_unnamed_female">Подтолкнули: подруга</string>
 </resources>

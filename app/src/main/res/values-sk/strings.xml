@@ -100,13 +100,13 @@
     <string name="where_local">Len v tomto telefóne</string>
     <string name="invite_label">Kód priateľstva</string>
     <string name="invite_needed">Nové účty sa teraz nedajú zakladať. Skús to neskôr, alebo ďalej cvič v tomto telefóne.</string>
-    <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo otvor odkaz s kódom priateľstva od kamaráta.</string>
-    <string name="signup_link_gone">Tento odkaz s kódom priateľstva už nefunguje. Pokračuj a účet sa vytvorí bez neho.</string>
+    <string name="signup_too_many">Z tejto siete bolo za poslednú hodinu príliš veľa registrácií. Skús to neskôr, alebo otvor odkaz s kódom priateľstva od priateľa.</string>
+    <string name="signup_link_gone">Tento odkaz s kódom priateľstva už nefunguje. Pokračuj a účet sa založí bez neho.</string>
     <string name="link_check_failed">Odkaz s kódom priateľstva sa nepodarilo overiť. Skús to znova, alebo pokračuj bez neho.</string>
     <string name="link_skip">Pokračovať bez odkazu</string>
     <string name="passkey_unavailable">Tento telefón nevie vytvoriť prístupový kľúč. Použi namiesto toho e-mail.</string>
     <string name="consent_title">Skôr než niečo uložíme</string>
-    <string name="consent_detail">Účet v aplikácii pre budhistickú prax vypovedá o tvojom presvedčení, ktoré GDPR považuje za osobitné. S tvojím súhlasom server uchováva tvojich priateľov a verejné série, a ak ich uvedieš, aj tvoj e-mail, meno a pohlavie. Tvoje počty zostávajú zašifrované v tvojich telefónoch.</string>
+    <string name="consent_detail">Účet v aplikácii pre budhistickú prax vypovedá o tvojom presvedčení, ktoré GDPR považuje za osobitné. Server uchováva tvoj účet: tvoje prístupové kľúče a e-mail, ak ho pridáš; meno, ktoré vidia priatelia; používateľské meno a pohlavie, ak ich uvedieš; tvojich priateľov; a tvoje verejné série. Tvoje počty zostávajú zašifrované v tvojich telefónoch.</string>
     <string name="consent_check">Súhlasím, že Duongöndro toto ukladá kvôli prevádzke môjho účtu. Všetko môžem exportovať alebo vymazať v Nastaveniach.</string>
     <string name="privacy_policy">Zásady ochrany osobných údajov</string>
     <string name="email_title">Aký je tvoj e-mail?</string>
@@ -300,7 +300,7 @@
     <string name="accept_done_named">Ty a %s ste teraz priatelia.</string>
     <string name="accept_already">Už ste priatelia: tento kód priateľstva nič nezmení.</string>
     <string name="accept_already_named">Ty a %s už ste priatelia: tento kód priateľstva nič nezmení.</string>
-    <string name="accept_own">Toto je tvoj vlastný kód priateľstva. Pošli ho radšej kamarátovi.</string>
+    <string name="accept_own">Toto je tvoj vlastný kód priateľstva. Pošli ho radšej priateľovi.</string>
     <string name="accept_gone">Tento kód priateľstva nemožno použiť: možno vypršal alebo bol zrušený.</string>
     <string name="counted_for">Započítané na deň: %1$s</string>
     <string name="started_after_midnight">Začal(a) som po polnoci</string>

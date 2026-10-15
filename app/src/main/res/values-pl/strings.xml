@@ -105,14 +105,14 @@
     <string name="where_online">Załóż konto online</string>
     <string name="where_local">Tylko na tym telefonie</string>
     <string name="invite_label">Kod przyjaźni</string>
-    <string name="invite_needed">Teraz nie da się zakładać nowych kont. Spróbuj później albo ćwicz dalej na tym telefonie.</string>
-    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo otwórz link z kodem przyjaźni od znajomego.</string>
+    <string name="invite_needed">Nowych kont nie można teraz zakładać. Spróbuj później albo ćwicz dalej na tym telefonie.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo otwórz link z kodem przyjaźni od przyjaciela.</string>
     <string name="signup_link_gone">Ten link z kodem przyjaźni już nie działa. Kontynuuj, aby założyć konto bez niego.</string>
     <string name="link_check_failed">Nie udało się sprawdzić linku z kodem przyjaźni. Spróbuj ponownie albo kontynuuj bez niego.</string>
     <string name="link_skip">Kontynuuj bez linku</string>
     <string name="passkey_unavailable">Ten telefon nie może utworzyć klucza dostępu. Użyj adresu e-mail.</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
-    <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Za Twoją zgodą serwer przechowuje Twoich przyjaciół i publiczne serie, a jeśli je podasz, także Twój e-mail, imię i płeć. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
+    <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Serwer przechowuje Twoje konto: Twoje klucze dostępu oraz e-mail, jeśli go dodasz; imię widoczne dla przyjaciół; nazwę użytkownika i płeć, jeśli je podasz; Twoich przyjaciół; oraz publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
     <string name="consent_check">Zgadzam się, aby Duongöndro przechowywało te dane na potrzeby mojego konta. Wszystko mogę wyeksportować lub usunąć w Ustawieniach.</string>
     <string name="privacy_policy">Polityka prywatności</string>
     <string name="email_title">Jaki masz adres e-mail?</string>
@@ -128,7 +128,7 @@
     <string name="skip">Pomiń</string>
     <string name="name_title">Jak mamy Cię nazywać?</string>
     <string name="name_detail">Przyjaciele widzą to imię obok Twoich serii.</string>
-    <string name="name_random_detail">Losowa nazwa, żeby znajomi mogli Cię odróżnić. Zostaw ją albo zmień.</string>
+    <string name="name_random_detail">Losowe imię, żeby przyjaciele mogli cię rozpoznać. Zostaw je albo zmień.</string>
     <string name="name_label">Imię</string>
     <string name="gender_title">Twoja płeć</string>
     <string name="gender_detail">Niektóre języki, w tym polski, mają różne końcówki czasowników dla mężczyzn i kobiet. Jeśli pominiesz ten krok albo wybierzesz „Osoba niebinarna”, aplikacja będzie w miarę możliwości używać form neutralnych płciowo.</string>
@@ -313,7 +313,7 @@
     <string name="accept_done_named">Ty i %s jesteście teraz znajomymi.</string>
     <string name="accept_already">Jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
     <string name="accept_already_named">Ty i %s jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
-    <string name="accept_own">To Twój własny kod przyjaźni. Wyślij go komuś innemu.</string>
+    <string name="accept_own">To Twój własny kod przyjaźni. Wyślij go przyjacielowi.</string>
     <string name="accept_gone">Tego kodu przyjaźni nie da się użyć: mógł wygasnąć albo zostać wycofany.</string>
     <string name="counted_for">Zaliczone na dzień: %1$s</string>
     <string name="started_after_midnight">Zacząłem/zaczęłam po północy</string>

@@ -99,14 +99,14 @@
     <string name="where_online">Vytvořit online účet</string>
     <string name="where_local">Jen v tomto telefonu</string>
     <string name="invite_label">Kód přátelství</string>
-    <string name="invite_needed">Nové účty teď nejde zakládat. Zkus to později, nebo dál cvič v tomto telefonu.</string>
-    <string name="signup_too_many">Z této sítě bylo za poslední hodinu příliš mnoho registrací. Zkus to později, nebo otevři odkaz s kódem přátelství od kamaráda.</string>
-    <string name="signup_link_gone">Tento odkaz s kódem přátelství už nefunguje. Pokračuj a účet se vytvoří bez něj.</string>
+    <string name="invite_needed">Nové účty teď nelze zakládat. Zkus to později, nebo dál cvič v tomto telefonu.</string>
+    <string name="signup_too_many">Z této sítě bylo za poslední hodinu příliš mnoho registrací. Zkus to později, nebo otevři odkaz s kódem přátelství od přítele.</string>
+    <string name="signup_link_gone">Tento odkaz s kódem přátelství už nefunguje. Pokračuj a účet se založí bez něj.</string>
     <string name="link_check_failed">Odkaz s kódem přátelství se nepodařilo ověřit. Zkus to znovu, nebo pokračuj bez něj.</string>
     <string name="link_skip">Pokračovat bez odkazu</string>
     <string name="passkey_unavailable">Tento telefon neumí vytvořit přístupový klíč. Použij místo toho e-mail.</string>
     <string name="consent_title">Než cokoli uložíme</string>
-    <string name="consent_detail">Účet v aplikaci pro buddhistickou praxi vypovídá o tvém přesvědčení, které GDPR považuje za zvláštní. S tvým souhlasem server uchovává tvé přátele a veřejné série, a pokud je uvedeš, tvůj e-mail, jméno a pohlaví. Tvé počty zůstávají zašifrované v tvých telefonech.</string>
+    <string name="consent_detail">Účet v aplikaci pro buddhistickou praxi vypovídá o tvém přesvědčení, které GDPR považuje za zvláštní. Server uchovává tvůj účet: tvé přístupové klíče a e-mail, pokud ho přidáš; jméno, které vidí přátelé; uživatelské jméno a pohlaví, pokud je uvedeš; tvé přátele; a tvé veřejné série. Tvé počty zůstávají zašifrované v tvých telefonech.</string>
     <string name="consent_check">Souhlasím, že Duongöndro tohle ukládá kvůli provozu mého účtu. Vše mohu exportovat nebo smazat v Nastavení.</string>
     <string name="privacy_policy">Zásady ochrany osobních údajů</string>
     <string name="email_title">Jaký je tvůj e-mail?</string>
@@ -300,7 +300,7 @@
     <string name="accept_done_named">Ty a %s jste teď přátelé.</string>
     <string name="accept_already">Už jste přátelé: tento kód přátelství nic nezmění.</string>
     <string name="accept_already_named">Ty a %s už jste přátelé: tento kód přátelství nic nezmění.</string>
-    <string name="accept_own">Tohle je tvůj vlastní kód přátelství. Pošli ho raději kamarádovi.</string>
+    <string name="accept_own">Toto je tvůj vlastní kód přátelství. Pošli ho raději příteli.</string>
     <string name="accept_gone">Tento kód přátelství nelze použít: možná vypršel nebo byl zrušen.</string>
     <string name="counted_for">Započítáno na den: %1$s</string>
     <string name="started_after_midnight">Začal(a) jsem po půlnoci</string>

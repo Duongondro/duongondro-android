@@ -106,14 +106,14 @@
     <string name="where_online">Створити онлайн-обліковий запис</string>
     <string name="where_local">Лише на цьому телефоні</string>
     <string name="invite_label">Код дружби</string>
-    <string name="invite_needed">Зараз нові облікові записи створити не можна. Спробуйте пізніше або практикуйте далі на цьому телефоні.</string>
+    <string name="invite_needed">Зараз не можна створити новий обліковий запис. Спробуйте пізніше або практикуйте далі на цьому телефоні.</string>
     <string name="signup_too_many">З цієї мережі за останню годину було забагато реєстрацій. Спробуйте пізніше або відкрийте посилання з кодом дружби від друга.</string>
     <string name="signup_link_gone">Це посилання з кодом дружби більше не працює. Продовжте, щоб створити обліковий запис без нього.</string>
     <string name="link_check_failed">Не вдалося перевірити посилання з кодом дружби. Спробуйте ще раз або продовжте без нього.</string>
     <string name="link_skip">Продовжити без посилання</string>
     <string name="passkey_unavailable">Цей телефон не може створити ключ доступу. Скористайтеся поштою.</string>
     <string name="consent_title">Перш ніж щось зберігати</string>
-    <string name="consent_detail">Обліковий запис у застосунку для буддійської практики говорить про ваші переконання, а GDPR відносить їх до особливої категорії. За вашою згодою сервер зберігає ваших друзів і публічні серії, а також пошту, ім’я та стать, якщо ви їх вкажете. Ваші лічильники залишаються зашифрованими на ваших телефонах.</string>
+    <string name="consent_detail">Обліковий запис у застосунку для буддійської практики говорить про ваші переконання, а GDPR відносить їх до особливої категорії. Сервер зберігає ваш обліковий запис: ваші ключі доступу та пошту, якщо ви її додасте; ім’я, яке бачать друзі; ім’я користувача і стать, якщо ви їх вкажете; ваших друзів; і публічні серії. Ваші лічильники залишаються зашифрованими на ваших телефонах.</string>
     <string name="consent_check">Даю згоду на зберігання цього в Duongöndro для роботи мого облікового запису. Усе це можна експортувати або видалити в налаштуваннях.</string>
     <string name="privacy_policy">Політика конфіденційності</string>
     <string name="email_title">Яка ваша електронна пошта?</string>
@@ -129,7 +129,7 @@
     <string name="skip">Пропустити</string>
     <string name="name_title">Як вас називати?</string>
     <string name="name_detail">Друзі бачать це ім’я поруч із вашими серіями.</string>
-    <string name="name_random_detail">Випадкове ім\'я, щоб друзі могли вас розрізняти. Залиште його або змініть.</string>
+    <string name="name_random_detail">Випадкове ім’я, щоб друзі могли вас розрізняти. Залиште його або змініть.</string>
     <string name="name_label">Ім’я</string>
     <string name="gender_title">Ваша стать</string>
     <string name="gender_detail">У деяких мовах, зокрема в українській, дієслова мають різні закінчення для чоловіків і жінок. Якщо ви пропустите цей крок або виберете «Небінарна», застосунок по змозі використовуватиме гендерно-нейтральні форми.</string>
@@ -282,7 +282,7 @@
     <!-- Friendship codes (Settings › Account › Share a friendship code) -->
     <string name="invite_someone">Поділитися кодом дружби</string>
     <string name="invite_screen_title">Код дружби</string>
-    <string name="invite_scan">Відскануйте камерою будь-якого телефона</string>
+    <string name="invite_scan">Скануйте камерою будь-якого телефона</string>
     <string name="invite_code_caption">Або введіть цей код</string>
     <string name="invite_copy">Скопіювати код</string>
     <string name="invite_share">Поділитися посиланням</string>
@@ -348,7 +348,7 @@
     <string name="friend_finished_unnamed">Друг завершив %1$s</string>
     <string name="friend_not_yet_unnamed">Друг ще не практикував</string>
     <string name="poke_unnamed">Підштовхнути друга</string>
-    <string name="poked_unnamed">Підштовхнуто друга</string>
+    <string name="poked_unnamed">Підштовхнуто: друг</string>
     <string name="their_own_practice">їхня власна практика</string>
     <string name="public_streaks">Публічні серії</string>
     <string name="public_streaks_footer">Дні практики в застосунку, підписані самим другом. Кількості залишаються приватними.</string>

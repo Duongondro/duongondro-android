@@ -102,7 +102,7 @@
     <string name="link_skip">Folytatás a link nélkül</string>
     <string name="passkey_unavailable">Ez a telefon nem tud hozzáférési kulcsot létrehozni. Használd inkább az e-mail-címedet.</string>
     <string name="consent_title">Mielőtt bármit tárolunk</string>
-    <string name="consent_detail">Egy buddhista gyakorlóalkalmazásban lévő fiók mond valamit a meggyőződésedről, amit a GDPR különleges adatként kezel. A hozzájárulásoddal a szerver tárolja a barátaidat és a nyilvános sorozataidat, valamint, ha megadod őket, az e-mail-címedet, a nevedet és a nemedet. A számlálóid titkosítva maradnak a telefonjaidon.</string>
+    <string name="consent_detail">Egy buddhista gyakorlóalkalmazásban lévő fiók mond valamit a meggyőződésedről, amit a GDPR különleges adatként kezel. A szerver tárolja a fiókodat: a hozzáférési kulcsaidat, és az e-mail-címedet, ha megadsz egyet; a nevet, amit a barátaid látnak; a felhasználónevedet és a nemedet, ha megadod őket; a barátaidat; és a nyilvános sorozataidat. A számlálóid titkosítva maradnak a telefonjaidon.</string>
     <string name="consent_check">Hozzájárulok, hogy a Duongöndro ezt tárolja a fiókom működtetéséhez. A Beállításokban mindent exportálhatok vagy törölhetek.</string>
     <string name="privacy_policy">Adatvédelmi irányelvek</string>
     <string name="email_title">Mi az e-mail-címed?</string>
@@ -319,8 +319,8 @@
     <string name="poked_named">%s megbökve</string>
     <string name="friend_finished_unnamed">Egy barát befejezte: %1$s</string>
     <string name="friend_not_yet_unnamed">Egy barát még nem gyakorolt</string>
-    <string name="poke_unnamed">Egy barát megbökése</string>
-    <string name="poked_unnamed">Egy barát megbökve</string>
+    <string name="poke_unnamed">Barát megbökése</string>
+    <string name="poked_unnamed">Barát megbökve</string>
     <string name="their_own_practice">saját gyakorlatuk</string>
     <string name="public_streaks">Nyilvános sorozatok</string>
     <string name="public_streaks_footer">Az alkalmazásban gyakorolt napok, általuk aláírva. A számok privátak maradnak.</string>
