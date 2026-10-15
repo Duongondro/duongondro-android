@@ -221,7 +221,7 @@ private fun Home(model: AppModel) {
             composable(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
             composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
             composable(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
-            composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Invite) { nav.popBackStack() } }
+            composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
             composable(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
             composable(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
             composable(Routes.ARCHIVED) {

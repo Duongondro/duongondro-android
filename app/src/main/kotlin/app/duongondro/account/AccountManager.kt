@@ -142,8 +142,6 @@ data class FriendsState(
 /** An invitation this account made that still works: not revoked, not expired. */
 data class OpenInvite(val id: String, val expiresAt: Instant)
 
-enum class ProfileResult { Saved, UsernameTaken }
-
 enum class PasskeyResult { Saved, Cancelled, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
@@ -212,7 +210,7 @@ class AccountManager(
     private fun profileState() = AccountState(
         email = prefs.getString(EMAIL, null),
         username = prefs.getString(USERNAME, null),
-        displayName = prefs.getString(DISPLAY_NAME, null),
+        displayName = prefs.getString(DISPLAY_NAME, null)?.ifEmpty { null },
         gender = prefs.getString(GENDER, null)?.let { g -> Gender.entries.firstOrNull { it.wire == g } },
         recoveryUnconfirmed = prefs.getBoolean(RECOVERY_UNCONFIRMED, false),
         lastSync = prefs.getLong(LAST_SYNC, 0).takeIf { it > 0 }?.let(Instant::ofEpochMilli),
@@ -405,20 +403,33 @@ class AccountManager(
 
     // Profile
 
-    /** PATCH /api/me after a sign-up by email; the name is required, username and gender optional. */
-    suspend fun setProfile(name: String, username: String?, gender: Gender?): ProfileResult = withContext(Dispatchers.IO) {
-        try {
-            requireAccount().api.updateMe(displayName = name, username = username?.lowercase(), gender = gender?.wire)
-            saveProfile(username = username?.lowercase(), displayName = name, gender = gender)
-            ProfileResult.Saved
-        } catch (_: ApiError.Conflict) {
-            ProfileResult.UsernameTaken
-        }
+    /**
+     * The name the server gave a new account (a random one, or none), for the
+     * sign-up's name step to show; empty when there is none.
+     */
+    suspend fun serverDisplayName(): String = withContext(Dispatchers.IO) {
+        val name = requireAccount().api.me().displayName
+        saveProfile(displayName = name)
+        name
     }
 
+    /**
+     * PATCH /api/me during sign-up: only what was given changes (null leaves it);
+     * an empty name clears it, which friends see as "A friend".
+     */
+    suspend fun setProfile(name: String?, gender: Gender?) = withContext(Dispatchers.IO) {
+        if (name == null && gender == null) return@withContext
+        val trimmed = name?.let(::trimName)
+        requireAccount().api.updateMe(displayName = trimmed, gender = gender?.wire)
+        saveProfile(displayName = trimmed, gender = gender)
+    }
+
+    /** The server counts code points, at most 64. */
+    private fun trimName(name: String): String =
+        name.trim().let { it.substring(0, it.offsetByCodePoints(0, minOf(64, it.codePointCount(0, it.length)))) }
+
     suspend fun setDisplayName(name: String) = withContext(Dispatchers.IO) {
-        // The server counts code points, at most 64.
-        val trimmed = name.trim().let { it.substring(0, it.offsetByCodePoints(0, minOf(64, it.codePointCount(0, it.length)))) }
+        val trimmed = trimName(name)
         requireAccount().api.updateMe(displayName = trimmed)
         saveProfile(displayName = trimmed)
     }
@@ -426,8 +437,8 @@ class AccountManager(
     // Passkeys
 
     /**
-     * Without a session, makes the account with a passkey and the profile (the
-     * no-email path); signed in, adds a passkey to the account. [activity] must
+     * Without a session, makes the account with a passkey (the first step of
+     * sign-up; the profile, all optional, follows); signed in, adds a passkey to the account. [activity] must
      * be the Activity, which the system sheet attaches to.
      */
     suspend fun createPasskey(activity: Context, profile: Profile?, consent: Boolean = false): PasskeyResult {

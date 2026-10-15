@@ -120,14 +120,15 @@ sealed interface Step {
     data object Reminder : Step
     /** "Keep it on this phone, or online?" */
     data object Where : Step
-    data object Invite : Step
+    /** GDPR Art. 9 consent: nothing is created before it. */
     data object Consent : Step
+    /** Makes the account; "Use email instead" goes to [Email]. */
+    data object Passkey : Step
     data object Email : Step
     data object CheckEmail : Step
-    data object Username : Step
+    /** The rest of sign-up is optional: a display name, then gender. */
     data object Name : Step
     data object Gender : Step
-    data object Passkey : Step
     data object Recovery : Step
     /** Two groups of the recovery code typed back. */
     data object RecoveryCheck : Step
@@ -166,19 +167,14 @@ class OnboardingFlow : ViewModel() {
 
     /** True after "I already have an account": the email steps then sign in rather than sign up. */
     var signingIn by mutableStateOf(false)
-    /** The invitation code, from a link opened earlier or typed in. */
-    var inviteCode by mutableStateOf("")
-    /** Why the invitation was not accepted, shown under its field. */
-    var inviteProblem by mutableStateOf<Int?>(null)
-    /** The invite link opened earlier has been tried, so it is not checked again. */
+    /** The friendship link opened before sign-up has been checked, so it is not checked again. */
     var linkTried = false
     /** A sign-in waits for "erase the other account's practice here, or cancel". */
     var otherAccount by mutableStateOf(false)
-    /** The server said the username is taken; shown on the Username step. */
-    var usernameTaken by mutableStateOf(false)
     var consented by mutableStateOf(false)
     var email by mutableStateOf("")
-    var username by mutableStateOf("")
+    /** The name the server gave the new account (random, or none); null until fetched. */
+    var serverName by mutableStateOf<String?>(null)
     var displayName by mutableStateOf("")
     var gender by mutableStateOf<Gender?>(null)
 
@@ -205,7 +201,7 @@ class OnboardingFlow : ViewModel() {
         history.removeLastOrNull()?.let { step = it }
     }
 
-    /** Back to an earlier step (a taken username, a spent invitation), keeping the answers. */
+    /** Back to an earlier step, keeping the answers. */
     fun backTo(target: Step) {
         val i = history.lastIndexOf(target)
         if (i < 0) return go(target)
@@ -261,7 +257,7 @@ private fun Step.progress(signingIn: Boolean): Pair<Int, Int>? = when (this) {
     Step.Practices -> 3 to PRACTICE_STEPS
     is Step.Counts -> 4 to PRACTICE_STEPS
     Step.Reminder -> 5 to PRACTICE_STEPS
-    Step.Email, Step.CheckEmail, Step.Username -> if (signingIn) null else 1 to ACCOUNT_STEPS
+    Step.Passkey, Step.Email, Step.CheckEmail -> if (signingIn) null else 1 to ACCOUNT_STEPS
     Step.Name -> if (signingIn) null else 2 to ACCOUNT_STEPS
     Step.Gender -> if (signingIn) null else 3 to ACCOUNT_STEPS
     else -> null
@@ -309,12 +305,10 @@ fun OnboardingScreen(model: AppModel, start: Step = Step.Welcome, done: (() -> U
             is Step.Counts -> Counts(flow, step.index)
             Step.Reminder -> Reminder(flow)
             Step.Where -> WhereStep(flow, model, finishLocal)
-            Step.Invite -> InviteStep(flow, model, accounts, finishLocal)
-            Step.Consent -> ConsentStep(flow)
+            Step.Consent -> ConsentStep(flow, model, accounts)
             Step.Email -> EmailStep(flow, accounts)
             Step.CheckEmail -> CheckEmailStep(flow, model, accounts, finishOnline)
-            Step.Username -> UsernameStep(flow)
-            Step.Name -> NameStep(flow)
+            Step.Name -> NameStep(flow, accounts)
             Step.Gender -> GenderStep(flow, accounts)
             Step.Passkey -> PasskeyStep(flow, accounts)
             Step.Recovery -> RecoveryStep(flow, accounts, finishOnline)
