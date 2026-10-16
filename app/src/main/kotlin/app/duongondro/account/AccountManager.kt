@@ -658,8 +658,8 @@ class AccountManager(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // Anything at all (a box that does not open, a wrap that will not, the network):
-                // nothing from the response is kept, and the recovery code is the way in.
+                // Anything at all (a box that does not open, a wrap that will not, the network): the
+                // recovery code is the way in; Account forgets the keys of a half-done enrolment.
                 Log.w(TAG, "passkey unlock failed: ${(e as? AccountKeys.Error)?.failure ?: e.javaClass.simpleName}")
                 false
             }

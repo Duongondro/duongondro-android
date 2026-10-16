@@ -231,8 +231,18 @@ class Account(
         val found = api.passkeyUnlock(app.duongondro.core.api.Prf.idText(credentialId)) ?: return false
         val version = me.keyVersion
         val unlocked = UserKeys.unlock(prf, credentialId, me.id, me.identityPublicKey, version, found.toUnlock(), sample(version))
-        secrets.write(SecretName.USER_KEY, unlocked.userKey.serialised())
-        enrol(me, unlocked.identity, unlocked.practiceKey, version)
+        try {
+            secrets.write(SecretName.USER_KEY, unlocked.userKey.serialised())
+            enrol(me, unlocked.identity, unlocked.practiceKey, version)
+        } catch (e: Exception) {
+            // Half an enrolment would read as an interrupted set-up of this phone's own, which makes a
+            // new recovery code unasked: forget the keys, so the recovery code (or this passkey again) restores.
+            if (database.syncState() == null) {
+                listOf(SecretName.USER_KEY, SecretName.IDENTITY_SEED, SecretName.practiceKey(version), SecretName.SET_UP_USER)
+                    .forEach { runCatching { secrets.delete(it) } }
+            }
+            throw e
+        }
         return true
     }
 
