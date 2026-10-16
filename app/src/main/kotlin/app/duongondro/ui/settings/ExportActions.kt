@@ -75,8 +75,9 @@ class ExportController(private val context: Context, private val model: AppModel
                 try {
                     share(file, format)
                 } catch (e: Exception) {
+                    // No app to share to, or the chooser refused: as iOS words it.
                     file.delete()
-                    throw e
+                    throw IllegalStateException(context.inAppLanguage().getString(R.string.ex_share_failed), e)
                 }
             } catch (e: CancellationException) {
                 throw e

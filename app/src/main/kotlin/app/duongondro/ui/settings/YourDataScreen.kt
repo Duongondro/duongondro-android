@@ -58,7 +58,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
                 ExportRows(exports)
             }
             if (exports.serverMissing) {
-                Text(stringResource(R.string.export_server_missing), style = Theme.type.footnote, color = Theme.colors.destructive,
+                Text(stringResource(R.string.ex_server_missing), style = Theme.type.footnote, color = Theme.colors.destructive,
                     modifier = Modifier.padding(horizontal = Space.l))
             }
             CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
@@ -74,7 +74,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
         }
         ExportProgress(exports)
     }
-    exports.problem?.let { ErrorDialog(stringResource(R.string.export_failed), it) { exports.problem = null } }
+    exports.problem?.let { ErrorDialog(stringResource(R.string.ex_export_failed), it) { exports.problem = null } }
 }
 
 /** A spinner over the screen while the export is built, as iOS's ProgressView. */
@@ -114,7 +114,7 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
     ExportProgress(exports)
     }
     if (choosingFormat) ExportFirstDialog(exports) { choosingFormat = false }
-    exports.problem?.let { ErrorDialog(stringResource(R.string.export_failed), it) { exports.problem = null } }
+    exports.problem?.let { ErrorDialog(stringResource(R.string.ex_export_failed), it) { exports.problem = null } }
     failure?.let { ErrorDialog(stringResource(R.string.could_not_delete), it) { failure = null } }
 }
 

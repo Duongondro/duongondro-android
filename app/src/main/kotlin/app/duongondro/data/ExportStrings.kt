@@ -2,7 +2,10 @@ package app.duongondro.data
 
 import app.duongondro.R
 
-/** iOS's Export.xcstrings keys (English) to the resources made from them; generated with strings_export.xml. */
+/**
+ * iOS's Export.xcstrings keys (their English text) to the resources made from them.
+ * Generated with strings_export.xml by Scripts/export-strings-from-ios.py; do not edit.
+ */
 object ExportStrings {
     val words: Map<String, Int> = mapOf(
         "%@ (continued)" to R.string.ex_continued,
@@ -31,6 +34,7 @@ object ExportStrings {
         "Export all my data as CSV" to R.string.ex_export_all_my_data_as_csv,
         "Export all my data as JSON" to R.string.ex_export_all_my_data_as_json,
         "Export all my data as PDF" to R.string.ex_export_all_my_data_as_pdf,
+        "Export failed" to R.string.ex_export_failed,
         "Export my data first" to R.string.ex_export_my_data_first,
         "Exported %@ · iPhone %@" to R.string.ex_exported,
         "Female" to R.string.ex_female,
@@ -74,6 +78,7 @@ object ExportStrings {
         "The keys that open them stay on your devices. The server never receives a plaintext count or a key, and signing in does not give it one." to R.string.ex_privacy_sealed_after,
         "The last item is a real limit. These times and sizes can show when you practise, even for a private streak." to R.string.ex_privacy_plain_limit,
         "The server has to read these to do its job, for example to show your name to your friends or to send a notification. It keeps them encrypted in its database, with a key held outside the database, so a copy of the database or a backup does not reveal them:" to R.string.ex_privacy_encrypted_intro,
+        "The share sheet could not be shown. Try again." to R.string.ex_share_failed,
         "These are sealed on your device before they are uploaded. The server stores them and cannot read them:" to R.string.ex_privacy_sealed_intro,
         "This phone has an account, but the server could not be reached, so this section and Friends hold only what the phone knows. Export again when you are connected." to R.string.ex_server_unreachable,
         "Time zone" to R.string.ex_time_zone,
@@ -86,6 +91,7 @@ object ExportStrings {
         "What the server keeps" to R.string.ex_what_the_server_keeps,
         "What the server stores in plain form" to R.string.ex_privacy_plain_title,
         "Yes" to R.string.ex_yes,
+        "Your account data could not be fetched from the server, so the export holds only what is on this phone." to R.string.ex_server_missing,
         "counts, rounds and totals" to R.string.ex_privacy_sealed_2,
         "for a streak you publish, when it runs out, so the server can remind you in time, and how many times it has been updated" to R.string.ex_privacy_plain_6,
         "for each friend, whether you asked to hear when they practise" to R.string.ex_privacy_plain_3,

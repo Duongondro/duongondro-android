@@ -191,8 +191,6 @@
     <string name="notifications_off">Oznámení jsou pro tuto aplikaci vypnutá, proto se připomenutí nemůže zobrazit.</string>
     <string name="section_your_data">Tvá data</string>
     <string name="export_and_delete">Export a smazání</string>
-    <string name="export_failed">Export se nezdařil</string>
-    <string name="export_server_missing">Data účtu se ze serveru nepodařilo stáhnout, takže export obsahuje jen to, co je v tomto telefonu.</string>
     <string name="delete_everything">Smazat vše</string>
     <string name="delete_footer">Odstraní všechna tvá data z tohoto telefonu. Nelze to vrátit.</string>
     <string name="delete_explainer">Tím se smaže každá praktika, sezení a série v tomto telefonu, tvá připomenutí i všechny klíče, které aplikace drží, a vrátíš se na začátek.</string>
