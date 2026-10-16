@@ -19,7 +19,9 @@ class PushStringsTest {
     private val res = File("src/main/res")
 
     /** The languages of locales_config.xml, by their values folder. */
-    private val folders = listOf("values", "values-cs", "values-de", "values-es", "values-hu", "values-pl", "values-ru", "values-sk", "values-uk")
+    // Every language the app ships, as locales_config.xml lists them.
+    private val folders = Regex("""android:name="([a-z]+)"""").findAll(File(res, "xml/locales_config.xml").readText())
+        .map { it.groupValues[1] }.map { if (it == "en") "values" else "values-$it" }.toList()
 
     private fun strings(folder: String): Map<String, String> =
         File(res, folder).listFiles { f -> f.extension == "xml" }.orEmpty().flatMap { file ->

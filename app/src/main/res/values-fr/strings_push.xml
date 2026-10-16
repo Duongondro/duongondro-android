@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Discreet in 0.4, as values/strings_push.xml explains; wording shared with iOS. -->
+<resources>
+    <string name="FRIEND_DONE">%1$s vient de pratiquer</string>
+    <string name="FRIEND_DONE_MALE">%1$s vient de pratiquer</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s vient de pratiquer</string>
+    <string name="POKE">%1$s te relance. Et si tu t\'asseyais ?</string>
+    <string name="POKE_MALE">%1$s te relance. Et si tu t\'asseyais ?</string>
+    <string name="POKE_FEMALE">%1$s te relance. Et si tu t\'asseyais ?</string>
+    <string name="FRIEND_DONE_UNNAMED">Un(e) ami(e) vient de pratiquer</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Un ami vient de pratiquer</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Une amie vient de pratiquer</string>
+    <string name="POKE_UNNAMED">Un(e) ami(e) te relance</string>
+    <string name="POKE_UNNAMED_MALE">Un ami te relance</string>
+    <string name="POKE_UNNAMED_FEMALE">Une amie te relance</string>
+    <string name="STREAK_AT_RISK">Une de tes séries se termine dans moins de deux heures</string>
+    <string name="push_generic">Des nouvelles de tes amis</string>
+    <string name="push_ask_title">Laisse tes amis te relancer</string>
+    <string name="push_ask_detail">Pour que %1$s puisse te relancer, et que tu saches quand tes amis pratiquent.</string>
+    <string name="push_ask_detail_unnamed">Pour qu\'un(e) ami(e) puisse te relancer, et que tu saches quand tes amis pratiquent.</string>
+    <string name="push_ask_turn_on">Activer les notifications</string>
+</resources>

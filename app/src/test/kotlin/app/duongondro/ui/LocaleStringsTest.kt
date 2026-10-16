@@ -111,7 +111,9 @@ class LocaleStringsTest {
     @Test fun genderedFormsTakeTheNeutralStringsArguments() {
         val defaults = load(File(res, "values/strings_gendered.xml"))
         for (locale in locales) {
-            val neutral = load(File(res, "values-$locale/strings.xml"))
+            // A gendered form's neutral string may live in any strings file (strings_push.xml too).
+            val neutral = File(res, "values-$locale").listFiles { f -> f.name.startsWith("strings") && f.name != "strings_gendered.xml" }!!
+                .map { load(it) }.fold(emptyMap<String, String>()) { a, b -> a + b }
             for ((key, text) in load(File(res, "values-$locale/strings_gendered.xml"))) {
                 assertTrue("$locale $key has no default alias", key in defaults)
                 val of = key.removeSuffix("_male").removeSuffix("_female")
