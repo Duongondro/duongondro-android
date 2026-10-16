@@ -407,4 +407,5 @@
     <string name="unlock_replace_title">¿Sustituir la llave de desbloqueo?</string>
     <string name="unlock_replace_detail">Los demás teléfonos cierran sesión y esta clave de acceso ya no puede desbloquear tus recuentos en un teléfono nuevo. Un teléfono que ya haya desbloqueado conserva lo que tiene.</string>
     <string name="unlock_replace_action">Sustituir la llave de desbloqueo</string>
+    <string name="unlock_replace_skip">Solo quitarla</string>
 </resources>

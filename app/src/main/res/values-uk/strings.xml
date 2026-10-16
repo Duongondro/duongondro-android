@@ -414,4 +414,5 @@
     <string name="unlock_replace_title">Замінити ключ розблокування?</string>
     <string name="unlock_replace_detail">На інших телефонах відбудеться вихід, і цей ключ доступу більше не відкриє ваші лічильники на новому телефоні. Телефон, який він уже відкрив, збереже те, що на ньому є.</string>
     <string name="unlock_replace_action">Замінити ключ розблокування</string>
+    <string name="unlock_replace_skip">Лише вилучити</string>
 </resources>

@@ -413,4 +413,5 @@
     <string name="unlock_replace_title">Zastąpić klucz odblokowania?</string>
     <string name="unlock_replace_detail">Inne telefony zostaną wylogowane, a ten klucz dostępu nie odblokuje już Twoich liczników na nowym telefonie. Telefon, który został już nim odblokowany, zachowa to, co ma.</string>
     <string name="unlock_replace_action">Zastąp klucz odblokowania</string>
+    <string name="unlock_replace_skip">Tylko usuń</string>
 </resources>

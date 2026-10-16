@@ -384,4 +384,5 @@
     <string name="unlock_replace_title">Lecseréled a feloldókulcsot?</string>
     <string name="unlock_replace_detail">A többi telefon kijelentkezik, és ez a hozzáférési kulcs már nem tudja feloldani a számlálóidat új telefonon. Egy telefon, amelyen már feloldotta őket, megtartja, ami rajta van.</string>
     <string name="unlock_replace_action">Feloldókulcs cseréje</string>
+    <string name="unlock_replace_skip">Csak eltávolítás</string>
 </resources>

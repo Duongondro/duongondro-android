@@ -492,6 +492,8 @@ class Passkey(
     val current: Boolean = false,
     /** It holds a box of U: signing in with it brings the keys to a new phone. */
     val canUnlock: Boolean = false,
+    /** The devices whose sessions this passkey signed in, as UUIDs. */
+    val devices: List<String> = emptyList(),
 )
 
 @Serializable class PasskeyList(val passkeys: List<Passkey>)

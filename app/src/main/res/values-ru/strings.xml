@@ -400,4 +400,5 @@
     <string name="unlock_replace_title">Заменить ключ разблокировки?</string>
     <string name="unlock_replace_detail">На других телефонах произойдёт выход, и этот ключ доступа больше не откроет ваши счётчики на новом телефоне. Телефон, который он уже открыл, сохранит то, что на нём есть.</string>
     <string name="unlock_replace_action">Заменить ключ разблокировки</string>
+    <string name="unlock_replace_skip">Только удалить</string>
 </resources>

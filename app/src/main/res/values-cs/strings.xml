@@ -400,4 +400,5 @@
     <string name="unlock_replace_title">Nahradit odemykací klíč?</string>
     <string name="unlock_replace_detail">Ostatní telefony se odhlásí a tento přístupový klíč už neodemkne tvé počty v novém telefonu. Telefon, který jím už byl odemčen, si ponechá, co má.</string>
     <string name="unlock_replace_action">Nahradit odemykací klíč</string>
+    <string name="unlock_replace_skip">Jen odebrat</string>
 </resources>

@@ -187,12 +187,7 @@ enum class UnlockSetUp {
     OtherAccount,
 }
 
-enum class PasskeyRemoval {
-    Removed,
-    /** Removed, and it could unlock the counts: offer to replace the unlock key (removal is not revocation). */
-    RemovedUnlocking,
-    LastWay, SignedOut,
-}
+enum class PasskeyRemoval { Removed, LastWay, SignedOut }
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -1081,42 +1076,39 @@ class AccountManager(
      * Removes a passkey, its box and the sessions it signed in with. The
      * account's last way to sign in stays ([PasskeyRemoval.LastWay]); removing
      * the one this phone signed in with signs it out here, keys and data kept.
+     *
+     * With [replaceUnlockKey] (offered for a passkey that could unlock, since
+     * removal is not revocation), first: every other session signed out, the
+     * devices that passkey signed in kept from ever being given U again, a new
+     * U with `replace: true`, the keys wrapped to it and U sent to the other
+     * listed phones; the passkey is removed last, so this phone's own passkey
+     * can go too. Android neither removes devices nor rotates the practice
+     * key: a phone that passkey already unlocked keeps what it has. Runs in
+     * the manager's scope, so leaving the screen does not stop it halfway.
      */
-    suspend fun removePasskey(passkey: app.duongondro.core.api.Passkey): PasskeyRemoval {
-        val a = requireAccount()
-        try {
-            withContext(Dispatchers.IO) { a.api.deletePasskey(passkey.id) }
-        } catch (_: ApiError.Conflict) {
-            return PasskeyRemoval.LastWay
-        } catch (_: ApiError.NotFound) {
-            // Removed already, elsewhere.
-        }
-        if (passkey.current) {
-            sessionEnded(a)
-            return PasskeyRemoval.SignedOut
-        }
-        refreshPasskeys()
-        return if (passkey.canUnlock && _passkeys.value.holdsUserKey) PasskeyRemoval.RemovedUnlocking else PasskeyRemoval.Removed
-    }
-
-    /**
-     * "Replace the unlock key", only when the person asks, after removing a
-     * passkey that could unlock. Android neither removes devices nor rotates
-     * the practice key, so this is what it can do: sign out every other
-     * session (a phone that passkey unlocked loses its sign-in), then a new U
-     * with `replace: true`, the keys wrapped to it and U sent again to the
-     * listed phones. A phone it already unlocked keeps what it has. Every
-     * remaining passkey then needs a new box: the card offers it.
-     */
-    suspend fun replaceUnlockKey() {
-        val a = requireAccount()
-        withContext(Dispatchers.IO) {
-            a.api.signOutOthers()
-            a.replaceUserKey()
-        }
-        _passkeys.update { it.copy(offerDismissed = false) }
-        refreshPasskeys()
-    }
+    suspend fun removePasskey(passkey: app.duongondro.core.api.Passkey, replaceUnlockKey: Boolean = false): PasskeyRemoval =
+        scope.async(Dispatchers.IO) {
+            val a = requireAccount()
+            if (replaceUnlockKey) {
+                a.api.signOutOthers()
+                a.replaceUserKey(passkey.devices.mapNotNull { runCatching { UUID.fromString(it) }.getOrNull() })
+                _passkeys.update { it.copy(offerDismissed = false) }
+            }
+            try {
+                a.api.deletePasskey(passkey.id)
+            } catch (_: ApiError.Conflict) {
+                if (replaceUnlockKey) refreshPasskeys()
+                return@async PasskeyRemoval.LastWay
+            } catch (_: ApiError.NotFound) {
+                // Removed already, elsewhere.
+            }
+            if (passkey.current) {
+                sessionEnded(a)
+                return@async PasskeyRemoval.SignedOut
+            }
+            refreshPasskeys()
+            PasskeyRemoval.Removed
+        }.await()
 
     // The server
 

@@ -44,6 +44,12 @@ object SecretName {
     const val USER_KEY_NEXT = "user-key-next"
     /** The account's other phones this one gave U to, as "<U id> <device id>" lines. */
     const val USER_KEY_GIVEN = "user-key-given"
+    /**
+     * Devices a removed passkey had signed in, one id per line: never given U
+     * again (crypto.md › Removing a passkey, step 1), since signing them out
+     * leaves them in the device list.
+     */
+    const val USER_KEY_SHUT_OUT = "user-key-shut-out"
     fun practiceKey(version: Long) = "practice-key-$version"
 }
 
@@ -315,7 +321,9 @@ class Account(
      * Whoever opened the old U keeps what it opened: this stops later keys
      * reaching it, nothing more. Returns false when the account has no U.
      */
-    suspend fun replaceUserKey(): Boolean = userKeyLock.withLock {
+    suspend fun replaceUserKey(shutOut: Collection<UUID> = emptyList()): Boolean = userKeyLock.withLock {
+        val others = shutOut.filter { it != thisDevice() }
+        if (others.isNotEmpty()) secrets.write(SecretName.USER_KEY_SHUT_OUT, (shutOutDevices() + others).joinToString("\n").toByteArray())
         val state = database.syncState() ?: return@withLock false
         val identity = identity()
         val remote = api.userKey() ?: return@withLock false
@@ -344,6 +352,10 @@ class Account(
         true
     }
 
+    private fun shutOutDevices(): Set<UUID> =
+        secrets.read(SecretName.USER_KEY_SHUT_OUT)?.decodeToString()?.lines()
+            ?.mapNotNull { runCatching { UUID.fromString(it.trim()) }.getOrNull() }?.toSet() ?: emptySet()
+
     private fun thisDevice(): UUID? = secrets.read(SecretName.DEVICE_ID)?.decodeToString()?.let(UUID::fromString)
 
     /** U from a kind 4 wrap another phone left for this one. */
@@ -368,8 +380,9 @@ class Account(
         val listed = Statements.parseDeviceList(list.payload)?.devices ?: return
         val given = secrets.read(SecretName.USER_KEY_GIVEN)?.decodeToString()?.lines()?.filter { it.isNotBlank() }?.toMutableSet() ?: mutableSetOf()
         val registered = api.devices()
+        val shutOut = shutOutDevices()
         for (d in listed) {
-            if (d.id == me || "${u.id} ${d.id}" in given) continue
+            if (d.id == me || d.id in shutOut || "${u.id} ${d.id}" in given) continue
             // Only a device the server still has with the same key: never one it dropped.
             if (registered.none { it.id == d.id && it.publicKey.contentEquals(d.publicKey) }) continue
             val w = UserKeys.wrapToDevice(u, d.id, d.publicKey, user, identity)

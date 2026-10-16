@@ -397,4 +397,5 @@
     <string name="unlock_replace_title">Entsperrschlüssel ersetzen?</string>
     <string name="unlock_replace_detail">Andere Handys werden abgemeldet, und dieser Passkey kann deine Zähler auf einem neuen Handy nicht mehr entsperren. Ein Handy, das er schon entsperrt hat, behält, was es hat.</string>
     <string name="unlock_replace_action">Entsperrschlüssel ersetzen</string>
+    <string name="unlock_replace_skip">Nur entfernen</string>
 </resources>

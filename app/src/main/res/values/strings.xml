@@ -403,4 +403,5 @@
     <string name="unlock_replace_title">Replace the unlock key?</string>
     <string name="unlock_replace_detail">Other phones are signed out, and this passkey can no longer unlock your counts on a new phone. A phone it already unlocked keeps what it has.</string>
     <string name="unlock_replace_action">Replace the unlock key</string>
+    <string name="unlock_replace_skip">Only remove it</string>
 </resources>

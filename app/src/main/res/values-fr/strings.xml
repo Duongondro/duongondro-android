@@ -406,4 +406,5 @@
     <string name="unlock_replace_title">Remplacer la clé de déverrouillage ?</string>
     <string name="unlock_replace_detail">Les autres téléphones sont déconnectés, et cette clé d\'accès ne peut plus déverrouiller tes décomptes sur un nouveau téléphone. Un téléphone qu\'elle a déjà déverrouillé garde ce qu\'il a.</string>
     <string name="unlock_replace_action">Remplacer la clé de déverrouillage</string>
+    <string name="unlock_replace_skip">La retirer seulement</string>
 </resources>
