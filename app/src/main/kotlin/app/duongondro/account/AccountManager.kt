@@ -366,6 +366,7 @@ class AccountManager(
 
     /** "Cancel": the held session ends on the server, and nothing was uploaded. */
     suspend fun abandonHeldSignIn() = withContext(Dispatchers.IO) {
+        heldPrf = null
         val result = heldSignIn ?: return@withContext
         heldSignIn = null
         runCatching { anonymous.withToken(result.token).signOut() }
@@ -450,11 +451,16 @@ class AccountManager(
     /** The address the last magic link was asked for. */
     @Volatile private var requestedEmail: String? = null
 
-    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
+    suspend fun redeemCode(email: String, code: String): Redeem {
+        // A sign-in by e-mail: no passkey's output belongs to it.
+        heldPrf = null
+        return redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
+    }
 
     /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
     suspend fun redeemLink(token: String): Redeem? {
         if (!expectsLink()) return null
+        heldPrf = null
         return redeem(linkSignsUp, requestedEmail) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
     }
 
