@@ -264,8 +264,16 @@ object PasskeyBox {
         return E2EE.derive(prf, user.bytes, E2EE.LABEL_PRF_WRAP)
     }
 
-    /** uuid(user) ‖ uuid(U.id) ‖ credentialId: 32 + n bytes, the credential id last so it needs no length. */
-    fun aad(user: UUID, userKey: UUID, credentialId: ByteArray): ByteArray = user.bytes + userKey.bytes + credentialId
+    /**
+     * uuid(user) ‖ identityPk ‖ uuid(U.id) ‖ credentialId: 64 + n bytes, the
+     * credential id last so it needs no length. The identity key is bound in
+     * because nothing else on a new phone authenticates it: a box that opens
+     * under the PRF output proves the identity key is the one its sealer saw.
+     */
+    fun aad(user: UUID, identityPk: ByteArray, userKey: UUID, credentialId: ByteArray): ByteArray {
+        if (identityPk.size != 32) throw E2EE.Error(E2EE.Failure.SIZE)
+        return user.bytes + identityPk + userKey.bytes + credentialId
+    }
 
     fun seal(scalar: ByteArray, prfKey: ByteArray, aad: ByteArray): ByteArray {
         if (scalar.size != E2EE.KEY_SIZE) throw E2EE.Error(E2EE.Failure.SIZE)

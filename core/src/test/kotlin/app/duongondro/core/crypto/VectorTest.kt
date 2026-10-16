@@ -216,7 +216,8 @@ class VectorTest {
 
         val prfKey = PasskeyBox.key(v.bytes("prf.inputs.prfOutput"), user)
         assertEquals(v.str("prf.prfKey"), prfKey.hex())
-        val aad = PasskeyBox.aad(user, uId, credentialId)
+        assertArrayEquals(v.bytes("prf.inputs.identityPublic"), identity.publicKey)
+        val aad = PasskeyBox.aad(user, identity.publicKey, uId, credentialId)
         assertEquals(v.str("prf.aad"), aad.hex())
         val box = PasskeyBox.seal(u.rawPrivate, prfKey, aad, nonce)
         assertEquals(v.str("prf.box"), box.hex())
@@ -224,7 +225,9 @@ class VectorTest {
         assertEquals(v.str("prf.boxSignature"), PasskeyBox.sign(aad, box, identity).hex())
         assertTrue(PasskeyBox.verify(aad, box, v.bytes("prf.boxSignature"), identity.publicKey))
         // The box opens only for its passkey, and only under its PRF output.
-        assertOpenFails { PasskeyBox.open(box, prfKey, PasskeyBox.aad(user, uId, credentialId + 0)) }
+        assertOpenFails { PasskeyBox.open(box, prfKey, PasskeyBox.aad(user, identity.publicKey, uId, credentialId + 0)) }
+        // A box opens only under the identity key its sealer saw.
+        assertOpenFails { PasskeyBox.open(box, prfKey, PasskeyBox.aad(user, Identity.generate().publicKey, uId, credentialId)) }
         assertOpenFails { PasskeyBox.open(box, PasskeyBox.key(ByteArray(32), user), aad) }
 
         assertEquals("user-key", v.str("prf.statement.type"))

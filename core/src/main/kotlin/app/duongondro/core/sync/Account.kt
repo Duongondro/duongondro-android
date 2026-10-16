@@ -423,7 +423,7 @@ class Account(
 private fun SignedStatementDto.toStatement() = SignedStatement(payload, signature)
 
 private fun app.duongondro.core.api.PasskeyUnlock.toUnlock() = UserKeys.Unlock(
-    userKey.statement.toStatement(), box, signature,
+    userKey.id, userKey.statement.toStatement(), box, signature,
     userKey.wraps.filter { it.userKeyId == userKey.id }.mapNotNull { w ->
         E2EE.WrapKind.of(w.kind)?.let { UserKeys.Wrap(it, w.keyVersion, w.ephemeralKey, w.box, w.signature) }
     },

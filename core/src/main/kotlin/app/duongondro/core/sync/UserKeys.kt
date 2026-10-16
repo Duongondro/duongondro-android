@@ -83,7 +83,7 @@ object UserKeys {
     class Box(val box: ByteArray, val signature: ByteArray)
 
     fun sealForPasskey(u: Local, prf: ByteArray, credentialId: ByteArray, user: UUID, identity: Identity): Box {
-        val aad = PasskeyBox.aad(user, u.id, credentialId)
+        val aad = PasskeyBox.aad(user, identity.publicKey, u.id, credentialId)
         val box = PasskeyBox.seal(u.key.rawPrivate, PasskeyBox.key(prf, user), aad)
         return Box(box, PasskeyBox.sign(aad, box, identity))
     }
@@ -108,15 +108,18 @@ object UserKeys {
     // A new phone
 
     /** What `GET /api/me/credentials/{id}/unlock` returned. */
-    class Unlock(val statement: SignedStatement, val box: ByteArray, val boxSignature: ByteArray, val wraps: List<Wrap>)
+    class Unlock(val userKeyId: UUID, val statement: SignedStatement, val box: ByteArray, val boxSignature: ByteArray, val wraps: List<Wrap>)
 
     class Unlocked(val identity: Identity, val practiceKey: ByteArray, val keyVersion: Long, val userKey: Local)
 
     /**
-     * Brings the keys to a new phone from a passkey's PRF output: U's statement
-     * and the box verify against the account's published identity key, the box
-     * opens under the PRF output (only this passkey's does), U's scalar matches
-     * its public key, the identity seed wrapped to U matches the published
+     * Brings the keys to a new phone from a passkey's PRF output. The box is
+     * opened first, with the identity key the server gave bound into its AAD:
+     * only a box sealed by a phone that saw that very key opens under this
+     * passkey's output, which the server cannot produce, so it authenticates
+     * the identity key; until then nothing in the response is trusted. Then
+     * the box's signature, U's statement (naming the same U) and each wrap
+     * verify against that key, U's scalar matches its public key, the identity seed wrapped to U matches the published
      * identity key, and the practice key at [keyVersion] opens [sample] when
      * there is one, as [AccountKeys.restore] checks.
      *
@@ -134,14 +137,16 @@ object UserKeys {
         sample: AccountKeys.SealedSample?,
     ): Unlocked {
         if (publishedIdentityPk == null || publishedIdentityPk.size != 32) throw AccountKeys.Error(AccountKeys.Failure.ACCOUNT_HAS_NO_KEYS)
-        val published = verify(unlock.statement, user, publishedIdentityPk)
-        val aad = PasskeyBox.aad(user, published.id, credentialId)
-        if (!PasskeyBox.verify(aad, unlock.box, unlock.boxSignature, publishedIdentityPk)) throw notAuthentic()
+        // First the box: it authenticates the identity key (and U's id); nothing before it is trusted.
+        val aad = PasskeyBox.aad(user, publishedIdentityPk, unlock.userKeyId, credentialId)
         val scalar = try {
             PasskeyBox.open(unlock.box, PasskeyBox.key(prf, user), aad)
         } catch (_: E2EE.Error) {
             throw AccountKeys.Error(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK)
         }
+        if (!PasskeyBox.verify(aad, unlock.box, unlock.boxSignature, publishedIdentityPk)) throw notAuthentic()
+        val published = verify(unlock.statement, user, publishedIdentityPk)
+        if (published.id != unlock.userKeyId) throw notAuthentic()
         val key = runCatching { SoftwareDeviceKey.fromRaw(scalar) }.getOrNull() ?: throw notAuthentic()
         if (!key.publicKey.contentEquals(published.publicKey)) throw notAuthentic()
 

@@ -26,7 +26,7 @@ class UserKeysTest {
             UserKeys.wrapToUserKey(identity.seed, E2EE.WrapKind.IDENTITY_SEED, published, user, 1, identity),
             UserKeys.wrapToUserKey(practiceKey, E2EE.WrapKind.PRACTICE_KEY, published, user, keyVersion, identity),
         )
-        return UserKeys.Unlock(UserKeys.statement(u, user, identity), box.box, box.signature, wraps)
+        return UserKeys.Unlock(u.id, UserKeys.statement(u, user, identity), box.box, box.signature, wraps)
     }
 
     private fun expect(failure: AccountKeys.Failure, block: () -> Unit) {
@@ -48,12 +48,13 @@ class UserKeysTest {
 
     @Test fun anotherOutputOrPasskeyCannotUnlock() {
         expect(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK) { UserKeys.unlock(E2EE.randomBytes(32), credentialId, user, identity.publicKey, 1, unlockable(), null) }
-        // The box names its credential: another passkey's id fails its signature first.
-        expect(AccountKeys.Failure.NOT_AUTHENTIC) { UserKeys.unlock(prf, E2EE.randomBytes(20), user, identity.publicKey, 1, unlockable(), null) }
+        // The box names its credential: under another passkey's id it does not open.
+        expect(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK) { UserKeys.unlock(prf, E2EE.randomBytes(20), user, identity.publicKey, 1, unlockable(), null) }
     }
 
     @Test fun anotherIdentityKeyIsRefused() {
-        expect(AccountKeys.Failure.NOT_AUTHENTIC) { UserKeys.unlock(prf, credentialId, user, Identity.generate().publicKey, 1, unlockable(), null) }
+        // A server that publishes an identity key of its own: the box, bound to the real one, does not open.
+        expect(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK) { UserKeys.unlock(prf, credentialId, user, Identity.generate().publicKey, 1, unlockable(), null) }
         expect(AccountKeys.Failure.ACCOUNT_HAS_NO_KEYS) { UserKeys.unlock(prf, credentialId, user, null, 1, unlockable(), null) }
     }
 
@@ -62,6 +63,24 @@ class UserKeysTest {
         val session = UUID.randomUUID()
         val other = AccountKeys.SealedSample(session, E2EE.sealSession(E2EE.sealKey(AccountKeys.newPracticeKey(), user), session, user, 1, "{}".toByteArray()))
         expect(AccountKeys.Failure.RECOVERY_OUTDATED) { UserKeys.unlock(prf, credentialId, user, identity.publicKey, 1, unlockable(), other) }
+    }
+
+    @Test fun aServerCannotSwapTheKeysBehindABox() {
+        // Its own identity, re-signing U's statement and wraps of a seed and key it chose:
+        // the box was sealed under the real identity key, so it does not open, and nothing is trusted.
+        val server = Identity.generate()
+        val good = unlockable()
+        val forged = UserKeys.Unlock(u.id, UserKeys.statement(u, user, server), good.box,
+            app.duongondro.core.crypto.PasskeyBox.sign(app.duongondro.core.crypto.PasskeyBox.aad(user, server.publicKey, u.id, credentialId), good.box, server),
+            listOf(
+                UserKeys.wrapToUserKey(server.seed, E2EE.WrapKind.IDENTITY_SEED, published, user, 1, server),
+                UserKeys.wrapToUserKey(AccountKeys.newPracticeKey(), E2EE.WrapKind.PRACTICE_KEY, published, user, 1, server),
+            ))
+        expect(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK) { UserKeys.unlock(prf, credentialId, user, server.publicKey, 1, forged, null) }
+        // Another U's id in the response does not open the box either.
+        expect(AccountKeys.Failure.PASSKEY_CANNOT_UNLOCK) {
+            UserKeys.unlock(prf, credentialId, user, identity.publicKey, 1, UserKeys.Unlock(UUID.randomUUID(), good.statement, good.box, good.boxSignature, good.wraps), null)
+        }
     }
 
     @Test fun aStatementForAnotherUserIsRefused() {
