@@ -191,10 +191,6 @@
     <string name="notifications_off">Уведомления для этого приложения отключены, поэтому напоминание не может появиться.</string>
     <string name="section_your_data">Ваши данные</string>
     <string name="export_and_delete">Экспорт и удаление</string>
-    <string name="export_all">Экспортировать все мои данные</string>
-    <string name="export_footer">Один ZIP-архив со всеми практиками, занятиями и сериями, читается без этого приложения.</string>
-    <string name="export_failed">Не удалось экспортировать</string>
-    <string name="export_server_missing">Не удалось получить данные учётной записи с сервера, поэтому в экспорте только то, что хранится на этом телефоне.</string>
     <string name="delete_everything">Удалить всё</string>
     <string name="delete_footer">Удаляет все ваши данные с этого телефона. Это нельзя отменить.</string>
     <string name="delete_explainer">Будут удалены все практики, занятия и серии на этом телефоне, ваши напоминания и все ключи приложения, после чего приложение вернётся к началу.</string>

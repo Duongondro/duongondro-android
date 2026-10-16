@@ -16,6 +16,13 @@ fun Practice.shownName(): String = if (isCustom) name else names[id]?.first?.let
 @Composable
 fun Practice.shownSecondName(): String? = secondName?.let { if (isCustom) it else names[id]?.second?.let { r -> stringResource(r) } ?: it }
 
+/** Both names in the app's language, for text built outside Compose (the export). */
+fun Practice.shownNames(context: android.content.Context): Pair<String, String?> {
+    if (isCustom) return name to secondName
+    val res = names[id]
+    return (res?.first?.let(context::getString) ?: name) to (secondName?.let { res?.second?.let(context::getString) ?: it })
+}
+
 /** The string resource of a built-in practice's leading name, for text built outside Compose (notifications). */
 fun practiceNameRes(id: String): Int? = names[id]?.first
 

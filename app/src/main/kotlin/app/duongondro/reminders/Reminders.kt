@@ -17,6 +17,7 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import app.duongondro.MainActivity
 import app.duongondro.R
+import app.duongondro.inAppLanguage
 import app.duongondro.core.Catalogue
 import app.duongondro.core.Streak
 import app.duongondro.core.UsualTime
@@ -51,18 +52,6 @@ object Reminders {
     internal const val TAG = EXTRA_TAG
     private const val USUAL_SCHEDULED = "usualScheduled"
 
-    /**
-     * The app's own language: AppCompat applies a per-app locale only to
-     * activities before API 33, and these strings are built in receivers too.
-     */
-    private fun localized(context: Context): Context {
-        val locales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
-        if (locales.isEmpty) return context
-        val config = android.content.res.Configuration(context.resources.configuration)
-        config.setLocales(android.os.LocaleList.forLanguageTags(locales.toLanguageTags()))
-        return context.createConfigurationContext(config)
-    }
-
     fun reschedule(context: Context, snapshot: Snapshot, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()) {
         val alarms = context.getSystemService(AlarmManager::class.java) ?: return
         scheduleUsualTime(context, alarms, snapshot, now, zone)
@@ -79,7 +68,7 @@ object Reminders {
             if (!fire.isAfter(now)) continue
             // The streak as it will stand then: tomorrow's is alive only if today gets logged.
             val streak = Streak.headline(snapshot.sessions, snapshot.seeds, fire, zone).current
-            val res = localized(context).resources
+            val res = context.inAppLanguage().resources
             val body = if (streak > 0) res.getQuantityString(R.plurals.reminder_streak_ends, streak, streak)
                        else res.getString(R.string.reminder_short_session)
             // Inexact, but allowed while idle so Doze cannot push it to another day;
@@ -103,7 +92,7 @@ object Reminders {
         val scheduled = mutableSetOf<String>()
         if (snapshot.preferences.usualTimeNudge) {
             val today = civilDate(now, zone)
-            val res = localized(context).resources
+            val res = context.inAppLanguage().resources
             for (p in snapshot.activePractices) {
                 val sessions = snapshot.sessionsOf(p.id)
                 val usual = UsualTime.minutes(sessions, now) ?: continue
@@ -158,12 +147,12 @@ object Reminders {
         val manager = context.getSystemService(NotificationManager::class.java)
         val channel = if (usual) USUAL_CHANNEL else CHANNEL
         manager.createNotificationChannel(NotificationChannel(channel,
-            localized(context).getString(if (usual) R.string.usual_time_nudge else R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT))
+            context.inAppLanguage().getString(if (usual) R.string.usual_time_nudge else R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT))
         val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE)
         val n = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_flame)
-            .setContentTitle(localized(context).getString(if (usual) R.string.usual_title else R.string.reminder_title))
+            .setContentTitle(context.inAppLanguage().getString(if (usual) R.string.usual_title else R.string.reminder_title))
             .setContentText(body)
             .setContentIntent(open)
             .setAutoCancel(true)

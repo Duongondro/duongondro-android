@@ -204,10 +204,6 @@
     <!-- Your data -->
     <string name="section_your_data">Ваші дані</string>
     <string name="export_and_delete">Експорт і видалення</string>
-    <string name="export_all">Експортувати всі мої дані</string>
-    <string name="export_footer">Один ZIP з усіма практиками, сесіями та серіями; його можна прочитати й без цього застосунку.</string>
-    <string name="export_failed">Не вдалося експортувати</string>
-    <string name="export_server_missing">Не вдалося отримати дані облікового запису з сервера, тому в експорті лише те, що зберігається на цьому телефоні.</string>
     <string name="delete_everything">Видалити все</string>
     <string name="delete_footer">Видаляє всі ваші дані з цього телефона. Це неможливо скасувати.</string>
     <string name="delete_explainer">Це видалить усі практики, сесії та серії на цьому телефоні, ваші нагадування й усі ключі, які зберігає застосунок, а потім поверне вас на початок.</string>

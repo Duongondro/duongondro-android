@@ -98,14 +98,11 @@ object Covers {
         file(context, practiceId).delete()
     }
 
-    fun all(context: Context): Map<String, ByteArray> =
-        folder(context).listFiles { f -> f.name.endsWith(".jpg") }?.associate { it.name.removeSuffix(".jpg") to it.readBytes() } ?: emptyMap()
-
     private const val LONGEST_SIDE = 1600f
     private const val QUALITY = 85
 }
 
-/** Where the export ZIP waits for the share sheet; emptied on every export and by the purge. */
+/** Where the export waits for the app it was shared to; emptied on every export, at the app's start, by sign-out and by the purge. */
 object Exports {
     fun folder(context: Context) = File(context.cacheDir, "export")
 

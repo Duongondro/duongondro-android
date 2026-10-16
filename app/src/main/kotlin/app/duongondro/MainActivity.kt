@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import app.duongondro.data.Exports
 import app.duongondro.ui.theme.Theme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.duongondro.account.Crockford
 import app.duongondro.reminders.Reminders
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -86,7 +88,11 @@ class MainActivity : AppCompatActivity() {
             DuongondroTheme { App(model) }
         }
         // Recreated (rotation, a language switch, process death): the link was handled already.
-        if (savedInstanceState == null) handleLink(intent)
+        if (savedInstanceState == null) {
+            handleLink(intent)
+            // The last export, kept for the app it was shared to, which may read it late.
+            lifecycleScope.launch(Dispatchers.IO) { Exports.folder(applicationContext).deleteRecursively() }
+        }
         // Reminders follow the data: a session logged today cancels today's.
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

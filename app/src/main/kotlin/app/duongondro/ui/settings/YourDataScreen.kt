@@ -1,7 +1,11 @@
 package app.duongondro.ui.settings
 
-import android.content.Intent
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,12 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.core.content.FileProvider
-import app.duongondro.BuildConfig
 import app.duongondro.R
-import app.duongondro.data.Covers
-import app.duongondro.data.DataExport
-import app.duongondro.data.Exports
 import app.duongondro.model.AppModel
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.FilledAction
@@ -47,100 +41,81 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.text.font.FontWeight
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Settings › Your data: a full export and a full purge, both self-service
- * (GDPR Articles 15, 17 and 20). Nobody has to email a human.
+ * (GDPR Articles 15, 17 and 20). Nobody has to email a human. The export is laid
+ * out as CodeShare's Manage my data: a card with one row per format, what the
+ * export holds in the footer.
  */
 @Composable
 fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var failure by remember { mutableStateOf<String?>(null) }
     val withAccount = hasAccount(model)
-    var exporting by remember { mutableStateOf(false) }
-    // The export went out without the server's part.
-    var serverMissing by remember { mutableStateOf(false) }
-    Page(stringResource(R.string.section_your_data), back) {
-        CardSection(footer = stringResource(if (serverMissing) R.string.export_server_missing else R.string.export_footer)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = !exporting) {
-                exporting = true
-                serverMissing = false
-                scope.launch {
-                    try {
-                        // The export holds final sessions only: the open undo window closes first.
-                        model.finalisePendingNow()
-                        // With a ready account the server's rows and sealed sessions come first;
-                        // offline or failed, the phone's part is exported and the screen says so.
-                        val server = try {
-                            model.accounts?.serverExport()
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (_: Exception) {
-                            serverMissing = true
-                            null
-                        }
-                        // An account that is signed out or still without keys cannot be asked either.
-                        val accountWithoutServer = server == null && model.accounts?.hasAccount() == true
-                        if (accountWithoutServer) serverMissing = true
-                        val known = model.accounts?.knownSessionIds().orEmpty()
-                        val file = withContext(Dispatchers.IO) {
-                            val zip = DataExport.zip(model.snapshot.value, server, Covers.all(context), known, accountWithoutServer,
-                                "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-                            Exports.write(context, zip, DataExport.fileName())
-                        }
-                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.export", file)
-                        val send = Intent(Intent.ACTION_SEND).setType("application/zip").putExtra(Intent.EXTRA_STREAM, uri)
-                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(Intent.createChooser(send, null))
-                    } catch (e: Exception) {
-                        failure = e.message ?: e.toString()
-                    } finally {
-                        exporting = false
-                    }
+    val exports = rememberExportController(model)
+    Box {
+        Page(stringResource(R.string.section_your_data), back) {
+            CardSection(header = stringResource(R.string.ex_export), footer = stringResource(R.string.ex_footer)) {
+                ExportRows(exports)
+            }
+            if (exports.serverMissing) {
+                Text(stringResource(R.string.ex_server_missing), style = Theme.type.footnote, color = Theme.colors.destructive,
+                    modifier = Modifier.padding(horizontal = Space.l))
+            }
+            CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
+                Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = !exports.working, onClick = openDelete)
+                    .padding(horizontal = Space.l, vertical = Space.s),
+                    horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Delete, contentDescription = null, tint = Theme.colors.destructive)
+                    Text(stringResource(R.string.delete_everything), Modifier.weight(1f), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold),
+                        color = Theme.colors.destructive)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
                 }
-            }.padding(horizontal = Space.l), horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Share, contentDescription = null, tint = Theme.colors.accent)
-                Text(stringResource(R.string.export_all), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.accent)
             }
         }
-        CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(onClick = openDelete).padding(horizontal = Space.l),
-                horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Delete, contentDescription = null, tint = Theme.colors.destructive)
-                Text(stringResource(R.string.delete_everything), Modifier.weight(1f), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold),
-                    color = Theme.colors.destructive)
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
-            }
-        }
+        ExportProgress(exports)
     }
-    failure?.let { ErrorDialog(stringResource(R.string.export_failed), it) { failure = null } }
+    exports.problem?.let { ErrorDialog(stringResource(R.string.ex_export_failed), it) { exports.problem = null } }
+}
+
+/** A spinner over the screen while the export is built, as iOS's ProgressView. */
+@Composable
+private fun BoxScope.ExportProgress(exports: ExportController) {
+    if (exports.working) CircularProgressIndicator(Modifier.align(Alignment.Center), color = Theme.colors.accent)
 }
 
 /** Typed confirmation, then the purge, then Welcome. */
 @Composable
 fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val word = stringResource(R.string.delete_word)
     var typed by remember { mutableStateOf("") }
     var failure by remember { mutableStateOf<String?>(null) }
+    val exports = rememberExportController(model)
+    var choosingFormat by remember { mutableStateOf(false) }
+    Box {
     Page(stringResource(R.string.delete_everything), back) {
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.s)) {
             Text(stringResource(if (hasAccount(model)) R.string.delete_explainer_account else R.string.delete_explainer))
             Text(stringResource(R.string.export_first), color = Theme.colors.muted)
+            // As CodeShare's delete confirmation: export first, in any format.
+            Text(stringResource(R.string.ex_export_my_data_first), style = Theme.type.body, color = Theme.colors.accent,
+                modifier = Modifier.fillMaxWidth().heightIn(min = Size.minTap)
+                    .clickable(enabled = !exports.working, role = Role.Button) { choosingFormat = true }
+                    .padding(vertical = Space.s).wrapContentHeight(Alignment.CenterVertically))
         }
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
             modifier = Modifier.fillMaxWidth())
-        FilledAction(stringResource(R.string.delete_everything), fill = Theme.colors.destructive, enabled = typed.trim().equals(word, ignoreCase = true)) {
+        FilledAction(stringResource(R.string.delete_everything), fill = Theme.colors.destructive,
+            // Not while an export is being built: the purge would delete what it reads.
+            enabled = !exports.working && typed.trim().equals(word, ignoreCase = true)) {
             model.purge(context) { failure = it }
         }
     }
+    ExportProgress(exports)
+    }
+    if (choosingFormat) ExportFirstDialog(exports) { choosingFormat = false }
+    exports.problem?.let { ErrorDialog(stringResource(R.string.ex_export_failed), it) { exports.problem = null } }
     failure?.let { ErrorDialog(stringResource(R.string.could_not_delete), it) { failure = null } }
 }
 

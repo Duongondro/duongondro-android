@@ -191,10 +191,6 @@
     <string name="notifications_off">Oznámenia sú pre túto aplikáciu vypnuté, preto sa pripomienka nemôže zobraziť.</string>
     <string name="section_your_data">Tvoje údaje</string>
     <string name="export_and_delete">Export a zmazanie</string>
-    <string name="export_all">Exportovať všetky moje údaje</string>
-    <string name="export_footer">Jeden ZIP so všetkými cvičeniami, sedeniami a sériami, čitateľný aj bez tejto aplikácie.</string>
-    <string name="export_failed">Export zlyhal</string>
-    <string name="export_server_missing">Údaje účtu sa nepodarilo stiahnuť zo servera, takže export obsahuje iba to, čo je v tomto telefóne.</string>
     <string name="delete_everything">Zmazať všetko</string>
     <string name="delete_footer">Odstráni všetky tvoje údaje z tohto telefónu. Nedá sa to vrátiť späť.</string>
     <string name="delete_explainer">Zmaže všetky cvičenia, sedenia a série v tomto telefóne, tvoje pripomienky a všetky kľúče, ktoré aplikácia drží, a vráti sa na začiatok.</string>
