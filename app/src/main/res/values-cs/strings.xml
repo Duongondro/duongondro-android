@@ -385,7 +385,7 @@
     <string name="passkey_rename_named">Přejmenovat %1$s</string>
     <string name="passkey_remove_named">Odebrat %1$s</string>
     <string name="passkey_remove_title">Odebrat „%1$s“?</string>
-    <string name="passkey_remove_detail">Už tě nepřihlásí a všude, kde je jím teď někdo přihlášen, dojde k odhlášení. Samotný klíč zůstane ve správci hesel, dokud ho tam nesmažeš.</string>
+    <string name="passkey_remove_detail">Už tě nepřihlásí a všechna přihlášení tímto klíčem se ukončí. Samotný klíč zůstane ve správci hesel, dokud ho tam nesmažeš.</string>
     <string name="passkey_remove_current">Tento telefon se jím přihlásil, takže bude odhlášen i tady. Tvé počty v něm zůstanou.</string>
     <string name="passkey_remove">Odebrat</string>
     <string name="passkey_last_way">Tohle je tvůj jediný způsob přihlášení. Nejdřív přidej další přístupový klíč nebo e-mail.</string>

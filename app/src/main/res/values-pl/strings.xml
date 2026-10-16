@@ -398,7 +398,7 @@
     <string name="passkey_rename_named">Zmień nazwę: %1$s</string>
     <string name="passkey_remove_named">Usuń: %1$s</string>
     <string name="passkey_remove_title">Usunąć „%1$s”?</string>
-    <string name="passkey_remove_detail">Nie będzie już logować, a wszystkie sesje otwarte nim zostaną zamknięte. Sam klucz zostaje w menedżerze haseł, dopóki go tam nie usuniesz.</string>
+    <string name="passkey_remove_detail">Nie będzie już Cię logować, a wszystkie sesje otwarte nim zostaną zamknięte. Sam klucz zostaje w menedżerze haseł, dopóki go tam nie usuniesz.</string>
     <string name="passkey_remove_current">Ten telefon zalogował się nim, więc tutaj też nastąpi wylogowanie. Twoje liczniki na nim zostaną.</string>
     <string name="passkey_remove">Usuń</string>
     <string name="passkey_last_way">To Twój jedyny sposób logowania. Najpierw dodaj inny klucz dostępu lub adres e-mail.</string>

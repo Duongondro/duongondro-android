@@ -390,8 +390,8 @@
     <string name="passkeys_detail">Кожен ключ доступу входить у цей обліковий запис. Назви бачите лише ви.</string>
     <string name="passkey_default_name">Ключ доступу</string>
     <string name="passkey_added">Додано %1$s</string>
-    <string name="passkey_added_used">Додано %1$s · використано %2$s</string>
-    <string name="passkey_added_used_today">Додано %1$s · використано сьогодні</string>
+    <string name="passkey_added_used">Додано %1$s · востаннє використано %2$s</string>
+    <string name="passkey_added_used_today">Додано %1$s · востаннє використано сьогодні</string>
     <string name="passkey_unlocks">Відкриває ваші лічильники на новому телефоні</string>
     <string name="passkey_add">Додати ключ доступу</string>
     <string name="passkey_unavailable_add">Цей телефон не може створити ключ доступу.</string>
