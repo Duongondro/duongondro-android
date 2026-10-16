@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings › Your data › Export: the Export sheet, the PDF and the CSV headers (design decision 26). -->
+<resources>
+    <string name="export_footer_formats">PDF to read or print, CSV for a spreadsheet, or JSON with everything, made on this phone. No cover photos: they never leave it.</string>
+    <string name="export_sheet_title">Export my data</string>
+    <string name="export_format">Format</string>
+    <string name="export_pdf" translatable="false">PDF</string>
+    <string name="export_pdf_detail">To read or print: every practice and session</string>
+    <string name="export_csv" translatable="false">CSV</string>
+    <string name="export_csv_detail">For a spreadsheet: one table per kind of data</string>
+    <string name="export_json" translatable="false">JSON</string>
+    <string name="export_json_detail">Everything, machine-readable</string>
+    <string name="export_sheet_note">Your counts are decrypted on this phone, so the file holds them unencrypted, which the server never sees. Keep it somewhere private.</string>
+    <string name="export_action">Export</string>
+
+    <!-- The PDF -->
+    <string name="pdf_title">Duongöndro: your data</string>
+    <string name="pdf_exported">Exported %1$s</string>
+    <string name="pdf_build" translatable="false">Android %1$s</string>
+    <string name="pdf_footer" translatable="false">duongondro.app/privacy</string>
+    <string name="pdf_page">Page %1$s of %2$s</string>
+    <string name="pdf_none" translatable="false">—</string>
+    <string name="pdf_yes">yes</string>
+    <string name="pdf_no">no</string>
+    <string name="pdf_account">Account</string>
+    <string name="pdf_display_name">Display name</string>
+    <string name="pdf_username">Username</string>
+    <string name="pdf_gender">Gender</string>
+    <string name="pdf_email">E-mail</string>
+    <string name="pdf_account_created">Account made</string>
+    <string name="pdf_passkeys">Passkeys</string>
+    <string name="pdf_devices">Devices</string>
+    <string name="pdf_not_given">not given</string>
+    <string name="pdf_local_mode">Local mode: there is no account, so nothing about you is on any server.</string>
+    <string name="pdf_server_missing">Not in this export: the server could not be reached. Export again when connected.</string>
+    <string name="pdf_passkey_added">added %1$s</string>
+    <string name="pdf_passkey_used">added %1$s, last used %2$s</string>
+    <string name="pdf_device">%1$s, added %2$s</string>
+    <string name="pdf_tier_hardware">Key in a security chip</string>
+    <string name="pdf_tier_tee">Key in the phone\'s secure area</string>
+    <string name="pdf_tier_software">Software key</string>
+    <string name="pdf_practices">Practices</string>
+    <plurals name="pdf_practices_count">
+        <item quantity="one">%1$s practice</item>
+        <item quantity="other">%1$s practices</item>
+    </plurals>
+    <string name="pdf_practice">Practice</string>
+    <string name="pdf_total">Total</string>
+    <string name="pdf_target">Target</string>
+    <string name="pdf_round">Round</string>
+    <string name="pdf_streak">Streak</string>
+    <string name="pdf_public">Public</string>
+    <string name="pdf_archived">archived</string>
+    <plurals name="pdf_streak_value">
+        <item quantity="one">%1$s day · longest %2$s</item>
+        <item quantity="other">%1$s days · longest %2$s</item>
+    </plurals>
+    <string name="pdf_sessions">Sessions</string>
+    <plurals name="pdf_sessions_count">
+        <item quantity="one">%1$s session</item>
+        <item quantity="other">%1$s sessions</item>
+    </plurals>
+    <string name="pdf_day">Day</string>
+    <string name="pdf_started">Started</string>
+    <string name="pdf_count">Count</string>
+    <string name="pdf_counted_for">Counted for</string>
+    <string name="pdf_done">done</string>
+    <string name="pdf_no_sessions">No sessions yet.</string>
+    <string name="pdf_friends">Friends</string>
+    <plurals name="pdf_friends_count">
+        <item quantity="one">%1$s friend</item>
+        <item quantity="other">%1$s friends</item>
+    </plurals>
+    <string name="pdf_friend">Friend</string>
+    <string name="pdf_since">Friends since</string>
+    <string name="pdf_no_friends">No friends yet.</string>
+    <string name="pdf_server">What the server keeps</string>
+    <string name="pdf_server_sealed">Sealed on your phones, which the server stores but cannot read: practice sessions, counts, rounds and totals, targets and imported streak seeds. The keys stay on your devices.</string>
+    <string name="pdf_server_encrypted">Kept encrypted in the server\'s database, readable by the running server: your display name and gender, your e-mail address, your username, linked sign-ins, the streaks you publish, the public keys of your account, devices and passkeys, push tokens and the text of reports you send.</string>
+    <string name="pdf_server_plain">Kept as plain links between random numbers: that your account exists, who is friends with, invited, blocked, poked or reported whom, when things were written and how large each sealed record is. Cover photos never leave your phone.</string>
+
+    <!-- CSV headers -->
+    <string name="csv_practice_name">Practice</string>
+    <string name="csv_practice_second_name">Second name</string>
+    <string name="csv_target">Target</string>
+    <string name="csv_mala_size">Mala size</string>
+    <string name="csv_streak_only">Streak only</string>
+    <string name="csv_archived">Archived</string>
+    <string name="csv_total">Total</string>
+    <string name="csv_session_practice">Practice</string>
+    <string name="csv_day_counted">Day counted</string>
+    <string name="csv_start">Start</string>
+    <string name="csv_count">Count</string>
+    <string name="csv_round">Round</string>
+    <string name="csv_after_midnight">After-midnight choice</string>
+    <string name="csv_friend_name">Display name</string>
+    <string name="csv_friend_since">Friends since</string>
+    <string name="csv_invite_id">Friendship code id</string>
+    <string name="csv_created">Created</string>
+    <string name="csv_expires">Expires</string>
+    <string name="csv_revoked">Revoked</string>
+    <string name="csv_redeemed">Times used</string>
+    <string name="csv_account_id">Account id</string>
+    <string name="csv_blocked_since">Blocked since</string>
+    <string name="csv_reason">Reason</string>
+    <string name="csv_reported_at">Reported</string>
+    <string name="csv_device_id">Device id</string>
+    <string name="csv_key_storage">Key storage</string>
+    <string name="csv_added">Added</string>
+</resources>
