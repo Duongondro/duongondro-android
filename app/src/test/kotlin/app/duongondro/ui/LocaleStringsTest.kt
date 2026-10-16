@@ -16,8 +16,12 @@ import javax.xml.parsers.DocumentBuilderFactory
 class LocaleStringsTest {
     private val res = File("src/main/res")
 
-    /** The picker's languages other than English (SettingsScreen.LANGUAGES, locales_config.xml). */
-    private val locales = listOf("de", "ru", "uk", "pl", "cs", "sk", "hu", "es", "fr")
+    /** The app's languages other than English, as locales_config.xml lists them. */
+    private val locales: List<String> = run {
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(File(res, "xml/locales_config.xml"))
+        val nodes = doc.getElementsByTagName("locale")
+        (0 until nodes.length).map { (nodes.item(it) as Element).getAttribute("android:name") }.filter { it != "en" }
+    }
 
     /** A string's format arguments, numbered: "%s and %d" and "%1\$s and %2\$d" both give [1s, 2d]. */
     private fun arguments(text: String): List<String> {
@@ -54,9 +58,8 @@ class LocaleStringsTest {
 
     private fun base(key: String) = key.substringBefore('#')
 
-    @Test fun everyLanguageIsInThePickerAndLocaleConfig() {
-        val config = File(res, "xml/locales_config.xml").readText()
-        for (locale in listOf("en") + locales) assertTrue("$locale missing from locales_config.xml", "\"$locale\"" in config)
+    @Test fun everyLanguageIsInThePicker() {
+        assertTrue("locales_config.xml lists no languages", locales.size >= 9)
         val picker = File("src/main/kotlin/app/duongondro/ui/settings/SettingsScreen.kt").readText()
         for (locale in locales) assertTrue("$locale missing from the language picker", "\"$locale\"" in picker)
     }
@@ -81,6 +84,18 @@ class LocaleStringsTest {
             for (name in englishNames.filter { "$it#other" in english }) {
                 assertTrue("$locale $name has no \"other\"", "$name#other" in translated)
             }
+        }
+    }
+
+    /** aapt rejects an unescaped apostrophe in a string; this names the file and line. */
+    @Test fun noUnescapedApostrophes() {
+        val files = res.listFiles { f -> f.name == "values" || f.name.startsWith("values-") }!!
+            .flatMap { dir -> dir.listFiles { f -> f.name.startsWith("strings") && f.extension == "xml" }!!.toList() }
+        assertTrue(files.isNotEmpty())
+        for (file in files) file.readLines().forEachIndexed { i, line ->
+            val text = Regex("""<(?:string|item)\b[^>]*>(.*)</(?:string|item)>""").find(line)?.groupValues?.get(1) ?: return@forEachIndexed
+            if (text.startsWith("\"") || text.startsWith("@")) return@forEachIndexed
+            assertTrue("${file.parentFile.name}/${file.name}:${i + 1}: unescaped '", !Regex("""(?<!\\)'""").containsMatchIn(text))
         }
     }
 

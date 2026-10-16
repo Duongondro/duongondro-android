@@ -2,7 +2,7 @@
 <resources>
 
     <string name="tab_today">Aujourd\'hui</string>
-    <string name="tab_settings">Toi</string>
+    <string name="tab_settings">Profil</string>
     <string name="daily_practices">Pratiques quotidiennes</string>
 
     <plurals name="days">
@@ -44,7 +44,7 @@
     <string name="added">Ajouté : %1$s</string>
     <string name="marked_done">Marqué comme fait</string>
     <string name="undo">Annuler</string>
-    <string name="mark_today_done">Marquer aujourd\'hui comme fait</string>
+    <string name="mark_today_done">Marquer comme fait</string>
     <string name="add_one_mala">Ajouter un mala, %1$d</string>
     <string name="announce_added">Ajouté : %1$s. Annulation possible.</string>
     <string name="announce_done">Marqué comme fait. Annulation possible.</string>
@@ -94,7 +94,7 @@
     <string name="q_reminder">Quand veux-tu un rappel ?</string>
     <string name="q_reminder_detail">Un rappel le soir quand une série est menacée. Il est programmé sur ce téléphone ; rien n\'en sort.</string>
     <string name="remind_at_time">Me le rappeler à %1$s</string>
-    <string name="no_reminders">Pas de rappels</string>
+    <string name="no_reminders">Aucun rappel</string>
     <string name="get_started">Commencer</string>
     <string name="where_title">Sur ce téléphone seulement, ou en ligne ?</string>
     <string name="where_detail">Un compte ajoute les amis, les séries publiques et la synchronisation entre téléphones. Dans les deux cas, les décomptes sont chiffrés de bout en bout : le serveur ne les voit jamais.</string>
@@ -120,7 +120,7 @@
     <string name="check_title">Consulte tes e-mails</string>
     <string name="check_detail">Nous avons envoyé un lien à %1$s. Ouvre-le sur ce téléphone, ou saisis le code de l\'e-mail.</string>
     <string name="code_label">Code</string>
-    <string name="code_hint">Huit lettres et chiffres, comme dans l\'e-mail. Majuscules et minuscules sont équivalentes ; O et 0, I et 1 comptent pareil. Valable 15 minutes.</string>
+    <string name="code_hint">Huit lettres et chiffres, comme dans l\'e-mail. Majuscules et minuscules sont équivalentes ; O et 0, I et 1 se valent. Valable 15 minutes.</string>
     <string name="code_wrong">Ce code ne correspond pas. Vérifie l\'e-mail et réessaie.</string>
     <string name="send_again">Le renvoyer</string>
     <string name="sent_again">Renvoyé</string>
@@ -130,7 +130,7 @@
     <string name="name_random_detail">Un nom tiré au hasard, pour que tes amis puissent te reconnaître. Garde-le ou change-le.</string>
     <string name="name_label">Nom</string>
     <string name="gender_title">Ton genre</string>
-    <string name="gender_detail">Certaines langues, dont le français, accordent certains mots différemment pour les hommes et pour les femmes. Si tu passes cette étape ou choisis « Non binaire », l\'app utilisera des formes neutres autant que possible.</string>
+    <string name="gender_detail">Certaines langues, dont le français, s\'en servent pour accorder les mots qui te concernent, notamment sur les téléphones de tes amis. Sans lui, ou avec « Non binaire », elles utilisent des formes neutres.</string>
     <string name="gender_male">Homme</string>
     <string name="gender_female">Femme</string>
     <string name="gender_nonbinary">Non binaire</string>
@@ -138,18 +138,18 @@
     <string name="add_email_detail">Un deuxième moyen de te connecter, par exemple sur un nouveau téléphone.</string>
     <string name="add_email_sent">Saisis le code que nous avons envoyé à %1$s.</string>
     <string name="email_taken">Cette adresse e-mail appartient à un autre compte.</string>
-    <string name="email_invalid">Cela ne ressemble pas à une adresse e-mail.</string>
+    <string name="email_invalid">Ça ne ressemble pas à une adresse e-mail.</string>
     <string name="passkey_title">Enregistre une clé d\'accès</string>
     <string name="passkey_detail">La prochaine fois, tu te connectes avec ton empreinte ou le verrouillage de l\'écran. Le Gestionnaire de mots de passe de Google la conserve, donc un nouveau téléphone Android l\'aura aussi.</string>
     <string name="passkey_save">Enregistrer une clé d\'accès</string>
     <string name="passkey_use_email">Utiliser plutôt l\'e-mail</string>
     <string name="recovery_title">Note ton code de récupération</string>
     <string name="recovery_detail">Si tu perds ce téléphone, ce code est le seul moyen de retrouver tes décomptes. Personne d\'autre ne l\'a, pas même nous.</string>
-    <string name="recovery_note">Ensuite, nous te demanderons deux de ces groupes, pour vérifier. O et 0, I et 1 comptent pareil.</string>
+    <string name="recovery_note">Ensuite, nous te demanderons deux de ces groupes, pour vérifier. O et 0, I et 1 se valent.</string>
     <string name="recovery_replaced">C\'est un nouveau code de récupération. Tout code noté auparavant ne fonctionne plus.</string>
     <string name="recovery_done">Je l\'ai noté</string>
     <string name="recovery_gpm">L\'enregistrer plutôt dans le Gestionnaire de mots de passe de Google</string>
-    <string name="signin_title">Bon retour</string>
+    <string name="signin_title">Content de te revoir</string>
     <string name="signin_detail">Ton téléphone propose la clé d\'accès que tu as enregistrée. Pas de clé d\'accès sur ce téléphone ? Nous t\'envoyons un lien et un code par e-mail.</string>
     <string name="signin_passkey">Se connecter avec une clé d\'accès</string>
     <string name="signin_email">M\'envoyer un lien par e-mail</string>
@@ -226,7 +226,7 @@
     <string name="storage_error">Quelque chose n\'a pas pu être enregistré</string>
     <string name="previous_round">Tour précédent</string>
     <string name="next_round">Tour suivant</string>
-    <string name="invite_not_authentic">Ce code d\'amitié n\'est pas valide : il a peut-être été modifié en route. Demandes-en un nouveau à la personne qui te l\'a envoyé.</string>
+    <string name="invite_not_authentic">Ce code d\'amitié n\'est pas authentique : il a peut-être été modifié en route. Demandes-en un nouveau à la personne qui te l\'a envoyé.</string>
     <string name="no_account">Aucun compte n\'utilise cette adresse e-mail. Vérifie l\'adresse, ou reviens en arrière et crée un compte.</string>
     <string name="try_later">Trop de tentatives. Attends quelques minutes et réessaie.</string>
     <string name="try_again">Réessayer</string>
@@ -237,12 +237,12 @@
     <string name="recovery_check_wrong">Ça ne correspond pas. Regarde à nouveau le code.</string>
     <string name="recovery_show_again">Afficher à nouveau le code</string>
     <string name="restore_title">Restaurer avec ton code de récupération</string>
-    <string name="restore_detail">Le code que tu as noté en configurant ton premier téléphone. Les espaces et les tirets ne comptent pas. Le transfert depuis ton autre téléphone par QR code viendra plus tard.</string>
+    <string name="restore_detail">Le code que tu as noté en configurant ton premier téléphone. Les espaces et les tirets ne comptent pas. Le transfert depuis ton autre téléphone par code QR viendra plus tard.</string>
     <string name="restore_label">Code de récupération</string>
     <string name="restore_wrong">Ce code de récupération n\'ouvre pas ce compte.</string>
     <string name="sign_in_to_delete">Ce téléphone appartient à un compte, mais la session est fermée. Reconnecte-toi d\'abord, pour que la copie du serveur soit supprimée aussi.</string>
     <string name="section_account">Compte</string>
-    <string name="account_signed_in_as">Connecté(e) en tant que</string>
+    <string name="account_signed_in_as">Session ouverte en tant que</string>
     <string name="account_name">Ton nom</string>
     <string name="account_name_detail">Tes amis voient ce nom à côté de tes séries.</string>
     <string name="save">Enregistrer</string>
@@ -297,11 +297,11 @@
     <string name="invite_revoke">Révoquer</string>
     <string name="invite_revoke_title">Révoquer ce code d\'amitié ?</string>
     <string name="invite_revoke_detail">Le code et son lien cessent aussitôt de fonctionner. Les amitiés qu\'il a déjà créées restent.</string>
-    <string name="invite_qr_description">QR code du lien d\'amitié</string>
+    <string name="invite_qr_description">Code QR du lien d\'amitié</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Avec ce code, n\'importe qui devient ton ami(e) · valable %d jour</item>
-        <item quantity="many">Avec ce code, n\'importe qui devient ton ami(e) · valable %d jours</item>
-        <item quantity="other">Avec ce code, n\'importe qui devient ton ami(e) · valable %d jours</item>
+        <item quantity="one">Toute personne ayant ce code devient ton ami(e) · valable %d jour</item>
+        <item quantity="many">Toute personne ayant ce code devient ton ami(e) · valable %d jours</item>
+        <item quantity="other">Toute personne ayant ce code devient ton ami(e) · valable %d jours</item>
     </plurals>
 
     <!-- Accepting a friendship code while signed in -->
@@ -316,7 +316,7 @@
     <string name="accept_already_named">%s et toi êtes déjà ami(e)s : ce code d\'amitié n\'ajoute rien.</string>
     <string name="accept_own">C\'est ton propre code d\'amitié. Envoie-le plutôt à un(e) ami(e).</string>
     <string name="accept_gone">Ce code d\'amitié ne peut pas être utilisé : il a peut-être expiré ou été révoqué.</string>
-    <string name="counted_for">Compte pour %1$s</string>
+    <string name="counted_for">Compté pour %1$s</string>
     <string name="started_after_midnight">J\'ai commencé après minuit</string>
     <string name="tab_friends">Amis</string>
     <string name="friends_local_title">Pas encore de compte sur ce téléphone</string>
@@ -339,7 +339,7 @@
         <item quantity="other">Série %1$s : %2$d jours, %3$s</item>
     </plurals>
     <string name="ends_at_midnight">se termine à minuit</string>
-    <string name="ends_at">se termine %s</string>
+    <string name="ends_at">se termine le %s</string>
     <string name="poke">Relancer</string>
     <string name="poked">Relance envoyée</string>
     <string name="poke_named">Relancer %s</string>
@@ -371,7 +371,7 @@
     <string name="block_title">Bloquer ?</string>
     <string name="block_detail">Met fin à l\'amitié des deux côtés et bloque les codes d\'amitié et les relances entre vous.</string>
     <string name="their_key_changed">Sa clé a changé</string>
-    <string name="key_changed_detail">Le serveur indique maintenant pour cette personne une autre clé que celle que ce téléphone a vue en premier ; ses séries sont donc masquées. C\'est peut-être un nouveau téléphone sans restauration, ou quelqu\'un qui s\'interpose. Voyez-vous en personne, ou demande un nouveau code d\'amitié : l\'accepter vérifie à nouveau sa clé.</string>
+    <string name="key_changed_detail">Le serveur indique maintenant pour cette personne une autre clé que celle que ce téléphone a vue en premier ; ses séries sont donc masquées. C\'est peut-être un nouveau téléphone sans restauration, ou quelqu\'un qui s\'interpose. Retrouve cette personne en vrai, ou demande-lui un nouveau code d\'amitié : l\'accepter vérifie à nouveau sa clé.</string>
     <string name="friends_see_streak">Tes amis voient cette série</string>
     <string name="friends_see_streak_footer">Seulement le nombre de jours pratiqués dans l\'app, jamais les décomptes ni les totaux.</string>
     <string name="usual_time_nudge">Me relancer à mon heure habituelle</string>
