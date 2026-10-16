@@ -98,9 +98,6 @@ object Covers {
         file(context, practiceId).delete()
     }
 
-    fun all(context: Context): Map<String, ByteArray> =
-        folder(context).listFiles { f -> f.name.endsWith(".jpg") }?.associate { it.name.removeSuffix(".jpg") to it.readBytes() } ?: emptyMap()
-
     private const val LONGEST_SIDE = 1600f
     private const val QUALITY = 85
 }
