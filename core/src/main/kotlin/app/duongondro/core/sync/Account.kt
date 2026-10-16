@@ -40,6 +40,8 @@ object SecretName {
     const val SET_UP_USER = "set-up-user"
     /** The user key U this phone holds ([UserKeys.Local.serialised]), published or about to be. */
     const val USER_KEY = "user-key"
+    /** A replacement U made on the person's request, kept until the server took it, so a retry sends the same. */
+    const val USER_KEY_NEXT = "user-key-next"
     /** The account's other phones this one gave U to, as "<U id> <device id>" lines. */
     const val USER_KEY_GIVEN = "user-key-given"
     fun practiceKey(version: Long) = "practice-key-$version"
@@ -294,6 +296,35 @@ class Account(
         }
         giveUserKey(local, user, identity)
         return local
+    }
+
+    /**
+     * "Replace the unlock key", only on the person's request (after removing a
+     * passkey that could unlock): a new U with a new id and a higher version,
+     * published with `replace: true`. The server then deletes every box and
+     * wrap of the old U, so this phone wraps its keys to the new one and gives
+     * it to the other phones; every passkey needs a new box (the retrofit card).
+     * Whoever opened the old U keeps what it opened: this stops later keys
+     * reaching it, nothing more. Returns false when the account has no U.
+     */
+    suspend fun replaceUserKey(): Boolean = userKeyLock.withLock {
+        val state = database.syncState() ?: return@withLock false
+        val identity = identity()
+        val remote = api.userKey() ?: return@withLock false
+        val current = UserKeys.verify(remote.statement.toStatement(), state.user, identity.publicKey)
+        val pending = secrets.read(SecretName.USER_KEY_NEXT)?.let { UserKeys.Local.deserialised(it) }
+        // A replacement whose answer was lost is the current U already: only the steps after it remain.
+        val published = pending != null && pending.id == current.id && pending.publicKey.contentEquals(current.publicKey)
+        val next = pending?.takeIf { published || it.version > current.version }
+            ?: UserKeys.create(current.version + 1, now()).also { secrets.write(SecretName.USER_KEY_NEXT, it.serialised()) }
+        if (!published) {
+            val statement = UserKeys.statement(next, state.user, identity)
+            api.putUserKey(SignedStatementDto(statement.payload, statement.signature), replace = true)
+        }
+        secrets.write(SecretName.USER_KEY, next.serialised())
+        secrets.delete(SecretName.USER_KEY_NEXT)
+        secrets.delete(SecretName.USER_KEY_GIVEN)
+        ensureUserKeyLocked() != null
     }
 
     /** Seals U for a passkey whose PRF output a ceremony just gave; false when this phone holds no U. */

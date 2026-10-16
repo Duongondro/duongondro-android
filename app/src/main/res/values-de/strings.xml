@@ -394,4 +394,7 @@
     <string name="unlock_card_no_output">Dieser Passkey kann deine Zähler nicht entsperren. Ein neuer Passkey kann es; der alte meldet dich weiter an.</string>
     <string name="unlock_card_new_passkey">Neuen Passkey speichern</string>
     <string name="recovery_detail_passkey">Dein Passkey kann deine Zähler auf ein neues Handy bringen. Dieser Code ist der Weg zurück ohne ihn, falls du deinen Passwortmanager verlierst. Niemand sonst hat ihn, nicht einmal wir.</string>
+    <string name="unlock_replace_title">Entsperrschlüssel ersetzen?</string>
+    <string name="unlock_replace_detail">Der entfernte Passkey kann deine Zähler auf einem neuen Handy nicht mehr entsperren. Wer sie damit schon entsperrt hat, behält, was er geöffnet hat; das lässt sich nicht zurücknehmen. Ein neuer Entsperrschlüssel sorgt dafür, dass darüber nichts weiter dazukommt. Deine anderen Passkeys brauchen dann je einmal Fingerabdruck oder Displaysperre, um deine Zähler wieder zu entsperren.</string>
+    <string name="unlock_replace_action">Entsperrschlüssel ersetzen</string>
 </resources>

@@ -182,7 +182,12 @@ enum class UnlockSetUp {
     OtherAccount,
 }
 
-enum class PasskeyRemoval { Removed, LastWay, SignedOut }
+enum class PasskeyRemoval {
+    Removed,
+    /** Removed, and it could unlock the counts: offer to replace the unlock key (removal is not revocation). */
+    RemovedUnlocking,
+    LastWay, SignedOut,
+}
 
 /**
  * The account side of the app, as iOS's AccountModel: signing up and in,
@@ -1072,7 +1077,21 @@ class AccountManager(
             return PasskeyRemoval.SignedOut
         }
         refreshPasskeys()
-        return PasskeyRemoval.Removed
+        return if (passkey.canUnlock && _passkeys.value.holdsUserKey) PasskeyRemoval.RemovedUnlocking else PasskeyRemoval.Removed
+    }
+
+    /**
+     * "Replace the unlock key", only when the person asks, after removing a
+     * passkey that could unlock: a new U replaces the old (`replace: true`), so
+     * whoever opened the old one with that passkey gets nothing new through it.
+     * What they opened stays opened; Android does not rotate the practice key.
+     * Every remaining passkey then needs a new box: the card offers it.
+     */
+    suspend fun replaceUnlockKey() {
+        val a = requireAccount()
+        withContext(Dispatchers.IO) { a.replaceUserKey() }
+        _passkeys.update { it.copy(offerDismissed = false) }
+        refreshPasskeys()
     }
 
     // The server

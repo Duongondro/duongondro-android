@@ -68,6 +68,7 @@ fun PasskeysScreen(accounts: AccountManager, back: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     var renaming by remember { mutableStateOf<Passkey?>(null) }
     var removing by remember { mutableStateOf<Passkey?>(null) }
+    var replacing by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { accounts.refreshPasskeys() }
     val run = { work: suspend () -> Unit ->
         if (!busy) {
@@ -142,12 +143,27 @@ fun PasskeysScreen(accounts: AccountManager, back: () -> Unit) {
                         when (accounts.removePasskey(p)) {
                             PasskeyRemoval.LastWay -> problem = R.string.passkey_last_way
                             PasskeyRemoval.SignedOut -> back()
+                            PasskeyRemoval.RemovedUnlocking -> replacing = true
                             PasskeyRemoval.Removed -> Unit
                         }
                     }
                 }) { Text(stringResource(R.string.passkey_remove), color = Theme.colors.destructive) }
             },
             dismissButton = { TextButton(onClick = { removing = null }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+    // Removing a passkey that could unlock is not revocation: offer a new unlock key (duongondro-api#26).
+    if (replacing) {
+        AlertDialog(
+            onDismissRequest = { replacing = false },
+            title = { Text(stringResource(R.string.unlock_replace_title)) },
+            text = { Text(stringResource(R.string.unlock_replace_detail)) },
+            confirmButton = {
+                TextButton(onClick = { replacing = false; run { accounts.replaceUnlockKey() } }) {
+                    Text(stringResource(R.string.unlock_replace_action))
+                }
+            },
+            dismissButton = { TextButton(onClick = { replacing = false }) { Text(stringResource(R.string.unlock_card_later)) } },
         )
     }
 }

@@ -381,4 +381,7 @@
     <string name="unlock_card_no_output">Ez a hozzáférési kulcs nem tudja feloldani a számlálóidat. Egy új kulcs igen; a régivel továbbra is bejelentkezhetsz.</string>
     <string name="unlock_card_new_passkey">Új hozzáférési kulcs mentése</string>
     <string name="recovery_detail_passkey">A hozzáférési kulcsod új telefonra is átviszi a számlálóidat. Ez a kód nélküle az út vissza, ha elveszítenéd a jelszókezelődet. Senki másnak nincs meg, még nekünk sem.</string>
+    <string name="unlock_replace_title">Lecseréled a feloldókulcsot?</string>
+    <string name="unlock_replace_detail">Az eltávolított hozzáférési kulcs már nem tudja feloldani a számlálóidat új telefonon. Aki már feloldotta vele őket, megtartja, amit megnyitott; ezt nem lehet visszacsinálni. Egy új feloldókulcs biztosítja, hogy ezen keresztül semmi újhoz ne jusson hozzá. A többi hozzáférési kulcsodnak ezután egy-egy ujjlenyomat vagy képernyőzár kell, hogy újra feloldja a számlálóidat.</string>
+    <string name="unlock_replace_action">Feloldókulcs cseréje</string>
 </resources>

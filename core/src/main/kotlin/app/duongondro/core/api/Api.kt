@@ -181,8 +181,17 @@ class Api(
     /** U's signed statement and the wraps to it; null when the account has none. */
     fun userKey(): UserKeyState? = try { get("api/me/user-key") } catch (_: ApiError.NotFound) { null }
 
-    /** Publishes U. 409 ([ApiError.Conflict]) when the account has one already at this version or above: never retried as a replacement. */
-    fun putUserKey(statement: SignedStatementDto) = send<Unit>("PUT", "api/me/user-key", encode(statement))
+    /**
+     * Publishes U: a conditional create, 409 ([ApiError.Conflict]) when the
+     * account has one already, never retried as a replacement. [replace] only
+     * on the person's request (Replace the unlock key), with a new id and a
+     * higher version.
+     */
+    fun putUserKey(statement: SignedStatementDto, replace: Boolean = false) = send<Unit>("PUT", "api/me/user-key", buildJsonObject {
+        put("payload", Base64.getEncoder().encodeToString(statement.payload))
+        put("signature", Base64.getEncoder().encodeToString(statement.signature))
+        if (replace) put("replace", true)
+    })
 
     fun putUserKeyWrap(wrap: UserKeyWrapInput) = send<Unit>("POST", "api/me/user-key/wraps", encode(wrap))
 
