@@ -278,8 +278,16 @@ class Account(
             published = UserKeys.verify(remote.statement.toStatement(), user, identity.publicKey)
             have = remote.wraps.filter { it.userKeyId == published.id }.map { it.kind to it.keyVersion }
             val held = localUserKey()
-            local = if (held != null && held.id == published.id && held.publicKey.contentEquals(published.publicKey)) {
-                held
+            fun isPublished(u: UserKeys.Local?) = u != null && u.id == published.id && u.publicKey.contentEquals(published.publicKey)
+            // A replacement whose answer was lost: the server took it, so it is U now.
+            val next = secrets.read(SecretName.USER_KEY_NEXT)?.let { UserKeys.Local.deserialised(it) }
+            local = if (isPublished(held)) {
+                held!!
+            } else if (isPublished(next)) {
+                secrets.write(SecretName.USER_KEY, next!!.serialised())
+                secrets.delete(SecretName.USER_KEY_NEXT)
+                secrets.delete(SecretName.USER_KEY_GIVEN)
+                next
             } else {
                 receiveUserKey(published, user, identity)?.also { secrets.write(SecretName.USER_KEY, it.serialised()) }
                     ?: run {

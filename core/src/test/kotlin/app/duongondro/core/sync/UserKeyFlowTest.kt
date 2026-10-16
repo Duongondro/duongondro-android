@@ -42,6 +42,8 @@ class UserKeyFlowTest {
         val boxes = mutableMapOf<String, String>()
         var puts = 0
         var replaced = 0
+        /** The next PUT of U is applied, then its answer is lost. */
+        var loseNextAnswer = false
 
         override fun send(method: String, url: String, headers: Map<String, String>, body: ByteArray?): Http.Response {
             val path = url.removePrefix("http://server/")
@@ -71,6 +73,7 @@ class UserKeyFlowTest {
                     payload = p
                     signature = Base64.getDecoder().decode(json["signature"]!!.jsonPrimitive.content)
                     id = st.id.toString(); version = st.version
+                    if (loseNextAnswer) { loseNextAnswer = false; throw java.io.IOException("answer lost") }
                     Http.Response(201, ByteArray(0))
                 }
                 method == "POST" && path == "api/me/user-key/wraps" -> { wraps += json!!; ok() }
@@ -139,6 +142,36 @@ class UserKeyFlowTest {
         assertEquals("both secrets wrapped to the new U", setOf(1, 2), server.wraps.map { it["kind"]!!.jsonPrimitive.content.toInt() }.toSet())
         assertEquals(server.id, UserKeys.Local.deserialised(secrets.read(SecretName.USER_KEY)!!)!!.id.toString())
         assertNull(secrets.read(SecretName.USER_KEY_NEXT))
+    }
+
+    @Test fun aReplacementWhoseAnswerIsLostIsAdopted() = runBlocking {
+        val server = Server()
+        val (a, secrets) = phone(server)
+        val old = a.ensureUserKey()!!
+        server.loseNextAnswer = true
+        assertTrue(runCatching { a.replaceUserKey() }.isFailure)
+        assertNotEquals("the server took the new U", old.id.toString(), server.id)
+        // The next check (a sync) adopts it instead of giving U up.
+        val u = a.ensureUserKey()
+        assertNotNull(u)
+        assertEquals(server.id, u!!.id.toString())
+        assertEquals(server.id, UserKeys.Local.deserialised(secrets.read(SecretName.USER_KEY)!!)!!.id.toString())
+        assertNull(secrets.read(SecretName.USER_KEY_NEXT))
+        assertEquals("both secrets wrapped to it", setOf(1, 2), server.wraps.map { it["kind"]!!.jsonPrimitive.content.toInt() }.toSet())
+        // And asking again does not replace it a second time.
+        assertEquals(1, server.replaced)
+    }
+
+    @Test fun aReplacementRetriedAfterALostAnswerIsNotRepeated() = runBlocking {
+        val server = Server()
+        val (a, _) = phone(server)
+        a.ensureUserKey()
+        server.loseNextAnswer = true
+        runCatching { a.replaceUserKey() }
+        val taken = server.id
+        assertTrue(a.replaceUserKey())
+        assertEquals(taken, server.id)
+        assertEquals(1, server.replaced)
     }
 
     @Test fun noUNoReplacement() = runBlocking {
