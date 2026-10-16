@@ -1020,7 +1020,8 @@ class AccountManager(
             try {
                 var checked = false
                 val holds = withContext(Dispatchers.IO) {
-                    runCatching { (a.ensureUserKey() != null).also { checked = true } }
+                    // Waiting for U as a kind 4 wrap is not done: the next sync looks again.
+                    runCatching { (a.ensureUserKey() != null).also { checked = it } }
                         .onFailure { e -> if (e is ApiError.Unauthorized || e is CancellationException) throw e; Log.w(TAG, "user key: ${e.javaClass.simpleName}") }
                         .getOrDefault(false)
                 }
@@ -1210,6 +1211,8 @@ class AccountManager(
         social = null
         heldPrf = null
         _passkeys.value = PasskeysState()
+        // Signed in again in this launch (after another phone's replacement, say): check U afresh.
+        userKeyCheckedAt = null
         signUpFinished()
         _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
     }
