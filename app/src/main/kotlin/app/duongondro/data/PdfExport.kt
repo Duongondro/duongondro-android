@@ -24,8 +24,10 @@ import java.util.Locale
 
 /**
  * The PDF export drawn with the platform's own `PdfDocument`, as CodeShare's: A4 in
- * points, IBM Plex Sans for headings and figures and the system sans for prose, all
- * with tabular figures, in the light theme for print. Core's [ReportLayout] decides
+ * points, IBM Plex Sans with tabular figures for headings and figures and the system
+ * sans for prose, in the light theme for print. The system sans goes without `tnum`:
+ * PdfDocument embeds it as Type3 glyphs, and the substituted tabular 6 and 8 lose their
+ * text, so "16th" came out of a copy or a search as "1 th". Core's [ReportLayout] decides
  * where everything goes, measuring with these paints; this only draws it.
  */
 class PdfExport(private val context: Context) {
@@ -40,7 +42,7 @@ class PdfExport(private val context: Context) {
         textSize = style.size
         color = style.color.argb.toInt()
         typeface = typeface(style.font)
-        fontFeatureSettings = "'tnum'"
+        if (style.font == ReportFont.PLEX_BOLD || style.font == ReportFont.PLEX_SEMIBOLD) fontFeatureSettings = "'tnum'"
     }
 
     private fun typeface(font: ReportFont): Typeface = when (font) {

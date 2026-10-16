@@ -50,7 +50,7 @@ data class Cell(val main: String, val second: String? = null)
 /** IBM Plex Sans (the app bundles SemiBold and Bold) for headings and figures; the system sans for prose. */
 enum class ReportFont { PLEX_BOLD, PLEX_SEMIBOLD, SYSTEM, SYSTEM_SEMIBOLD }
 
-/** iOS's type for the export, every style with tabular figures. */
+/** iOS's type for the export; Plex with tabular figures (the system sans goes without on Android, see PdfExport). */
 enum class ReportStyle(val size: Float, val font: ReportFont, val color: ReportColor) {
     TITLE(22f, ReportFont.PLEX_BOLD, ReportColor.ACCENT),
     SECTION(13f, ReportFont.PLEX_SEMIBOLD, ReportColor.INK),
