@@ -96,6 +96,13 @@ val checkCleanTree = tasks.register("checkCleanTree") {
 }
 tasks.matching { it.name.matches(Regex("(pre|bundle|assemble)Release.*")) }.configureEach { dependsOn(checkCleanTree) }
 
+// LocaleStringsTest reads the resource files and the language picker directly,
+// so a changed translation has to rerun the unit tests.
+tasks.withType<Test>().configureEach {
+    inputs.dir("src/main/res").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file("src/main/kotlin/app/duongondro/ui/settings/SettingsScreen.kt").withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 /** Contributors.json from git history at build time; the About screen works offline. */
 abstract class ContributorsTask @Inject constructor(private val exec: ExecOperations) : DefaultTask() {
     @get:InputFile abstract val script: RegularFileProperty
