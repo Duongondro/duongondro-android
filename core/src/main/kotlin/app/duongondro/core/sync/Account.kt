@@ -37,6 +37,10 @@ object SecretName {
     const val IDENTITY_SEED = "identity-seed"
     /** The account a set-up in progress belongs to, so another account's leftovers are never reused. */
     const val SET_UP_USER = "set-up-user"
+    /** The user key U this phone holds ([UserKeys.Local.serialised]), published or about to be. */
+    const val USER_KEY = "user-key"
+    /** The account's other phones this one gave U to, as "<U id> <device id>" lines. */
+    const val USER_KEY_GIVEN = "user-key-given"
     fun practiceKey(version: Long) = "practice-key-$version"
 }
 
@@ -180,22 +184,151 @@ class Account(
             E2EE.WrapKind.of(b.kind)?.let { AccountKeys.RecoveryBox(it, b.box, signature = null) }
         }
         val version = me.keyVersion
-        val sample = api.sync(null).logs.firstOrNull { it.keyVersion == version && it.sealed != null }
-            ?.let { AccountKeys.SealedSample(it.id, it.sealed!!) }
+        val sample = sample(version)
         val restored = AccountKeys.restore(recoveryCode, me.id, me.identityPublicKey, version, boxes, sample)
+        enrol(me, restored.identity, restored.practiceKey, version)
+    }
+
+    /** A session sealed under the current key version, to check a recovered practice key against. */
+    private fun sample(version: Long): AccountKeys.SealedSample? =
+        api.sync(null).logs.firstOrNull { it.keyVersion == version && it.sealed != null }?.let { AccountKeys.SealedSample(it.id, it.sealed!!) }
+
+    /** After a restore or a passkey unlock: keep the keys, register this device, list it and wrap to it. */
+    private suspend fun enrol(me: app.duongondro.core.api.Me, identity: Identity, practiceKey: ByteArray, version: Long) {
         secrets.write(SecretName.SET_UP_USER, me.id.toString().lowercase().toByteArray())
-        secrets.write(SecretName.IDENTITY_SEED, restored.identity.seed)
-        secrets.write(SecretName.practiceKey(version), restored.practiceKey)
+        secrets.write(SecretName.IDENTITY_SEED, identity.seed)
+        secrets.write(SecretName.practiceKey(version), practiceKey)
 
         val (deviceId, key) = registerThisDevice()
         val previous = api.deviceList()?.toStatement()
         val published = me.identityPublicKey!!
         if (!AccountKeys.listsDevice(previous, deviceId, published)) {
-            publishDeviceList(deviceId, key, me.id, restored.identity, previous, published)
+            publishDeviceList(deviceId, key, me.id, identity, previous, published)
         }
-        wrapSecrets(deviceId, key, me.id, version, restored.identity, restored.practiceKey)
+        wrapSecrets(deviceId, key, me.id, version, identity, practiceKey)
         database.saveSyncState(SyncState(me.id, version))
         database.markAllDirty()
+    }
+
+    // New phone, from a passkey (docs/crypto.md › Passkey unlock)
+
+    /**
+     * Brings the keys here with a passkey's PRF output, without the recovery
+     * code. False when the passkey has no box (it cannot unlock the counts);
+     * [AccountKeys.Error] when it has one that does not open or verify.
+     */
+    suspend fun unlockWithPasskey(prf: ByteArray, credentialId: ByteArray): Boolean {
+        val me = api.me()
+        val found = api.passkeyUnlock(app.duongondro.core.api.Prf.idText(credentialId)) ?: return false
+        val version = me.keyVersion
+        val unlocked = UserKeys.unlock(prf, credentialId, me.id, me.identityPublicKey, version, found.toUnlock(), sample(version))
+        secrets.write(SecretName.USER_KEY, unlocked.userKey.serialised())
+        enrol(me, unlocked.identity, unlocked.practiceKey, version)
+        return true
+    }
+
+    // The user key U
+
+    /** U as this phone holds it, or null. */
+    fun localUserKey(): UserKeys.Local? = secrets.read(SecretName.USER_KEY)?.let { UserKeys.Local.deserialised(it) }
+
+    /**
+     * Makes sure the account's U is here and holds this phone's keys, as far as
+     * this phone can: when the server has no U, it publishes one (made and
+     * stored here first, so a retry publishes the same); a 409 means another
+     * phone won, and this one waits for U as a kind 4 wrap, never replacing it.
+     * With U here, wraps the identity seed and the current practice key to it
+     * where missing (after a rotation too), and gives U to the account's other
+     * listed phones. Returns U when this phone holds the account's current one.
+     */
+    suspend fun ensureUserKey(): UserKeys.Local? {
+        val state = database.syncState() ?: return null
+        val user = state.user
+        val keyVersion = state.keyVersion
+        val practiceKey = practiceKey(keyVersion) ?: return null
+        val identity = identity()
+        val remote = api.userKey()
+        var have: List<Pair<Int, Long>> = emptyList()
+        val local: UserKeys.Local
+        val published: Statements.UserKey
+        if (remote == null) {
+            val pending = localUserKey() ?: UserKeys.create(1, now()).also { secrets.write(SecretName.USER_KEY, it.serialised()) }
+            val statement = UserKeys.statement(pending, user, identity)
+            try {
+                api.putUserKey(SignedStatementDto(statement.payload, statement.signature))
+            } catch (_: app.duongondro.core.api.ApiError.Conflict) {
+                // Another phone published first: its U reaches this one as a kind 4 wrap.
+                secrets.delete(SecretName.USER_KEY)
+                return null
+            }
+            local = pending
+            published = Statements.UserKey(pending.id, pending.publicKey, user, pending.version)
+        } else {
+            published = UserKeys.verify(remote.statement.toStatement(), user, identity.publicKey)
+            have = remote.wraps.filter { it.userKeyId == published.id }.map { it.kind to it.keyVersion }
+            val held = localUserKey()
+            local = if (held != null && held.id == published.id && held.publicKey.contentEquals(published.publicKey)) {
+                held
+            } else {
+                receiveUserKey(published, user, identity)?.also { secrets.write(SecretName.USER_KEY, it.serialised()) }
+                    ?: run {
+                        // A U of ours that lost, or was replaced: it can never be used again.
+                        if (held != null) secrets.delete(SecretName.USER_KEY)
+                        return null
+                    }
+            }
+        }
+        for (kind in UserKeys.missing(have, keyVersion)) {
+            val secret = if (kind == E2EE.WrapKind.PRACTICE_KEY) practiceKey else identity.seed
+            val w = UserKeys.wrapToUserKey(secret, kind, published, user, keyVersion, identity)
+            api.putUserKeyWrap(app.duongondro.core.api.UserKeyWrapInput(published.id, w.kind.raw, w.keyVersion, w.ephemeralKey, w.box, w.signature))
+        }
+        giveUserKey(local, user, identity)
+        return local
+    }
+
+    /** Seals U for a passkey whose PRF output a ceremony just gave; false when this phone holds no U. */
+    suspend fun sealUserKeyForPasskey(prf: ByteArray, credentialId: ByteArray): Boolean {
+        val u = ensureUserKey() ?: return false
+        val user = database.syncState()?.user ?: return false
+        val box = UserKeys.sealForPasskey(u, prf, credentialId, user, identity())
+        api.putPasskeyUnlock(app.duongondro.core.api.Prf.idText(credentialId), app.duongondro.core.api.PasskeyBoxInput(u.id, box.box, box.signature))
+        return true
+    }
+
+    private fun thisDevice(): UUID? = secrets.read(SecretName.DEVICE_ID)?.decodeToString()?.let(UUID::fromString)
+
+    /** U from a kind 4 wrap another phone left for this one. */
+    private fun receiveUserKey(published: Statements.UserKey, user: UUID, identity: Identity): UserKeys.Local? {
+        val device = thisDevice() ?: return null
+        val key = deviceKeys.current() ?: return null
+        return api.wraps(device).asSequence()
+            .filter { it.kind == E2EE.WrapKind.USER_KEY.raw && it.keyVersion == published.version }
+            .mapNotNull { w ->
+                val auth = AccountKeys.AuthType.of(w.authType) ?: return@mapNotNull null
+                val wrap = AccountKeys.Wrap(E2EE.WrapKind.USER_KEY, w.keyVersion, w.ephemeralKey, w.box, auth, w.authenticator)
+                runCatching { UserKeys.receive(wrap, published, user, device, key.agreement, identity) }.getOrNull()
+            }
+            .firstOrNull()
+    }
+
+    /** Gives U to the account's other phones in the signed device list, each once. */
+    private fun giveUserKey(u: UserKeys.Local, user: UUID, identity: Identity) {
+        val me = thisDevice() ?: return
+        val list = api.deviceList()?.toStatement() ?: return
+        if (!list.verify(app.duongondro.core.crypto.StatementTypes.DEVICE_LIST, identity.publicKey)) return
+        val listed = Statements.parseDeviceList(list.payload)?.devices ?: return
+        val given = secrets.read(SecretName.USER_KEY_GIVEN)?.decodeToString()?.lines()?.filter { it.isNotBlank() }?.toMutableSet() ?: mutableSetOf()
+        val registered = api.devices()
+        for (d in listed) {
+            if (d.id == me || "${u.id} ${d.id}" in given) continue
+            // Only a device the server still has with the same key: never one it dropped.
+            if (registered.none { it.id == d.id && it.publicKey.contentEquals(d.publicKey) }) continue
+            val w = UserKeys.wrapToDevice(u, d.id, d.publicKey, user, identity)
+            api.putWrap(d.id, WrapInput(w.kind.raw, w.keyVersion, w.ephemeralKey, w.box, w.authType.raw, w.authenticator))
+            given += "${u.id} ${d.id}"
+            secrets.write(SecretName.USER_KEY_GIVEN, given.joinToString("\n").toByteArray())
+        }
     }
 
     /** A new recovery code, replacing the old one (the old code stops working). A code left pending by a failed attempt is finished instead. */
@@ -279,3 +412,10 @@ class Account(
 }
 
 private fun SignedStatementDto.toStatement() = SignedStatement(payload, signature)
+
+private fun app.duongondro.core.api.PasskeyUnlock.toUnlock() = UserKeys.Unlock(
+    userKey.statement.toStatement(), box, signature,
+    userKey.wraps.filter { it.userKeyId == userKey.id }.mapNotNull { w ->
+        E2EE.WrapKind.of(w.kind)?.let { UserKeys.Wrap(it, w.keyVersion, w.ephemeralKey, w.box, w.signature) }
+    },
+)

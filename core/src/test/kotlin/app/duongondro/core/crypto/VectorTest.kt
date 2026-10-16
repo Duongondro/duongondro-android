@@ -71,6 +71,7 @@ class VectorTest {
             "statements" to ::statements,
             "invite" to ::invite,
             "recovery" to ::recovery,
+            "prf" to ::prf,
         )
         for (section in v.root.keys) {
             val check = handled[section] ?: run { fail("unhandled vector section '$section'"); return }
@@ -137,7 +138,7 @@ class VectorTest {
             val secret = when (kind) {
                 E2EE.WrapKind.PRACTICE_KEY -> v.bytes("inputs.practiceKey")
                 E2EE.WrapKind.IDENTITY_SEED -> v.bytes("inputs.identitySeed")
-                E2EE.WrapKind.SHARE_KEY -> { fail("no input for a share-key wrap in $name"); return }
+                E2EE.WrapKind.SHARE_KEY, E2EE.WrapKind.USER_KEY -> { fail("no input for a kind $kind wrap in $name"); return }
             }
             val aad = E2EE.wrapAAD(user, keyVersion, device, kind)
             assertEquals(name, v.str("$p.aad"), aad.hex())
@@ -200,6 +201,60 @@ class VectorTest {
         assertTrue(E2EE.verifyRecoveryBox(box, user, kind, sig, identity.publicKey))
         assertFalse(E2EE.verifyRecoveryBox(box, user, E2EE.WrapKind.IDENTITY_SEED, sig, identity.publicKey))
         assertOpenFails { E2EE.openRecovery(box, key, user, E2EE.WrapKind.IDENTITY_SEED) }
+    }
+
+    /** docs/crypto.md › Passkey unlock, from a fixed PRF output (a real one comes only from an authenticator). */
+    private fun prf() {
+        assertEquals(v.str("prf.prfInput"), E2EE.LABEL_PRF.toByteArray().hex())
+        val u = SoftwareDeviceKey.fromRaw(v.bytes("prf.inputs.userKeyPrivate"))
+        assertArrayEquals(v.bytes("prf.inputs.userKeyPublic"), u.publicKey)
+        val uId = uuid("prf.inputs.userKeyId")
+        val uVersion = v.long("prf.inputs.keyVersion")
+        val credentialId = v.bytes("prf.inputs.credentialId")
+        val identity = Identity(v.bytes("inputs.identitySeed"))
+        val nonce = v.bytes("inputs.nonce")
+
+        val prfKey = PasskeyBox.key(v.bytes("prf.inputs.prfOutput"), user)
+        assertEquals(v.str("prf.prfKey"), prfKey.hex())
+        val aad = PasskeyBox.aad(user, uId, credentialId)
+        assertEquals(v.str("prf.aad"), aad.hex())
+        val box = PasskeyBox.seal(u.rawPrivate, prfKey, aad, nonce)
+        assertEquals(v.str("prf.box"), box.hex())
+        assertArrayEquals(u.rawPrivate, PasskeyBox.open(box, prfKey, aad))
+        assertEquals(v.str("prf.boxSignature"), PasskeyBox.sign(aad, box, identity).hex())
+        assertTrue(PasskeyBox.verify(aad, box, v.bytes("prf.boxSignature"), identity.publicKey))
+        // The box opens only for its passkey, and only under its PRF output.
+        assertOpenFails { PasskeyBox.open(box, prfKey, PasskeyBox.aad(user, uId, credentialId + 0)) }
+        assertOpenFails { PasskeyBox.open(box, PasskeyBox.key(ByteArray(32), user), aad) }
+
+        assertEquals("user-key", v.str("prf.statement.type"))
+        val payload = app.duongondro.core.sync.Statements.userKey(app.duongondro.core.sync.Statements.UserKey(uId, u.publicKey, user, uVersion))
+        assertEquals(v.str("prf.statement.payload"), payload.decodeToString())
+        assertEquals(v.str("prf.statement.signature"), E2EE.signStatement(StatementTypes.USER_KEY, payload, identity).hex())
+
+        val ephemeral = SoftwareDeviceKey.fromRaw(v.bytes("inputs.ephemeralPrivate"))
+        val wraps = v.arr("prf.wraps")
+        assertEquals(3, wraps.size)
+        for (i in wraps.indices) {
+            val p = "prf.wraps.$i"
+            val name = v.str("$p.name")
+            val kind = E2EE.WrapKind.of(v.long("$p.kind").toInt())!!
+            val recipient = uuidOf(v.bytes("$p.recipient"))!!
+            val (secret, recipientKey) = when (kind) {
+                E2EE.WrapKind.PRACTICE_KEY -> v.bytes("inputs.practiceKey") to u
+                E2EE.WrapKind.IDENTITY_SEED -> v.bytes("inputs.identitySeed") to u
+                E2EE.WrapKind.USER_KEY -> u.rawPrivate to SoftwareDeviceKey.fromRaw(v.bytes("inputs.recipientPrivate"))
+                E2EE.WrapKind.SHARE_KEY -> { fail("unexpected share-key wrap in $name"); return }
+            }
+            if (kind == E2EE.WrapKind.USER_KEY) assertEquals(name, uuid("inputs.recipientDevice"), recipient) else assertEquals(name, uId, recipient)
+            val wrapAad = E2EE.wrapAAD(user, uVersion, recipient, kind)
+            assertEquals(name, v.str("$p.aad"), wrapAad.hex())
+            val wrapped = E2EE.wrap(secret, recipientKey.publicKey, wrapAad, ephemeral, nonce)
+            assertEquals(name, v.str("$p.epk"), wrapped.epk.hex())
+            assertEquals(name, v.str("$p.box"), wrapped.box.hex())
+            assertArrayEquals(name, secret, E2EE.unwrap(wrapped, recipientKey, wrapAad))
+            assertEquals(name, v.str("$p.signature"), E2EE.signWrap(wrapped, wrapAad, recipientKey.publicKey, identity).hex())
+        }
     }
 
     @Test

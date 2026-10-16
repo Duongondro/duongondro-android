@@ -164,6 +164,36 @@ class Api(
     fun finishPasskeyAdd(ceremony: UUID, credential: JsonElement) =
         send<Unit>("POST", "api/me/passkeys/${ceremony.lower}", buildJsonObject { put("credential", credential) })
 
+    // Settings › Passkeys (design decision 25)
+
+    /** The account's passkeys, oldest first, with whether each can unlock the counts. */
+    fun passkeys(): List<Passkey> = get<PasskeyList>("api/me/credentials").passkeys
+
+    /** Names a passkey; null or blank clears the name. */
+    fun renamePasskey(credentialId: String, name: String?) =
+        send<Unit>("PATCH", "api/me/credentials/$credentialId", buildJsonObject { put("name", name) })
+
+    /** Removes a passkey, its box and the sessions it signed in with; 409 when it is the last way to sign in. */
+    fun deletePasskey(credentialId: String) = send<Unit>("DELETE", "api/me/credentials/$credentialId", null)
+
+    // Passkey unlock (docs/crypto.md › Passkey unlock)
+
+    /** U's signed statement and the wraps to it; null when the account has none. */
+    fun userKey(): UserKeyState? = try { get("api/me/user-key") } catch (_: ApiError.NotFound) { null }
+
+    /** Publishes U. 409 ([ApiError.Conflict]) when the account has one already at this version or above: never retried as a replacement. */
+    fun putUserKey(statement: SignedStatementDto) = send<Unit>("PUT", "api/me/user-key", encode(statement))
+
+    fun putUserKeyWrap(wrap: UserKeyWrapInput) = send<Unit>("POST", "api/me/user-key/wraps", encode(wrap))
+
+    /** What a new phone needs after signing in with this passkey; null when it cannot unlock the counts. */
+    fun passkeyUnlock(credentialId: String): PasskeyUnlock? =
+        try { get("api/me/credentials/$credentialId/unlock") } catch (_: ApiError.NotFound) { null }
+
+    /** Stores U's scalar sealed under this passkey's PRF output. 404: not this account's passkey; 409: U was replaced. */
+    fun putPasskeyUnlock(credentialId: String, box: PasskeyBoxInput) =
+        send<Unit>("PUT", "api/me/credentials/$credentialId/unlock", encode(box))
+
     /** A problem worth knowing about, without personal data (design: Keys, the fallback report). */
     fun reportClientError(message: String, appVersion: String, osVersion: String, context: Map<String, String> = emptyMap()) =
         send<Unit>("POST", "api/client-errors", encode(ClientErrorReport("error", message.take(2048), appVersion.take(64), osVersion.take(64), context)))
@@ -437,6 +467,54 @@ class RecoveryBoxInput(@Serializable(Base64Bytes::class) val box: ByteArray, @Se
 @Serializable class RecoveryBox(val kind: Int, @Serializable(Base64Bytes::class) val box: ByteArray, val updatedAt: String = "")
 
 @Serializable class RecoveryBoxList(val boxes: List<RecoveryBox>)
+
+@Serializable
+class Passkey(
+    /** The credential id, base64url without padding, as the paths take it. */
+    val id: String,
+    val name: String? = null,
+    val aaguid: String? = null,
+    val createdAt: String = "",
+    val lastUsedAt: String? = null,
+    /** This session signed in with it, so removing it signs this phone out. */
+    val current: Boolean = false,
+    /** It holds a box of U: signing in with it brings the keys to a new phone. */
+    val canUnlock: Boolean = false,
+)
+
+@Serializable class PasskeyList(val passkeys: List<Passkey>)
+
+@Serializable
+class UserKeyWrapInput(
+    @Serializable(UuidText::class) val userKeyId: UUID,
+    val kind: Int,
+    val keyVersion: Long,
+    @Serializable(Base64Bytes::class) val ephemeralKey: ByteArray,
+    @Serializable(Base64Bytes::class) val box: ByteArray,
+    @Serializable(Base64Bytes::class) val signature: ByteArray,
+)
+
+@Serializable
+class UserKeyState(
+    @Serializable(UuidText::class) val id: UUID,
+    val version: Long,
+    val statement: SignedStatementDto,
+    val wraps: List<UserKeyWrapInput> = emptyList(),
+)
+
+@Serializable
+class PasskeyBoxInput(
+    @Serializable(UuidText::class) val userKeyId: UUID,
+    @Serializable(Base64Bytes::class) val box: ByteArray,
+    @Serializable(Base64Bytes::class) val signature: ByteArray,
+)
+
+@Serializable
+class PasskeyUnlock(
+    val userKey: UserKeyState,
+    @Serializable(Base64Bytes::class) val box: ByteArray,
+    @Serializable(Base64Bytes::class) val signature: ByteArray,
+)
 
 @Serializable
 class PracticeLogInput(
