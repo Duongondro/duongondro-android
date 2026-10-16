@@ -367,4 +367,35 @@
     <string name="usual_body">Um diese Zeit setzt du dich normalerweise für %s hin.</string>
     <string name="usual_body_discreet">Um diese Zeit setzt du dich normalerweise zum Meditieren hin.</string>
     <string name="server">Server</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Passkeys</string>
+    <string name="passkeys_detail">Jeder Passkey meldet dich bei diesem Konto an. Die Namen siehst nur du.</string>
+    <string name="passkey_default_name">Passkey</string>
+    <string name="passkey_added">Hinzugefügt am %1$s</string>
+    <string name="passkey_added_used">Hinzugefügt am %1$s · zuletzt benutzt am %2$s</string>
+    <string name="passkey_added_used_today">Hinzugefügt am %1$s · heute zuletzt benutzt</string>
+    <string name="passkey_unlocks">Entsperrt deine Zähler auf einem neuen Handy</string>
+    <string name="passkey_add">Passkey hinzufügen</string>
+    <string name="passkey_unavailable_add">Dieses Handy kann keinen Passkey erstellen.</string>
+    <string name="passkey_rename_title">Passkey benennen</string>
+    <string name="passkey_rename_named">%1$s umbenennen</string>
+    <string name="passkey_remove_named">%1$s entfernen</string>
+    <string name="passkey_remove_title">„%1$s“ entfernen?</string>
+    <string name="passkey_remove_detail">Er kann dich nicht mehr anmelden, und überall, wo er gerade angemeldet ist, wirst du abgemeldet. Der Passkey selbst bleibt in deinem Passwortmanager, bis du ihn dort löschst.</string>
+    <string name="passkey_remove_current">Dieses Handy hat sich damit angemeldet und wird deshalb auch hier abgemeldet. Deine Zähler bleiben darauf.</string>
+    <string name="passkey_remove">Entfernen</string>
+    <string name="passkey_last_way">Das ist deine einzige Art, dich anzumelden. Füge zuerst einen weiteren Passkey oder eine E-Mail-Adresse hinzu.</string>
+    <string name="passkey_other_account">Dieser Passkey gehört zu einem anderen Konto.</string>
+    <string name="unlock_card_title">Lass deinen Passkey deine Zähler auf einem neuen Handy entsperren</string>
+    <string name="unlock_card_detail">Melde dich auf einem neuen Handy mit deinem Passkey an, und deine Zähler kommen ohne den Wiederherstellungscode zurück. Dafür reicht einmal Fingerabdruck oder Displaysperre.</string>
+    <string name="unlock_card_action">Meinen Passkey verwenden</string>
+    <string name="unlock_card_later">Nicht jetzt</string>
+    <string name="unlock_card_no_output">Dieser Passkey kann deine Zähler nicht entsperren. Ein neuer Passkey kann es; der alte meldet dich weiter an.</string>
+    <string name="unlock_card_new_passkey">Neuen Passkey speichern</string>
+    <string name="recovery_detail_passkey">Dein Passkey kann deine Zähler auf ein neues Handy bringen. Dieser Code ist der Weg zurück ohne ihn, falls du deinen Passwortmanager verlierst. Niemand sonst hat ihn, nicht einmal wir.</string>
+    <string name="unlock_replace_title">Entsperrschlüssel ersetzen?</string>
+    <string name="unlock_replace_detail">Andere Handys werden abgemeldet, und dieser Passkey kann deine Zähler auf einem neuen Handy nicht mehr entsperren. Ein Handy, das er schon entsperrt hat, behält, was es hat.</string>
+    <string name="unlock_replace_action">Entsperrschlüssel ersetzen</string>
+    <string name="unlock_replace_skip">Nur entfernen</string>
 </resources>

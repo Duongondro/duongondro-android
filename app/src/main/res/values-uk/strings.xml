@@ -384,4 +384,35 @@
     <string name="usual_body">Зазвичай ви сідаєте на %s приблизно в цей час.</string>
     <string name="usual_body_discreet">Зазвичай ви сідаєте медитувати приблизно в цей час.</string>
     <string name="server">Сервер</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Ключі доступу</string>
+    <string name="passkeys_detail">Кожен ключ доступу входить у цей обліковий запис. Назви бачите лише ви.</string>
+    <string name="passkey_default_name">Ключ доступу</string>
+    <string name="passkey_added">Додано %1$s</string>
+    <string name="passkey_added_used">Додано %1$s · востаннє використано %2$s</string>
+    <string name="passkey_added_used_today">Додано %1$s · востаннє використано сьогодні</string>
+    <string name="passkey_unlocks">Відкриває ваші лічильники на новому телефоні</string>
+    <string name="passkey_add">Додати ключ доступу</string>
+    <string name="passkey_unavailable_add">Цей телефон не може створити ключ доступу.</string>
+    <string name="passkey_rename_title">Назвіть цей ключ доступу</string>
+    <string name="passkey_rename_named">Перейменувати %1$s</string>
+    <string name="passkey_remove_named">Вилучити %1$s</string>
+    <string name="passkey_remove_title">Вилучити «%1$s»?</string>
+    <string name="passkey_remove_detail">Ним більше не можна буде увійти, а всюди, де зараз виконано вхід із ним, відбудеться вихід. Сам ключ залишиться в менеджері паролів, доки ви не видалите його там.</string>
+    <string name="passkey_remove_current">Цей телефон увійшов із ним, тому тут теж відбудеться вихід. Ваші лічильники залишаться на ньому.</string>
+    <string name="passkey_remove">Вилучити</string>
+    <string name="passkey_last_way">Це ваш єдиний спосіб входу. Спершу додайте інший ключ доступу або пошту.</string>
+    <string name="passkey_other_account">Цей ключ доступу належить іншому обліковому запису.</string>
+    <string name="unlock_card_title">Нехай ключ доступу відкриває ваші лічильники на новому телефоні</string>
+    <string name="unlock_card_detail">Увійдіть із ключем доступу на новому телефоні, і ваші лічильники повернуться без коду відновлення. Потрібен лише один відбиток пальця або блокування екрана.</string>
+    <string name="unlock_card_action">Використати мій ключ</string>
+    <string name="unlock_card_later">Не зараз</string>
+    <string name="unlock_card_no_output">Цей ключ доступу не може відкрити ваші лічильники. Новий ключ може; старий і далі підходить для входу.</string>
+    <string name="unlock_card_new_passkey">Зберегти новий ключ доступу</string>
+    <string name="recovery_detail_passkey">Ваш ключ доступу може перенести лічильники на новий телефон. Цей код — шлях назад без нього, якщо ви втратите менеджер паролів. Більше його немає ні в кого, навіть у нас.</string>
+    <string name="unlock_replace_title">Замінити ключ розблокування?</string>
+    <string name="unlock_replace_detail">На інших телефонах відбудеться вихід, і цей ключ доступу більше не відкриє ваші лічильники на новому телефоні. Телефон, який він уже відкрив, збереже те, що на ньому є.</string>
+    <string name="unlock_replace_action">Замінити ключ розблокування</string>
+    <string name="unlock_replace_skip">Лише вилучити</string>
 </resources>

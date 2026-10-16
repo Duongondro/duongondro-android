@@ -370,4 +370,35 @@
     <string name="usual_body">Обычно примерно в это время вы практикуете %s.</string>
     <string name="usual_body_discreet">Обычно вы садитесь практиковать примерно в это время.</string>
     <string name="server">Сервер</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Ключи доступа</string>
+    <string name="passkeys_detail">Каждый ключ доступа входит в этот аккаунт. Названия видите только вы.</string>
+    <string name="passkey_default_name">Ключ доступа</string>
+    <string name="passkey_added">Добавлен %1$s</string>
+    <string name="passkey_added_used">Добавлен %1$s · последнее использование %2$s</string>
+    <string name="passkey_added_used_today">Добавлен %1$s · последнее использование сегодня</string>
+    <string name="passkey_unlocks">Открывает ваши счётчики на новом телефоне</string>
+    <string name="passkey_add">Добавить ключ доступа</string>
+    <string name="passkey_unavailable_add">Этот телефон не может создать ключ доступа.</string>
+    <string name="passkey_rename_title">Назовите этот ключ доступа</string>
+    <string name="passkey_rename_named">Переименовать %1$s</string>
+    <string name="passkey_remove_named">Удалить %1$s</string>
+    <string name="passkey_remove_title">Удалить «%1$s»?</string>
+    <string name="passkey_remove_detail">Им больше нельзя будет войти, а везде, где сейчас выполнен вход с ним, произойдёт выход. Сам ключ останется в менеджере паролей, пока вы не удалите его там.</string>
+    <string name="passkey_remove_current">Этот телефон вошёл с ним, поэтому здесь тоже произойдёт выход. Ваши счётчики останутся на нём.</string>
+    <string name="passkey_remove">Удалить</string>
+    <string name="passkey_last_way">Это ваш единственный способ входа. Сначала добавьте другой ключ доступа или почту.</string>
+    <string name="passkey_other_account">Этот ключ доступа принадлежит другому аккаунту.</string>
+    <string name="unlock_card_title">Пусть ключ доступа открывает ваши счётчики на новом телефоне</string>
+    <string name="unlock_card_detail">Войдите с ключом доступа на новом телефоне, и ваши счётчики вернутся без кода восстановления. Нужен лишь один отпечаток пальца или блокировка экрана.</string>
+    <string name="unlock_card_action">Использовать мой ключ</string>
+    <string name="unlock_card_later">Не сейчас</string>
+    <string name="unlock_card_no_output">Этот ключ доступа не может открыть ваши счётчики. Новый ключ может; старый по-прежнему подходит для входа.</string>
+    <string name="unlock_card_new_passkey">Сохранить новый ключ доступа</string>
+    <string name="recovery_detail_passkey">Ваш ключ доступа может перенести счётчики на новый телефон. Этот код — путь назад без него, если вы потеряете менеджер паролей. Больше его нет ни у кого, даже у нас.</string>
+    <string name="unlock_replace_title">Заменить ключ разблокировки?</string>
+    <string name="unlock_replace_detail">На других телефонах произойдёт выход, и этот ключ доступа больше не откроет ваши счётчики на новом телефоне. Телефон, который он уже открыл, сохранит то, что на нём есть.</string>
+    <string name="unlock_replace_action">Заменить ключ разблокировки</string>
+    <string name="unlock_replace_skip">Только удалить</string>
 </resources>

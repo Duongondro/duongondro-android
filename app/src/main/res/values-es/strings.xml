@@ -377,4 +377,35 @@
     <string name="usual_body">Sueles sentarte a practicar %s más o menos a esta hora.</string>
     <string name="usual_body_discreet">Sueles sentarte a meditar más o menos a esta hora.</string>
     <string name="server">Servidor</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Claves de acceso</string>
+    <string name="passkeys_detail">Cada clave de acceso inicia sesión en esta cuenta. Los nombres son solo para ti.</string>
+    <string name="passkey_default_name">Clave de acceso</string>
+    <string name="passkey_added">Añadida el %1$s</string>
+    <string name="passkey_added_used">Añadida el %1$s · último uso el %2$s</string>
+    <string name="passkey_added_used_today">Añadida el %1$s · último uso hoy</string>
+    <string name="passkey_unlocks">Desbloquea tus recuentos en un teléfono nuevo</string>
+    <string name="passkey_add">Añadir una clave de acceso</string>
+    <string name="passkey_unavailable_add">Este teléfono no puede crear una clave de acceso.</string>
+    <string name="passkey_rename_title">Pon nombre a esta clave de acceso</string>
+    <string name="passkey_rename_named">Cambiar el nombre de %1$s</string>
+    <string name="passkey_remove_named">Quitar %1$s</string>
+    <string name="passkey_remove_title">¿Quitar «%1$s»?</string>
+    <string name="passkey_remove_detail">Ya no podrá iniciar sesión, y donde haya una sesión abierta con ella se cerrará. La clave en sí sigue en tu gestor de contraseñas hasta que la borres allí.</string>
+    <string name="passkey_remove_current">Este teléfono inició sesión con ella, así que aquí también se cerrará la sesión. Tus recuentos se quedan en él.</string>
+    <string name="passkey_remove">Quitar</string>
+    <string name="passkey_last_way">Es tu única forma de iniciar sesión. Añade antes otra clave de acceso o un correo.</string>
+    <string name="passkey_other_account">Esa clave de acceso pertenece a otra cuenta.</string>
+    <string name="unlock_card_title">Deja que tu clave de acceso desbloquee tus recuentos en un teléfono nuevo</string>
+    <string name="unlock_card_detail">Inicia sesión con tu clave de acceso en un teléfono nuevo y tus recuentos vuelven sin el código de recuperación. Basta con una huella o el bloqueo de pantalla.</string>
+    <string name="unlock_card_action">Usar mi clave de acceso</string>
+    <string name="unlock_card_later">Ahora no</string>
+    <string name="unlock_card_no_output">Esta clave de acceso no puede desbloquear tus recuentos. Una nueva sí; la antigua sigue sirviendo para iniciar sesión.</string>
+    <string name="unlock_card_new_passkey">Guardar una clave nueva</string>
+    <string name="recovery_detail_passkey">Tu clave de acceso puede llevar tus recuentos a un teléfono nuevo. Este código es la vía de vuelta sin ella, si pierdes tu gestor de contraseñas. Nadie más lo tiene, ni siquiera nosotros.</string>
+    <string name="unlock_replace_title">¿Sustituir la clave de desbloqueo?</string>
+    <string name="unlock_replace_detail">Los demás teléfonos cierran sesión y esta clave de acceso ya no puede desbloquear tus recuentos en un teléfono nuevo. Un teléfono que ya haya desbloqueado conserva lo que tiene.</string>
+    <string name="unlock_replace_action">Sustituir la clave de desbloqueo</string>
+    <string name="unlock_replace_skip">Solo quitarla</string>
 </resources>

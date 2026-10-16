@@ -34,6 +34,8 @@ object AccountKeys {
         /** A box, wrap or list did not verify against the account's identity key. */
         NOT_AUTHENTIC,
         MISSING_SECRET,
+        /** A passkey's PRF output does not open its box (another passkey answered, or a password manager gave another output). */
+        PASSKEY_CANNOT_UNLOCK,
     }
 
     class Error(val failure: Failure) : Exception(failure.name.lowercase())

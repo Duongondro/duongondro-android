@@ -34,6 +34,10 @@ object E2EE {
     const val LABEL_INVITE_PIN = "duongondro/v1/invite-pin"
     const val LABEL_RECOVERY = "duongondro/v1/recovery"
     const val LABEL_RECOVERY_SIG = "duongondro/v1/recovery-sig"
+    /** The PRF input every passkey ceremony asks with: fixed by the app, never taken from the server. */
+    const val LABEL_PRF = "duongondro/v1/prf"
+    const val LABEL_PRF_WRAP = "duongondro/v1/prf-wrap"
+    const val LABEL_PRF_SIG = "duongondro/v1/prf-sig"
     internal const val STATEMENT_PREFIX = "duongondro/v1/"
 
     const val KEY_SIZE = 32
@@ -50,7 +54,9 @@ object E2EE {
 
     /** What a wrap or recovery box carries. */
     enum class WrapKind(val raw: Int) {
-        PRACTICE_KEY(1), IDENTITY_SEED(2), SHARE_KEY(3);
+        PRACTICE_KEY(1), IDENTITY_SEED(2), SHARE_KEY(3),
+        /** The user key U's private scalar, to another of the account's phones. */
+        USER_KEY(4);
 
         companion object {
             fun of(raw: Int): WrapKind? = entries.firstOrNull { it.raw == raw }
@@ -248,6 +254,48 @@ object E2EE {
         Identity.verify(identityPk, recoveryBoxMessage(user, kind, box), signature)
 }
 
+// Passkey unlock (PRF)
+
+/** docs/crypto.md › Passkey unlock: U's scalar sealed under one passkey's PRF output. */
+object PasskeyBox {
+    /** HKDF(prf, salt = uuid(user), info = "duongondro/v1/prf-wrap"). */
+    fun key(prf: ByteArray, user: UUID): ByteArray {
+        if (prf.size != E2EE.KEY_SIZE) throw E2EE.Error(E2EE.Failure.SIZE)
+        return E2EE.derive(prf, user.bytes, E2EE.LABEL_PRF_WRAP)
+    }
+
+    /**
+     * uuid(user) ‖ identityPk ‖ uuid(U.id) ‖ credentialId: 64 + n bytes, the
+     * credential id last so it needs no length. The identity key is bound in
+     * because nothing else on a new phone authenticates it: a box that opens
+     * under the PRF output proves the identity key is the one its sealer saw.
+     */
+    fun aad(user: UUID, identityPk: ByteArray, userKey: UUID, credentialId: ByteArray): ByteArray {
+        if (identityPk.size != 32) throw E2EE.Error(E2EE.Failure.SIZE)
+        return user.bytes + identityPk + userKey.bytes + credentialId
+    }
+
+    fun seal(scalar: ByteArray, prfKey: ByteArray, aad: ByteArray): ByteArray {
+        if (scalar.size != E2EE.KEY_SIZE) throw E2EE.Error(E2EE.Failure.SIZE)
+        return E2EE.seal(prfKey, scalar, aad)
+    }
+
+    /** With a fixed nonce: test vectors only. */
+    internal fun seal(scalar: ByteArray, prfKey: ByteArray, aad: ByteArray, nonce: ByteArray): ByteArray = E2EE.seal(prfKey, scalar, aad, nonce)
+
+    fun open(box: ByteArray, prfKey: ByteArray, aad: ByteArray): ByteArray {
+        if (box.size != E2EE.WRAPPED_BOX_SIZE) throw E2EE.Error(E2EE.Failure.SIZE)
+        return E2EE.open(prfKey, box, aad)
+    }
+
+    fun message(aad: ByteArray, box: ByteArray): ByteArray = E2EE.LABEL_PRF_SIG.toByteArray(Charsets.US_ASCII) + aad + box
+
+    fun sign(aad: ByteArray, box: ByteArray, identity: Identity): ByteArray = identity.sign(message(aad, box))
+
+    fun verify(aad: ByteArray, box: ByteArray, signature: ByteArray, identityPk: ByteArray): Boolean =
+        Identity.verify(identityPk, message(aad, box), signature)
+}
+
 /** The 16 raw bytes of a UUID, as the AADs and salts use them. */
 val UUID.bytes: ByteArray
     get() = ByteBuffer.allocate(16).putLong(mostSignificantBits).putLong(leastSignificantBits).array()
@@ -265,5 +313,6 @@ object StatementTypes {
     const val STREAK = "streak"
     const val INVITE = "invite"
     const val ACCEPTANCE = "acceptance"
-    val ALL = setOf(DEVICE_LIST, STREAK, INVITE, ACCEPTANCE)
+    const val USER_KEY = "user-key"
+    val ALL = setOf(DEVICE_LIST, STREAK, INVITE, ACCEPTANCE, USER_KEY)
 }

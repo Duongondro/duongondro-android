@@ -7,7 +7,9 @@ import androidx.core.content.edit
 import app.duongondro.BuildConfig
 import app.duongondro.core.api.Api
 import app.duongondro.core.api.ApiError
+import app.duongondro.core.api.Prf
 import app.duongondro.core.api.Profile
+import app.duongondro.core.crypto.E2EE
 import app.duongondro.core.api.SignInResult
 import app.duongondro.core.api.SignUp
 import app.duongondro.core.api.SignUpProof
@@ -152,6 +154,42 @@ enum class EmailVerify { Added, Wrong, Taken, TooMany }
 enum class PasskeyResult { Saved, Cancelled, Unavailable, UsernameTaken, InviteGone, InvitationNeeded, TooManySignUps, TooMany, OtherAccountData }
 
 /**
+ * Settings › Passkeys as last fetched (design decision 25), and whether this
+ * phone holds the user key U, which a passkey's box needs.
+ */
+data class PasskeysState(
+    val passkeys: List<app.duongondro.core.api.Passkey> = emptyList(),
+    val loaded: Boolean = false,
+    val loading: Boolean = false,
+    val failed: Boolean = false,
+    val holdsUserKey: Boolean = false,
+    /** "Not now" on the card, until the app starts again. */
+    val offerDismissed: Boolean = false,
+) {
+    /** A passkey with a box: signing in with it brings the counts to a new phone. */
+    val unlocks: Boolean get() = passkeys.any { it.canUnlock }
+
+    /**
+     * The retrofit card: this phone holds U and no passkey of the account can
+     * unlock yet. Once one can, the card goes, even if another passkey (a
+     * security key, one only reachable by QR) never will: a card that cannot
+     * be satisfied is no calm moment. Settings › Passkeys still says which unlock.
+     */
+    val offerUnlock: Boolean get() = loaded && holdsUserKey && !offerDismissed && passkeys.isNotEmpty() && !unlocks
+}
+
+/** What the retrofit ceremony gave. */
+enum class UnlockSetUp {
+    Done, Cancelled,
+    /** The passkey gave no PRF output: a new passkey can unlock, the old one keeps signing in. */
+    NoOutput,
+    /** The passkey that answered is not this account's. */
+    OtherAccount,
+}
+
+enum class PasskeyRemoval { Removed, LastWay, SignedOut }
+
+/**
  * The account side of the app, as iOS's AccountModel: signing up and in,
  * setting up keys or restoring them from the recovery code, and syncing.
  * Practice data never waits for it: the app works fully offline, and sync
@@ -170,7 +208,7 @@ class AccountManager(
     private val deviceKeys = KeystoreDeviceKeys(app)
     private val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     private val anonymous = Api(baseUrl)
-    private val passkeys = Passkeys(app)
+    private val credentials = Passkeys(app)
 
     private val _state = MutableStateFlow(AccountState())
     val state: StateFlow<AccountState> = _state.asStateFlow()
@@ -328,6 +366,7 @@ class AccountManager(
 
     /** "Cancel": the held session ends on the server, and nothing was uploaded. */
     suspend fun abandonHeldSignIn() = withContext(Dispatchers.IO) {
+        heldPrf = null
         val result = heldSignIn ?: return@withContext
         heldSignIn = null
         runCatching { anonymous.withToken(result.token).signOut() }
@@ -412,11 +451,16 @@ class AccountManager(
     /** The address the last magic link was asked for. */
     @Volatile private var requestedEmail: String? = null
 
-    suspend fun redeemCode(email: String, code: String): Redeem = redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
+    suspend fun redeemCode(email: String, code: String): Redeem {
+        // A sign-in by e-mail: no passkey's output belongs to it.
+        heldPrf = null
+        return redeem(linkSignsUp, email) { anonymous.redeemMagicLinkCode(email, code) }
+    }
 
     /** Redeems an opened link's token, only while [expectsLink]; otherwise the token is dropped unused and null returned. */
     suspend fun redeemLink(token: String): Redeem? {
         if (!expectsLink()) return null
+        heldPrf = null
         return redeem(linkSignsUp, requestedEmail) { anonymous.redeemMagicLink(token) }.also { if (it is Redeem.SignedIn) linkRequestedAt = null }
     }
 
@@ -527,12 +571,13 @@ class AccountManager(
                 return if (e.signUps) PasskeyResult.TooManySignUps else PasskeyResult.TooMany
             }
             val credential = try {
-                passkeys.create(activity, ceremony.publicKeyJson)
+                credentials.create(activity, Prf.withEval(ceremony.publicKeyJson))
             } catch (_: Passkeys.Unavailable) {
                 return PasskeyResult.Unavailable
             } ?: return PasskeyResult.Cancelled
+            val made = Prf.read(credential)
             val result = try {
-                withContext(Dispatchers.IO) { anonymous.finishPasskey(ceremony.sessionId, credential) }
+                withContext(Dispatchers.IO) { anonymous.finishPasskey(ceremony.sessionId, Prf.stripped(credential)) }
             } catch (_: ApiError.Conflict) {
                 return PasskeyResult.UsernameTaken
             } catch (_: ApiError.NotFound) {
@@ -544,24 +589,95 @@ class AccountManager(
             }
             if (!signedIn(result)) return PasskeyResult.OtherAccountData
             markSignUp(result.created)
+            // Kept until the keys exist (afterKeys), when U is sealed for this passkey.
+            heldPrf = made?.let { prfAfterCreation(activity, it) }
             profile?.let { saveProfile(username = it.username, displayName = it.displayName, gender = Gender.entries.firstOrNull { g -> g.wire == it.gender }) }
         } else {
             val ceremony = withContext(Dispatchers.IO) { current.api.beginPasskeyAdd() }
             val credential = try {
-                passkeys.create(activity, ceremony.publicKeyJson)
+                credentials.create(activity, Prf.withEval(ceremony.publicKeyJson))
             } catch (_: Passkeys.Unavailable) {
                 return PasskeyResult.Unavailable
             } ?: return PasskeyResult.Cancelled
-            withContext(Dispatchers.IO) { current.api.finishPasskeyAdd(ceremony.sessionId, credential) }
+            val made = Prf.read(credential)
+            withContext(Dispatchers.IO) { current.api.finishPasskeyAdd(ceremony.sessionId, Prf.stripped(credential)) }
+            made?.let { prfAfterCreation(activity, it) }?.let { sealForPasskey(it) }
+            refreshPasskeys()
         }
         return PasskeyResult.Saved
+    }
+
+    /**
+     * The PRF output from a passkey's creation, or, when the password manager
+     * gave none there but did not say it lacks PRF, from a sign-in with that
+     * passkey right after (docs/crypto.md: "at creation where supported, else a
+     * sign-in right after"). That ceremony proves nothing to the server; it
+     * only reads the output. Null when there is none.
+     */
+    private suspend fun prfAfterCreation(activity: Context, made: Prf.Result): Prf.Result? {
+        if (made.output != null) return made
+        if (made.enabled == false) return null
+        val asked = try {
+            credentials.get(activity, Prf.assertionOptions(E2EE.randomBytes(32), listOf(made.credentialId)))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "the PRF sign-in after creation failed: ${e.javaClass.simpleName}")
+            null
+        }
+        return asked?.let(Prf::read)?.takeIf { it.output != null && it.credentialId.contentEquals(made.credentialId) }
+    }
+
+    /**
+     * The PRF output of the passkey this phone last signed up or in with, in
+     * memory only: it opens the counts on a new phone, or seals U for that
+     * passkey once the keys exist. Forgotten once used.
+     */
+    @Volatile private var heldPrf: Prf.Result? = null
+
+    /** Seals U for a passkey that gave its PRF output; failures leave it for the Settings card. */
+    private suspend fun sealForPasskey(prf: Prf.Result) {
+        val output = prf.output ?: return
+        val a = account ?: return
+        runCatching { withContext(Dispatchers.IO) { a.sealUserKeyForPasskey(output, prf.credentialId) } }
+            .onFailure { Log.w(TAG, "sealing U for a passkey failed: ${it.javaClass.simpleName}") }
+    }
+
+    /**
+     * A new phone signed in with a passkey that gave its PRF output: brings the
+     * keys here from its box, without the recovery code. False when it cannot
+     * (no output, no box, or one that does not open): the recovery code then.
+     */
+    suspend fun unlockWithPasskey(): Boolean {
+        val prf = heldPrf ?: return false
+        val output = prf.output ?: return false
+        return keyed {
+            val a = requireAccount()
+            val opened = try {
+                a.hasKeys() || a.unlockWithPasskey(output, prf.credentialId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Anything at all (a box that does not open, a wrap that will not, the network): the
+                // recovery code is the way in; Account forgets the keys of a half-done enrolment.
+                Log.w(TAG, "passkey unlock failed: ${(e as? AccountKeys.Error)?.failure ?: e.javaClass.simpleName}")
+                false
+            }
+            if (opened) {
+                heldPrf = null
+                _state.update { it.copy(status = AccountStatus.READY) }
+                afterKeys(a)
+            }
+            opened
+        }
     }
 
     /** Offers this app's passkeys; null when there is none or the person backed out. */
     suspend fun signInWithPasskey(activity: Context): Redeem? {
         val ceremony = withContext(Dispatchers.IO) { anonymous.beginPasskeySignIn() }
-        val credential = passkeys.get(activity, ceremony.publicKeyJson) ?: return null
-        return redeem(signUp = false) { anonymous.finishPasskey(ceremony.sessionId, credential) }
+        val credential = credentials.get(activity, Prf.withEval(ceremony.publicKeyJson)) ?: return null
+        heldPrf = Prf.read(credential)?.takeIf { it.output != null }
+        return redeem(signUp = false) { anonymous.finishPasskey(ceremony.sessionId, Prf.stripped(credential)) }
     }
 
     // Keys
@@ -569,7 +685,11 @@ class AccountManager(
     /** Whether the signed-in account needs setting up here, restoring, or nothing. */
     suspend fun standing(): Account.Standing = withContext(Dispatchers.IO) {
         val standing = requireAccount().standing()
-        if (standing == Account.Standing.READY) _state.update { it.copy(status = AccountStatus.READY) }
+        if (standing == Account.Standing.READY) {
+            _state.update { it.copy(status = AccountStatus.READY) }
+            // Signed in again on a phone with the keys: the passkey that answered gets its box.
+            heldPrf?.let { prf -> heldPrf = null; scope.launch { sealForPasskey(prf) } }
+        }
         // The profile as the server has it, for a sign-in on a new phone.
         runCatching { requireAccount().api.me() }.getOrNull()?.let { me ->
             if (me.email == null) prefs.edit { remove(EMAIL) }
@@ -667,11 +787,16 @@ class AccountManager(
         // a second account's code never overwrites the first's.
         val account = db.syncState()?.user?.toString()?.take(8)
         val id = listOfNotNull("Duongöndro", account).joinToString(" · ")
-        return passkeys.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
+        return credentials.savePassword(activity, id, code).also { if (it) confirmRecoveryCode() }
     }
 
-    /** The fallback report, then the invitation's friendship, once keys exist. Failures here never fail the set-up. */
+    /**
+     * The fallback report, U and the passkey's box, then the invitation's
+     * friendship, once keys exist. Failures here never fail the set-up.
+     */
     private suspend fun afterKeys(a: Account) {
+        heldPrf?.let { heldPrf = null; sealForPasskey(it) }
+        refreshPasskeys()
         a.deviceKeyFallback?.let { reason ->
             runCatching {
                 a.api.reportClientError("android keystore refused a device key; weaker tier used", BuildConfig.VERSION_NAME,
@@ -872,6 +997,120 @@ class AccountManager(
         withContext(Dispatchers.IO) { s.report(friend, reason) }
     }
 
+    // Settings › Passkeys, and passkey unlock (design decisions 23 and 25)
+
+    private val _passkeys = MutableStateFlow(PasskeysState())
+    val passkeys: StateFlow<PasskeysState> = _passkeys.asStateFlow()
+
+    /** The key version U was last checked at in this launch. */
+    @Volatile private var userKeyCheckedAt: Long? = null
+
+    private val passkeyLock = Mutex()
+
+    /**
+     * Makes sure U is here and holds the keys (publishing it only when the
+     * account has none), then fetches the account's passkeys. Only for an
+     * account with keys on this phone; failures are kept in [passkeys].
+     */
+    suspend fun refreshPasskeys() {
+        val a = account ?: return
+        if (_state.value.status != AccountStatus.READY) return
+        passkeyLock.withLock {
+            _passkeys.update { it.copy(loading = true) }
+            try {
+                var checked = false
+                val holds = withContext(Dispatchers.IO) {
+                    // Waiting for U as a kind 4 wrap is not done: the next sync looks again.
+                    runCatching { (a.ensureUserKey() != null).also { checked = it } }
+                        .onFailure { e -> if (e is ApiError.Unauthorized || e is CancellationException) throw e; Log.w(TAG, "user key: ${e.javaClass.simpleName}") }
+                        .getOrDefault(false)
+                }
+                // Checked for this key version: the next sync need not, unless it failed.
+                if (checked) userKeyCheckedAt = withContext(Dispatchers.IO) { db.syncState()?.keyVersion }
+                val list = withContext(Dispatchers.IO) { a.api.passkeys() }
+                if (account === a) _passkeys.update { it.copy(passkeys = list, loaded = true, failed = false, holdsUserKey = holds) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: ApiError.Unauthorized) {
+                sessionEnded(a)
+            } catch (e: Exception) {
+                Log.w(TAG, "passkeys failed: ${e.javaClass.simpleName}")
+                _passkeys.update { it.copy(failed = true) }
+            } finally {
+                _passkeys.update { it.copy(loading = false) }
+            }
+        }
+    }
+
+    /** "Not now" on the Settings card: it comes back the next time the app starts. */
+    fun dismissUnlockOffer() = _passkeys.update { it.copy(offerDismissed = true) }
+
+    /**
+     * The retrofit (design: Keys › Passkeys that unlock the counts): one
+     * ceremony without allowCredentials, which only reads the PRF output of
+     * whichever passkey answers, then U sealed for it. The system shows its
+     * own prompt; nothing is done silently.
+     */
+    suspend fun letPasskeyUnlock(activity: Context): UnlockSetUp {
+        val a = requireAccount()
+        val response = credentials.get(activity, Prf.assertionOptions(E2EE.randomBytes(32))) ?: return UnlockSetUp.Cancelled
+        val prf = Prf.read(response) ?: return UnlockSetUp.Cancelled
+        val output = prf.output ?: return UnlockSetUp.NoOutput
+        val result = try {
+            // False: this phone lost U meanwhile; nothing to say about the passkey.
+            if (withContext(Dispatchers.IO) { a.sealUserKeyForPasskey(output, prf.credentialId) }) UnlockSetUp.Done else UnlockSetUp.Cancelled
+        } catch (_: ApiError.NotFound) {
+            UnlockSetUp.OtherAccount
+        }
+        refreshPasskeys()
+        return result
+    }
+
+    /** Names a passkey; a blank name clears it, and the password manager's name shows again. */
+    suspend fun renamePasskey(id: String, name: String) {
+        val trimmed = trimName(name).ifBlank { null }
+        withContext(Dispatchers.IO) { requireAccount().api.renamePasskey(id, trimmed) }
+        refreshPasskeys()
+    }
+
+    /**
+     * Removes a passkey, its box and the sessions it signed in with. The
+     * account's last way to sign in stays ([PasskeyRemoval.LastWay]); removing
+     * the one this phone signed in with signs it out here, keys and data kept.
+     *
+     * With [replaceUnlockKey] (offered for a passkey that could unlock, since
+     * removal is not revocation), first: every other session signed out, the
+     * devices that passkey signed in kept from ever being given U again, a new
+     * U with `replace: true`, the keys wrapped to it and U sent to the other
+     * listed phones; the passkey is removed last, so this phone's own passkey
+     * can go too. Android neither removes devices nor rotates the practice
+     * key: a phone that passkey already unlocked keeps what it has. Runs in
+     * the manager's scope, so leaving the screen does not stop it halfway.
+     */
+    suspend fun removePasskey(passkey: app.duongondro.core.api.Passkey, replaceUnlockKey: Boolean = false): PasskeyRemoval =
+        scope.async(Dispatchers.IO) {
+            val a = requireAccount()
+            if (replaceUnlockKey) {
+                a.api.signOutOthers()
+                a.replaceUserKey(passkey.devices.mapNotNull { runCatching { UUID.fromString(it) }.getOrNull() })
+                _passkeys.update { it.copy(offerDismissed = false) }
+            }
+            try {
+                a.api.deletePasskey(passkey.id)
+            } catch (_: ApiError.Conflict) {
+                if (replaceUnlockKey) refreshPasskeys()
+                return@async PasskeyRemoval.LastWay
+            } catch (_: ApiError.NotFound) {
+                // Removed already, elsewhere.
+            }
+            if (passkey.current) {
+                sessionEnded(a)
+                return@async PasskeyRemoval.SignedOut
+            }
+            refreshPasskeys()
+            PasskeyRemoval.Removed
+        }.await()
+
     // The server
 
     private val _serverVersion = MutableStateFlow<app.duongondro.core.api.ServerVersion?>(null)
@@ -939,6 +1178,9 @@ class AccountManager(
                 val now = Instant.now()
                 prefs.edit { putLong(LAST_SYNC, now.toEpochMilli()) }
                 _state.update { it.copy(lastSync = now, offline = false, refused = result.refused, unreadable = result.unreadable) }
+                // Once per launch, and after a key rotation: U and the passkeys' boxes.
+                val version = db.syncState()?.keyVersion
+                if (version != null && version != userKeyCheckedAt) scope.launch { refreshPasskeys() }
             }
         } catch (e: CancellationException) {
             throw e
@@ -967,6 +1209,10 @@ class AccountManager(
         Push.forget(app)
         account = null
         social = null
+        heldPrf = null
+        _passkeys.value = PasskeysState()
+        // Signed in again in this launch (after another phone's replacement, say): check U afresh.
+        userKeyCheckedAt = null
         signUpFinished()
         _state.update { it.copy(status = AccountStatus.SIGNED_OUT) }
     }
@@ -995,6 +1241,9 @@ class AccountManager(
         Push.forget(app)
         account = null
         social = null
+        heldPrf = null
+        _passkeys.value = PasskeysState()
+        userKeyCheckedAt = null
         _friends.value = FriendsState()
         db.clearSyncState()
         forgetSecrets()
@@ -1049,6 +1298,9 @@ class AccountManager(
         Push.reset(app)
         account = null
         social = null
+        heldPrf = null
+        _passkeys.value = PasskeysState()
+        userKeyCheckedAt = null
         _friends.value = FriendsState()
         clearInvitation()
         runCatching { forgetSecrets() }

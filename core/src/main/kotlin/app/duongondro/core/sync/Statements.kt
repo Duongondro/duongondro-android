@@ -102,6 +102,18 @@ object Statements {
         Streak(UUID.fromString(raw.user), raw.practice, raw.day, raw.current, raw.longest, syncInstant(raw.deadline), raw.seq)
     }.getOrNull()
 
+    // Passkey unlock: the user key U (docs/crypto.md › Passkey unlock)
+
+    data class UserKey(val id: UUID, val publicKey: ByteArray, val user: UUID, val version: Long)
+
+    fun userKey(u: UserKey): ByteArray =
+        """{"id":"${u.id.lower}","pk":"${base64url(u.publicKey)}","user":"${u.user.lower}","version":${u.version}}""".toByteArray()
+
+    fun parseUserKey(payload: ByteArray): UserKey? = runCatching {
+        val raw = json.decodeFromString<RawUserKey>(payload.decodeToString())
+        UserKey(UUID.fromString(raw.id), fromBase64url(raw.pk)!!, UUID.fromString(raw.user), raw.version)
+    }.getOrNull()
+
     fun base64url(data: ByteArray): String = Base64.getUrlEncoder().withoutPadding().encodeToString(data)
 
     fun fromBase64url(s: String): ByteArray? = runCatching { Base64.getUrlDecoder().decode(s) }.getOrNull()
@@ -114,6 +126,7 @@ object Statements {
     @Serializable private class RawDeviceList(val devices: List<RawDevice>, val issuedAt: Long, val user: String, val version: Long)
     @Serializable private class RawInvite(val expiresAt: Long, val inviteId: String, val inviter: String, val inviterIdentityPk: String)
     @Serializable private class RawAcceptance(val inviteId: String, val invitee: String, val inviteeIdentityPk: String)
+    @Serializable private class RawUserKey(val id: String, val pk: String, val user: String, val version: Long)
     @Serializable private class RawStreak(
         val current: Int, val day: String, val deadline: Long, val longest: Int, val practice: String, val seq: Long, val user: String,
     )
