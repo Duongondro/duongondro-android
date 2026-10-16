@@ -105,7 +105,9 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
             modifier = Modifier.fillMaxWidth())
-        FilledAction(stringResource(R.string.delete_everything), fill = Theme.colors.destructive, enabled = typed.trim().equals(word, ignoreCase = true)) {
+        FilledAction(stringResource(R.string.delete_everything), fill = Theme.colors.destructive,
+            // Not while an export is being built: the purge would delete what it reads.
+            enabled = !exports.working && typed.trim().equals(word, ignoreCase = true)) {
             model.purge(context) { failure = it }
         }
     }
