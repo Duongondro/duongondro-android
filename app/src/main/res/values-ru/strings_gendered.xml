@@ -14,4 +14,6 @@
     <string name="poke_unnamed_female">Подтолкнуть подругу</string>
     <string name="poked_unnamed_male">Подтолкнули: друг</string>
     <string name="poked_unnamed_female">Подтолкнули: подруга</string>
+    <string name="push_ask_detail_unnamed_male">Тогда друг сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
+    <string name="push_ask_detail_unnamed_female">Тогда подруга сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
 </resources>

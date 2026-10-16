@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "987828346431",
+    "project_id": "duongondro-43f6c",
+    "storage_bucket": "duongondro-43f6c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987828346431:android:d980fa4334e02c4a04628a",
+        "android_client_info": {
+          "package_name": "app.duongondro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEugo7oB5m7aQK_1nsVzkUlbKwrKgYuJE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

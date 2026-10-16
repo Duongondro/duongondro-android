@@ -18,4 +18,6 @@
     <string name="poke_unnamed_female">Szturchnij przyjaciółkę</string>
     <string name="poked_unnamed_male">Szturchnięto przyjaciela</string>
     <string name="poked_unnamed_female">Szturchnięto przyjaciółkę</string>
+    <string name="push_ask_detail_unnamed_male">Wtedy przyjaciel może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
+    <string name="push_ask_detail_unnamed_female">Wtedy przyjaciółka może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
 </resources>

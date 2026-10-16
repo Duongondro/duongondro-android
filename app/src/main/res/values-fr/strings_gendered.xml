@@ -16,4 +16,6 @@
     <string name="poke_unnamed_female">Relancer une amie</string>
     <string name="poked_unnamed_male">Relance envoyée à un ami</string>
     <string name="poked_unnamed_female">Relance envoyée à une amie</string>
+    <string name="push_ask_detail_unnamed_male">Pour qu\'un ami puisse te relancer, et que tu saches quand tes amis pratiquent.</string>
+    <string name="push_ask_detail_unnamed_female">Pour qu\'une amie puisse te relancer, et que tu saches quand tes amis pratiquent.</string>
 </resources>

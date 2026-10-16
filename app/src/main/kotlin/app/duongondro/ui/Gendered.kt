@@ -25,7 +25,8 @@ enum class GenderedString(@StringRes val neutral: Int, @StringRes val male: Int,
     FriendFinishedUnnamed(R.string.friend_finished_unnamed, R.string.friend_finished_unnamed_male, R.string.friend_finished_unnamed_female),
     FriendNotYetUnnamed(R.string.friend_not_yet_unnamed, R.string.friend_not_yet_unnamed_male, R.string.friend_not_yet_unnamed_female),
     PokeUnnamed(R.string.poke_unnamed, R.string.poke_unnamed_male, R.string.poke_unnamed_female),
-    PokedUnnamed(R.string.poked_unnamed, R.string.poked_unnamed_male, R.string.poked_unnamed_female);
+    PokedUnnamed(R.string.poked_unnamed, R.string.poked_unnamed_male, R.string.poked_unnamed_female),
+    PushAskUnnamed(R.string.push_ask_detail_unnamed, R.string.push_ask_detail_unnamed_male, R.string.push_ask_detail_unnamed_female);
 
     @StringRes
     fun id(gender: Gender?): Int = when (gender) {

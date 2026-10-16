@@ -112,6 +112,9 @@ class Account(
         return ServerExport.open(raw, ::practiceKey)
     }
 
+    /** The id the server gave this phone's device key, once keys were set up or restored here; for its push token. */
+    fun deviceId(): UUID? = secrets.read(SecretName.DEVICE_ID)?.decodeToString()?.let(UUID::fromString)
+
     /** Keys and a sync state: this phone can sync. */
     suspend fun hasKeys(): Boolean = secrets.read(SecretName.IDENTITY_SEED) != null && database.syncState() != null
 

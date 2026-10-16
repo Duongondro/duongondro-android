@@ -18,4 +18,6 @@
     <string name="poke_unnamed_female">Šťuchnúť priateľku</string>
     <string name="poked_unnamed_male">Šťuchnutie pre priateľa</string>
     <string name="poked_unnamed_female">Šťuchnutie pre priateľku</string>
+    <string name="push_ask_detail_unnamed_male">Potom ťa priateľ môže postrčiť a dozvieš sa, keď priatelia cvičia.</string>
+    <string name="push_ask_detail_unnamed_female">Potom ťa priateľka môže postrčiť a dozvieš sa, keď priatelia cvičia.</string>
 </resources>

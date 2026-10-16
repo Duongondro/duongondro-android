@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Friends' pushes (design: Social › Nudges, Localisation › Localised pushes).
+  The FRIEND_DONE, POKE and STREAK_AT_RISK strings are named exactly as the
+  server's loc-keys (duongondro-api internal/service/nudges.go): FCM draws a
+  notification message from the string of that name, with the server's
+  arguments. Version 0.4 is always discreet: FRIEND_DONE* and POKE* use only
+  the sender's name (%1$s) and leave the practice id and day count unused;
+  STREAK_AT_RISK uses none. Version 0.5 renders pushes in the app instead.
+  The plain keys are neutral (nonbinary or unset); _MALE and _FEMALE carry the
+  sender's grammatical gender. PushStringsTest checks all of this.
+-->
+<resources>
+    <string name="FRIEND_DONE">%1$s just practised</string>
+    <string name="FRIEND_DONE_MALE">%1$s just practised</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s just practised</string>
+    <string name="POKE">%1$s poked you. Time to sit down?</string>
+    <string name="POKE_MALE">%1$s poked you. Time to sit down?</string>
+    <string name="POKE_FEMALE">%1$s poked you. Time to sit down?</string>
+    <string name="FRIEND_DONE_UNNAMED">A friend just practised</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">A friend just practised</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">A friend just practised</string>
+    <string name="POKE_UNNAMED">A friend poked you</string>
+    <string name="POKE_UNNAMED_MALE">A friend poked you</string>
+    <string name="POKE_UNNAMED_FEMALE">A friend poked you</string>
+    <string name="STREAK_AT_RISK">One of your streaks ends in under two hours</string>
+    <!-- A push with a key this version does not know, drawn by the app in the foreground. -->
+    <string name="push_generic">News from your friends</string>
+    <!-- The Friends card that asks for notifications; never shown at launch. -->
+    <string name="push_ask_title">Let friends nag you</string>
+    <string name="push_ask_detail">So %1$s can nag you, and you hear when friends practise.</string>
+    <string name="push_ask_detail_unnamed">So a friend can nag you, and you hear when friends practise.</string>
+    <string name="push_ask_turn_on">Turn on notifications</string>
+</resources>

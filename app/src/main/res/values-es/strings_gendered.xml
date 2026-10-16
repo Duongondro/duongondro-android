@@ -8,4 +8,6 @@
     <string name="poke_unnamed_female">Dar un toque a una amiga</string>
     <string name="poked_unnamed_male">Le diste un toque a un amigo</string>
     <string name="poked_unnamed_female">Le diste un toque a una amiga</string>
+    <string name="push_ask_detail_unnamed_male">Así un amigo podrá animarte y sabrás cuándo practican tus amigos.</string>
+    <string name="push_ask_detail_unnamed_female">Así una amiga podrá animarte y sabrás cuándo practican tus amigos.</string>
 </resources>

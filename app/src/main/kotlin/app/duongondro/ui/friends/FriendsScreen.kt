@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +61,9 @@ import app.duongondro.core.Catalogue
 import app.duongondro.core.sync.FriendsBoard
 import app.duongondro.core.sync.Social
 import app.duongondro.model.AppModel
+import app.duongondro.push.Push
+import app.duongondro.push.PushAskCard
+import app.duongondro.push.rememberPushPermission
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.GenderedString
 import app.duongondro.ui.ListRow
@@ -153,9 +157,15 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
     val scope = rememberCoroutineScope()
     var pasting by rememberSaveable { mutableStateOf(false) }
     var pokeFailed by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    // Asked here, on a visit with a friend to be nagged by (design: Onboarding ›
+    // the notification permission), not at sign-up.
+    var offerPush by remember { mutableStateOf(Push.offersCard(context)) }
+    val askPush = rememberPushPermission(model) { offerPush = Push.offersCard(context) }
     // Fresh on every return to the tab, and on pulling down.
     LifecycleResumeEffect(Unit) {
         scope.launch { accounts.refreshFriends() }
+        offerPush = Push.offersCard(context)
         onPauseOrDispose { }
     }
     val news = FriendsBoard.news(friends.friends, now)
@@ -167,12 +177,21 @@ private fun Friends(model: AppModel, accounts: AccountManager, openFriend: (UUID
             verticalArrangement = Arrangement.spacedBy(Space.l),
         ) {
             Title()
+            friends.friends.firstOrNull()?.takeIf { offerPush }?.let { first ->
+                PushAskCard(first.shownName(), first.displayName.isBlank(), genderOf(first.gender), askPush) {
+                    Push.dismissCard(context)
+                    offerPush = false
+                }
+            }
             if (news.isNotEmpty()) {
                 CardSection(stringResource(R.string.today)) {
                     news.forEachIndexed { i, item ->
                         if (i > 0) RowDivider()
                         NewsRow(item, now, friends.isPoked(item.friend.user, now)) {
-                            scope.launch { attempt({ pokeFailed = it }) { accounts.poke(item.friend.user) } }
+                            scope.launch {
+                                // So they can poke back; only once the poke went.
+                                if (attempt({ pokeFailed = it }) { accounts.poke(item.friend.user) }) askPush()
+                            }
                         }
                     }
                 }

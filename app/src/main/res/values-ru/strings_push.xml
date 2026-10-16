@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FRIEND_DONE">%1$s только что практиковал(а)</string>
+    <string name="FRIEND_DONE_MALE">%1$s только что практиковал</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s только что практиковала</string>
+    <string name="POKE">%1$s подталкивает вас. Пора садиться практиковать?</string>
+    <string name="POKE_MALE">%1$s подтолкнул вас. Пора садиться практиковать?</string>
+    <string name="POKE_FEMALE">%1$s подтолкнула вас. Пора садиться практиковать?</string>
+    <string name="FRIEND_DONE_UNNAMED">Друг только что позанимался</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Друг только что позанимался</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Подруга только что позанималась</string>
+    <string name="POKE_UNNAMED">Друг подтолкнул вас</string>
+    <string name="POKE_UNNAMED_MALE">Друг подтолкнул вас</string>
+    <string name="POKE_UNNAMED_FEMALE">Подруга подтолкнула вас</string>
+    <string name="STREAK_AT_RISK">Одна из ваших серий закончится меньше чем через два часа</string>
+    <string name="push_generic">Новости от друзей</string>
+    <string name="push_ask_title">Пусть друзья вас подгоняют</string>
+    <string name="push_ask_detail">Тогда %1$s сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
+    <string name="push_ask_detail_unnamed">Тогда друг сможет вас подгонять, а вы узнаете, когда друзья практикуют.</string>
+    <string name="push_ask_turn_on">Включить уведомления</string>
+</resources>

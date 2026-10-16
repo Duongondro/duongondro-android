@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FRIEND_DONE">%1$s épp gyakorolt</string>
+    <string name="FRIEND_DONE_MALE">%1$s épp gyakorolt</string>
+    <string name="FRIEND_DONE_FEMALE">%1$s épp gyakorolt</string>
+    <string name="POKE">%1$s megbökött. Ideje leülni gyakorolni?</string>
+    <string name="POKE_MALE">%1$s megbökött. Ideje leülni gyakorolni?</string>
+    <string name="POKE_FEMALE">%1$s megbökött. Ideje leülni gyakorolni?</string>
+    <string name="FRIEND_DONE_UNNAMED">Egy barát épp gyakorolt</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Egy barát épp gyakorolt</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Egy barát épp gyakorolt</string>
+    <string name="POKE_UNNAMED">Egy barát megbökött</string>
+    <string name="POKE_UNNAMED_MALE">Egy barát megbökött</string>
+    <string name="POKE_UNNAMED_FEMALE">Egy barát megbökött</string>
+    <string name="STREAK_AT_RISK">Az egyik sorozatod kevesebb mint két óra múlva véget ér</string>
+    <string name="push_generic">Hírek a barátaidtól</string>
+    <string name="push_ask_title">Hadd noszogassanak a barátaid</string>
+    <string name="push_ask_detail">Így %1$s noszogathat, és megtudod, mikor gyakorolnak a barátaid.</string>
+    <string name="push_ask_detail_unnamed">Így egy barátod noszogathat, és megtudod, mikor gyakorolnak a barátaid.</string>
+    <string name="push_ask_turn_on">Értesítések bekapcsolása</string>
+</resources>
