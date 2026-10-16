@@ -35,4 +35,37 @@ class PushMotionTest {
         assertEquals(Kind.Cut, kind("today", "practice/{id}", pop = false, animate = false))
         assertEquals(Kind.Cut, kind("settings/account/new", "settings", pop = true, animate = false))
     }
+
+    private fun e(id: String, route: String) = PushMotion.Entry(id, route)
+    private val today = e("1", "today")
+    private val practice = e("2", "practice/{id}")
+    private val friends = e("3", "friends")
+    private val newAccount = e("4", "settings/account/new")
+    private val settings = e("5", "settings")
+    private fun covered(before: List<PushMotion.Entry>, after: List<PushMotion.Entry>, animate: Boolean = true) =
+        PushMotion.covered(before, after, roots, modals, animate)
+
+    @Test fun pushShadesTheScreenBeneath() {
+        assertEquals(setOf("1"), covered(listOf(today), listOf(today, practice)))
+    }
+
+    @Test fun popShadesTheScreenUncovered() {
+        assertEquals(setOf("1"), covered(listOf(today, practice), listOf(today)))
+    }
+
+    @Test fun backGestureFindsTheScreenBeneathBeforeThePop() {
+        // The stack does not change until the gesture commits.
+        assertEquals(setOf("1"), covered(listOf(today, practice), listOf(today, practice)))
+    }
+
+    @Test fun tabsAndModalsShadeNothing() {
+        assertEquals(emptySet<String>(), covered(listOf(today), listOf(today, friends)))
+        assertEquals(emptySet<String>(), covered(listOf(today, friends), listOf(today)))
+        assertEquals(emptySet<String>(), covered(listOf(today, settings), listOf(today, settings, newAccount)))
+        assertEquals(emptySet<String>(), covered(listOf(today, settings, newAccount), listOf(today, settings)))
+    }
+
+    @Test fun nothingShadedWhenAnimationsAreOff() {
+        assertEquals(emptySet<String>(), covered(listOf(today), listOf(today, practice), animate = false))
+    }
 }

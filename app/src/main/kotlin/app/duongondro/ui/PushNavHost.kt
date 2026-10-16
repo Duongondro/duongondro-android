@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.unit.IntOffset
@@ -29,6 +29,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import app.duongondro.ui.theme.Theme
 
 /**
@@ -68,6 +69,33 @@ object PushMotion {
         else -> Kind.Push
     }
 
+    /** A back stack entry: its id and its route. The lists below are the top two entries, bottom first. */
+    data class Entry(val id: String, val route: String?)
+
+    /**
+     * The entries shaded while off the top: the one under the top screen when the top was
+     * pushed onto it (also what the back gesture uncovers), the one a push just covered, and
+     * the one a pop just uncovered.
+     */
+    fun covered(before: List<Entry>, after: List<Entry>, roots: Set<String>, modals: Set<String>, animate: Boolean = true): Set<String> {
+        if (!animate || after.isEmpty()) return emptySet()
+        val out = mutableSetOf<String>()
+        val top = after.last()
+        after.getOrNull(after.size - 2)?.let { if (kind(it.route, top.route, false, roots, modals) == Kind.Push) out += it.id }
+        val old = before.lastOrNull() ?: return out
+        val afterIds = after.mapTo(HashSet()) { it.id }
+        val beforeIds = before.mapTo(HashSet()) { it.id }
+        if (old.id != top.id) {
+            val popped = old.id !in afterIds && top.id in beforeIds
+            when (kind(old.route, top.route, popped, roots, modals)) {
+                Kind.Push -> if (!popped) out += old.id
+                Kind.Pop -> out += top.id
+                else -> Unit
+            }
+        }
+        return out
+    }
+
     internal fun <T> spec(): FiniteAnimationSpec<T> = tween(DURATION_MS, easing = Easing)
 }
 
@@ -84,17 +112,20 @@ fun PushNavHost(
     modifier: Modifier = Modifier,
     builder: PushGraph.() -> Unit,
 ) {
-    val state = remember { PushState() }
+    // The shaded screens follow the back stack, so nothing is written while transitions are
+    // chosen. The top two entries are enough (the whole back stack is not public API).
+    val top by nav.currentBackStackEntryAsState()
+    val previous = remember { arrayOf<List<PushMotion.Entry>>(emptyList()) }
+    val now = listOfNotNull(nav.previousBackStackEntry, top).map { PushMotion.Entry(it.id, it.destination.route) }
+    val covered = remember(now) {
+        PushMotion.covered(previous[0], now, roots, modals, animate = ValueAnimator.areAnimatorsEnabled())
+    }
+    SideEffect { previous[0] = now }
+    // Read through a State, so the graph lambda stays the same and NavHost never rebuilds it.
+    val shaded = rememberUpdatedState(covered)
     fun AnimatedContentTransitionScope<NavBackStackEntry>.kind(pop: Boolean): PushMotion.Kind {
-        val k = PushMotion.kind(initialState.destination.route, targetState.destination.route, pop, roots, modals,
+        return PushMotion.kind(initialState.destination.route, targetState.destination.route, pop, roots, modals,
             animate = ValueAnimator.areAnimatorsEnabled())
-        // The screen left beneath: the one covered by a push, or uncovered by a pop.
-        state.covered = when (k) {
-            PushMotion.Kind.Push -> initialState.id
-            PushMotion.Kind.Pop -> targetState.id
-            else -> null
-        }
-        return k
     }
     val popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
         when (kind(pop = true)) {
@@ -131,15 +162,10 @@ fun PushNavHost(
         // them Navigation fades and shrinks the screen instead.
         predictivePopEnterTransition = { _ -> popEnter() },
         predictivePopExitTransition = { _ -> popExit() },
-    ) { PushGraph(this, state).builder() }
+    ) { PushGraph(this) { shaded.value }.builder() }
 }
 
-/** Which back stack entry is the covered one in the transition under way. */
-class PushState {
-    var covered: String? by mutableStateOf(null)
-}
-
-class PushGraph internal constructor(private val graph: NavGraphBuilder, private val state: PushState) {
+class PushGraph internal constructor(private val graph: NavGraphBuilder, private val covered: () -> Set<String>) {
     /** A destination; its screen gets an opaque ground and the shade it takes while covered. */
     fun screen(route: String, content: @Composable (NavBackStackEntry) -> Unit) {
         graph.composable(route) { entry -> Frame(entry) { content(entry) } }
@@ -148,7 +174,7 @@ class PushGraph internal constructor(private val graph: NavGraphBuilder, private
     @Composable
     private fun AnimatedContentScope.Frame(entry: NavBackStackEntry, content: @Composable () -> Unit) {
         val dim by transition.animateFloat({ PushMotion.spec() }, label = "pushDim") { s ->
-            if (s != EnterExitState.Visible && state.covered == entry.id) 1f else 0f
+            if (s != EnterExitState.Visible && entry.id in covered()) 1f else 0f
         }
         val shade = Theme.colors.pushDim
         Box(
