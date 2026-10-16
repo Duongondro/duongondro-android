@@ -125,7 +125,7 @@
     <string name="name_random_detail">Náhodné jméno, aby tě přátelé rozeznali. Nech si ho, nebo ho změň.</string>
     <string name="name_label">Jméno</string>
     <string name="gender_title">Tvé pohlaví</string>
-    <string name="gender_detail">Některé jazyky, včetně češtiny, mají pro muže a ženy různé koncovky sloves. Pokud tento krok přeskočíš nebo zvolíš „Nebinární“, aplikace bude všude, kde to jde, používat genderově neutrální tvary.</string>
+    <string name="gender_detail">Nepovinné. Některé jazyky mají různé tvary pro muže a ženy.</string>
     <string name="gender_male">Muž</string>
     <string name="gender_female">Žena</string>
     <string name="gender_nonbinary">Nebinární</string>

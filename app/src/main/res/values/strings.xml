@@ -132,7 +132,7 @@
     <string name="name_random_detail">A random name, so friends can tell you apart. Keep it or change it.</string>
     <string name="name_label">Name</string>
     <string name="gender_title">Your gender</string>
-    <string name="gender_detail">Some languages use different verb endings for men and women. If you skip this step or choose \"Non-binary,\" the app will use gender-neutral forms wherever possible.</string>
+    <string name="gender_detail">Optional. Some languages use different forms for men and women.</string>
     <string name="gender_male">Male</string>
     <string name="gender_female">Female</string>
     <string name="gender_nonbinary">Non-binary</string>

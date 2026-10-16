@@ -125,7 +125,7 @@
     <string name="name_random_detail">Náhodné meno, aby ťa priatelia rozoznali. Nechaj si ho, alebo ho zmeň.</string>
     <string name="name_label">Meno</string>
     <string name="gender_title">Tvoje pohlavie</string>
-    <string name="gender_detail">Niektoré jazyky, vrátane slovenčiny, majú pre mužov a ženy rôzne koncovky slovies. Ak tento krok preskočíš alebo zvolíš „Nebinárne“, aplikácia bude všade, kde sa dá, používať rodovo neutrálne tvary.</string>
+    <string name="gender_detail">Nepovinné. Niektoré jazyky majú rôzne tvary pre mužov a ženy.</string>
     <string name="gender_male">Muž</string>
     <string name="gender_female">Žena</string>
     <string name="gender_nonbinary">Nebinárne</string>

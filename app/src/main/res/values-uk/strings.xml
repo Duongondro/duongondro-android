@@ -132,7 +132,7 @@
     <string name="name_random_detail">Випадкове ім’я, щоб друзі могли вас розрізняти. Залиште його або змініть.</string>
     <string name="name_label">Ім’я</string>
     <string name="gender_title">Ваша стать</string>
-    <string name="gender_detail">У деяких мовах, зокрема в українській, дієслова мають різні закінчення для чоловіків і жінок. Якщо ви пропустите цей крок або виберете «Небінарна», застосунок по змозі використовуватиме гендерно-нейтральні форми.</string>
+    <string name="gender_detail">Необов\'язково. У деяких мовах є різні форми для чоловіків і жінок.</string>
     <string name="gender_male">Чоловіча</string>
     <string name="gender_female">Жіноча</string>
     <string name="gender_nonbinary">Небінарна</string>

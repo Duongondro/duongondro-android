@@ -130,7 +130,7 @@
     <string name="name_random_detail">Un nom tiré au hasard, pour que tes amis puissent te reconnaître. Garde-le ou change-le.</string>
     <string name="name_label">Nom</string>
     <string name="gender_title">Ton genre</string>
-    <string name="gender_detail">Certaines langues, dont le français, s\'en servent pour accorder les mots qui te concernent, notamment sur les téléphones de tes amis. Sans lui, ou avec « Non binaire », elles utilisent des formes neutres.</string>
+    <string name="gender_detail">Facultatif. Certaines langues ont des formes différentes pour les hommes et les femmes.</string>
     <string name="gender_male">Homme</string>
     <string name="gender_female">Femme</string>
     <string name="gender_nonbinary">Non binaire</string>

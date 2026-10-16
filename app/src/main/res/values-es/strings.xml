@@ -130,7 +130,7 @@
     <string name="name_random_detail">Un nombre al azar, para que tus amigos te distingan. Déjalo o cámbialo.</string>
     <string name="name_label">Nombre</string>
     <string name="gender_title">Tu género</string>
-    <string name="gender_detail">Algunos idiomas usan terminaciones verbales distintas para hombres y mujeres. Si te saltas este paso o eliges «No binario», la app usará formas neutras siempre que sea posible.</string>
+    <string name="gender_detail">Opcional. Algunos idiomas usan formas distintas para hombres y mujeres.</string>
     <string name="gender_male">Hombre</string>
     <string name="gender_female">Mujer</string>
     <string name="gender_nonbinary">No binario</string>

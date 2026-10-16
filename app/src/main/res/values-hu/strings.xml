@@ -121,7 +121,7 @@
     <string name="name_random_detail">Egy véletlenszerű név, hogy a barátaid meg tudjanak különböztetni. Megtarthatod vagy megváltoztathatod.</string>
     <string name="name_label">Név</string>
     <string name="gender_title">A nemed</string>
-    <string name="gender_detail">Egyes nyelvekben a férfiakra és a nőkre vonatkozó igék végződése eltér. Ha kihagyod ezt a lépést, vagy a „Nem bináris” lehetőséget választod, az alkalmazás, ahol csak lehet, nemsemleges alakokat használ.</string>
+    <string name="gender_detail">Nem kötelező. Egyes nyelvek eltérő alakokat használnak férfiakra és nőkre.</string>
     <string name="gender_male">Férfi</string>
     <string name="gender_female">Nő</string>
     <string name="gender_nonbinary">Nem bináris</string>
