@@ -49,8 +49,9 @@ import java.time.Instant
  * Settings › Your data › Export, as CodeShare's Manage my data does it (and iOS's
  * ExportController): one row per format, the open undo window closed first, the file
  * built on this phone (offline and in local mode from the local database alone) while
- * the screen shows progress (the PDF drawn off the main thread), then the share sheet;
- * the file is removed once the share sheet closes, or at once when sharing fails. From
+ * the screen shows progress (the PDF drawn off the main thread), then the share sheet.
+ * The file stays for the app it was shared to until the next export or the next start
+ * of the app, and is removed at once when sharing fails. From
  * the delete confirmation, the dialog is dismissed before the export starts, so the share
  * sheet never opens under it.
  */
@@ -133,19 +134,16 @@ class ExportController(private val context: Context, private val model: AppModel
     }
 }
 
-/** The controller, with the share sheet it opens; the file goes when the sheet closes. */
+/** The controller, with the share sheet it opens. */
 @Composable
 fun rememberExportController(model: AppModel): ExportController {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val controller = remember(model) { ExportController(context.applicationContext, model, scope) }
-    var shared by remember { mutableStateOf<File?>(null) }
-    val chooser = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        shared?.delete()
-        shared = null
-    }
+    // The file stays when the chooser closes: the app it went to may read it later (a
+    // draft's attachment). The next export and the next start of the app clear it.
+    val chooser = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
     controller.share = { file, format ->
-        shared = file
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.export", file)
         val send = Intent(Intent.ACTION_SEND).setType(format.mime).putExtra(Intent.EXTRA_STREAM, uri)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

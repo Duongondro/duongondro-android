@@ -102,7 +102,7 @@ object Covers {
     private const val QUALITY = 85
 }
 
-/** Where the export waits for the share sheet; emptied on every export, after sharing and by the purge. */
+/** Where the export waits for the app it was shared to; emptied on every export, at the app's start, by sign-out and by the purge. */
 object Exports {
     fun folder(context: Context) = File(context.cacheDir, "export")
 
