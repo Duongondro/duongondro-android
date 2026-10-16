@@ -36,8 +36,9 @@ import app.duongondro.ui.theme.Theme
  *
  * - **Push**: the new screen slides in from the trailing edge over the full width; the one
  *   beneath moves [PARALLAX] of the way toward the leading edge and darkens slightly.
- * - **Pop** (Back, the back gesture, an Up button): the exact reverse. On Android 14+ the
- *   predictive back gesture scrubs the same animation (Navigation Compose seeks the pop).
+ * - **Pop** (an Up button, the Back key, the back gesture): the exact reverse. System Back
+ *   runs Navigation's predictive pop transitions, which are given the same pop bodies, so on
+ *   Android 14+ the gesture scrubs this animation and a cancelled swipe settles back.
  * - **Tabs**: switching between [roots] (the bottom bar) cuts, without sliding, as on iOS.
  * - **Modal** routes (iOS shows them as sheets or full-screen covers) rise from the bottom
  *   over a screen that stays put, and drop back down.
@@ -95,6 +96,19 @@ fun PushNavHost(
         }
         return k
     }
+    val popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+        when (kind(pop = true)) {
+            PushMotion.Kind.Pop -> slideIntoContainer(SlideDirection.End, PushMotion.spec()) { (it * PushMotion.PARALLAX).toInt() }
+            else -> EnterTransition.None
+        }
+    }
+    val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+        when (kind(pop = true)) {
+            PushMotion.Kind.Pop -> slideOutOfContainer(SlideDirection.End, PushMotion.spec())
+            PushMotion.Kind.Dismiss -> slideOutVertically(PushMotion.spec<IntOffset>()) { it }
+            else -> ExitTransition.None
+        }
+    }
     NavHost(
         nav, startDestination = startDestination, modifier = modifier,
         enterTransition = {
@@ -111,19 +125,12 @@ fun PushNavHost(
                 else -> ExitTransition.None
             }
         },
-        popEnterTransition = {
-            when (kind(pop = true)) {
-                PushMotion.Kind.Pop -> slideIntoContainer(SlideDirection.End, PushMotion.spec()) { (it * PushMotion.PARALLAX).toInt() }
-                else -> EnterTransition.None
-            }
-        },
-        popExitTransition = {
-            when (kind(pop = true)) {
-                PushMotion.Kind.Pop -> slideOutOfContainer(SlideDirection.End, PushMotion.spec())
-                PushMotion.Kind.Dismiss -> slideOutVertically(PushMotion.spec<IntOffset>()) { it }
-                else -> ExitTransition.None
-            }
-        },
+        popEnterTransition = popEnter,
+        popExitTransition = popExit,
+        // System Back (key and gesture) goes through these, not popEnter/popExit: without
+        // them Navigation fades and shrinks the screen instead.
+        predictivePopEnterTransition = { _ -> popEnter() },
+        predictivePopExitTransition = { _ -> popExit() },
     ) { PushGraph(this, state).builder() }
 }
 
