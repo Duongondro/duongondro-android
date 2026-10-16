@@ -169,8 +169,13 @@ data class PasskeysState(
     /** A passkey with a box: signing in with it brings the counts to a new phone. */
     val unlocks: Boolean get() = passkeys.any { it.canUnlock }
 
-    /** The retrofit card: this phone holds U and a passkey of the account has no box yet. */
-    val offerUnlock: Boolean get() = loaded && holdsUserKey && !offerDismissed && passkeys.any { !it.canUnlock }
+    /**
+     * The retrofit card: this phone holds U and no passkey of the account can
+     * unlock yet. Once one can, the card goes, even if another passkey (a
+     * security key, one only reachable by QR) never will: a card that cannot
+     * be satisfied is no calm moment. Settings › Passkeys still says which unlock.
+     */
+    val offerUnlock: Boolean get() = loaded && holdsUserKey && !offerDismissed && passkeys.isNotEmpty() && !unlocks
 }
 
 /** What the retrofit ceremony gave. */
@@ -1053,7 +1058,8 @@ class AccountManager(
         val prf = Prf.read(response) ?: return UnlockSetUp.Cancelled
         val output = prf.output ?: return UnlockSetUp.NoOutput
         val result = try {
-            if (withContext(Dispatchers.IO) { a.sealUserKeyForPasskey(output, prf.credentialId) }) UnlockSetUp.Done else UnlockSetUp.NoOutput
+            // False: this phone lost U meanwhile; nothing to say about the passkey.
+            if (withContext(Dispatchers.IO) { a.sealUserKeyForPasskey(output, prf.credentialId) }) UnlockSetUp.Done else UnlockSetUp.Cancelled
         } catch (_: ApiError.NotFound) {
             UnlockSetUp.OtherAccount
         }

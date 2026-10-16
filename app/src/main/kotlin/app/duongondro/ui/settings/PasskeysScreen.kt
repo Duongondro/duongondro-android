@@ -233,7 +233,7 @@ fun UnlockCard(accounts: AccountManager) {
         if (failed) Text(stringResource(R.string.account_error), style = Theme.type.footnote, color = Theme.colors.destructive)
         if (noOutput) {
             FilledAction(stringResource(R.string.unlock_card_new_passkey), enabled = !busy) {
-                run { accounts.createPasskey(activity, profile = null) }
+                run { if (accounts.createPasskey(activity, profile = null) == PasskeyResult.Saved) outcome = null }
             }
         } else {
             FilledAction(stringResource(R.string.unlock_card_action), enabled = !busy) {
