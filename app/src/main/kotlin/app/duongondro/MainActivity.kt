@@ -175,6 +175,11 @@ private object Routes {
     val TABS = setOf(TODAY, FRIENDS, SETTINGS)
     /** What iOS presents as a sheet or full-screen cover: rises from the bottom instead. */
     val MODALS = setOf(SIGN_IN, NEW_ACCOUNT, RECOVERY_CODE, LICENCES)
+    /**
+     * Full-screen routes without the bottom bar: the practice screen (the +mala button owns
+     * the bottom edge), the account steps, and whatever iOS presents as a sheet or cover.
+     */
+    fun hidesBar(route: String?) = route == PRACTICE || route?.startsWith("settings/account/") == true || route in MODALS
     fun friend(id: java.util.UUID) = "friends/friend/$id"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
@@ -201,10 +206,8 @@ private fun Home(model: AppModel) {
     val nav = rememberNavController()
     val prompt by model.afterMidnight.collectAsStateWithLifecycle()
     val entry by nav.currentBackStackEntryAsState()
-    // The practice screen is full screen: the +mala button owns the bottom edge;
-    // so are the account steps opened from Settings.
-    val onPractice = entry?.destination?.route.let { it == Routes.PRACTICE || it?.startsWith("settings/account/") == true }
-    Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!onPractice) BottomBar(nav) }) { padding ->
+    val barHidden = Routes.hidesBar(entry?.destination?.route)
+    Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!barHidden) BottomBar(nav) }) { padding ->
         // The practice screen runs its cover under the status bar, so it takes the top inset itself.
         val inner = if (entry?.destination?.route == Routes.PRACTICE) {
             val dir = androidx.compose.ui.platform.LocalLayoutDirection.current
