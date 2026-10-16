@@ -77,6 +77,8 @@ data class DuongondroColors(
     val qrInk: Color,
     /** Covers sit a little back in the dark theme, so a bright thangka does not glare. */
     val coverAlpha: Float,
+    /** The shade over a screen a pushed one slides across, at its deepest (as on iOS). */
+    val pushDim: Color,
 )
 
 private val Light = DuongondroColors(
@@ -90,7 +92,7 @@ private val Light = DuongondroColors(
     welcomePrimaryInk = Color(0xFFFFFFFF), welcomeTitle = Color(0xFF7A1F2E), welcomeSoft = Color(0xFF4E3F44),
     welcomeGoldText = Color(0xFF7A5410), welcomeOutline = Color(0xFF8A777D), welcomeOutlineInk = Color(0xFF7A1F2E),
     buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE6FFFFFF), coverAlpha = 1f,
-    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E),
+    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E), pushDim = Color(0x1A000000),
 )
 
 private val Dark = DuongondroColors(
@@ -104,7 +106,7 @@ private val Dark = DuongondroColors(
     welcomePrimaryInk = Color(0xFF2A1A06), welcomeTitle = Color(0xFFFFFFFF), welcomeSoft = Color(0xFFE9D7DB),
     welcomeGoldText = Color(0xFFE3B341), welcomeOutline = Color(0xFF6E4A54), welcomeOutlineInk = Color(0xFFFFFFFF),
     buttonOutline = Color(0xFF8A777D), coverButton = Color(0xE62B1C20), coverAlpha = 0.82f,
-    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E),
+    qrGround = Color(0xFFFFFFFF), qrInk = Color(0xFF7A1F2E), pushDim = Color(0x40000000),
 )
 
 /** Spacing steps and fixed sizes, so composables carry no layout literals. */
