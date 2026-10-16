@@ -391,7 +391,7 @@
     <string name="passkey_added">Dodany %1$s</string>
     <string name="passkey_added_used">Dodany %1$s · ostatnio użyty %2$s</string>
     <string name="passkey_added_used_today">Dodany %1$s · ostatnio użyty dziś</string>
-    <string name="passkey_unlocks">Odblokowuje Twoje liczniki na nowym telefonie</string>
+    <string name="passkey_unlocks">Odblokowuje Twoje dane na nowym telefonie</string>
     <string name="passkey_add">Dodaj klucz dostępu</string>
     <string name="passkey_unavailable_add">Ten telefon nie może utworzyć klucza dostępu.</string>
     <string name="passkey_rename_title">Nazwij ten klucz dostępu</string>
