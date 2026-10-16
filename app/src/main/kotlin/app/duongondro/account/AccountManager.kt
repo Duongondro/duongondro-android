@@ -1023,11 +1023,14 @@ class AccountManager(
         passkeyLock.withLock {
             _passkeys.update { it.copy(loading = true) }
             try {
+                var checked = false
                 val holds = withContext(Dispatchers.IO) {
-                    runCatching { a.ensureUserKey() != null }
+                    runCatching { (a.ensureUserKey() != null).also { checked = true } }
                         .onFailure { e -> if (e is ApiError.Unauthorized || e is CancellationException) throw e; Log.w(TAG, "user key: ${e.javaClass.simpleName}") }
                         .getOrDefault(false)
                 }
+                // Checked for this key version: the next sync need not, unless it failed.
+                if (checked) userKeyCheckedAt = withContext(Dispatchers.IO) { db.syncState()?.keyVersion }
                 val list = withContext(Dispatchers.IO) { a.api.passkeys() }
                 if (account === a) _passkeys.update { it.copy(passkeys = list, loaded = true, failed = false, holdsUserKey = holds) }
             } catch (e: CancellationException) {
@@ -1184,10 +1187,7 @@ class AccountManager(
                 _state.update { it.copy(lastSync = now, offline = false, refused = result.refused, unreadable = result.unreadable) }
                 // Once per launch, and after a key rotation: U and the passkeys' boxes.
                 val version = db.syncState()?.keyVersion
-                if (version != null && version != userKeyCheckedAt) {
-                    userKeyCheckedAt = version
-                    scope.launch { refreshPasskeys() }
-                }
+                if (version != null && version != userKeyCheckedAt) scope.launch { refreshPasskeys() }
             }
         } catch (e: CancellationException) {
             throw e
