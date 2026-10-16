@@ -8,6 +8,7 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
@@ -97,6 +98,10 @@ object PushMotion {
     }
 
     internal fun <T> spec(): FiniteAnimationSpec<T> = tween(DURATION_MS, easing = Easing)
+
+    /** For the back gesture, which seeks the transition by the finger's progress: linear,
+     *  so the screen stays under the finger as on iOS. */
+    internal fun <T> scrubSpec(): FiniteAnimationSpec<T> = tween(DURATION_MS, easing = LinearEasing)
 }
 
 /**
@@ -131,19 +136,20 @@ fun PushNavHost(
         return PushMotion.kind(initialState.destination.route, targetState.destination.route, pop, roots, modals,
             animate = ValueAnimator.areAnimatorsEnabled())
     }
-    val popEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(scrub: Boolean): EnterTransition =
         when (kind(pop = true)) {
-            PushMotion.Kind.Pop -> slideIntoContainer(SlideDirection.End, PushMotion.spec()) { (it * PushMotion.PARALLAX).toInt() }
+            PushMotion.Kind.Pop -> slideIntoContainer(SlideDirection.End,
+                if (scrub) PushMotion.scrubSpec() else PushMotion.spec()) { (it * PushMotion.PARALLAX).toInt() }
             else -> EnterTransition.None
         }
-    }
-    val popExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(scrub: Boolean): ExitTransition =
         when (kind(pop = true)) {
-            PushMotion.Kind.Pop -> slideOutOfContainer(SlideDirection.End, PushMotion.spec())
-            PushMotion.Kind.Dismiss -> slideOutVertically(PushMotion.spec<IntOffset>()) { it }
+            PushMotion.Kind.Pop -> slideOutOfContainer(SlideDirection.End,
+                if (scrub) PushMotion.scrubSpec() else PushMotion.spec())
+            PushMotion.Kind.Dismiss -> slideOutVertically(
+                if (scrub) PushMotion.scrubSpec<IntOffset>() else PushMotion.spec<IntOffset>()) { it }
             else -> ExitTransition.None
         }
-    }
     NavHost(
         nav, startDestination = startDestination, modifier = modifier,
         enterTransition = {
@@ -160,12 +166,13 @@ fun PushNavHost(
                 else -> ExitTransition.None
             }
         },
-        popEnterTransition = popEnter,
-        popExitTransition = popExit,
+        popEnterTransition = { popEnter(scrub = false) },
+        popExitTransition = { popExit(scrub = false) },
         // System Back (key and gesture) goes through these, not popEnter/popExit: without
-        // them Navigation fades and shrinks the screen instead.
-        predictivePopEnterTransition = { _ -> popEnter() },
-        predictivePopExitTransition = { _ -> popExit() },
+        // them Navigation fades and shrinks the screen instead. Linear, since the gesture
+        // seeks them by the finger's progress.
+        predictivePopEnterTransition = { _ -> popEnter(scrub = true) },
+        predictivePopExitTransition = { _ -> popExit(scrub = true) },
     ) { PushGraph(this, { shaded.value }, { route, content -> frame.value(route, content) }).builder() }
 }
 
