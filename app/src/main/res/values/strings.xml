@@ -401,6 +401,6 @@
     <string name="unlock_card_new_passkey">Save a new passkey</string>
     <string name="recovery_detail_passkey">Your passkey can bring your counts to a new phone. This code is the way back without it, if you lose your password manager. Nobody else has it, not even us.</string>
     <string name="unlock_replace_title">Replace the unlock key?</string>
-    <string name="unlock_replace_detail">The removed passkey can no longer unlock your counts on a new phone. Anyone who already unlocked them with it keeps what they opened; that can\'t be taken back. A new unlock key makes sure they get nothing more through it. Your other passkeys then need one fingerprint or screen lock each to unlock your counts again.</string>
+    <string name="unlock_replace_detail">Other phones are signed out, and this passkey can no longer unlock your counts on a new phone. A phone it already unlocked keeps what it has.</string>
     <string name="unlock_replace_action">Replace the unlock key</string>
 </resources>

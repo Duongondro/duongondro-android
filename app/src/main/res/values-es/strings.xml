@@ -405,6 +405,6 @@
     <string name="unlock_card_new_passkey">Guardar una clave nueva</string>
     <string name="recovery_detail_passkey">Tu clave de acceso puede llevar tus recuentos a un teléfono nuevo. Este código es la vía de vuelta sin ella, si pierdes tu gestor de contraseñas. Nadie más lo tiene, ni siquiera nosotros.</string>
     <string name="unlock_replace_title">¿Sustituir la llave de desbloqueo?</string>
-    <string name="unlock_replace_detail">La clave de acceso quitada ya no puede desbloquear tus recuentos en un teléfono nuevo. Quien ya los desbloqueó con ella conserva lo que abrió; eso no se puede deshacer. Una llave de desbloqueo nueva asegura que no obtenga nada más por esa vía. Tus otras claves de acceso necesitarán después una huella o el bloqueo de pantalla cada una para volver a desbloquear tus recuentos.</string>
+    <string name="unlock_replace_detail">Los demás teléfonos cierran sesión y esta clave de acceso ya no puede desbloquear tus recuentos en un teléfono nuevo. Un teléfono que ya haya desbloqueado conserva lo que tiene.</string>
     <string name="unlock_replace_action">Sustituir la llave de desbloqueo</string>
 </resources>

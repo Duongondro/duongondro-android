@@ -156,6 +156,9 @@ class Api(
     /** Deletes everything the server holds about this account (GDPR Article 17). */
     fun deleteMe() = send<Unit>("DELETE", "api/me", null)
 
+    /** Ends every other session of this account ("sign out everywhere else") and drops their phones' push tokens. */
+    fun signOutOthers() = send<Unit>("DELETE", "api/me/sessions", null)
+
     /** Ends this session; its token stops working. */
     fun signOut() = send<Unit>("DELETE", "api/me/session", null)
 

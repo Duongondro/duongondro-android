@@ -404,6 +404,6 @@
     <string name="unlock_card_new_passkey">Enregistrer une nouvelle clé</string>
     <string name="recovery_detail_passkey">Ta clé d\'accès peut ramener tes décomptes sur un nouveau téléphone. Ce code est le moyen de les retrouver sans elle, si tu perds ton gestionnaire de mots de passe. Personne d\'autre ne l\'a, pas même nous.</string>
     <string name="unlock_replace_title">Remplacer la clé de déverrouillage ?</string>
-    <string name="unlock_replace_detail">La clé d\'accès retirée ne peut plus déverrouiller tes décomptes sur un nouveau téléphone. Ce qui a déjà été déverrouillé avec elle reste ouvert ; on ne peut pas revenir dessus. Une nouvelle clé de déverrouillage garantit que rien de plus ne passe par elle. Tes autres clés d\'accès demanderont ensuite chacune une empreinte ou le verrouillage de l\'écran pour déverrouiller à nouveau tes décomptes.</string>
+    <string name="unlock_replace_detail">Les autres téléphones sont déconnectés, et cette clé d\'accès ne peut plus déverrouiller tes décomptes sur un nouveau téléphone. Un téléphone qu\'elle a déjà déverrouillé garde ce qu\'il a.</string>
     <string name="unlock_replace_action">Remplacer la clé de déverrouillage</string>
 </resources>

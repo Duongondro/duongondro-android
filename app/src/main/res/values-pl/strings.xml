@@ -411,6 +411,6 @@
     <string name="unlock_card_new_passkey">Zapisz nowy klucz dostępu</string>
     <string name="recovery_detail_passkey">Twój klucz dostępu może przenieść liczniki na nowy telefon. Ten kod to droga z powrotem bez niego, gdyby menedżer haseł przepadł. Nikt inny go nie ma, nawet my.</string>
     <string name="unlock_replace_title">Zastąpić klucz odblokowania?</string>
-    <string name="unlock_replace_detail">Usunięty klucz dostępu nie odblokuje już Twoich liczników na nowym telefonie. To, co ktoś już nim odblokował, pozostaje otwarte; tego nie da się cofnąć. Nowy klucz odblokowania sprawi, że tą drogą nie trafi nic więcej. Pozostałe klucze dostępu będą potem potrzebować po jednym odcisku palca albo blokadzie ekranu, by znów odblokować liczniki.</string>
+    <string name="unlock_replace_detail">Inne telefony zostaną wylogowane, a ten klucz dostępu nie odblokuje już Twoich liczników na nowym telefonie. Telefon, który został już nim odblokowany, zachowa to, co ma.</string>
     <string name="unlock_replace_action">Zastąp klucz odblokowania</string>
 </resources>

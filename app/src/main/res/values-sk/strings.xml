@@ -398,6 +398,6 @@
     <string name="unlock_card_new_passkey">Uložiť nový prístupový kľúč</string>
     <string name="recovery_detail_passkey">Tvoj prístupový kľúč vie preniesť tvoje počty do nového telefónu. Tento kód je cesta späť bez neho, keby sa správca hesiel stratil. Nikto iný ho nemá, ani my.</string>
     <string name="unlock_replace_title">Nahradiť odomykací kľúč?</string>
-    <string name="unlock_replace_detail">Odobraný prístupový kľúč už neodomkne tvoje počty v novom telefóne. Kto ich ním už odomkol, ponechá si, čo otvoril; to sa nedá vziať späť. Nový odomykací kľúč zaistí, že cez neho nedostane nič ďalšie. Tvoje ostatné prístupové kľúče potom potrebujú každý jeden odtlačok prsta alebo zámku obrazovky, aby tvoje počty znova odomkli.</string>
+    <string name="unlock_replace_detail">Ostatné telefóny sa odhlásia a tento prístupový kľúč už neodomkne tvoje počty v novom telefóne. Telefón, ktorý ním už bol odomknutý, si ponechá, čo má.</string>
     <string name="unlock_replace_action">Nahradiť odomykací kľúč</string>
 </resources>

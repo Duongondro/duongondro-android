@@ -1082,14 +1082,19 @@ class AccountManager(
 
     /**
      * "Replace the unlock key", only when the person asks, after removing a
-     * passkey that could unlock: a new U replaces the old (`replace: true`), so
-     * whoever opened the old one with that passkey gets nothing new through it.
-     * What they opened stays opened; Android does not rotate the practice key.
-     * Every remaining passkey then needs a new box: the card offers it.
+     * passkey that could unlock. Android neither removes devices nor rotates
+     * the practice key, so this is what it can do: sign out every other
+     * session (a phone that passkey unlocked loses its sign-in), then a new U
+     * with `replace: true`, the keys wrapped to it and U sent again to the
+     * listed phones. A phone it already unlocked keeps what it has. Every
+     * remaining passkey then needs a new box: the card offers it.
      */
     suspend fun replaceUnlockKey() {
         val a = requireAccount()
-        withContext(Dispatchers.IO) { a.replaceUserKey() }
+        withContext(Dispatchers.IO) {
+            a.api.signOutOthers()
+            a.replaceUserKey()
+        }
         _passkeys.update { it.copy(offerDismissed = false) }
         refreshPasskeys()
     }
