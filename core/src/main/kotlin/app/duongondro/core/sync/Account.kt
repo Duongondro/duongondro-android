@@ -165,7 +165,11 @@ class Account(
         )
         val s = AccountKeys.firstDeviceSecrets(me.id, me.identityPublicKey, stored)
         if (s.discardStored) {
-            listOf(SecretName.IDENTITY_SEED, SecretName.practiceKey(me.keyVersion), SecretName.PENDING_RECOVERY).forEach(secrets::delete)
+            listOf(
+                SecretName.IDENTITY_SEED, SecretName.practiceKey(me.keyVersion), SecretName.PENDING_RECOVERY,
+                // Another account's U never becomes this one's.
+                SecretName.USER_KEY, SecretName.USER_KEY_NEXT, SecretName.USER_KEY_GIVEN, SecretName.USER_KEY_SHUT_OUT,
+            ).forEach(secrets::delete)
             secrets.write(SecretName.SET_UP_USER, s.setUpUser.toByteArray())
         }
         if (stored.identitySeed == null || s.discardStored) secrets.write(SecretName.IDENTITY_SEED, s.identity.seed)
