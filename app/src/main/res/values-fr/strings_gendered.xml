@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  French gendered forms. Only the strings about "a friend" with no display name
+  need them (un ami / une amie); the neutral strings in strings.xml use
+  "un(e) ami(e)". The others take the passé composé with "avoir" ("As-tu
+  terminé le ngöndro ?", "J'ai commencé après minuit", "%1$s a terminé %2$s"),
+  whose participle does not agree with the subject, so they fall back to the
+  French neutral string through the aliases in values/strings_gendered.xml.
+-->
+<resources>
+    <string name="friend_finished_unnamed_male">Un ami a terminé %1$s</string>
+    <string name="friend_finished_unnamed_female">Une amie a terminé %1$s</string>
+    <string name="friend_not_yet_unnamed_male">Un ami n\'a pas encore pratiqué</string>
+    <string name="friend_not_yet_unnamed_female">Une amie n\'a pas encore pratiqué</string>
+    <string name="poke_unnamed_male">Relancer un ami</string>
+    <string name="poke_unnamed_female">Relancer une amie</string>
+    <string name="poked_unnamed_male">Relance envoyée à un ami</string>
+    <string name="poked_unnamed_female">Relance envoyée à une amie</string>
+</resources>
