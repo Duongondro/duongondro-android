@@ -9,6 +9,7 @@ import app.duongondro.core.crypto.DeviceKeyStore
 import app.duongondro.core.crypto.E2EE
 import app.duongondro.core.crypto.Identity
 import app.duongondro.core.crypto.Tier
+import kotlinx.coroutines.sync.withLock
 import java.time.Instant
 import java.util.UUID
 
@@ -241,7 +242,15 @@ class Account(
      * where missing (after a rotation too), and gives U to the account's other
      * listed phones. Returns U when this phone holds the account's current one.
      */
-    suspend fun ensureUserKey(): UserKeys.Local? {
+    suspend fun ensureUserKey(): UserKeys.Local? = userKeyLock.withLock { ensureUserKeyLocked() }
+
+    /**
+     * One user-key step at a time: two at once could each make a pending U, and
+     * the one that lost the race would delete the record of the one that won.
+     */
+    private val userKeyLock = kotlinx.coroutines.sync.Mutex()
+
+    private suspend fun ensureUserKeyLocked(): UserKeys.Local? {
         val state = database.syncState() ?: return null
         val user = state.user
         val keyVersion = state.keyVersion
@@ -288,12 +297,12 @@ class Account(
     }
 
     /** Seals U for a passkey whose PRF output a ceremony just gave; false when this phone holds no U. */
-    suspend fun sealUserKeyForPasskey(prf: ByteArray, credentialId: ByteArray): Boolean {
-        val u = ensureUserKey() ?: return false
-        val user = database.syncState()?.user ?: return false
+    suspend fun sealUserKeyForPasskey(prf: ByteArray, credentialId: ByteArray): Boolean = userKeyLock.withLock {
+        val u = ensureUserKeyLocked() ?: return@withLock false
+        val user = database.syncState()?.user ?: return@withLock false
         val box = UserKeys.sealForPasskey(u, prf, credentialId, user, identity())
         api.putPasskeyUnlock(app.duongondro.core.api.Prf.idText(credentialId), app.duongondro.core.api.PasskeyBoxInput(u.id, box.box, box.signature))
-        return true
+        true
     }
 
     private fun thisDevice(): UUID? = secrets.read(SecretName.DEVICE_ID)?.decodeToString()?.let(UUID::fromString)

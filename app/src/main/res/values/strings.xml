@@ -391,7 +391,7 @@
     <string name="passkey_remove_detail">It can no longer sign you in, and anywhere it is signed in now is signed out. The passkey itself stays in your password manager until you delete it there.</string>
     <string name="passkey_remove_current">This phone signed in with it, so it is signed out here too. Your counts stay on it.</string>
     <string name="passkey_remove">Remove</string>
-    <string name="passkey_last_way">This is your only way to sign in. Add another passkey or an email address first.</string>
+    <string name="passkey_last_way">This is the only way to sign in to your account, so it stays. Add another passkey or an email first.</string>
     <string name="passkey_other_account">That passkey belongs to another account.</string>
     <string name="unlock_card_title">Let your passkey unlock your counts on a new phone</string>
     <string name="unlock_card_detail">Sign in with your passkey on a new phone and your counts come back without the recovery code. It takes one fingerprint or screen lock.</string>
