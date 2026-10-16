@@ -199,8 +199,14 @@ class ReportLayout(private val measure: TextMeasure) {
     /** The wrapped text's height in [width]. */
     private fun height(text: String, style: ReportStyle, width: Float): Float = lines(text, style, width).size * measure.lineHeight(style)
 
+    /**
+     * Each text's lines, measured once: a row is measured for its height and again when drawn,
+     * and times, counts and days repeat, so 30,000 sessions need far fewer measurements.
+     */
+    private val wrapped = HashMap<Triple<String, ReportStyle, Float>, List<String>>()
+
     private fun lines(text: String, style: ReportStyle, width: Float): List<String> =
-        if (text.isEmpty()) emptyList() else text.split('\n').flatMap { wrap(it, style, width) }
+        if (text.isEmpty()) emptyList() else wrapped.getOrPut(Triple(text, style, width)) { text.split('\n').flatMap { wrap(it, style, width) } }
 
     /** Draws [text] wrapped to [width] from line top [top]; returns its height. */
     private fun MutableList<Draw>.text(text: String, style: ReportStyle, x: Float, top: Float, width: Float, right: Boolean = false): Float {

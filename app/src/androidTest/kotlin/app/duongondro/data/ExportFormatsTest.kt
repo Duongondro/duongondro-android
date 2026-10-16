@@ -104,4 +104,48 @@ class ExportFormatsTest {
     @Test fun german() = make(Locale.GERMAN, "de")
 
     @Test fun russian() = make(Locale.forLanguageTag("ru"), "ru")
+
+    /**
+     * A heavy user's export: 30,000 sessions over ten years. Its time and the heap it took
+     * go to logcat (tag ExportFormatsTest) and to export-samples/30k.txt.
+     */
+    @Test fun thirtyThousandSessions() {
+        val practices = snapshot.practices.take(3)
+        val sessions = (0 until 30_000).map { i ->
+            val p = practices[i % 3].practice.id
+            session(p, if (p == "16th-karmapa") 0 else 108 * (1 + i % 5), Instant.parse("2016-10-15T05:00:00Z").plus(Duration.ofHours(i * 2L + i % 7)))
+        }
+        val big = snapshot.copy(practices = practices, sessions = sessions)
+        val runtime = Runtime.getRuntime()
+        System.gc()
+        val heapBefore = runtime.totalMemory() - runtime.freeMemory()
+        val nativeBefore = android.os.Debug.getNativeHeapAllocatedSize()
+        var peak = heapBefore
+        val sampler = Thread {
+            while (!Thread.currentThread().isInterrupted) {
+                peak = maxOf(peak, runtime.totalMemory() - runtime.freeMemory())
+                try { Thread.sleep(5) } catch (_: InterruptedException) { break }
+            }
+        }.apply { start() }
+        val account = ExportContent.AccountFacts("Tidy Raccoon", null, null, emptyList(), null)
+        val t0 = System.nanoTime()
+        val content = ExportFiles.content(context, big, server, emptySet(), account, emptyList(), now, zone)
+        val t1 = System.nanoTime()
+        val pdf = ExportFiles.pdf(context, content, "0.4 (abcdef0)", now)
+        val t2 = System.nanoTime()
+        val nativeAfterPdf = android.os.Debug.getNativeHeapAllocatedSize()
+        val csv = ExportFiles.csv(context, content, now)
+        val t3 = System.nanoTime()
+        sampler.interrupt(); sampler.join()
+        fun ms(a: Long, b: Long) = (b - a) / 1_000_000
+        fun mb(bytes: Long) = bytes / (1024 * 1024)
+        val pages = Regex("/Type\\s*/Page[^s]").findAll(pdf.decodeToString(throwOnInvalidSequence = false)).count()
+        val report = "30,000 sessions: content ${ms(t0, t1)} ms, PDF ${ms(t1, t2)} ms (${pdf.size / 1024} KiB, $pages pages), " +
+            "CSV ${ms(t2, t3)} ms (${csv.size / 1024} KiB); Java heap ${mb(heapBefore)} MiB before, peak ${mb(peak)} MiB of " +
+            "${mb(runtime.maxMemory())} MiB; native heap ${mb(nativeBefore)} MiB before, ${mb(nativeAfterPdf)} MiB after the PDF"
+        android.util.Log.i("ExportFormatsTest", report)
+        File(folder, "30k.txt").writeText(report + "\n")
+        File(folder, "export-30k.pdf").writeBytes(pdf)
+        assertEquals("%PDF", pdf.copyOfRange(0, 4).decodeToString())
+    }
 }

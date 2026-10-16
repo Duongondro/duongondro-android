@@ -10,6 +10,7 @@ import app.duongondro.R
 import app.duongondro.core.export.Draw
 import app.duongondro.core.export.PdfText
 import app.duongondro.core.export.Report
+import app.duongondro.core.export.ReportColor
 import app.duongondro.core.export.ReportFont
 import app.duongondro.core.export.ReportLayout
 import app.duongondro.core.export.ReportStyle
@@ -54,12 +55,16 @@ class PdfExport(private val context: Context) {
 
     /** Lays [report] out and writes it to [out]; returns the number of pages. */
     fun write(report: Report, out: OutputStream): Int {
+        // Font metrics once per style: Paint.getFontMetrics() makes a new object on every call.
+        val metrics = paints.mapValues { it.value.fontMetrics }
         val measure = object : TextMeasure {
             override fun width(text: String, style: ReportStyle) = paints.getValue(style).measureText(text)
-            override fun ascent(style: ReportStyle) = -paints.getValue(style).fontMetrics.ascent
-            override fun lineHeight(style: ReportStyle) = paints.getValue(style).fontMetrics.let { it.descent - it.ascent } * 1.15f
+            override fun ascent(style: ReportStyle) = -metrics.getValue(style).ascent
+            override fun lineHeight(style: ReportStyle) = metrics.getValue(style).let { it.descent - it.ascent } * 1.15f
         }
         val pages = ReportLayout(measure).pages(report)
+        val fills = HashMap<ReportColor, Paint>()
+        val strokes = HashMap<kotlin.Pair<ReportColor, Float>, Paint>()
         val document = PdfDocument()
         try {
             for (page in pages) {
@@ -68,11 +73,11 @@ class PdfExport(private val context: Context) {
                 val canvas = pdfPage.canvas
                 for (draw in page.draws) {
                     when (draw) {
-                        is Draw.Rect -> canvas.drawRect(draw.x, draw.y, draw.x + draw.width, draw.y + draw.height, Paint().apply {
-                            color = draw.color.argb.toInt(); style = Paint.Style.FILL
+                        is Draw.Rect -> canvas.drawRect(draw.x, draw.y, draw.x + draw.width, draw.y + draw.height, fills.getOrPut(draw.color) {
+                            Paint().apply { color = draw.color.argb.toInt(); style = Paint.Style.FILL }
                         })
-                        is Draw.Line -> canvas.drawLine(draw.x1, draw.y1, draw.x2, draw.y2, Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                            color = draw.color.argb.toInt(); style = Paint.Style.STROKE; strokeWidth = draw.thickness
+                        is Draw.Line -> canvas.drawLine(draw.x1, draw.y1, draw.x2, draw.y2, strokes.getOrPut(draw.color to draw.thickness) {
+                            Paint(Paint.ANTI_ALIAS_FLAG).apply { color = draw.color.argb.toInt(); style = Paint.Style.STROKE; strokeWidth = draw.thickness }
                         })
                         is Draw.Text -> {
                             val paint = paints.getValue(draw.style)
