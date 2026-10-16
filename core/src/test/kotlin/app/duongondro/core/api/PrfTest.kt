@@ -22,12 +22,14 @@ class PrfTest {
         assertEquals(Prf.input, first(Prf.assertionOptions(ByteArray(32))))
     }
 
-    @Test fun theServersOptionsKeepTheirExtensions() {
-        val options = Prf.withEval("""{"challenge":"abc","rpId":"duongondro.app","extensions":{"credProps":true}}""")
+    @Test fun theServersExtensionsAreDropped() {
+        val options = Prf.withEval("""{"challenge":"abc","rpId":"duongondro.app","extensions":{"credProps":true,"prf":{"eval":{"first":"c2VydmVy"}}}}""")
         val root = Json.parseToJsonElement(options).jsonObject
         assertEquals("abc", root["challenge"]!!.jsonPrimitive.content)
-        assertEquals("true", root["extensions"]!!.jsonObject["credProps"]!!.jsonPrimitive.content)
+        // Only the app's own PRF input: the server's choice of input, and its other extensions, are gone.
+        assertEquals(setOf("prf"), root["extensions"]!!.jsonObject.keys)
         assertEquals(Prf.input, first(options))
+        assertFalse(options.contains("c2VydmVy"))
         assertEquals(Prf.input, first(Prf.withEval("""{"challenge":"abc"}""")))
     }
 
@@ -47,8 +49,9 @@ class PrfTest {
         assertEquals(true, r.enabled)
         assertArrayEquals(out, r.output)
         val sent = Prf.stripped(response).toString()
-        assertFalse("the PRF output never reaches the server", sent.contains("results") || sent.contains(padded.trimEnd('=')))
-        assertTrue(sent.contains("\"enabled\":true") && sent.contains("credProps"))
+        assertFalse("the PRF output never reaches the server", sent.contains("prf") || sent.contains("results") || sent.contains(padded.trimEnd('=')))
+        assertEquals("{}", Json.parseToJsonElement(sent).jsonObject["clientExtensionResults"].toString())
+        assertTrue(sent.contains("\"rawId\":\"AQID\""))
         assertEquals("AQID", Prf.idText(r.credentialId))
     }
 

@@ -32,11 +32,15 @@ object Prf {
 
     private fun eval() = buildJsonObject { putJsonObject("eval") { put("first", input) } }
 
-    /** The server's creation or request options with `extensions.prf.eval.first` added; other extensions stay. */
+    /**
+     * The server's creation or request options with the extensions built here:
+     * only `prf.eval.first` with the app's input. Whatever `extensions` the
+     * server sent are dropped, so it can never choose the PRF input or ask for
+     * anything else (duongondro-api#26).
+     */
     fun withEval(publicKeyOptions: String): String {
         val root = Api.json.parseToJsonElement(publicKeyOptions).jsonObject
-        val extensions = (root["extensions"] as? JsonObject).orEmpty() + ("prf" to eval())
-        return JsonObject(root + ("extensions" to JsonObject(extensions))).toString()
+        return JsonObject(root + ("extensions" to buildJsonObject { put("prf", eval()) })).toString()
     }
 
     /**
@@ -73,14 +77,15 @@ object Prf {
         return Result(id, (prf?.get("enabled") as? JsonPrimitive)?.booleanOrNull, output)
     }
 
-    /** The response without the PRF output, for the server: `prf.results` goes, `prf.enabled` stays. */
+    /**
+     * The response as it goes to the server: every client extension result
+     * dropped, so the PRF output (and `prf` at all) never leaves the phone. The
+     * server refuses a finish body carrying PRF results (duongondro-api#26).
+     */
     fun stripped(response: JsonElement): JsonElement {
         val root = response as? JsonObject ?: return response
-        val ext = root["clientExtensionResults"] as? JsonObject ?: return response
-        val prf = ext["prf"] as? JsonObject ?: return response
-        val kept = JsonObject(prf - "results")
-        val newExt = if (kept.isEmpty()) JsonObject(ext - "prf") else JsonObject(ext + ("prf" to kept))
-        return JsonObject(root + ("clientExtensionResults" to newExt))
+        if (root["clientExtensionResults"] == null) return response
+        return JsonObject(root + ("clientExtensionResults" to JsonObject(emptyMap())))
     }
 
     /** A credential id as the API's path takes it: base64url without padding. */
@@ -88,7 +93,5 @@ object Prf {
 
     /** base64url with or without padding, as platforms differ; null when it is not. */
     fun decode(s: String): ByteArray? = runCatching { Base64.getUrlDecoder().decode(s.trimEnd('=')) }.getOrNull()
-
-    private fun JsonObject?.orEmpty(): Map<String, JsonElement> = this ?: emptyMap()
 
 }
