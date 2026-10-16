@@ -31,6 +31,7 @@ import app.duongondro.data.DataExport
 import app.duongondro.data.ExportFiles
 import app.duongondro.data.ExportFormat
 import app.duongondro.data.Exports
+import app.duongondro.inAppLanguage
 import app.duongondro.model.AppModel
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.theme.Size
@@ -93,6 +94,8 @@ class ExportController(private val context: Context, private val model: AppModel
      * server's export; offline or failed, from the phone alone, and the screen says so.
      */
     private suspend fun build(format: ExportFormat, now: Instant): File {
+        // The words and practice names in the app's language, which the application context lacks before API 33.
+        val localized = context.inAppLanguage()
         // Final sessions only: the open undo window closes first.
         model.finalisePendingNow()
         val accounts = model.accounts
@@ -121,8 +124,8 @@ class ExportController(private val context: Context, private val model: AppModel
                     }
                     val friends = if (account == null) emptyList()
                         else accounts.friends.value.friends.map { ExportContent.FriendRow(it.user, it.displayName, it.gender, null) }
-                    val content = ExportFiles.content(context, snapshot, server, known, account, friends, now)
-                    if (format == ExportFormat.PDF) ExportFiles.pdf(context, content, buildLabel(), now) else ExportFiles.csv(context, content, now)
+                    val content = ExportFiles.content(localized, snapshot, server, known, account, friends, now)
+                    if (format == ExportFormat.PDF) ExportFiles.pdf(localized, content, buildLabel(), now) else ExportFiles.csv(localized, content, now)
                 }
             }
             Exports.write(context, bytes, format.fileName(now))
