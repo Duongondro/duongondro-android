@@ -38,8 +38,7 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import app.duongondro.ui.PushNavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.duongondro.model.AppModel
@@ -172,6 +171,10 @@ private object Routes {
     const val FRIENDS = "friends"
     const val FRIEND = "friends/friend/{id}"
     const val FRIENDS_INVITE = "friends/invite"
+    /** The bottom bar's tabs: switching between them never slides. */
+    val TABS = setOf(TODAY, FRIENDS, SETTINGS)
+    /** What iOS presents as a sheet or full-screen cover: rises from the bottom instead. */
+    val MODALS = setOf(SIGN_IN, NEW_ACCOUNT, RECOVERY_CODE, LICENCES)
     fun friend(id: java.util.UUID) = "friends/friend/$id"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
@@ -207,44 +210,45 @@ private fun Home(model: AppModel) {
             val dir = androidx.compose.ui.platform.LocalLayoutDirection.current
             PaddingValues(start = padding.calculateStartPadding(dir), end = padding.calculateEndPadding(dir), bottom = padding.calculateBottomPadding())
         } else padding
-        NavHost(nav, startDestination = Routes.TODAY, modifier = Modifier.padding(inner).consumeWindowInsets(inner)) {
-            composable(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
-            composable(Routes.SETTINGS) {
+        PushNavHost(nav, startDestination = Routes.TODAY, roots = Routes.TABS, modals = Routes.MODALS,
+            modifier = Modifier.padding(inner).consumeWindowInsets(inner)) {
+            screen(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
+            screen(Routes.SETTINGS) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
                     openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
                     openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
                     openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
                     openPasskeys = { nav.navigate(Routes.PASSKEYS) })
             }
-            composable(Routes.FRIENDS) {
+            screen(Routes.FRIENDS) {
                 FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
                     openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) }, openSignIn = { nav.navigate(Routes.SIGN_IN) },
                     openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
             }
-            composable(Routes.FRIEND) { entry ->
+            screen(Routes.FRIEND) { entry ->
                 FriendDetailScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
-            composable(Routes.FRIENDS_INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
-            composable(Routes.PRACTICES) {
+            screen(Routes.FRIENDS_INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
+            screen(Routes.PRACTICES) {
                 PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
                     openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
             }
-            composable(Routes.PRACTICE_SETTINGS) { entry ->
+            screen(Routes.PRACTICE_SETTINGS) { entry ->
                 PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
-            composable(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
-            composable(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
-            composable(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
-            composable(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
-            composable(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
-            composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
-            composable(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
-            composable(Routes.PASSKEYS) { model.accounts?.let { PasskeysScreen(it) { nav.popBackStack() } } }
-            composable(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
-            composable(Routes.ARCHIVED) {
+            screen(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
+            screen(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
+            screen(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
+            screen(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
+            screen(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
+            screen(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
+            screen(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
+            screen(Routes.PASSKEYS) { model.accounts?.let { PasskeysScreen(it) { nav.popBackStack() } } }
+            screen(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
+            screen(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
             }
-            composable(Routes.PRACTICE) { entry ->
+            screen(Routes.PRACTICE) { entry ->
                 PracticeScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
             }
         }
