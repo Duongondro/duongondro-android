@@ -336,7 +336,7 @@ class Account(
      * reaching it, nothing more. Returns false when the account has no U.
      */
     suspend fun replaceUserKey(shutOut: Collection<UUID> = emptyList()): Boolean = userKeyLock.withLock {
-        val others = shutOut.filter { it != thisDevice() }
+        val others = shutOut.filter { it != deviceId() }
         if (others.isNotEmpty()) secrets.write(SecretName.USER_KEY_SHUT_OUT, (shutOutDevices() + others).joinToString("\n").toByteArray())
         val state = database.syncState() ?: return@withLock false
         val identity = identity()
@@ -370,11 +370,9 @@ class Account(
         secrets.read(SecretName.USER_KEY_SHUT_OUT)?.decodeToString()?.lines()
             ?.mapNotNull { runCatching { UUID.fromString(it.trim()) }.getOrNull() }?.toSet() ?: emptySet()
 
-    private fun thisDevice(): UUID? = secrets.read(SecretName.DEVICE_ID)?.decodeToString()?.let(UUID::fromString)
-
     /** U from a kind 4 wrap another phone left for this one. */
     private fun receiveUserKey(published: Statements.UserKey, user: UUID, identity: Identity): UserKeys.Local? {
-        val device = thisDevice() ?: return null
+        val device = deviceId() ?: return null
         val key = deviceKeys.current() ?: return null
         return api.wraps(device).asSequence()
             .filter { it.kind == E2EE.WrapKind.USER_KEY.raw && it.keyVersion == published.version }
@@ -388,7 +386,7 @@ class Account(
 
     /** Gives U to the account's other phones in the signed device list, each once. */
     private fun giveUserKey(u: UserKeys.Local, user: UUID, identity: Identity) {
-        val me = thisDevice() ?: return
+        val me = deviceId() ?: return
         val list = api.deviceList()?.toStatement() ?: return
         if (!list.verify(app.duongondro.core.crypto.StatementTypes.DEVICE_LIST, identity.publicKey)) return
         val listed = Statements.parseDeviceList(list.payload)?.devices ?: return
