@@ -30,7 +30,7 @@ class CsvExportTest {
         assertEquals(listOf("README.txt", "practices.csv", "sessions.csv", "friends.csv", "invites.csv", "blocks.csv", "reports.csv", "devices.csv"),
             files.keys.toList())
         assertTrue(files.filterKeys { it.endsWith(".csv") }.values.all { it.startsWith(Csv.BOM) && it.endsWith("\r\n") })
-        assertTrue("Value codes stay English" in files.getValue("README.txt"))
+        assertTrue("Values that are codes stay English" in files.getValue("README.txt"))
         // An account without the server's part: friends as cached, nothing only the server holds.
         assertEquals(listOf("practices", "sessions", "friends"), CsvExport.tables(ExportFixtures.content(withServer = false)).map { it.name })
         // Local mode: no account, no friends.
@@ -68,6 +68,9 @@ class CsvExportTest {
     @Test fun aFriendWithoutANameAndUnreadableSessions() {
         val nameless = content.copy(friends = listOf(content.friends.single().copy(displayName = "")), unreadable = 2)
         assertEquals("Ein Freund", CsvExport.tables(nameless, aFriend = "Ein Freund").first { it.name == "friends" }.rows.single()[0])
-        assertTrue("2 sealed sessions" in CsvExport.readme(listOf("practices.csv"), 2))
+        assertTrue("2 sealed sessions could not be opened" in CsvExport.readme(nameless))
+        assertTrue("could not be reached" in CsvExport.readme(ExportFixtures.content(withServer = false)))
+        assertTrue("no online account" in CsvExport.readme(ExportFixtures.content(withServer = false).copy(account = null)))
+        assertTrue("could not be reached" !in CsvExport.readme(content))
     }
 }

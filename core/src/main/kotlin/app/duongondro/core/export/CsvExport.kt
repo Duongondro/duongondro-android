@@ -80,33 +80,37 @@ object CsvExport {
                 z.closeEntry()
             }
             val tables = tables(content, aFriend)
-            add("README.txt", readme(tables.map { it.file }, content.unreadable).toByteArray(Charsets.UTF_8))
+            add("README.txt", readme(content).toByteArray(Charsets.UTF_8))
             for (t in tables) add(t.file, table(t, header).toByteArray(Charsets.UTF_8))
         }
         return out.toByteArray()
     }
 
-    /** What the files are, in English as the JSON export's README. */
-    fun readme(files: List<String>, unreadable: Int): String = buildString {
-        appendLine("Duongöndro: your data as spreadsheet tables")
-        appendLine()
-        appendLine("One CSV file per kind of data (${files.joinToString(", ")}): UTF-8 with a")
-        appendLine("byte order mark, a header row in the app's language, CRLF line ends. Numbers")
-        appendLine("are plain digits. A text cell starting with =, +, -, @, tab or CR has a")
-        appendLine("leading ' so a spreadsheet shows it rather than running it.")
-        appendLine()
-        appendLine("Value codes stay English in every language: made or redeemed for friendship")
-        appendLine("codes, hardware, tee or software for key storage, true or false for yes and no.")
-        appendLine()
-        appendLine("A session's start is local to where it started (YYYY-MM-DD HH:MM:SS), with")
-        appendLine("its time zone beside it; other times are ISO 8601 with their UTC offset.")
-        appendLine("Friends need an account; invites, blocks, reports and devices are only")
-        appendLine("there when the server could be reached.")
-        if (unreadable > 0) {
-            appendLine()
-            appendLine("$unreadable sealed sessions could not be opened on this phone, so they are")
-            appendLine("only in the JSON export (server-raw.json).")
+    /** What the tables are and how their values read; English, as the JSON's README, and worded as iOS's. */
+    fun readme(content: ExportContent): String {
+        val lines = mutableListOf(
+            "Duongöndro: your data as tables",
+            "",
+            "One CSV file per kind of data: RFC 4180, UTF-8 (with a byte order mark), a",
+            "header row in the app's language, CRLF line ends. Numbers are plain digits.",
+            "A text cell that starts with =, +, -, @, a tab or a carriage return has a",
+            "leading ' so a spreadsheet does not run it as a formula.",
+            "",
+            "Values that are codes stay English in every language: true and false;",
+            "made and redeemed (friendship codes); hardware, tee and software (where a",
+            "device keeps its key). Session starts are local to the session's time",
+            "zone, given beside them; other times are ISO 8601 with their UTC offset.",
+        )
+        when {
+            content.account == null -> lines += listOf("", "This phone has no online account, so there are only practices and sessions.")
+            !content.serverIncluded -> lines += listOf("", "The server could not be reached, so friends are as this phone knows them and",
+                "there are no friendship codes, blocks, reports or devices. Export again online.")
         }
+        if (content.unreadable > 0) {
+            lines += listOf("", "${content.unreadable} sealed sessions could not be opened on this phone, so they",
+                "are not in sessions.csv; the JSON export has them as the server stores them.")
+        }
+        return lines.joinToString("\n") + "\n"
     }
 
     /** "2026-10-13 06:40:00" in [zone]. */
