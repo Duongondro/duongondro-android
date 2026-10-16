@@ -1,18 +1,10 @@
 package app.duongondro.ui.settings
 
-import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import android.content.Context
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -36,7 +28,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,13 +44,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.core.content.FileProvider
 import app.duongondro.BuildConfig
 import app.duongondro.R
 import app.duongondro.data.DataExport
-import app.duongondro.data.Exports
 import app.duongondro.model.AppModel
 import app.duongondro.ui.CardSection
+import app.duongondro.ui.RowDivider
 import app.duongondro.ui.FilledAction
 import app.duongondro.ui.card
 import app.duongondro.ui.theme.Size
@@ -82,17 +72,59 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
     val scope = rememberCoroutineScope()
     var failure by remember { mutableStateOf<String?>(null) }
     val withAccount = hasAccount(model)
-    var sheet by remember { mutableStateOf(false) }
     var exporting by remember { mutableStateOf(false) }
     // The export went out without the server's part.
     var serverMissing by remember { mutableStateOf(false) }
-    Page(stringResource(R.string.section_your_data), back) {
-        CardSection(footer = stringResource(if (serverMissing) R.string.export_server_missing else R.string.export_footer_formats)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = !exporting) { sheet = true }.padding(horizontal = Space.l),
-                horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Share, contentDescription = null, tint = Theme.colors.accent)
-                Text(stringResource(R.string.export_all), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.accent)
+    // The made file, waiting for the place the person picks to save it.
+    var pending by remember { mutableStateOf<ByteArray?>(null) }
+
+    fun picked(uri: Uri?) {
+        val bytes = pending ?: return
+        pending = null
+        if (uri == null) return // the picker was cancelled
+        scope.launch {
+            val written = withContext(Dispatchers.IO) {
+                runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } ?: error("no stream") }
             }
+            written.exceptionOrNull()?.let { failure = it.message ?: it.toString() }
+        }
+    }
+    // One picker per format, as CodeShare's: the document's type is fixed when the picker is registered.
+    val savers = ExportFormat.entries.associateWith { format ->
+        rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(format.mime), ::picked)
+    }
+
+    fun start(format: ExportFormat) {
+        if (exporting) return
+        exporting = true
+        serverMissing = false
+        scope.launch {
+            try {
+                val now = Instant.now()
+                pending = export(context, model, format, now) { serverMissing = true }
+                savers.getValue(format).launch(format.fileName(now))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failure = e.message ?: e.toString()
+            } finally {
+                exporting = false
+            }
+        }
+    }
+
+    Page(stringResource(R.string.section_your_data), back) {
+        val footer = when {
+            exporting -> R.string.export_preparing
+            serverMissing -> R.string.export_server_missing
+            else -> R.string.export_footer_formats
+        }
+        CardSection(header = stringResource(R.string.export_section), footer = stringResource(footer)) {
+            ExportRow(stringResource(R.string.export_as_pdf), enabled = !exporting) { start(ExportFormat.PDF) }
+            RowDivider()
+            ExportRow(stringResource(R.string.export_as_json), enabled = !exporting) { start(ExportFormat.JSON) }
+            RowDivider()
+            ExportRow(stringResource(R.string.export_as_csv), enabled = !exporting) { start(ExportFormat.CSV) }
         }
         CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
             Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(onClick = openDelete).padding(horizontal = Space.l),
@@ -104,37 +136,25 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
             }
         }
     }
-    if (sheet) {
-        ExportSheet(exporting, dismiss = { if (!exporting) sheet = false }) { format ->
-            exporting = true
-            serverMissing = false
-            scope.launch {
-                try {
-                    val file = export(context, model, format) { serverMissing = true }
-                    sheet = false
-                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.export", file)
-                    val send = Intent(Intent.ACTION_SEND).setType(format.mime).putExtra(Intent.EXTRA_STREAM, uri)
-                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    context.startActivity(Intent.createChooser(send, null))
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    failure = e.message ?: e.toString()
-                } finally {
-                    exporting = false
-                }
-            }
-        }
-    }
     failure?.let { ErrorDialog(stringResource(R.string.export_failed), it) { failure = null } }
 }
 
+/** An accent text action filling its row, as CodeShare's Manage my data. */
+@Composable
+private fun ExportRow(text: String, enabled: Boolean, onClick: () -> Unit) {
+    Text(
+        text, style = Theme.type.body, color = if (enabled) Theme.colors.accent else Theme.colors.muted,
+        modifier = Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = Space.l, vertical = Space.m),
+    )
+}
+
 /**
- * Makes the export file in [format]. The open undo window closes first, so every format
+ * Makes the export in [format], to be saved where the person picks. The open undo window closes first, so every format
  * holds final sessions only; with a ready account the server's part comes next, and an
  * account offline or signed out exports the phone's part and says so ([onServerMissing]).
  */
-private suspend fun export(context: Context, model: AppModel, format: ExportFormat, onServerMissing: () -> Unit): File {
+private suspend fun export(context: Context, model: AppModel, format: ExportFormat, now: Instant, onServerMissing: () -> Unit): ByteArray {
     model.finalisePendingNow()
     val accounts = model.accounts
     val server = try {
@@ -151,8 +171,7 @@ private suspend fun export(context: Context, model: AppModel, format: ExportForm
     val known = accounts?.knownSessionIds().orEmpty()
     val snapshot = model.snapshot.value
     return withContext(Dispatchers.IO) {
-        val now = Instant.now()
-        val bytes = when (format) {
+        when (format) {
             ExportFormat.JSON -> DataExport.zip(snapshot, server, known, accountWithoutServer, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})", now)
             ExportFormat.PDF, ExportFormat.CSV -> {
                 val state = accounts?.state?.value
@@ -164,7 +183,6 @@ private suspend fun export(context: Context, model: AppModel, format: ExportForm
                 if (format == ExportFormat.PDF) ExportFiles.pdf(context, content, buildLabel(), now) else ExportFiles.csv(context, content, now)
             }
         }
-        Exports.write(context, bytes, format.fileName(now))
     }
 }
 
@@ -173,46 +191,6 @@ private fun buildLabel(): String {
     val revision = BuildConfig.GIT_REVISION
     val short = (if (revision == "unknown") revision else revision.take(7)) + if (BuildConfig.GIT_DIRTY) "-dirty" else ""
     return "${BuildConfig.VERSION_NAME} ($short)"
-}
-
-/**
- * The Export sheet (mockup "Android: Export my data"): PDF, CSV or JSON, one line each on
- * what it is for, a note that the counts are decrypted on this phone, then Export.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ExportSheet(exporting: Boolean, dismiss: () -> Unit, export: (ExportFormat) -> Unit) {
-    var chosen by rememberSaveable { mutableStateOf(ExportFormat.PDF) }
-    ModalBottomSheet(onDismissRequest = dismiss, containerColor = Theme.colors.ground) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = Space.l).padding(bottom = Space.xl), verticalArrangement = Arrangement.spacedBy(Space.m)) {
-            Text(stringResource(R.string.export_sheet_title), style = Theme.type.sheetTitle, color = Theme.colors.ink)
-            val label = stringResource(R.string.export_format)
-            Column(Modifier.selectableGroup().semantics { contentDescription = label }, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                for ((format, title, detail) in listOf(
-                    Triple(ExportFormat.PDF, R.string.export_pdf, R.string.export_pdf_detail),
-                    Triple(ExportFormat.CSV, R.string.export_csv, R.string.export_csv_detail),
-                    Triple(ExportFormat.JSON, R.string.export_json, R.string.export_json_detail),
-                )) {
-                    val selected = chosen == format
-                    Column(
-                        Modifier.fillMaxWidth().heightIn(min = Size.answer).clip(MaterialTheme.shapes.medium).background(Theme.colors.card)
-                            .border(Size.inputBorder, if (selected) Theme.colors.accent else Theme.colors.inputBorder, MaterialTheme.shapes.medium)
-                            .selectable(selected = selected, enabled = !exporting, role = Role.RadioButton) { chosen = format }
-                            .padding(horizontal = Space.l, vertical = Space.m),
-                        verticalArrangement = Arrangement.spacedBy(Space.xxs),
-                    ) {
-                        Text(stringResource(title), style = Theme.type.body.copy(fontWeight = FontWeight.Bold), color = Theme.colors.ink)
-                        Text(stringResource(detail), style = Theme.type.secondary, color = Theme.colors.muted)
-                    }
-                }
-            }
-            Text(stringResource(R.string.export_sheet_note), style = Theme.type.secondary, color = Theme.colors.soft)
-            Box(contentAlignment = Alignment.Center) {
-                FilledAction(stringResource(R.string.export_action), Modifier.fillMaxWidth(), height = Size.secondary, enabled = !exporting) { export(chosen) }
-                if (exporting) CircularProgressIndicator(Modifier.size(Size.ring), color = Theme.colors.onAccent, strokeWidth = Size.ringStroke)
-            }
-        }
-    }
 }
 
 /** Typed confirmation, then the purge, then Welcome. */

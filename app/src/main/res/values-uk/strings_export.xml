@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="export_footer_formats">PDF для читання чи друку, CSV для таблиці або JSON з усім, створюється на цьому телефоні. Без обкладинок: вони ніколи його не залишають.</string>
-    <string name="export_sheet_title">Експорт моїх даних</string>
-    <string name="export_format">Формат</string>
-    <string name="export_pdf_detail">Для читання чи друку: усі практики й сесії</string>
-    <string name="export_csv_detail">Для таблиці: по таблиці на кожен вид даних</string>
-    <string name="export_json_detail">Усе, у машиночитному вигляді</string>
-    <string name="export_sheet_note">Ваші числа розшифровуються на цьому телефоні, тож у файлі вони незашифровані, а сервер їх ніколи не бачить. Зберігайте його в надійному місці.</string>
-    <string name="export_action">Експортувати</string>
+    <string name="export_section">Експорт</string>
+    <string name="export_as_pdf">Експортувати всі мої дані в PDF</string>
+    <string name="export_as_json">Експортувати всі мої дані в JSON</string>
+    <string name="export_as_csv">Експортувати всі мої дані в CSV</string>
+    <string name="export_footer_formats">Усі практики, сесії та серії і все, що сервер зберігає про ваш обліковий запис. PDF для читання й друку, JSON з усім у машиночитному вигляді, CSV як ZIP з таблицею на кожен вид даних. Ваші числа розшифровуються на цьому телефоні й у файлі незашифровані: зберігайте його в надійному місці. Без обкладинок, вони ніколи не залишають телефон.</string>
+    <string name="export_preparing">Готуємо експорт…</string>
     <string name="pdf_title">Duongöndro: ваші дані</string>
     <string name="pdf_exported">Експортовано %1$s</string>
     <string name="pdf_page">Сторінка %1$s з %2$s</string>
@@ -77,31 +75,29 @@
     <string name="pdf_server_sealed">Запечатано на ваших телефонах, сервер зберігає, але не може прочитати: сесії, числа, кола й підсумки, цілі та імпортовані серії. Ключі залишаються на ваших пристроях.</string>
     <string name="pdf_server_encrypted">Зберігається в базі сервера зашифрованим, працюючий сервер може це прочитати: ваше ім’я для показу і стать, адреса пошти, ім’я користувача, пов’язані способи входу, серії, які ви публікуєте, відкриті ключі облікового запису, пристроїв і ключів доступу, токени сповіщень і текст ваших скарг.</string>
     <string name="pdf_server_plain">Зберігається як прості зв’язки між випадковими числами: що ваш обліковий запис існує, хто з ким дружить, хто кого запросив, заблокував, штурхнув чи на кого поскаржився, коли щось було записано і якого розміру кожен запечатаний запис. Обкладинки ніколи не залишають ваш телефон.</string>
-    <string name="csv_practice_name">Практика</string>
-    <string name="csv_practice_second_name">Друга назва</string>
+    <!-- CSV headers, as iOS's Export.xcstrings has them -->
+    <string name="csv_practice">Практика</string>
+    <string name="csv_second_name">Друга назва</string>
     <string name="csv_target">Ціль</string>
     <string name="csv_mala_size">Розмір мали</string>
     <string name="csv_streak_only">Лише серія</string>
     <string name="csv_archived">В архіві</string>
-    <string name="csv_total">Усього</string>
-    <string name="csv_session_practice">Практика</string>
     <string name="csv_day_counted">Зарахований день</string>
     <string name="csv_start">Початок</string>
+    <string name="csv_time_zone">Часовий пояс</string>
     <string name="csv_count">Кількість</string>
     <string name="csv_round">Коло</string>
-    <string name="csv_after_midnight">Вибір після півночі</string>
-    <string name="csv_friend_name">Ім’я для показу</string>
-    <string name="csv_friend_since">Друзі з</string>
-    <string name="csv_invite_id">ID коду дружби</string>
+    <string name="csv_chosen_day">День, вибраний після півночі</string>
+    <string name="csv_display_name">Ім’я для показу</string>
+    <string name="csv_friends_since">Друзі з</string>
+    <string name="csv_code">Код дружби</string>
+    <string name="csv_kind">Створено чи використано</string>
     <string name="csv_created">Створено</string>
     <string name="csv_expires">Спливає</string>
     <string name="csv_revoked">Відкликано</string>
-    <string name="csv_redeemed">Використано разів</string>
-    <string name="csv_account_id">ID облікового запису</string>
-    <string name="csv_blocked_since">Заблоковано з</string>
+    <string name="csv_redemptions">Використано</string>
+    <string name="csv_person">Особа</string>
     <string name="csv_reason">Причина</string>
-    <string name="csv_reported_at">Дата скарги</string>
-    <string name="csv_device_id">ID пристрою</string>
-    <string name="csv_key_storage">Зберігання ключа</string>
-    <string name="csv_added">Додано</string>
+    <string name="csv_device">Пристрій</string>
+    <string name="csv_key_storage">Сховище ключа</string>
 </resources>

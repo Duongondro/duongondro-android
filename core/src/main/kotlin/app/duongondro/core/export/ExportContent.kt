@@ -39,6 +39,8 @@ data class ExportContent(
     val passkeys: List<PasskeyRow>,
     /** Whether the server's part is in: an account offline or signed out has its own facts only. */
     val serverIncluded: Boolean,
+    /** The phone's zone, in which the server's times are written. */
+    val zone: ZoneId,
 ) {
     data class AccountFacts(
         val displayName: String?,
@@ -55,7 +57,8 @@ data class ExportContent(
         val secondName: String?,
         val custom: Boolean,
         val target: Int?,
-        val malaSize: Int?,
+        /** The practice's own, or the default. */
+        val malaSize: Int,
         val streakOnly: Boolean,
         val archived: Boolean,
         /** Opening count plus every session. */
@@ -85,9 +88,11 @@ data class ExportContent(
     )
 
     data class FriendRow(val id: UUID, val displayName: String, val gender: String?, val since: Instant?)
-    data class InviteRow(val id: String, val createdAt: Instant, val expiresAt: Instant, val revokedAt: Instant?, val redemptions: Int)
-    data class BlockRow(val accountId: UUID, val since: Instant)
-    data class ReportRow(val accountId: UUID?, val reason: String, val createdAt: Instant)
+    /** A friendship code this account [made] (with how often it was redeemed), or one it redeemed. */
+    data class InviteRow(val id: String, val made: Boolean, val createdAt: Instant, val expiresAt: Instant?, val revokedAt: Instant?, val redemptions: Int)
+    /** [who] is the person's name where this phone knows it, else their account id. */
+    data class BlockRow(val accountId: UUID, val who: String, val since: Instant)
+    data class ReportRow(val accountId: UUID?, val who: String, val reason: String, val createdAt: Instant)
     /** [tier] as the signed device list has it: "hardware", "tee" or "software". */
     data class DeviceRow(val id: UUID, val tier: String, val addedAt: Instant)
     /** [id] is the credential id, base64url. */
@@ -106,6 +111,7 @@ data class ExportContent(
             sessions: List<Session>,
             seeds: List<StreakSeed>,
             publicPractices: Set<String>,
+            defaultMalaSize: Int = 108,
             account: AccountFacts?,
             server: ServerAccount?,
             cachedFriends: List<FriendRow> = emptyList(),
@@ -118,7 +124,7 @@ data class ExportContent(
                 val r = t.rounds(sessions)
                 val streak = Streak.of(t.id, sessions, seeds.firstOrNull { it.practiceId == t.id }, now, zone)
                 val (name, second) = names(t.practice)
-                PracticeRow(t.id, name, second, t.practice.isCustom, t.practice.target, t.practice.malaSize, t.streakOnly, t.archived,
+                PracticeRow(t.id, name, second, t.practice.isCustom, t.practice.target, t.practice.effectiveMalaSize(defaultMalaSize), t.streakOnly, t.archived,
                     t.lifetime(sessions), r?.round, r?.inRound, streak.current, streak.longest, t.id in publicPractices)
             }
             val sessionRows = ordered.flatMap { t ->
@@ -130,6 +136,8 @@ data class ExportContent(
                         target?.let { maxOf(0, running - 1) / it + 1 })
                 }
             }
+            val names = (cachedFriends + server?.friends.orEmpty()).associate { it.id to it.displayName }
+            fun who(id: UUID?): String = id?.let { names[it]?.takeIf(String::isNotBlank) ?: it.toString() }.orEmpty()
             val facts = when {
                 server != null -> AccountFacts(server.displayName ?: account?.displayName, server.username, server.gender,
                     server.emails.ifEmpty { account?.emails.orEmpty() }, server.createdAt)
@@ -141,11 +149,12 @@ data class ExportContent(
                 sessions = sessionRows,
                 friends = (server?.friends ?: cachedFriends).sortedBy { it.displayName.lowercase() },
                 invites = server?.invites.orEmpty(),
-                blocks = server?.blocks.orEmpty(),
-                reports = server?.reports.orEmpty(),
+                blocks = server?.blocks.orEmpty().map { it.copy(who = who(it.accountId)) },
+                reports = server?.reports.orEmpty().map { it.copy(who = who(it.accountId)) },
                 devices = server?.devices.orEmpty(),
                 passkeys = server?.passkeys.orEmpty(),
                 serverIncluded = server != null,
+                zone = zone,
             )
         }
     }
@@ -196,19 +205,29 @@ data class ServerAccount(
                     ExportContent.FriendRow(r.string("id")?.let(::uuid) ?: return@mapNotNull null, r.string("displayName").orEmpty(),
                         r.string("gender"), r.instant("createdAt"))
                 },
-                invites = body.rows("invites").mapNotNull { r ->
-                    val id = r.string("id") ?: return@mapNotNull null
-                    ExportContent.InviteRow(id, r.instant("createdAt") ?: return@mapNotNull null, r.instant("expiresAt") ?: return@mapNotNull null,
-                        r.instant("revokedAt"), redemptions[id] ?: 0)
-                }.sortedBy { it.createdAt },
+                invites = run {
+                    val made = body.rows("invites").mapNotNull { r ->
+                        val id = r.string("id") ?: return@mapNotNull null
+                        ExportContent.InviteRow(id, true, r.instant("createdAt") ?: return@mapNotNull null, r.instant("expiresAt"),
+                            r.instant("revokedAt"), redemptions[id] ?: 0)
+                    }
+                    val madeIds = made.mapTo(HashSet()) { it.id }
+                    // A redemption of someone else's code: the code this account was invited or befriended with.
+                    val redeemed = body.rows("invite_redemptions").mapNotNull { r ->
+                        val id = r.string("inviteId")?.takeIf { it !in madeIds } ?: return@mapNotNull null
+                        ExportContent.InviteRow(id, false, r.instant("createdAt") ?: return@mapNotNull null, null, null, 0)
+                    }
+                    (made + redeemed).sortedBy { it.createdAt }
+                },
                 blocks = body.rows("blocks").mapNotNull { r ->
                     val blocked = r.string("blockedId")?.let(::uuid) ?: return@mapNotNull null
                     // The table holds blocks both ways only for a purge; the export lists the account's own.
                     if (me != null && r.string("blockerId")?.let(::uuid).let { it != null && it != me }) return@mapNotNull null
-                    ExportContent.BlockRow(blocked, r.instant("createdAt") ?: return@mapNotNull null)
+                    ExportContent.BlockRow(blocked, blocked.toString(), r.instant("createdAt") ?: return@mapNotNull null)
                 }.sortedBy { it.since },
                 reports = body.rows("reports").mapNotNull { r ->
-                    ExportContent.ReportRow(r.string("reportedId")?.let(::uuid), r.string("reason").orEmpty(),
+                    val about = r.string("reportedId")?.let(::uuid)
+                    ExportContent.ReportRow(about, about?.toString().orEmpty(), r.string("reason").orEmpty(),
                         r.instant("createdAt") ?: return@mapNotNull null)
                 }.sortedBy { it.createdAt },
             )

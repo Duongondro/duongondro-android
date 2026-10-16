@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="export_footer_formats">PDF do czytania lub druku, CSV do arkusza albo JSON ze wszystkim, tworzone na tym telefonie. Bez okładek: nigdy go nie opuszczają.</string>
-    <string name="export_sheet_title">Eksportuj moje dane</string>
-    <string name="export_format">Format</string>
-    <string name="export_pdf_detail">Do czytania lub druku: każda praktyka i sesja</string>
-    <string name="export_csv_detail">Do arkusza: jedna tabela na każdy rodzaj danych</string>
-    <string name="export_json_detail">Wszystko, w formie do odczytu maszynowego</string>
-    <string name="export_sheet_note">Twoje liczby są odszyfrowywane na tym telefonie, więc plik zawiera je bez szyfrowania, czego serwer nigdy nie widzi. Trzymaj go w prywatnym miejscu.</string>
-    <string name="export_action">Eksportuj</string>
+    <string name="export_section">Eksport</string>
+    <string name="export_as_pdf">Eksportuj wszystkie moje dane jako PDF</string>
+    <string name="export_as_json">Eksportuj wszystkie moje dane jako JSON</string>
+    <string name="export_as_csv">Eksportuj wszystkie moje dane jako CSV</string>
+    <string name="export_footer_formats">Każda praktyka, sesja i seria oraz wszystko, co serwer przechowuje o Twoim koncie. PDF do czytania i druku, JSON ze wszystkim do odczytu maszynowego, CSV jako ZIP z jedną tabelą na każdy rodzaj danych. Twoje liczby są odszyfrowywane na tym telefonie i w pliku nie są zaszyfrowane: trzymaj go w prywatnym miejscu. Bez okładek, nigdy nie opuszczają telefonu.</string>
+    <string name="export_preparing">Przygotowuję eksport…</string>
     <string name="pdf_title">Duongöndro: Twoje dane</string>
     <string name="pdf_exported">Wyeksportowano %1$s</string>
     <string name="pdf_page">Strona %1$s z %2$s</string>
@@ -77,31 +75,29 @@
     <string name="pdf_server_sealed">Zapieczętowane na Twoich telefonach, serwer przechowuje, ale nie może odczytać: sesje, liczby, rundy i sumy, cele oraz zaimportowane serie. Klucze zostają na Twoich urządzeniach.</string>
     <string name="pdf_server_encrypted">Przechowywane w bazie serwera w postaci zaszyfrowanej, czytelne dla działającego serwera: wyświetlana nazwa i płeć, adres e-mail, nazwa użytkownika, powiązane logowania, publikowane serie, klucze publiczne konta, urządzeń i kluczy dostępu, tokeny powiadomień oraz treść Twoich zgłoszeń.</string>
     <string name="pdf_server_plain">Przechowywane jako zwykłe powiązania między losowymi liczbami: że Twoje konto istnieje, kto z kim się zna, kto kogo zaprosił, zablokował, szturchnął lub zgłosił, kiedy coś zapisano i jak duży jest każdy zapieczętowany wpis. Okładki nigdy nie opuszczają Twojego telefonu.</string>
-    <string name="csv_practice_name">Praktyka</string>
-    <string name="csv_practice_second_name">Druga nazwa</string>
+    <!-- CSV headers, as iOS's Export.xcstrings has them -->
+    <string name="csv_practice">Praktyka</string>
+    <string name="csv_second_name">Druga nazwa</string>
     <string name="csv_target">Cel</string>
     <string name="csv_mala_size">Rozmiar mali</string>
     <string name="csv_streak_only">Tylko seria</string>
-    <string name="csv_archived">Zarchiwizowana</string>
-    <string name="csv_total">Razem</string>
-    <string name="csv_session_practice">Praktyka</string>
+    <string name="csv_archived">Zarchiwizowane</string>
     <string name="csv_day_counted">Zaliczony dzień</string>
     <string name="csv_start">Początek</string>
+    <string name="csv_time_zone">Strefa czasowa</string>
     <string name="csv_count">Liczba</string>
     <string name="csv_round">Runda</string>
-    <string name="csv_after_midnight">Wybór po północy</string>
-    <string name="csv_friend_name">Wyświetlana nazwa</string>
-    <string name="csv_friend_since">Znajomi od</string>
-    <string name="csv_invite_id">ID kodu przyjaźni</string>
+    <string name="csv_chosen_day">Dzień wybrany po północy</string>
+    <string name="csv_display_name">Wyświetlana nazwa</string>
+    <string name="csv_friends_since">Przyjaciele od</string>
+    <string name="csv_code">Kod przyjaźni</string>
+    <string name="csv_kind">Utworzony czy użyty</string>
     <string name="csv_created">Utworzono</string>
     <string name="csv_expires">Wygasa</string>
     <string name="csv_revoked">Unieważniono</string>
-    <string name="csv_redeemed">Użyto razy</string>
-    <string name="csv_account_id">ID konta</string>
-    <string name="csv_blocked_since">Zablokowano od</string>
+    <string name="csv_redemptions">Użyto</string>
+    <string name="csv_person">Osoba</string>
     <string name="csv_reason">Powód</string>
-    <string name="csv_reported_at">Zgłoszono</string>
-    <string name="csv_device_id">ID urządzenia</string>
-    <string name="csv_key_storage">Przechowywanie klucza</string>
-    <string name="csv_added">Dodano</string>
+    <string name="csv_device">Urządzenie</string>
+    <string name="csv_key_storage">Magazyn klucza</string>
 </resources>

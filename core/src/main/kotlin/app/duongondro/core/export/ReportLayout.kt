@@ -202,12 +202,17 @@ class ReportLayout(private val measure: TextMeasure) {
             y += 2f
         }
         fun row(cells: List<Cell>, h: Float) {
+            // Every cell's first line on one baseline, whatever its font.
+            val ascent = cells.maxOf { c -> c.lines.firstOrNull()?.let { measure.ascent(it.second) } ?: 0f }
             section.columns.forEachIndexed { i, column ->
                 var top = y + ROW_PAD / 2
-                for ((text, style) in cells[i].lines) {
+                cells[i].lines.forEachIndexed { n, (text, style) ->
                     val x = if (column.figures) starts[i] + widths[i] - CELL_PAD else starts[i] + CELL_PAD
-                    put(text, style, x, top, alignEnd = column.figures)
-                    top += measure.lineHeight(style)
+                    if (text.isNotEmpty()) {
+                        val baseline = if (n == 0) top + ascent else top + measure.ascent(style)
+                        draws += Draw.Text(x, baseline, text, style, column.figures)
+                    }
+                    top += if (n == 0) maxOf(measure.lineHeight(style), ascent - measure.ascent(style) + measure.lineHeight(style)) else measure.lineHeight(style)
                 }
             }
             y += h

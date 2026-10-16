@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="export_footer_formats">PDF ke čtení nebo tisku, CSV pro tabulku, nebo JSON se vším, vytvořené na tomto telefonu. Bez titulních fotek: nikdy ho neopustí.</string>
-    <string name="export_sheet_title">Exportovat moje data</string>
-    <string name="export_format">Formát</string>
-    <string name="export_pdf_detail">Ke čtení nebo tisku: každá praktika a sezení</string>
-    <string name="export_csv_detail">Pro tabulkový procesor: jedna tabulka pro každý druh dat</string>
-    <string name="export_json_detail">Všechno, strojově čitelné</string>
-    <string name="export_sheet_note">Tvé počty se dešifrují na tomto telefonu, takže je soubor obsahuje nešifrované, což server nikdy nevidí. Uchovej ho na soukromém místě.</string>
-    <string name="export_action">Exportovat</string>
+    <string name="export_section">Export</string>
+    <string name="export_as_pdf">Exportovat všechna moje data jako PDF</string>
+    <string name="export_as_json">Exportovat všechna moje data jako JSON</string>
+    <string name="export_as_csv">Exportovat všechna moje data jako CSV</string>
+    <string name="export_footer_formats">Každá praktika, sezení a série a vše, co server uchovává o tvém účtu. PDF ke čtení a tisku, JSON se vším ve strojově čitelné podobě, CSV jako ZIP s jednou tabulkou pro každý druh dat. Tvé počty se dešifrují na tomto telefonu a v souboru jsou nešifrované: uchovej ho na soukromém místě. Bez titulních fotek, nikdy neopustí telefon.</string>
+    <string name="export_preparing">Připravuji export…</string>
     <string name="pdf_title">Duongöndro: tvá data</string>
     <string name="pdf_exported">Exportováno %1$s</string>
     <string name="pdf_page">Strana %1$s z %2$s</string>
@@ -77,31 +75,29 @@
     <string name="pdf_server_sealed">Zapečetěno na tvých telefonech, server to uchovává, ale nemůže to přečíst: sezení, počty, kola a součty, cíle a importované série. Klíče zůstávají na tvých zařízeních.</string>
     <string name="pdf_server_encrypted">Uloženo šifrovaně v databázi serveru, čitelné pro běžící server: tvé zobrazované jméno a pohlaví, e-mailová adresa, uživatelské jméno, propojená přihlášení, série, které zveřejňuješ, veřejné klíče tvého účtu, zařízení a přístupových klíčů, tokeny oznámení a text tvých nahlášení.</string>
     <string name="pdf_server_plain">Uloženo jako prosté vazby mezi náhodnými čísly: že tvůj účet existuje, kdo se s kým přátelí, kdo koho pozval, zablokoval, šťouchl nebo nahlásil, kdy se co zapsalo a jak velký je každý zapečetěný záznam. Titulní fotky nikdy neopustí tvůj telefon.</string>
-    <string name="csv_practice_name">Praktika</string>
-    <string name="csv_practice_second_name">Druhý název</string>
+    <!-- CSV headers, as iOS's Export.xcstrings has them -->
+    <string name="csv_practice">Praxe</string>
+    <string name="csv_second_name">Druhý název</string>
     <string name="csv_target">Cíl</string>
     <string name="csv_mala_size">Velikost maly</string>
     <string name="csv_streak_only">Jen série</string>
-    <string name="csv_archived">Archivováno</string>
-    <string name="csv_total">Celkem</string>
-    <string name="csv_session_practice">Praktika</string>
+    <string name="csv_archived">Archivované</string>
     <string name="csv_day_counted">Započtený den</string>
     <string name="csv_start">Začátek</string>
+    <string name="csv_time_zone">Časové pásmo</string>
     <string name="csv_count">Počet</string>
     <string name="csv_round">Kolo</string>
-    <string name="csv_after_midnight">Volba po půlnoci</string>
-    <string name="csv_friend_name">Zobrazované jméno</string>
-    <string name="csv_friend_since">Přátelé od</string>
-    <string name="csv_invite_id">ID kódu přátelství</string>
+    <string name="csv_chosen_day">Den zvolený po půlnoci</string>
+    <string name="csv_display_name">Zobrazované jméno</string>
+    <string name="csv_friends_since">Přátelé od</string>
+    <string name="csv_code">Kód přátelství</string>
+    <string name="csv_kind">Vytvořen, nebo použit</string>
     <string name="csv_created">Vytvořeno</string>
     <string name="csv_expires">Vyprší</string>
     <string name="csv_revoked">Zrušeno</string>
-    <string name="csv_redeemed">Použito krát</string>
-    <string name="csv_account_id">ID účtu</string>
-    <string name="csv_blocked_since">Blokováno od</string>
+    <string name="csv_redemptions">Použito</string>
+    <string name="csv_person">Osoba</string>
     <string name="csv_reason">Důvod</string>
-    <string name="csv_reported_at">Nahlášeno</string>
-    <string name="csv_device_id">ID zařízení</string>
-    <string name="csv_key_storage">Uložení klíče</string>
-    <string name="csv_added">Přidáno</string>
+    <string name="csv_device">Zařízení</string>
+    <string name="csv_key_storage">Úložiště klíče</string>
 </resources>

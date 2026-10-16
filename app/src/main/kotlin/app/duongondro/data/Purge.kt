@@ -102,14 +102,7 @@ object Covers {
     private const val QUALITY = 85
 }
 
-/** Where the export ZIP waits for the share sheet; emptied on every export and by the purge. */
+/** Where earlier versions left the export for the share sheet; the purge still empties it. */
 object Exports {
     fun folder(context: Context) = File(context.cacheDir, "export")
-
-    fun write(context: Context, bytes: ByteArray, name: String): File {
-        val dir = folder(context)
-        dir.deleteRecursively()
-        dir.mkdirs()
-        return File(dir, name).apply { writeBytes(bytes) }
-    }
 }

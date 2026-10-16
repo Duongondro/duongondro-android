@@ -51,6 +51,7 @@ class ExportContentTest {
         assertEquals("hardware", content.devices.single().tier)
         assertEquals("Quiet Heron", content.friends.single().displayName)
         assertEquals(1, content.invites.single().redemptions)
+        assertTrue(content.invites.single().made)
         assertEquals(1, content.blocks.size)
         assertEquals("-spam, and \"worse\"", content.reports.single().reason)
         assertTrue(content.serverIncluded)
@@ -67,6 +68,19 @@ class ExportContentTest {
         val a = ServerAccount.parse("""{"users":{"id":"nope"}}""".toByteArray())
         assertNull(a.displayName)
         assertTrue(a.friends.isEmpty() && a.devices.isEmpty() && a.passkeys.isEmpty())
+    }
+
+    @Test fun redeemedCodesAndNamedPeople() {
+        val a = ServerAccount.parse("""{"invite_redemptions":[{"inviteId":"theirs","inviteeId":"00000000-0000-0000-0000-000000000001","createdAt":"2026-10-02T10:00:00Z"}]}""".toByteArray())
+        val redeemed = a.invites.single()
+        assertFalse(redeemed.made)
+        assertEquals("theirs", redeemed.id)
+        val friend = java.util.UUID.fromString("00000000-0000-0000-0000-000000000003")
+        val named = ExportContent.build(emptyList(), emptyList(), emptyList(), emptySet(), account = null,
+            server = ServerAccount.parse(ExportFixtures.server),
+            cachedFriends = listOf(ExportContent.FriendRow(friend, "Former Friend", null, null)), now = ExportFixtures.now, zone = ExportFixtures.zone)
+        assertEquals("Former Friend", named.blocks.single().who)
+        assertEquals("Former Friend", named.reports.single().who)
     }
 
     @Test fun credentialIdsReadAsBase64url() {

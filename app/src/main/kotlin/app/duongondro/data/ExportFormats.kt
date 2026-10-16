@@ -47,7 +47,7 @@ object ExportFiles {
     ): ExportContent {
         val s = DataExport.merged(snapshot, server, knownSessionIds).withoutPending()
         return ExportContent.build(
-            practices = s.practices, sessions = s.sessions, seeds = s.seeds, publicPractices = s.publicPractices,
+            practices = s.practices, sessions = s.sessions, seeds = s.seeds, publicPractices = s.publicPractices, defaultMalaSize = s.preferences.malaSize,
             account = account, server = server?.let { ServerAccount.parse(it.account) }, cachedFriends = cachedFriends,
             now = now, zone = zone, names = { it.shownNames(context) },
         )
@@ -64,32 +64,29 @@ object ExportFiles {
 
     /** Each CSV column's header in the app's language. */
     fun header(column: CsvExport.Column): Int = when (column) {
-        CsvExport.Column.PRACTICE_NAME -> R.string.csv_practice_name
-        CsvExport.Column.PRACTICE_SECOND_NAME -> R.string.csv_practice_second_name
+        CsvExport.Column.PRACTICE -> R.string.csv_practice
+        CsvExport.Column.SECOND_NAME -> R.string.csv_second_name
         CsvExport.Column.TARGET -> R.string.csv_target
         CsvExport.Column.MALA_SIZE -> R.string.csv_mala_size
         CsvExport.Column.STREAK_ONLY -> R.string.csv_streak_only
         CsvExport.Column.ARCHIVED -> R.string.csv_archived
-        CsvExport.Column.TOTAL -> R.string.csv_total
-        CsvExport.Column.SESSION_PRACTICE -> R.string.csv_session_practice
         CsvExport.Column.DAY_COUNTED -> R.string.csv_day_counted
         CsvExport.Column.START -> R.string.csv_start
+        CsvExport.Column.TIME_ZONE -> R.string.csv_time_zone
         CsvExport.Column.COUNT -> R.string.csv_count
         CsvExport.Column.ROUND -> R.string.csv_round
-        CsvExport.Column.AFTER_MIDNIGHT_CHOICE -> R.string.csv_after_midnight
-        CsvExport.Column.FRIEND_NAME -> R.string.csv_friend_name
-        CsvExport.Column.FRIEND_SINCE -> R.string.csv_friend_since
-        CsvExport.Column.INVITE_ID -> R.string.csv_invite_id
+        CsvExport.Column.CHOSEN_DAY -> R.string.csv_chosen_day
+        CsvExport.Column.DISPLAY_NAME -> R.string.csv_display_name
+        CsvExport.Column.FRIENDS_SINCE -> R.string.csv_friends_since
+        CsvExport.Column.CODE -> R.string.csv_code
+        CsvExport.Column.KIND -> R.string.csv_kind
         CsvExport.Column.CREATED -> R.string.csv_created
         CsvExport.Column.EXPIRES -> R.string.csv_expires
         CsvExport.Column.REVOKED -> R.string.csv_revoked
-        CsvExport.Column.REDEEMED -> R.string.csv_redeemed
-        CsvExport.Column.ACCOUNT_ID -> R.string.csv_account_id
-        CsvExport.Column.BLOCKED_SINCE -> R.string.csv_blocked_since
+        CsvExport.Column.REDEMPTIONS -> R.string.csv_redemptions
+        CsvExport.Column.PERSON -> R.string.csv_person
         CsvExport.Column.REASON -> R.string.csv_reason
-        CsvExport.Column.REPORTED_AT -> R.string.csv_reported_at
-        CsvExport.Column.DEVICE_ID -> R.string.csv_device_id
+        CsvExport.Column.DEVICE -> R.string.csv_device
         CsvExport.Column.KEY_STORAGE -> R.string.csv_key_storage
-        CsvExport.Column.ADDED -> R.string.csv_added
     }
 }

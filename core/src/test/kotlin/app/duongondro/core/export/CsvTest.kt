@@ -16,6 +16,7 @@ class CsvTest {
         assertEquals("\"say \"\"hi\"\"\"", Csv.field("say \"hi\""))
         assertEquals("\"two\nlines\"", Csv.field("two\nlines"))
         assertEquals("\"cr\rhere\"", Csv.field("cr\rhere"))
+        assertEquals("\"line\u2028separator\"", Csv.field("line\u2028separator"))
     }
 
     @Test fun guardsTextASpreadsheetWouldRun() {
@@ -29,11 +30,11 @@ class CsvTest {
 
     @Test fun tableHasHeaderAndCrlf() {
         val csv = Csv.table(listOf("Name", "Count"), listOf(listOf("Chenrezig", 108), listOf("Amitabha, long", 0)))
-        assertEquals("Name,Count\r\nChenrezig,108\r\n\"Amitabha, long\",0\r\n", csv)
+        assertEquals("\uFEFFName,Count\r\nChenrezig,108\r\n\"Amitabha, long\",0\r\n", csv)
     }
 
     @Test fun headersAreGuardedToo() {
-        assertEquals("'-x\r\n", Csv.table(listOf("-x"), emptyList()))
+        assertEquals("\uFEFF'-x\r\n", Csv.table(listOf("-x"), emptyList()))
     }
 
     @Test(expected = IllegalArgumentException::class) fun refusesARaggedRow() {

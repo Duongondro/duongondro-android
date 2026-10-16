@@ -86,8 +86,8 @@ object PdfReport {
         sections += ReportSection.Facts(numbered(t.accountTitle), account(content, t))
 
         val practiceColumns = listOf(
-            Column(t.practiceColumn, 3.2f), Column(t.totalColumn, 1.3f, figures = true), Column(t.targetColumn, 1.3f, figures = true),
-            Column(t.roundColumn, 0.8f, figures = true), Column(t.streakColumn, 2.2f, figures = true), Column(t.publicColumn, 0.9f, figures = true),
+            Column(t.practiceColumn, 2.8f), Column(t.totalColumn, 1.2f, figures = true), Column(t.targetColumn, 1.3f, figures = true),
+            Column(t.roundColumn, 0.8f, figures = true), Column(t.streakColumn, 2.5f), Column(t.publicColumn, 1.1f),
         )
         sections += ReportSection.Table(numbered(t.practicesTitle), t.practicesCount(content.practices.size), practiceColumns,
             content.practices.map { p ->

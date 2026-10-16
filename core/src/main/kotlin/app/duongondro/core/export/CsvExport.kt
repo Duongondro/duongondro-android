@@ -3,81 +3,83 @@ package app.duongondro.core.export
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 /**
- * The CSV export: a ZIP of RFC 4180 tables (UTF-8, a header row, CRLF), one per
- * kind of data, with headers in the app's language and numbers unformatted.
- * Dates are ISO 8601 (a day as `YYYY-MM-DD`; a session's start in the time zone
- * it started in, with its offset; the server's times in UTC), so a spreadsheet
- * in any locale reads them the same.
+ * The CSV export: a ZIP of RFC 4180 tables (UTF-8 with a byte order mark, a header row,
+ * CRLF), one per kind of data, with headers in the app's language, file names in English
+ * and numbers unformatted; the same tables and columns as iOS's CSVExport. Times are
+ * `2026-10-13 06:40:00`, a form spreadsheets read as a date: a session's start where it
+ * started (its zone in the next column), everything else in the phone's zone; days are
+ * `YYYY-MM-DD`. Friends need an account; invites, blocks, reports and devices exist only
+ * on the server, so their tables are left out without its part.
  */
 object CsvExport {
     /** Every column of every table; the app names each in its language. */
     enum class Column {
-        PRACTICE_NAME, PRACTICE_SECOND_NAME, TARGET, MALA_SIZE, STREAK_ONLY, ARCHIVED, TOTAL,
-        SESSION_PRACTICE, DAY_COUNTED, START, COUNT, ROUND, AFTER_MIDNIGHT_CHOICE,
-        FRIEND_NAME, FRIEND_SINCE,
-        INVITE_ID, CREATED, EXPIRES, REVOKED, REDEEMED,
-        ACCOUNT_ID, BLOCKED_SINCE, REASON, REPORTED_AT,
-        DEVICE_ID, KEY_STORAGE, ADDED,
+        PRACTICE, SECOND_NAME, TARGET, MALA_SIZE, STREAK_ONLY, ARCHIVED,
+        DAY_COUNTED, START, TIME_ZONE, COUNT, ROUND, CHOSEN_DAY,
+        DISPLAY_NAME, FRIENDS_SINCE,
+        CODE, KIND, CREATED, EXPIRES, REVOKED, REDEMPTIONS,
+        PERSON, REASON,
+        DEVICE, KEY_STORAGE,
     }
 
-    enum class Table(val file: String, val columns: List<Column>) {
-        PRACTICES("practices.csv", listOf(Column.PRACTICE_NAME, Column.PRACTICE_SECOND_NAME, Column.TARGET, Column.MALA_SIZE,
-            Column.STREAK_ONLY, Column.ARCHIVED, Column.TOTAL)),
-        SESSIONS("sessions.csv", listOf(Column.SESSION_PRACTICE, Column.DAY_COUNTED, Column.START, Column.COUNT, Column.ROUND,
-            Column.AFTER_MIDNIGHT_CHOICE)),
-        FRIENDS("friends.csv", listOf(Column.FRIEND_NAME, Column.FRIEND_SINCE)),
-        INVITES("invites.csv", listOf(Column.INVITE_ID, Column.CREATED, Column.EXPIRES, Column.REVOKED, Column.REDEEMED)),
-        BLOCKS("blocks.csv", listOf(Column.ACCOUNT_ID, Column.BLOCKED_SINCE)),
-        REPORTS("reports.csv", listOf(Column.ACCOUNT_ID, Column.REASON, Column.REPORTED_AT)),
-        DEVICES("devices.csv", listOf(Column.DEVICE_ID, Column.KEY_STORAGE, Column.ADDED)),
+    data class Table(val name: String, val columns: List<Column>, val rows: List<List<Any?>>) {
+        val file: String get() = "$name.csv"
     }
 
-    /** One table's rows, in its columns' order. */
-    fun rows(table: Table, content: ExportContent): List<List<Any?>> = when (table) {
-        Table.PRACTICES -> content.practices.map {
-            listOf(it.name, it.secondName, it.target, it.malaSize, it.streakOnly, it.archived, it.total)
+    fun tables(content: ExportContent): List<Table> {
+        val zone = content.zone
+        fun time(at: Instant?, z: ZoneId = zone) = at?.let { stamp(it, z) }
+        val names = content.practices.associate { it.id to it.name }
+        val out = mutableListOf(
+            Table("practices", listOf(Column.PRACTICE, Column.SECOND_NAME, Column.TARGET, Column.MALA_SIZE, Column.STREAK_ONLY, Column.ARCHIVED),
+                content.practices.map { listOf(it.name, it.secondName, it.target, it.malaSize, it.streakOnly, it.archived) }),
+            Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY),
+                content.sessions.map {
+                    listOf(names[it.practiceId] ?: it.practiceId, it.day.toString(), time(it.startedAt, it.zone), it.zone.id, it.count, it.round,
+                        it.chosenDay?.let { _ -> it.day.toString() })
+                }),
+        )
+        if (content.account != null) {
+            out += Table("friends", listOf(Column.DISPLAY_NAME, Column.FRIENDS_SINCE),
+                content.friends.map { listOf(it.displayName, time(it.since)) })
         }
-        Table.SESSIONS -> {
-            val names = content.practices.associate { it.id to it.name }
-            content.sessions.map {
-                listOf(names[it.practiceId] ?: it.practiceId, it.day.toString(), start(it.startedAt, it.zone), it.count, it.round,
-                    it.chosenDay?.toString())
-            }
+        if (content.serverIncluded) {
+            out += Table("invites", listOf(Column.CODE, Column.KIND, Column.CREATED, Column.EXPIRES, Column.REVOKED, Column.REDEMPTIONS),
+                content.invites.map {
+                    listOf(it.id, if (it.made) "made" else "redeemed", time(it.createdAt), time(it.expiresAt), time(it.revokedAt),
+                        if (it.made) it.redemptions else null)
+                })
+            out += Table("blocks", listOf(Column.PERSON, Column.CREATED), content.blocks.map { listOf(it.who, time(it.since)) })
+            out += Table("reports", listOf(Column.PERSON, Column.REASON, Column.CREATED),
+                content.reports.map { listOf(it.who, it.reason, time(it.createdAt)) })
+            out += Table("devices", listOf(Column.DEVICE, Column.KEY_STORAGE, Column.CREATED),
+                content.devices.map { listOf(it.id.toString().lowercase(), it.tier, time(it.addedAt)) })
         }
-        Table.FRIENDS -> content.friends.map { listOf(it.displayName, it.since?.let(::utc)) }
-        Table.INVITES -> content.invites.map { listOf(it.id, utc(it.createdAt), utc(it.expiresAt), it.revokedAt?.let(::utc), it.redemptions) }
-        Table.BLOCKS -> content.blocks.map { listOf(it.accountId.toString(), utc(it.since)) }
-        Table.REPORTS -> content.reports.map { listOf(it.accountId?.toString(), it.reason, utc(it.createdAt)) }
-        Table.DEVICES -> content.devices.map { listOf(it.id.toString(), it.tier, utc(it.addedAt)) }
+        return out
     }
 
-    fun table(table: Table, content: ExportContent, header: (Column) -> String): String =
-        Csv.table(table.columns.map(header), rows(table, content))
+    fun table(table: Table, header: (Column) -> String): String = Csv.table(table.columns.map(header), table.rows)
 
-    /** The ZIP: every table, even an empty one, so a script finds the same files every time. */
+    /** The ZIP: one `<name>.csv` per table. */
     fun zip(content: ExportContent, header: (Column) -> String, now: Instant = Instant.now()): ByteArray {
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { z ->
-            for (t in Table.entries) {
+            for (t in tables(content)) {
                 z.putNextEntry(ZipEntry(t.file).apply { time = now.toEpochMilli() })
-                z.write(table(t, content, header).toByteArray(Charsets.UTF_8))
+                z.write(table(t, header).toByteArray(Charsets.UTF_8))
                 z.closeEntry()
             }
         }
         return out.toByteArray()
     }
 
-    /** A session's start where it started: `2026-10-13T06:40:00+02:00`. */
-    fun start(at: Instant, zone: ZoneId): String =
-        ZonedDateTime.ofInstant(at.truncatedTo(ChronoUnit.SECONDS), zone).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    /** "2026-10-13 06:40:00" in [zone]. */
+    fun stamp(at: Instant, zone: ZoneId): String = STAMP.format(at.atZone(zone))
 
-    /** Whole-second UTC, as the JSON export writes it. */
-    fun utc(at: Instant): String = at.truncatedTo(ChronoUnit.SECONDS).toString()
+    private val STAMP = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
 }

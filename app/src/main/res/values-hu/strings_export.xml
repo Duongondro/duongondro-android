@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="export_footer_formats">PDF olvasáshoz vagy nyomtatáshoz, CSV táblázathoz, vagy JSON mindennel, ezen a telefonon készül. Borítóképek nélkül: azok sosem hagyják el.</string>
-    <string name="export_sheet_title">Adataim exportálása</string>
-    <string name="export_format">Formátum</string>
-    <string name="export_pdf_detail">Olvasáshoz vagy nyomtatáshoz: minden gyakorlat és ülés</string>
-    <string name="export_csv_detail">Táblázatkezelőhöz: adatfajtánként egy táblázat</string>
-    <string name="export_json_detail">Minden, gépileg olvasható formában</string>
-    <string name="export_sheet_note">A számaidat ez a telefon fejti vissza, így a fájlban titkosítatlanul vannak, amit a szerver sosem lát. Tartsd biztonságos helyen.</string>
-    <string name="export_action">Exportálás</string>
+    <string name="export_section">Exportálás</string>
+    <string name="export_as_pdf">Összes adatom exportálása PDF-ként</string>
+    <string name="export_as_json">Összes adatom exportálása JSON-ként</string>
+    <string name="export_as_csv">Összes adatom exportálása CSV-ként</string>
+    <string name="export_footer_formats">Minden gyakorlat, ülés és sorozat, és minden, amit a szerver a fiókodról tárol. PDF olvasáshoz és nyomtatáshoz, JSON mindennel, gépileg olvasható formában, CSV ZIP-ként, adatfajtánként egy táblázattal. A számaidat ez a telefon fejti vissza, így a fájlban titkosítatlanul vannak: tartsd biztonságos helyen. Borítóképek nélkül, azok sosem hagyják el a telefont.</string>
+    <string name="export_preparing">Az exportálás előkészítése…</string>
     <string name="pdf_title">Duongöndro: az adataid</string>
     <string name="pdf_exported">Exportálva: %1$s</string>
     <string name="pdf_page">%1$s. oldal / %2$s</string>
@@ -69,31 +67,29 @@
     <string name="pdf_server_sealed">A telefonjaidon lezárva, a szerver tárolja, de nem tudja elolvasni: ülések, számok, körök és összegek, célok és importált sorozatok. A kulcsok az eszközeiden maradnak.</string>
     <string name="pdf_server_encrypted">A szerver adatbázisában titkosítva, a futó szerver számára olvasható: a megjelenített neved és nemed, az e-mail-címed, a felhasználóneved, a kapcsolt bejelentkezések, az általad közzétett sorozatok, a fiókod, eszközeid és hozzáférési kulcsaid nyilvános kulcsai, az értesítési tokenek és a bejelentéseid szövege.</string>
     <string name="pdf_server_plain">Véletlen számok közötti egyszerű kapcsolatokként: hogy a fiókod létezik, ki kivel barát, ki kit hívott meg, tiltott le, bökött meg vagy jelentett, mikor íródott valami, és mekkora minden lezárt bejegyzés. A borítóképek sosem hagyják el a telefonodat.</string>
-    <string name="csv_practice_name">Gyakorlat</string>
-    <string name="csv_practice_second_name">Második név</string>
+    <!-- CSV headers, as iOS's Export.xcstrings has them -->
+    <string name="csv_practice">Gyakorlat</string>
+    <string name="csv_second_name">Második név</string>
     <string name="csv_target">Cél</string>
-    <string name="csv_mala_size">A mala értéke</string>
+    <string name="csv_mala_size">Mala mérete</string>
     <string name="csv_streak_only">Csak sorozat</string>
     <string name="csv_archived">Archivált</string>
-    <string name="csv_total">Összesen</string>
-    <string name="csv_session_practice">Gyakorlat</string>
     <string name="csv_day_counted">Beszámított nap</string>
     <string name="csv_start">Kezdés</string>
-    <string name="csv_count">Szám</string>
+    <string name="csv_time_zone">Időzóna</string>
+    <string name="csv_count">Darab</string>
     <string name="csv_round">Kör</string>
-    <string name="csv_after_midnight">Éjfél utáni választás</string>
-    <string name="csv_friend_name">Megjelenített név</string>
-    <string name="csv_friend_since">Barátok ekkortól</string>
-    <string name="csv_invite_id">Barátságkód azonosítója</string>
+    <string name="csv_chosen_day">Éjfél után választott nap</string>
+    <string name="csv_display_name">Megjelenített név</string>
+    <string name="csv_friends_since">Barátok ekkor óta</string>
+    <string name="csv_code">Barátságkód</string>
+    <string name="csv_kind">Létrehozott vagy beváltott</string>
     <string name="csv_created">Létrehozva</string>
     <string name="csv_expires">Lejár</string>
     <string name="csv_revoked">Visszavonva</string>
-    <string name="csv_redeemed">Felhasználva</string>
-    <string name="csv_account_id">Fiókazonosító</string>
-    <string name="csv_blocked_since">Letiltva ekkortól</string>
+    <string name="csv_redemptions">Beváltva</string>
+    <string name="csv_person">Személy</string>
     <string name="csv_reason">Ok</string>
-    <string name="csv_reported_at">Bejelentve</string>
-    <string name="csv_device_id">Eszközazonosító</string>
-    <string name="csv_key_storage">Kulcs tárolása</string>
-    <string name="csv_added">Hozzáadva</string>
+    <string name="csv_device">Eszköz</string>
+    <string name="csv_key_storage">Kulcstárolás</string>
 </resources>
