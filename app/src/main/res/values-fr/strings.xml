@@ -382,8 +382,8 @@
     <string name="passkeys_detail">Chaque clé d\'accès te connecte à ce compte. Les noms ne sont que pour toi.</string>
     <string name="passkey_default_name">Clé d\'accès</string>
     <string name="passkey_added">Ajoutée le %1$s</string>
-    <string name="passkey_added_used">Ajoutée le %1$s · utilisée %2$s</string>
-    <string name="passkey_today">aujourd\'hui</string>
+    <string name="passkey_added_used">Ajoutée le %1$s · utilisée le %2$s</string>
+    <string name="passkey_added_used_today">Ajoutée le %1$s · utilisée aujourd\'hui</string>
     <string name="passkey_unlocks">Déverrouille tes décomptes sur un nouveau téléphone</string>
     <string name="passkey_add">Ajouter une clé d\'accès</string>
     <string name="passkey_unavailable_add">Ce téléphone ne peut pas créer de clé d\'accès.</string>

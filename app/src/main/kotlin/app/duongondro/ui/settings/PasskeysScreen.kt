@@ -196,7 +196,7 @@ private fun usage(p: Passkey): String {
     val used = p.lastUsedAt?.let(SyncTime::parse)?.atZone(zone)?.toLocalDate()
     return when {
         used == null -> stringResource(R.string.passkey_added, added)
-        used == LocalDate.now(zone) -> stringResource(R.string.passkey_added_used, added, stringResource(R.string.passkey_today))
+        used == LocalDate.now(zone) -> stringResource(R.string.passkey_added_used_today, added)
         else -> stringResource(R.string.passkey_added_used, added, format.format(used))
     }
 }

@@ -383,8 +383,8 @@
     <string name="passkeys_detail">Cada clave de acceso inicia sesión en esta cuenta. Los nombres son solo para ti.</string>
     <string name="passkey_default_name">Clave de acceso</string>
     <string name="passkey_added">Añadida el %1$s</string>
-    <string name="passkey_added_used">Añadida el %1$s · último uso %2$s</string>
-    <string name="passkey_today">hoy</string>
+    <string name="passkey_added_used">Añadida el %1$s · último uso el %2$s</string>
+    <string name="passkey_added_used_today">Añadida el %1$s · último uso hoy</string>
     <string name="passkey_unlocks">Desbloquea tus recuentos en un teléfono nuevo</string>
     <string name="passkey_add">Añadir una clave de acceso</string>
     <string name="passkey_unavailable_add">Este teléfono no puede crear una clave de acceso.</string>

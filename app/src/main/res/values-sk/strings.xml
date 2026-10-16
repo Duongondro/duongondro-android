@@ -377,7 +377,7 @@
     <string name="passkey_default_name">Prístupový kľúč</string>
     <string name="passkey_added">Pridaný %1$s</string>
     <string name="passkey_added_used">Pridaný %1$s · naposledy použitý %2$s</string>
-    <string name="passkey_today">dnes</string>
+    <string name="passkey_added_used_today">Pridaný %1$s · naposledy použitý dnes</string>
     <string name="passkey_unlocks">Odomkne tvoje počty v novom telefóne</string>
     <string name="passkey_add">Pridať prístupový kľúč</string>
     <string name="passkey_unavailable_add">Tento telefón nevie vytvoriť prístupový kľúč.</string>

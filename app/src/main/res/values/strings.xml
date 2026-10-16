@@ -380,7 +380,7 @@
     <string name="passkey_default_name">Passkey</string>
     <string name="passkey_added">Added %1$s</string>
     <string name="passkey_added_used">Added %1$s · last used %2$s</string>
-    <string name="passkey_today">today</string>
+    <string name="passkey_added_used_today">Added %1$s · last used today</string>
     <string name="passkey_unlocks">Unlocks your counts on a new phone</string>
     <string name="passkey_add">Add a passkey</string>
     <string name="passkey_unavailable_add">This phone can\'t make a passkey.</string>

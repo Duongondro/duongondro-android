@@ -373,8 +373,8 @@
     <string name="passkeys_detail">Jeder Passkey meldet dich bei diesem Konto an. Die Namen siehst nur du.</string>
     <string name="passkey_default_name">Passkey</string>
     <string name="passkey_added">Hinzugefügt am %1$s</string>
-    <string name="passkey_added_used">Hinzugefügt am %1$s · zuletzt benutzt %2$s</string>
-    <string name="passkey_today">heute</string>
+    <string name="passkey_added_used">Hinzugefügt am %1$s · zuletzt benutzt am %2$s</string>
+    <string name="passkey_added_used_today">Hinzugefügt am %1$s · zuletzt benutzt heute</string>
     <string name="passkey_unlocks">Entsperrt deine Zähler auf einem neuen Handy</string>
     <string name="passkey_add">Passkey hinzufügen</string>
     <string name="passkey_unavailable_add">Dieses Handy kann keinen Passkey erstellen.</string>

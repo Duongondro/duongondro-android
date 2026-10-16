@@ -361,7 +361,7 @@
     <string name="passkey_default_name">Hozzáférési kulcs</string>
     <string name="passkey_added">Hozzáadva: %1$s</string>
     <string name="passkey_added_used">Hozzáadva: %1$s · utoljára használva: %2$s</string>
-    <string name="passkey_today">ma</string>
+    <string name="passkey_added_used_today">Hozzáadva: %1$s · utoljára használva: ma</string>
     <string name="passkey_unlocks">Új telefonon is feloldja a számlálóidat</string>
     <string name="passkey_add">Hozzáférési kulcs hozzáadása</string>
     <string name="passkey_unavailable_add">Ez a telefon nem tud hozzáférési kulcsot létrehozni.</string>

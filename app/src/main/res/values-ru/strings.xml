@@ -377,7 +377,7 @@
     <string name="passkey_default_name">Ключ доступа</string>
     <string name="passkey_added">Добавлен %1$s</string>
     <string name="passkey_added_used">Добавлен %1$s · использован %2$s</string>
-    <string name="passkey_today">сегодня</string>
+    <string name="passkey_added_used_today">Добавлен %1$s · использован сегодня</string>
     <string name="passkey_unlocks">Открывает ваши счётчики на новом телефоне</string>
     <string name="passkey_add">Добавить ключ доступа</string>
     <string name="passkey_unavailable_add">Этот телефон не может создать ключ доступа.</string>
