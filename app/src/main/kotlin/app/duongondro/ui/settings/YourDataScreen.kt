@@ -63,7 +63,7 @@ fun YourDataScreen(model: AppModel, openDelete: () -> Unit, back: () -> Unit) {
             }
             CardSection(footer = stringResource(if (withAccount) R.string.delete_footer_account else R.string.delete_footer)) {
                 Row(Modifier.fillMaxWidth().heightIn(min = Size.minTap).clickable(enabled = !exports.working, onClick = openDelete)
-                    .padding(horizontal = Space.l),
+                    .padding(horizontal = Space.l, vertical = Space.s),
                     horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Delete, contentDescription = null, tint = Theme.colors.destructive)
                     Text(stringResource(R.string.delete_everything), Modifier.weight(1f), style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold),
@@ -100,7 +100,8 @@ fun DeleteEverythingScreen(model: AppModel, back: () -> Unit) {
             // As CodeShare's delete confirmation: export first, in any format.
             Text(stringResource(R.string.ex_export_my_data_first), style = Theme.type.body, color = Theme.colors.accent,
                 modifier = Modifier.fillMaxWidth().heightIn(min = Size.minTap)
-                    .clickable(enabled = !exports.working, role = Role.Button) { choosingFormat = true }.wrapContentHeight(Alignment.CenterVertically))
+                    .clickable(enabled = !exports.working, role = Role.Button) { choosingFormat = true }
+                    .padding(vertical = Space.s).wrapContentHeight(Alignment.CenterVertically))
         }
         OutlinedTextField(typed, { typed = it }, label = { Text(stringResource(R.string.type_to_confirm, word)) }, singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false),
