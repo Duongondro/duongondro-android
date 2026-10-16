@@ -39,14 +39,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.duongondro.ui.PushNavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.duongondro.model.AppModel
 import app.duongondro.model.SqliteStore
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.plus
+import androidx.compose.material3.ScaffoldDefaults
 import app.duongondro.ui.onboarding.OnboardingScreen
 import app.duongondro.ui.onboarding.RecoveryCodeScreen
 import app.duongondro.ui.onboarding.Step
@@ -205,59 +208,69 @@ fun App(model: AppModel) {
 private fun Home(model: AppModel) {
     val nav = rememberNavController()
     val prompt by model.afterMidnight.collectAsStateWithLifecycle()
-    val entry by nav.currentBackStackEntryAsState()
-    val barHidden = Routes.hidesBar(entry?.destination?.route)
-    Scaffold(containerColor = Theme.colors.ground, bottomBar = { if (!barHidden) BottomBar(nav) }) { padding ->
-        // The practice screen runs its cover under the status bar, so it takes the top inset itself.
-        val inner = if (entry?.destination?.route == Routes.PRACTICE) {
-            val dir = androidx.compose.ui.platform.LocalLayoutDirection.current
-            PaddingValues(start = padding.calculateStartPadding(dir), end = padding.calculateEndPadding(dir), bottom = padding.calculateBottomPadding())
-        } else padding
-        PushNavHost(nav, startDestination = Routes.TODAY, roots = Routes.TABS, modals = Routes.MODALS,
-            modifier = Modifier.padding(inner).consumeWindowInsets(inner)) {
-            screen(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
-            screen(Routes.SETTINGS) {
-                SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
-                    openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
-                    openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
-                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
-                    openPasskeys = { nav.navigate(Routes.PASSKEYS) })
-            }
-            screen(Routes.FRIENDS) {
-                FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
-                    openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) }, openSignIn = { nav.navigate(Routes.SIGN_IN) },
-                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
-            }
-            screen(Routes.FRIEND) { entry ->
-                FriendDetailScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
-            }
-            screen(Routes.FRIENDS_INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
-            screen(Routes.PRACTICES) {
-                PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
-                    openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
-            }
-            screen(Routes.PRACTICE_SETTINGS) { entry ->
-                PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
-            }
-            screen(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
-            screen(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
-            screen(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
-            screen(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
-            screen(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
-            screen(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
-            screen(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
-            screen(Routes.PASSKEYS) { model.accounts?.let { PasskeysScreen(it) { nav.popBackStack() } } }
-            screen(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
-            screen(Routes.ARCHIVED) {
-                ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
-            }
-            screen(Routes.PRACTICE) { entry ->
-                PracticeScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
-            }
+    // The NavHost fills the window at one size; each screen brings its own bar and insets.
+    PushNavHost(nav, startDestination = Routes.TODAY, roots = Routes.TABS, modals = Routes.MODALS,
+        modifier = Modifier.fillMaxSize().background(Theme.colors.ground),
+        chrome = { route, content -> ScreenChrome(nav, route, content) }) {
+        screen(Routes.TODAY) { TodayScreen(model) { nav.navigate(Routes.practice(it)) } }
+        screen(Routes.SETTINGS) {
+            SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
+                openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
+                openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
+                openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
+                openPasskeys = { nav.navigate(Routes.PASSKEYS) })
+        }
+        screen(Routes.FRIENDS) {
+            FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
+                openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) }, openSignIn = { nav.navigate(Routes.SIGN_IN) },
+                openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) })
+        }
+        screen(Routes.FRIEND) { entry ->
+            FriendDetailScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+        }
+        screen(Routes.FRIENDS_INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
+        screen(Routes.PRACTICES) {
+            PracticeListScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) },
+                openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
+        }
+        screen(Routes.PRACTICE_SETTINGS) { entry ->
+            PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+        }
+        screen(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
+        screen(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
+        screen(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }
+        screen(Routes.LICENCES) { LicencesScreen { nav.popBackStack() } }
+        screen(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
+        screen(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
+        screen(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
+        screen(Routes.PASSKEYS) { model.accounts?.let { PasskeysScreen(it) { nav.popBackStack() } } }
+        screen(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
+        screen(Routes.ARCHIVED) {
+            ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }
+        }
+        screen(Routes.PRACTICE) { entry ->
+            PracticeScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
         }
     }
     prompt?.let { AfterMidnightDialog(it, model) }
     model.accounts?.let { AcceptInviteDialog(model, it) }
+}
+
+/**
+ * A screen's bar and insets. The bar belongs to each tab screen rather than to the window, so
+ * a push slides a screen without it over one with it, as on iOS, and nothing changes size
+ * when the back stack does.
+ */
+@Composable
+private fun ScreenChrome(nav: NavHostController, route: String?, content: @Composable () -> Unit) {
+    // The practice screen runs its cover under the status bar, so it takes the top inset itself.
+    val insets = if (route == Routes.PRACTICE) {
+        ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+    } else ScaffoldDefaults.contentWindowInsets
+    Scaffold(containerColor = Theme.colors.ground, contentWindowInsets = insets,
+        bottomBar = { if (!Routes.hidesBar(route)) BottomBar(nav, route) }) { padding ->
+        Box(Modifier.padding(padding).consumeWindowInsets(padding)) { content() }
+    }
 }
 
 /** Says plainly when something could not be saved, instead of losing it quietly. */
@@ -275,9 +288,7 @@ private fun StorageErrorDialog(model: AppModel) {
 }
 
 @Composable
-private fun BottomBar(nav: NavHostController) {
-    val entry by nav.currentBackStackEntryAsState()
-    val route = entry?.destination?.route
+private fun BottomBar(nav: NavHostController, route: String?) {
     NavigationBar(containerColor = Theme.colors.card, contentColor = Theme.colors.muted) {
         NavigationBarItem(
             selected = route == Routes.TODAY,

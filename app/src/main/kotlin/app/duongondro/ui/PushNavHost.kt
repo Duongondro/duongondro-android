@@ -102,6 +102,8 @@ object PushMotion {
 /**
  * A NavHost whose destinations, declared with [PushGraph.screen], move as on iOS ([PushMotion]).
  * [roots] are the tabs' start routes; [modals] the routes iOS presents as sheets or covers.
+ * [chrome] wraps each screen in what depends on its route (a tab bar, window insets), so it
+ * slides with its screen instead of changing size under both when the back stack changes.
  */
 @Composable
 fun PushNavHost(
@@ -110,6 +112,7 @@ fun PushNavHost(
     roots: Set<String>,
     modals: Set<String>,
     modifier: Modifier = Modifier,
+    chrome: @Composable (route: String?, content: @Composable () -> Unit) -> Unit = { _, content -> content() },
     builder: PushGraph.() -> Unit,
 ) {
     // The shaded screens follow the back stack, so nothing is written while transitions are
@@ -123,6 +126,7 @@ fun PushNavHost(
     SideEffect { previous[0] = now }
     // Read through a State, so the graph lambda stays the same and NavHost never rebuilds it.
     val shaded = rememberUpdatedState(covered)
+    val frame = rememberUpdatedState(chrome)
     fun AnimatedContentTransitionScope<NavBackStackEntry>.kind(pop: Boolean): PushMotion.Kind {
         return PushMotion.kind(initialState.destination.route, targetState.destination.route, pop, roots, modals,
             animate = ValueAnimator.areAnimatorsEnabled())
@@ -162,11 +166,18 @@ fun PushNavHost(
         // them Navigation fades and shrinks the screen instead.
         predictivePopEnterTransition = { _ -> popEnter() },
         predictivePopExitTransition = { _ -> popExit() },
-    ) { PushGraph(this) { shaded.value }.builder() }
+    ) { PushGraph(this, { shaded.value }, { route, content -> frame.value(route, content) }).builder() }
 }
 
-class PushGraph internal constructor(private val graph: NavGraphBuilder, private val covered: () -> Set<String>) {
-    /** A destination; its screen gets an opaque ground and the shade it takes while covered. */
+class PushGraph internal constructor(
+    private val graph: NavGraphBuilder,
+    private val covered: () -> Set<String>,
+    private val chrome: @Composable (String?, @Composable () -> Unit) -> Unit,
+) {
+    /**
+     * A destination; its screen gets an opaque ground, the shade it takes while covered, and
+     * the host's chrome (bars and insets), which therefore moves with it.
+     */
     fun screen(route: String, content: @Composable (NavBackStackEntry) -> Unit) {
         graph.composable(route) { entry -> Frame(entry) { content(entry) } }
     }
@@ -180,6 +191,6 @@ class PushGraph internal constructor(private val graph: NavGraphBuilder, private
         Box(
             Modifier.fillMaxSize().background(Theme.colors.ground)
                 .drawWithContent { drawContent(); if (dim > 0f) drawRect(shade, alpha = dim) },
-        ) { content() }
+        ) { chrome(entry.destination.route) { content() } }
     }
 }
