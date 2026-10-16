@@ -44,12 +44,20 @@ class UserKeyFlowTest {
         var replaced = 0
         /** The next PUT of U is applied, then its answer is lost. */
         var loseNextAnswer = false
+        /** The next GET answers 404 even with a U stored: another phone published in between (a race). */
+        var hideOnce = false
+        /** The signed device list and the registered devices, as JSON; null for none. */
+        var deviceList: String? = null
+        var devices: String = """{"devices":[]}"""
+        /** Kind 4 wraps sent, by device id. */
+        val given = mutableListOf<String>()
 
         override fun send(method: String, url: String, headers: Map<String, String>, body: ByteArray?): Http.Response {
             val path = url.removePrefix("http://server/")
             val json = body?.let { Api.json.parseToJsonElement(it.decodeToString()).jsonObject }
             fun ok(text: String = "") = Http.Response(if (text.isEmpty()) 204 else 200, text.toByteArray())
             return when {
+                method == "GET" && path == "api/me/user-key" && hideOnce -> { hideOnce = false; Http.Response(404, """{"error":"none"}""".toByteArray()) }
                 method == "GET" && path == "api/me/user-key" -> payload?.let {
                     ok(buildJsonObject {
                         put("id", id); put("version", version)
@@ -78,7 +86,13 @@ class UserKeyFlowTest {
                 }
                 method == "POST" && path == "api/me/user-key/wraps" -> { wraps += json!!; ok() }
                 method == "PUT" && path.endsWith("/unlock") -> { boxes[path] = json!!["userKeyId"]!!.jsonPrimitive.content; ok() }
-                method == "GET" && path == "api/me/device-list" -> Http.Response(404, """{"error":"none"}""".toByteArray())
+                method == "GET" && path == "api/me/device-list" -> deviceList?.let { ok(it) } ?: Http.Response(404, """{"error":"none"}""".toByteArray())
+                method == "GET" && path == "api/devices" -> ok(devices)
+                method == "POST" && path.startsWith("api/devices/") && path.endsWith("/wraps") -> {
+                    assertEquals(4, json!!["kind"]!!.jsonPrimitive.content.toInt())
+                    given += path.removePrefix("api/devices/").removeSuffix("/wraps"); ok()
+                }
+                method == "DELETE" && path == "api/me/sessions" -> ok()
                 else -> error("unexpected $method $path")
             }
         }
@@ -113,7 +127,10 @@ class UserKeyFlowTest {
         // Another phone, which made a U of its own before it heard of the first (a lost race).
         val other = MemorySecretStore().also { it.write(SecretName.USER_KEY, UserKeys.create().serialised()) }
         val (b, secrets) = phone(server, other)
-        assertNull("it waits for U as a kind 4 wrap", runCatching { b.ensureUserKey() }.getOrNull())
+        // It reads no U, then its own PUT meets the first phone's: 409.
+        server.hideOnce = true
+        assertNull("it waits for U as a kind 4 wrap", b.ensureUserKey())
+        assertEquals(2, server.puts)
         assertEquals(first, server.id)
         assertNull("its own U is dropped", secrets.read(SecretName.USER_KEY))
         assertEquals(0, server.replaced)
@@ -172,6 +189,35 @@ class UserKeyFlowTest {
         assertTrue(a.replaceUserKey())
         assertEquals(taken, server.id)
         assertEquals(1, server.replaced)
+    }
+
+    @Test fun aReplacementIsNeverGivenToTheRemovedPasskeysPhones() = runBlocking {
+        val server = Server()
+        val (a, secrets) = phone(server)
+        val me = UUID.randomUUID()
+        secrets.write(SecretName.DEVICE_ID, me.toString().toByteArray())
+        val kept = UUID.randomUUID() to app.duongondro.core.crypto.SoftwareDeviceKey.generate().publicKey
+        val shut = UUID.randomUUID() to app.duongondro.core.crypto.SoftwareDeviceKey.generate().publicKey
+        val listed = listOf(kept, shut).map { (id, pk) -> Statements.ListedDevice(id, pk, app.duongondro.core.crypto.Tier.SOFTWARE) }
+        val list = SignedStatement.sign(app.duongondro.core.crypto.StatementTypes.DEVICE_LIST,
+            Statements.deviceList(listed, java.time.Instant.now(), user, 1), identity)
+        server.deviceList = """{"payload":"${b64.encodeToString(list.payload)}","signature":"${b64.encodeToString(list.signature)}"}"""
+        server.devices = buildJsonObject {
+            put("devices", buildJsonArray {
+                listed.forEach { d -> add(buildJsonObject { put("id", d.id.toString()); put("publicKey", b64.encodeToString(d.publicKey)); put("tier", "software") }) }
+            })
+        }.toString()
+        a.ensureUserKey()
+        assertEquals("U went to both other phones", setOf(kept.first.toString(), shut.first.toString()), server.given.toSet())
+        server.given.clear()
+        // The removed passkey had signed in on `shut` and on this phone.
+        assertTrue(a.replaceUserKey(listOf(shut.first, me)))
+        assertEquals("the new U goes only to the phone it may reach", listOf(kept.first.toString()), server.given)
+        // Later checks keep it out too.
+        server.given.clear()
+        secrets.delete(SecretName.USER_KEY_GIVEN)
+        a.ensureUserKey()
+        assertEquals(listOf(kept.first.toString()), server.given)
     }
 
     @Test fun noUNoReplacement() = runBlocking {
