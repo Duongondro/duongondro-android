@@ -11,14 +11,16 @@ class ReportLayoutTest {
     }
     private val layout = ReportLayout(measure)
 
-    private fun report(vararg sections: ReportSection) =
-        Report("Duongöndro: your data", "Exported today", sections.toList(), "duongondro.app/privacy") { p, n -> "Page $p of $n" }
+    private fun report(vararg blocks: ReportBlock) =
+        Report("Duongöndro: your data", "Exported today", blocks.toList(), "duongondro.app/privacy") { p, n -> "Page $p of $n" }
 
     private fun texts(page: ReportPage) = page.draws.filterIsInstance<Draw.Text>().map { it.text }
 
+    private val dayTable = listOf(Column("Day", 1f), Column("Count", 1f, right = true, figure = true))
+
     @Test fun headerAndFooterOnEveryPage() {
-        val rows = (1..200).map { listOf(listOf("Day $it", "$it")) }
-        val pages = layout.pages(report(ReportSection.Table("Sessions", null, listOf(Column("Day", 1f), Column("Count", 1f, true)), rows)))
+        val rows = (1..200).map { Row(listOf(Cell("Day $it"), Cell("$it"))) }
+        val pages = layout.pages(report(ReportBlock.Heading("3. Sessions"), ReportBlock.Table(dayTable, rows, continued = "Dorje Sempa (continued)")))
         assertTrue(pages.size > 2)
         pages.forEachIndexed { i, page ->
             val t = texts(page)
@@ -26,26 +28,25 @@ class ReportLayoutTest {
             assertTrue("Exported today" in t)
             assertTrue("duongondro.app/privacy" in t)
             assertTrue("Page ${i + 1} of ${pages.size}" in t)
-            // The table's header row repeats after a break.
+            // The table's header band repeats after a break.
             assertTrue("Day" in t)
+            assertTrue(page.draws.any { it is Draw.Rect })
+            assertEquals(i > 0, "Dorje Sempa (continued)" in t)
         }
         assertEquals(200, pages.sumOf { p -> texts(p).count { it.startsWith("Day ") } })
     }
 
-    @Test fun nothingBelowTheFooterRule() {
-        val rows = (1..120).map { listOf(listOf("x", "1")) }
-        val pages = layout.pages(report(ReportSection.Table("T", null, listOf(Column("A", 1f), Column("B", 1f, true)), rows)))
-        for (page in pages) {
-            val rule = page.draws.filterIsInstance<Draw.Line>().last()
-            val body = page.draws.filterIsInstance<Draw.Text>().filter { it.style != ReportStyle.FOOTER }
-            assertTrue(body.all { it.y < rule.y1 })
+    @Test fun contentStaysAboveTheFooter() {
+        val rows = (1..120).map { Row(listOf(Cell("x"), Cell("1"))) }
+        for (page in layout.pages(report(ReportBlock.Table(dayTable, rows)))) {
+            val body = page.draws.filterIsInstance<Draw.Text>().filter { it.y > ReportLayout.CONTENT_TOP && it.y < ReportLayout.PAGE_HEIGHT - 45f }
+            assertTrue(body.all { it.y <= ReportLayout.CONTENT_BOTTOM })
         }
     }
 
     @Test fun keepsADayTogetherWhereItFits() {
-        // Groups of five rows: none may straddle a page break.
-        val groups = (1..40).map { d -> (1..5).map { r -> listOf(if (r == 1) "Day $d" else "", "$r") } }
-        val pages = layout.pages(report(ReportSection.Table("Sessions", null, listOf(Column("Day", 1f), Column("Count", 1f, true)), groups)))
+        val rows = (1..40).flatMap { d -> (1..5).map { r -> Row(listOf(Cell(if (r == 1) "Day $d" else ""), Cell("$r")), group = d) } }
+        val pages = layout.pages(report(ReportBlock.Table(dayTable, rows)))
         assertTrue(pages.size > 1)
         for (page in pages) {
             val counts = page.draws.filterIsInstance<Draw.Text>().filter { it.style == ReportStyle.FIGURE }.map { it.text }
@@ -54,50 +55,59 @@ class ReportLayoutTest {
         }
     }
 
-    @Test fun aDayLongerThanAPageNamesItselfAgain() {
-        val group = (1..120).map { r -> listOf(if (r == 1) "Monday" else "", "$r") }
-        val pages = layout.pages(report(ReportSection.Table("Sessions", null, listOf(Column("Day", 1f), Column("Count", 1f, true)), listOf(group))))
-        assertTrue(pages.size > 1)
-        for (page in pages) assertTrue("Monday" in texts(page))
+    @Test fun headingNeverEndsAPage() {
+        val filler = (1..60).map { ReportBlock.Pair("Label $it", "Value") }
+        val pages = layout.pages(report(*(filler + ReportBlock.Heading("2. Practices") + ReportBlock.Pair("a", "b")).toTypedArray()))
+        val page = pages.first { "2. Practices" in texts(it) }
+        assertTrue("b" in texts(page))
     }
 
-    @Test fun secondLineIsMuted() {
-        val pages = layout.pages(report(ReportSection.Table("Practices", "2 practices", listOf(Column("Practice", 1f)),
-            listOf(listOf(listOf("Dorje Sempa\nDiamond Mind"))))))
+    @Test fun secondLineIsSmallAndMuted() {
+        val pages = layout.pages(report(ReportBlock.Table(listOf(Column("Practice", 1f)), listOf(Row(listOf(Cell("Dorje Sempa", "Diamond Mind")))))))
         val draws = pages.single().draws.filterIsInstance<Draw.Text>()
-        assertEquals(ReportStyle.CELL, draws.first { it.text == "Dorje Sempa" }.style)
+        val first = draws.first { it.text == "Dorje Sempa" }
         val second = draws.first { it.text == "Diamond Mind" }
-        assertEquals(ReportStyle.CELL_SECOND, second.style)
-        assertTrue(second.y > draws.first { it.text == "Dorje Sempa" }.y)
-        assertTrue("2 practices" in draws.map { it.text })
+        assertEquals(ReportStyle.BODY, first.style)
+        assertEquals(ReportStyle.SMALL, second.style)
+        assertTrue(second.y > first.y)
     }
 
-    @Test fun figuresAlignToTheEnd() {
-        val pages = layout.pages(report(ReportSection.Table("T", null, listOf(Column("A", 1f), Column("N", 1f, figures = true)),
-            listOf(listOf(listOf("a", "111,111"))))))
+    @Test fun rightColumnsEndAtTheirEdge() {
+        val pages = layout.pages(report(ReportBlock.Table(dayTable, listOf(Row(listOf(Cell("a"), Cell("111,111")))))))
         val figure = pages.single().draws.filterIsInstance<Draw.Text>().first { it.text == "111,111" }
         assertTrue(figure.alignEnd)
         assertEquals(ReportStyle.FIGURE, figure.style)
     }
 
-    @Test fun emptyTableSaysSo() {
-        val pages = layout.pages(report(ReportSection.Table("Friends", null, listOf(Column("Name", 1f)), emptyList(), empty = "No friends yet.")))
-        assertTrue("No friends yet." in texts(pages.single()))
-        assertTrue("Name" !in texts(pages.single()))
+    @Test fun pairsWrapAndBreakLines() {
+        val pages = layout.pages(report(ReportBlock.Pair("Devices", "2 devices\nHardware key")))
+        val t = texts(pages.single())
+        assertTrue("2 devices" in t && "Hardware key" in t)
+    }
+
+    @Test fun bulletsAndParagraphs() {
+        val pages = layout.pages(report(ReportBlock.Heading("5. What the server keeps"), ReportBlock.Paragraph("Stored", ink = true, keep = true),
+            ReportBlock.Paragraph("That your account exists", bullet = true)))
+        val t = texts(pages.single())
+        assertTrue(listOf("5. What the server keeps", "Stored", "•", "That your account exists").all { it in t })
     }
 
     @Test fun wrapsAndBreaksLongWords() {
-        assertEquals(listOf("aaaa", "bbbb"), layout.wrap("aaaa bbbb", ReportStyle.BODY, 25f))
-        assertEquals(listOf("aaaaa", "aaaaa"), layout.wrap("aaaaaaaaaa", ReportStyle.BODY, 25f))
-        assertEquals("abc…", layout.ellipsized("abcdefgh", ReportStyle.BODY, 20f))
+        assertEquals(listOf("aaaa", "bbbb"), layout.wrap("aaaa bbbb", ReportStyle.BODY, 20f))
+        assertEquals(listOf("aaaa", "aaaa"), layout.wrap("aaaaaaaa", ReportStyle.BODY, 20f))
     }
 
-    @Test fun factsAndParagraphs() {
-        val pages = layout.pages(report(
-            ReportSection.Facts("1. Account", listOf("Display name" to "Tidy Raccoon")),
-            ReportSection.Text("5. What the server keeps", listOf("First.", "Second.")),
-        ))
-        val t = texts(pages.single())
-        assertTrue(listOf("1. Account", "Display name", "Tidy Raccoon", "5. What the server keeps", "First.", "Second.").all { it in t })
+    @Test fun noBlankLastPage() {
+        val filler = (1..48).map { ReportBlock.Pair("Label $it", "Value") }
+        val pages = layout.pages(report(*(filler + ReportBlock.Gap(18f) + ReportBlock.Gap(18f)).toTypedArray()))
+        assertTrue(texts(pages.last()).any { it.startsWith("Label") })
+    }
+
+    @Test fun aLongHeadingWrapsBeforeItsDetail() {
+        val title = "3. Sessions · " + "Meditation on the Buddha of Limitless Light ".repeat(3)
+        val draws = layout.pages(report(ReportBlock.Heading(title.trim(), "1,234 sessions"))).single().draws.filterIsInstance<Draw.Text>()
+        val detail = draws.first { it.text == "1,234 sessions" }
+        val detailStart = detail.x - measure.width(detail.text, ReportStyle.SMALL)
+        draws.filter { it.style == ReportStyle.SECTION }.forEach { assertTrue(it.x + measure.width(it.text, ReportStyle.SECTION) < detailStart) }
     }
 }

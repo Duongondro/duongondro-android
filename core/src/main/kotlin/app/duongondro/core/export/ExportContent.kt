@@ -41,6 +41,8 @@ data class ExportContent(
     val serverIncluded: Boolean,
     /** The phone's zone, in which the server's times are written. */
     val zone: ZoneId,
+    /** Sealed sessions that did not open here, or opened unusable: only in the JSON export. */
+    val unreadable: Int = 0,
 ) {
     data class AccountFacts(
         val displayName: String?,
@@ -118,6 +120,7 @@ data class ExportContent(
             now: Instant,
             zone: ZoneId,
             names: (Practice) -> Pair<String, String?> = { it.name to it.secondName },
+            unreadable: Int = 0,
         ): ExportContent {
             val ordered = practices.sortedWith(compareBy({ it.archived }, { it.sortOrder }))
             val practiceRows = ordered.map { t ->
@@ -155,6 +158,7 @@ data class ExportContent(
                 passkeys = server?.passkeys.orEmpty(),
                 serverIncluded = server != null,
                 zone = zone,
+                unreadable = unreadable,
             )
         }
     }

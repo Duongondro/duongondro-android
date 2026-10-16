@@ -27,9 +27,10 @@ class CsvExportTest {
 
     @Test fun tablesByWhatTheExportHas() {
         val files = unzip(CsvExport.zip(content, header))
-        assertEquals(listOf("practices.csv", "sessions.csv", "friends.csv", "invites.csv", "blocks.csv", "reports.csv", "devices.csv"),
+        assertEquals(listOf("README.txt", "practices.csv", "sessions.csv", "friends.csv", "invites.csv", "blocks.csv", "reports.csv", "devices.csv"),
             files.keys.toList())
-        assertTrue(files.values.all { it.startsWith(Csv.BOM) && it.endsWith("\r\n") })
+        assertTrue(files.filterKeys { it.endsWith(".csv") }.values.all { it.startsWith(Csv.BOM) && it.endsWith("\r\n") })
+        assertTrue("Value codes stay English" in files.getValue("README.txt"))
         // An account without the server's part: friends as cached, nothing only the server holds.
         assertEquals(listOf("practices", "sessions", "friends"), CsvExport.tables(ExportFixtures.content(withServer = false)).map { it.name })
         // Local mode: no account, no friends.
@@ -55,12 +56,18 @@ class CsvExportTest {
     }
 
     @Test fun serverTablesInThePhonesZone() {
-        assertEquals(listOf("display_name,friends_since", "Quiet Heron,2026-10-05 10:00:00"), lines("friends"))
-        assertEquals(listOf("code,kind,created,expires,revoked,redemptions", "inv1,made,2026-10-04 10:00:00,2026-10-11 10:00:00,,1"),
+        assertEquals(listOf("display_name,friends_since", "Quiet Heron,2026-10-05T10:00:00+02:00"), lines("friends"))
+        assertEquals(listOf("code,kind,created,expires,revoked,redemptions", "inv1,made,2026-10-04T10:00:00+02:00,2026-10-11T10:00:00+02:00,,1"),
             lines("invites"))
-        assertEquals(listOf("person,created", "00000000-0000-0000-0000-000000000003,2026-10-06 10:00:00"), lines("blocks"))
-        assertEquals(listOf("person,reason,created", "00000000-0000-0000-0000-000000000003,\"'-spam, and \"\"worse\"\"\",2026-10-06 10:01:00"),
+        assertEquals(listOf("person,created", "00000000-0000-0000-0000-000000000003,2026-10-06T10:00:00+02:00"), lines("blocks"))
+        assertEquals(listOf("person,reason,created", "00000000-0000-0000-0000-000000000003,\"'-spam, and \"\"worse\"\"\",2026-10-06T10:01:00+02:00"),
             lines("reports"))
-        assertEquals(listOf("device,key_storage,created", "00000000-0000-0000-0000-00000000000d,hardware,2026-10-01 12:00:00"), lines("devices"))
+        assertEquals(listOf("device,key_storage,created", "00000000-0000-0000-0000-00000000000d,hardware,2026-10-01T12:00:00+02:00"), lines("devices"))
+    }
+
+    @Test fun aFriendWithoutANameAndUnreadableSessions() {
+        val nameless = content.copy(friends = listOf(content.friends.single().copy(displayName = "")), unreadable = 2)
+        assertEquals("Ein Freund", CsvExport.tables(nameless, aFriend = "Ein Freund").first { it.name == "friends" }.rows.single()[0])
+        assertTrue("2 sealed sessions" in CsvExport.readme(listOf("practices.csv"), 2))
     }
 }

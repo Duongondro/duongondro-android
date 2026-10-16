@@ -1,102 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Settings › Your data › Export: the Export section, the PDF and the CSV headers (design decision 26). -->
+<!-- Settings › Your data › Export: the PDF, the CSV headers and the screen's rows, generated from
+     duongondro-ios App/Resources/Export.xcstrings so both apps word the export alike. -->
 <resources>
-    <string name="export_section">Export</string>
-    <string name="export_as_pdf">Export all my data as PDF</string>
-    <string name="export_as_json">Export all my data as JSON</string>
-    <string name="export_as_csv">Export all my data as CSV</string>
-    <string name="export_footer_formats">Every practice, session and streak, and everything the server keeps about your account. PDF to read and print, JSON with everything, machine-readable, CSV as a ZIP with one table per kind of data. Your counts are decrypted on this phone, so the file holds them unencrypted: keep it somewhere private. No cover photos: they never leave the phone.</string>
-    <string name="export_preparing">Preparing the export…</string>
-
-    <!-- The PDF -->
-    <string name="pdf_title">Duongöndro: your data</string>
-    <string name="pdf_exported">Exported %1$s</string>
-    <string name="pdf_build" translatable="false">Android %1$s</string>
-    <string name="pdf_footer" translatable="false">duongondro.app/privacy</string>
-    <string name="pdf_page">Page %1$s of %2$s</string>
-    <string name="pdf_none" translatable="false">—</string>
-    <string name="pdf_yes">yes</string>
-    <string name="pdf_no">no</string>
-    <string name="pdf_account">Account</string>
-    <string name="pdf_display_name">Display name</string>
-    <string name="pdf_username">Username</string>
-    <string name="pdf_gender">Gender</string>
-    <string name="pdf_email">E-mail</string>
-    <string name="pdf_account_created">Account made</string>
-    <string name="pdf_passkeys">Passkeys</string>
-    <string name="pdf_devices">Devices</string>
-    <string name="pdf_not_given">not given</string>
-    <string name="pdf_local_mode">Local mode: there is no account, so nothing about you is on any server.</string>
-    <string name="pdf_server_missing">Not in this export: the server could not be reached. Export again when connected.</string>
-    <string name="pdf_passkey_added">added %1$s</string>
-    <string name="pdf_passkey_used">added %1$s, last used %2$s</string>
-    <string name="pdf_device">%1$s, added %2$s</string>
-    <string name="pdf_tier_hardware">Key in a security chip</string>
-    <string name="pdf_tier_tee">Key in the phone\'s secure area</string>
-    <string name="pdf_tier_software">Software key</string>
-    <string name="pdf_practices">Practices</string>
-    <plurals name="pdf_practices_count">
-        <item quantity="one">%1$s practice</item>
-        <item quantity="other">%1$s practices</item>
+    <string name="ex_footer_url" translatable="false">duongondro.app/privacy</string>
+    <string name="ex_dash" translatable="false">–</string>
+    <string name="ex_continued">%1$s (continued)</string>
+    <plurals name="ex_n_days">
+        <item quantity="one">%1$s day</item>
+        <item quantity="other">%1$s days</item>
     </plurals>
-    <string name="pdf_practice">Practice</string>
-    <string name="pdf_total">Total</string>
-    <string name="pdf_target">Target</string>
-    <string name="pdf_round">Round</string>
-    <string name="pdf_streak">Streak</string>
-    <string name="pdf_public">Public</string>
-    <string name="pdf_archived">archived</string>
-    <plurals name="pdf_streak_value">
-        <item quantity="one">%1$s day · longest %2$s</item>
-        <item quantity="other">%1$s days · longest %2$s</item>
+    <plurals name="ex_n_devices">
+        <item quantity="one">%1$s device</item>
+        <item quantity="other">%1$s devices</item>
     </plurals>
-    <string name="pdf_sessions">Sessions</string>
-    <plurals name="pdf_sessions_count">
-        <item quantity="one">%1$s session</item>
-        <item quantity="other">%1$s sessions</item>
-    </plurals>
-    <string name="pdf_day">Day</string>
-    <string name="pdf_started">Started</string>
-    <string name="pdf_count">Count</string>
-    <string name="pdf_counted_for">Counted for</string>
-    <string name="pdf_done">done</string>
-    <string name="pdf_no_sessions">No sessions yet.</string>
-    <string name="pdf_friends">Friends</string>
-    <plurals name="pdf_friends_count">
+    <plurals name="ex_n_friends">
         <item quantity="one">%1$s friend</item>
         <item quantity="other">%1$s friends</item>
     </plurals>
-    <string name="pdf_friend">Friend</string>
-    <string name="pdf_since">Friends since</string>
-    <string name="pdf_no_friends">No friends yet.</string>
-    <string name="pdf_server">What the server keeps</string>
-    <string name="pdf_server_sealed">Sealed on your phones, which the server stores but cannot read: practice sessions, counts, rounds and totals, targets and imported streak seeds. The keys stay on your devices.</string>
-    <string name="pdf_server_encrypted">Kept encrypted in the server\'s database, readable by the running server: your display name and gender, your e-mail address, your username, linked sign-ins, the streaks you publish, the public keys of your account, devices and passkeys, push tokens and the text of reports you send.</string>
-    <string name="pdf_server_plain">Kept as plain links between random numbers: that your account exists, who is friends with, invited, blocked, poked or reported whom, when things were written and how large each sealed record is. Cover photos never leave your phone.</string>
-
-    <!-- CSV headers, as iOS's Export.xcstrings has them -->
-    <string name="csv_practice">Practice</string>
-    <string name="csv_second_name">Second name</string>
-    <string name="csv_target">Target</string>
-    <string name="csv_mala_size">Mala size</string>
-    <string name="csv_streak_only">Streak only</string>
-    <string name="csv_archived">Archived</string>
-    <string name="csv_day_counted">Day counted</string>
-    <string name="csv_start">Start</string>
-    <string name="csv_time_zone">Time zone</string>
-    <string name="csv_count">Count</string>
-    <string name="csv_round">Round</string>
-    <string name="csv_chosen_day">Day chosen after midnight</string>
-    <string name="csv_display_name">Display name</string>
-    <string name="csv_friends_since">Friends since</string>
-    <string name="csv_code">Friendship code</string>
-    <string name="csv_kind">Made or redeemed</string>
-    <string name="csv_created">Created</string>
-    <string name="csv_expires">Expires</string>
-    <string name="csv_revoked">Revoked</string>
-    <string name="csv_redemptions">Redeemed</string>
-    <string name="csv_person">Person</string>
-    <string name="csv_reason">Reason</string>
-    <string name="csv_device">Device</string>
-    <string name="csv_key_storage">Key storage</string>
+    <plurals name="ex_n_passkeys">
+        <item quantity="one">%1$s passkey</item>
+        <item quantity="other">%1$s passkeys</item>
+    </plurals>
+    <plurals name="ex_n_practices">
+        <item quantity="one">%1$s practice</item>
+        <item quantity="other">%1$s practices</item>
+    </plurals>
+    <plurals name="ex_unreadable">
+        <item quantity="one">%1$s sealed session could not be opened on this phone, so it is only in the JSON export.</item>
+        <item quantity="other">%1$s sealed sessions could not be opened on this phone, so they are only in the JSON export.</item>
+    </plurals>
+    <plurals name="ex_n_sessions">
+        <item quantity="one">%1$s session</item>
+        <item quantity="other">%1$s sessions</item>
+    </plurals>
+    <string name="ex_a_friend">A friend</string>
+    <string name="ex_account">Account</string>
+    <string name="ex_account_created">Account created</string>
+    <string name="ex_added_x">Added %1$s</string>
+    <string name="ex_added_last_used">Added %1$s, last used %2$s</string>
+    <string name="ex_archived">Archived</string>
+    <string name="ex_count">Count</string>
+    <string name="ex_counted_for">Counted for</string>
+    <string name="ex_privacy_plain_covers">Cover photos for practices never leave your phone.</string>
+    <string name="ex_created">Created</string>
+    <string name="ex_day">Day</string>
+    <string name="ex_day_chosen_after_midnight">Day chosen after midnight</string>
+    <string name="ex_day_counted">Day counted</string>
+    <string name="ex_device">Device</string>
+    <string name="ex_devices">Devices</string>
+    <string name="ex_display_name">Display name</string>
+    <string name="ex_done">Done</string>
+    <string name="ex_title">Duongöndro: your data</string>
+    <string name="ex_e_mail">E-mail</string>
+    <string name="ex_footer">Every practice, session and streak, and everything the server keeps about your account. Your counts are decrypted on this phone and are readable in the file; the server never sees them. PDF to read and print, JSON for everything machine-readable, CSV as a ZIP with one table per kind of data.</string>
+    <string name="ex_expires">Expires</string>
+    <string name="ex_export">Export</string>
+    <string name="ex_export_all_my_data_as_csv">Export all my data as CSV</string>
+    <string name="ex_export_all_my_data_as_json">Export all my data as JSON</string>
+    <string name="ex_export_all_my_data_as_pdf">Export all my data as PDF</string>
+    <string name="ex_export_my_data_first">Export my data first</string>
+    <string name="ex_exported">Exported %1$s · Android %2$s</string>
+    <string name="ex_female">Female</string>
+    <string name="ex_friends">Friends</string>
+    <string name="ex_friends_since">Friends since</string>
+    <string name="ex_friendship_code">Friendship code</string>
+    <string name="ex_gender">Gender</string>
+    <string name="ex_hardware_key">Hardware key</string>
+    <string name="ex_key_storage">Key storage</string>
+    <string name="ex_longest">Longest</string>
+    <string name="ex_made_or_redeemed">Made or redeemed</string>
+    <string name="ex_mala_size">Mala size</string>
+    <string name="ex_male">Male</string>
+    <string name="ex_name">Name</string>
+    <string name="ex_no">No</string>
+    <string name="ex_no_friends_yet">No friends yet.</string>
+    <string name="ex_no_online_account">No online account</string>
+    <string name="ex_local_mode">No online account: everything below is on this phone only.</string>
+    <string name="ex_no_sessions_yet">No sessions yet.</string>
+    <string name="ex_non_binary">Non-binary</string>
+    <string name="ex_not_given">Not given</string>
+    <string name="ex_server_nothing">Nothing: this phone has no online account.</string>
+    <string name="ex_page_n_of_n">Page %1$s of %2$s</string>
+    <string name="ex_passkeys">Passkeys</string>
+    <string name="ex_person">Person</string>
+    <string name="ex_practice">Practice</string>
+    <string name="ex_practices">Practices</string>
+    <string name="ex_public">Public</string>
+    <string name="ex_reason">Reason</string>
+    <string name="ex_redeemed">Redeemed</string>
+    <string name="ex_revoked">Revoked</string>
+    <string name="ex_round">Round</string>
+    <string name="ex_second_name">Second name</string>
+    <string name="ex_sessions">Sessions</string>
+    <string name="ex_software_key">Software key</string>
+    <string name="ex_start">Start</string>
+    <string name="ex_started">Started</string>
+    <string name="ex_streak">Streak</string>
+    <string name="ex_streak_only">Streak only</string>
+    <string name="ex_target">Target</string>
+    <string name="ex_privacy_sealed_after">The keys that open them stay on your devices. The server never receives a plaintext count or a key, and signing in does not give it one.</string>
+    <string name="ex_privacy_plain_limit">The last item is a real limit. These times and sizes can show when you practise, even for a private streak.</string>
+    <string name="ex_privacy_encrypted_intro">The server has to read these to do its job, for example to show your name to your friends or to send a notification. It keeps them encrypted in its database, with a key held outside the database, so a copy of the database or a backup does not reveal them:</string>
+    <string name="ex_privacy_sealed_intro">These are sealed on your device before they are uploaded. The server stores them and cannot read them:</string>
+    <string name="ex_server_unreachable">This phone has an account, but the server could not be reached, so this section and Friends hold only what the phone knows. Export again when you are connected.</string>
+    <string name="ex_time_zone">Time zone</string>
+    <string name="ex_total">Total</string>
+    <string name="ex_trusted_execution_environment_key">Trusted execution environment key (TEE)</string>
+    <string name="ex_privacy_encrypted_after">Unlike your practice data, these can be read by the running server while it works with them.</string>
+    <string name="ex_username">Username</string>
+    <string name="ex_privacy_sealed_title">What is end-to-end encrypted</string>
+    <string name="ex_privacy_encrypted_title">What the server encrypts</string>
+    <string name="ex_what_the_server_keeps">What the server keeps</string>
+    <string name="ex_privacy_plain_title">What the server stores in plain form</string>
+    <string name="ex_yes">Yes</string>
+    <string name="ex_privacy_sealed_2">counts, rounds and totals</string>
+    <string name="ex_privacy_plain_6">for a streak you publish, when it runs out, so the server can remind you in time, and how many times it has been updated</string>
+    <string name="ex_privacy_plain_3">for each friend, whether you asked to hear when they practise</string>
+    <string name="ex_privacy_sealed_4">imported streak seeds</string>
+    <string name="ex_privacy_sealed_1">practice sessions, including the day, the duration and your notes</string>
+    <string name="ex_privacy_encrypted_7">push notification tokens</string>
+    <string name="ex_privacy_sealed_3">targets</string>
+    <string name="ex_privacy_plain_1">that your account exists, as a random number</string>
+    <string name="ex_privacy_encrypted_4">the Apple or Google account your sign-in is linked to</string>
+    <string name="ex_privacy_encrypted_6">the public keys of your account, your devices and your passkeys</string>
+    <string name="ex_privacy_encrypted_8">the text of any report you send</string>
+    <string name="ex_privacy_plain_7">when each thing was written and last changed, and how large each sealed blob is; for a practice session, also when your phone logged it and last changed or deleted it, by the phone\'s clock, even if it synced later</string>
+    <string name="ex_privacy_plain_4">whether and when you set up a recovery key</string>
+    <string name="ex_privacy_plain_2">which accounts are friends, and who invited, blocked, poked or reported whom, as links between those numbers</string>
+    <string name="ex_privacy_plain_5">which kinds of sign-in, notification service and device key storage you use, for example a passkey on an Android phone</string>
+    <string name="ex_privacy_encrypted_1">your display name, and your grammatical gender if you give it</string>
+    <string name="ex_privacy_encrypted_2">your e-mail address, if you sign in with one; an account with only a passkey has none</string>
+    <string name="ex_privacy_encrypted_5">your streaks, only for practices where you chose to publish them</string>
+    <string name="ex_privacy_encrypted_3">your username, if you chose one; it names your passkey and friends do not see it</string>
 </resources>

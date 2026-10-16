@@ -202,8 +202,6 @@
     <!-- Your data -->
     <string name="section_your_data">Your data</string>
     <string name="export_and_delete">Export and delete</string>
-    <string name="export_all">Export all my data</string>
-    <string name="export_footer">One ZIP with every practice, session and streak, readable without this app.</string>
     <string name="export_failed">Export failed</string>
     <string name="export_server_missing">Your account data could not be fetched from the server, so the export holds only what is on this phone.</string>
     <string name="delete_everything">Delete everything</string>

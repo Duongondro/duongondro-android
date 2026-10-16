@@ -21,8 +21,8 @@ import java.util.UUID
  */
 enum class ExportFormat(val mime: String) {
     PDF("application/pdf"),
-    CSV("application/zip"),
-    JSON("application/zip");
+    JSON("application/zip"),
+    CSV("application/zip");
 
     fun fileName(now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()): String {
         val day = civilDate(now, zone)
@@ -49,7 +49,7 @@ object ExportFiles {
         return ExportContent.build(
             practices = s.practices, sessions = s.sessions, seeds = s.seeds, publicPractices = s.publicPractices, defaultMalaSize = s.preferences.malaSize,
             account = account, server = server?.let { ServerAccount.parse(it.account) }, cachedFriends = cachedFriends,
-            now = now, zone = zone, names = { it.shownNames(context) },
+            now = now, zone = zone, names = { it.shownNames(context) }, unreadable = (server?.unreadable ?: 0) + (server?.refused ?: 0),
         )
     }
 
@@ -60,33 +60,8 @@ object ExportFiles {
     }
 
     fun csv(context: Context, content: ExportContent, now: Instant = Instant.now()): ByteArray =
-        CsvExport.zip(content, { context.getString(header(it)) }, now)
+        CsvExport.zip(content, { context.getString(header(it)) }, now, aFriend = context.getString(R.string.ex_a_friend))
 
-    /** Each CSV column's header in the app's language. */
-    fun header(column: CsvExport.Column): Int = when (column) {
-        CsvExport.Column.PRACTICE -> R.string.csv_practice
-        CsvExport.Column.SECOND_NAME -> R.string.csv_second_name
-        CsvExport.Column.TARGET -> R.string.csv_target
-        CsvExport.Column.MALA_SIZE -> R.string.csv_mala_size
-        CsvExport.Column.STREAK_ONLY -> R.string.csv_streak_only
-        CsvExport.Column.ARCHIVED -> R.string.csv_archived
-        CsvExport.Column.DAY_COUNTED -> R.string.csv_day_counted
-        CsvExport.Column.START -> R.string.csv_start
-        CsvExport.Column.TIME_ZONE -> R.string.csv_time_zone
-        CsvExport.Column.COUNT -> R.string.csv_count
-        CsvExport.Column.ROUND -> R.string.csv_round
-        CsvExport.Column.CHOSEN_DAY -> R.string.csv_chosen_day
-        CsvExport.Column.DISPLAY_NAME -> R.string.csv_display_name
-        CsvExport.Column.FRIENDS_SINCE -> R.string.csv_friends_since
-        CsvExport.Column.CODE -> R.string.csv_code
-        CsvExport.Column.KIND -> R.string.csv_kind
-        CsvExport.Column.CREATED -> R.string.csv_created
-        CsvExport.Column.EXPIRES -> R.string.csv_expires
-        CsvExport.Column.REVOKED -> R.string.csv_revoked
-        CsvExport.Column.REDEMPTIONS -> R.string.csv_redemptions
-        CsvExport.Column.PERSON -> R.string.csv_person
-        CsvExport.Column.REASON -> R.string.csv_reason
-        CsvExport.Column.DEVICE -> R.string.csv_device
-        CsvExport.Column.KEY_STORAGE -> R.string.csv_key_storage
-    }
+    /** Each CSV column's header in the app's language, as iOS words it. */
+    fun header(column: CsvExport.Column): Int = ExportStrings.words.getValue(column.english)
 }

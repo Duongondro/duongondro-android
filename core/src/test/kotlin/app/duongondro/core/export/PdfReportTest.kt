@@ -8,63 +8,70 @@ import java.time.format.DateTimeFormatter
 class PdfReportTest {
     private val text = PdfText(
         title = "Duongöndro: your data", meta = "Exported", footer = "duongondro.app/privacy", page = { p, n -> "Page $p of $n" },
-        number = { "%,d".format(it) }, date = { it.toString().take(10) }, day = { it.toString() },
+        number = { "%,d".format(it) }, date = { at, _ -> at?.toString()?.take(10) ?: "–" }, day = { d, _ -> d.toString() },
         time = { at, zone -> at.atZone(zone).format(DateTimeFormatter.ofPattern("HH:mm")) },
-        none = "—", yes = "yes", no = "no",
-        accountTitle = "Account", displayName = "Display name", username = "Username", gender = "Gender", email = "E-mail",
-        accountCreated = "Created", passkeys = "Passkeys", devices = "Devices", notGiven = "not given", localMode = "Local mode",
-        serverMissing = "Not fetched", genderName = { it }, passkeyValue = { c, u -> "added $c" + (u?.let { ", used $it" } ?: "") },
-        deviceValue = { tier, added -> "$tier, added $added" },
-        practicesTitle = "Practices", practicesCount = { "$it practices" }, practiceColumn = "Practice", totalColumn = "Total",
-        targetColumn = "Target", roundColumn = "Round", streakColumn = "Streak", publicColumn = "Public", archived = "archived",
-        streakValue = { c, l -> "$c days · longest $l" },
-        sessionsTitle = "Sessions", sessionsCount = { "$it sessions" }, dayColumn = "Day", startedColumn = "Started",
-        countColumn = "Count", countedForColumn = "Counted for", done = "done", noSessions = "No sessions.",
-        friendsTitle = "Friends", friendsCount = { "$it friends" }, friendColumn = "Friend", sinceColumn = "Since", noFriends = "No friends.",
-        serverTitle = "What the server keeps", serverParagraphs = listOf("Sealed.", "Encrypted.", "Plain."),
+        word = { it }, plural = { key, n -> key.replace("%lld", "$n") },
+        genderName = { it ?: "Not given" }, tierName = { it }, added = { c, u -> "Added $c" + (u?.let { ", last used $it" } ?: "") },
+        continued = { "$it (continued)" },
     )
 
-    @Test fun sectionsInTheDocsOrder() {
-        val report = PdfReport.build(ExportFixtures.content(), text)
+    private fun headings(r: Report) = r.blocks.filterIsInstance<ReportBlock.Heading>().map { it.title }
+    private fun tables(r: Report) = r.blocks.filterIsInstance<ReportBlock.Table>()
+
+    @Test fun sectionsAsIos() {
         assertEquals(
             listOf("1. Account", "2. Practices", "3. Sessions · Dorje Sempa", "3. Sessions · Chenrezig", "4. Friends", "5. What the server keeps"),
-            report.sections.map { it.title },
+            headings(PdfReport.build(ExportFixtures.content(), text)),
         )
     }
 
     @Test fun practicesRows() {
-        val table = PdfReport.build(ExportFixtures.content(), text).sections[1] as ReportSection.Table
-        val rows = table.groups.map { it.single() }
-        assertEquals(listOf("Dorje Sempa\nDiamond Mind", "111,219", "111,111", "2", "0 days · longest 1", "yes"), rows[0])
-        assertEquals("—", rows[1][1])
-        assertEquals("'=cmd|' /C calc'!A0".drop(1) + "\narchived", rows[2][0])
+        val rows = tables(PdfReport.build(ExportFixtures.content(), text))[0].rows.map { it.cells }
+        assertEquals(listOf(Cell("Dorje Sempa", "Diamond Mind"), Cell("111,219"), Cell("111,111"), Cell("2", "108"), Cell("0 days"),
+            Cell("1 days"), Cell("Yes")), rows[0])
+        assertEquals(Cell("Streak only"), rows[1][1])
+        assertEquals("Archived", rows[2][0].second)
     }
 
     @Test fun sessionsGroupedByDayWithTheCountedForDay() {
-        val table = PdfReport.build(ExportFixtures.content(), text).sections[2] as ReportSection.Table
-        assertEquals("3 sessions", table.detail)
-        assertEquals(2, table.groups.size)
-        assertEquals(listOf("2026-10-13", "06:40", "1,000", "1", ""), table.groups[0][0])
-        assertEquals(listOf("", "07:05", "111", "1", ""), table.groups[0][1])
-        assertEquals(listOf("2026-10-14", "00:20", "108", "2", "2026-10-13"), table.groups[1][0])
-        val chenrezig = PdfReport.build(ExportFixtures.content(), text).sections[3] as ReportSection.Table
-        assertEquals("done", chenrezig.groups[0][0][2])
+        val r = PdfReport.build(ExportFixtures.content(), text)
+        val dorje = tables(r)[1].rows
+        assertEquals(listOf("2026-10-13", "06:40", "1,000", "1", ""), dorje[0].cells.map { it.main })
+        assertEquals(listOf("", "07:05", "111", "1", ""), dorje[1].cells.map { it.main })
+        assertEquals(listOf("2026-10-14", "00:20", "108", "2", "2026-10-13"), dorje[2].cells.map { it.main })
+        assertEquals(dorje[0].group, dorje[1].group)
+        assertTrue(dorje[1].group != dorje[2].group)
+        assertEquals("Done", tables(r)[2].rows[0].cells[2].main)
+        assertEquals("3 sessions", r.blocks.filterIsInstance<ReportBlock.Heading>()[2].detail)
     }
 
     @Test fun localModeSaysSo() {
-        val content = ExportFixtures.content(withServer = false).copy(account = null)
-        val report = PdfReport.build(content, text)
-        val account = report.sections[0] as ReportSection.Facts
-        assertEquals(listOf("Account" to "Local mode"), account.pairs)
-        val friends = report.sections.first { it.title == "4. Friends" } as ReportSection.Table
-        assertEquals("Local mode", friends.empty)
-        assertTrue(friends.groups.isEmpty())
+        val r = PdfReport.build(ExportFixtures.content(withServer = false).copy(account = null), text)
+        val paragraphs = r.blocks.filterIsInstance<ReportBlock.Paragraph>().map { it.text }
+        assertTrue("No online account: everything below is on this phone only." in paragraphs)
+        assertTrue("No online account" in paragraphs)
+        assertTrue("Nothing: this phone has no online account." in paragraphs)
+    }
+
+    @Test fun unreachableServerSaysSo() {
+        val r = PdfReport.build(ExportFixtures.content(withServer = false), text)
+        assertTrue(r.blocks.any { it is ReportBlock.Paragraph && it.text == PdfReport.SERVER_UNREACHABLE })
+        assertTrue(r.blocks.none { it is ReportBlock.Pair && it.label == "Passkeys" })
     }
 
     @Test fun accountListsPasskeysAndDevices() {
-        val account = PdfReport.build(ExportFixtures.content(), text).sections[0] as ReportSection.Facts
-        assertTrue("Passkeys" to "added 2026-10-02" in account.pairs)
-        assertTrue("Devices" to "hardware, added 2026-10-01" in account.pairs)
-        assertTrue("Display name" to "Tidy Raccoon" in account.pairs)
+        val pairs = PdfReport.build(ExportFixtures.content(), text).blocks.filterIsInstance<ReportBlock.Pair>().associate { it.label to it.value }
+        assertEquals("1 passkeys\nAdded 2026-10-02", pairs["Passkeys"])
+        assertEquals("1 devices\nhardware · Added 2026-10-01", pairs["Devices"])
+        assertEquals("Tidy Raccoon", pairs["Display name"])
+        assertEquals("–", pairs["Username"])
+    }
+
+    @Test fun theServerListsInFull() {
+        val bullets = PdfReport.build(ExportFixtures.content(), text).blocks.filterIsInstance<ReportBlock.Paragraph>().filter { it.bullet }
+        assertEquals(PdfReport.PRIVACY.sumOf { it.items.size }, bullets.size)
+        val paragraphs = PdfReport.build(ExportFixtures.content(), text).blocks.filterIsInstance<ReportBlock.Paragraph>().map { it.text }
+        assertTrue("The last item is a real limit. These times and sizes can show when you practise, even for a private streak." in paragraphs)
+        assertEquals("Dorje Sempa (continued)", (PdfReport.build(ExportFixtures.content(), text).blocks.filterIsInstance<ReportBlock.Table>()[1]).continued)
     }
 }

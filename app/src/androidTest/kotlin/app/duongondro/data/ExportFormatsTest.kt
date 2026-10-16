@@ -92,7 +92,7 @@ class ExportFormatsTest {
         val csv = ExportFiles.csv(localized, content, now)
         val names = mutableListOf<String>()
         ZipInputStream(ByteArrayInputStream(csv)).use { z -> while (true) names += (z.nextEntry ?: break).name }
-        assertEquals(7, names.size)
+        assertEquals(8, names.size) // README.txt and seven tables
         File(folder, "export-$tag-csv.zip").writeBytes(csv)
         val json = DataExport.zip(snapshot, server, appVersion = "0.4", now = now)
         File(folder, "export-$tag-json.zip").writeBytes(json)

@@ -47,6 +47,7 @@ class PdfExport(private val context: Context) {
         ReportFont.PLEX_BOLD -> ResourcesCompat.getFont(context, R.font.ibm_plex_sans_bold)
         ReportFont.PLEX_SEMIBOLD -> ResourcesCompat.getFont(context, R.font.ibm_plex_sans_semibold)
         ReportFont.SYSTEM -> null
+        ReportFont.SYSTEM_SEMIBOLD -> Typeface.create(Typeface.SANS_SERIF, 600, false)
     } ?: Typeface.SANS_SERIF
 
     /** Lays [report] out and writes it to [out]; returns the number of pages. */
@@ -54,7 +55,7 @@ class PdfExport(private val context: Context) {
         val measure = object : TextMeasure {
             override fun width(text: String, style: ReportStyle) = paints.getValue(style).measureText(text)
             override fun ascent(style: ReportStyle) = -paints.getValue(style).fontMetrics.ascent
-            override fun lineHeight(style: ReportStyle) = paints.getValue(style).fontMetrics.let { it.descent - it.ascent } * 1.12f
+            override fun lineHeight(style: ReportStyle) = paints.getValue(style).fontMetrics.let { it.descent - it.ascent } * 1.15f
         }
         val pages = ReportLayout(measure).pages(report)
         val document = PdfDocument()
@@ -65,6 +66,9 @@ class PdfExport(private val context: Context) {
                 val canvas = pdfPage.canvas
                 for (draw in page.draws) {
                     when (draw) {
+                        is Draw.Rect -> canvas.drawRect(draw.x, draw.y, draw.x + draw.width, draw.y + draw.height, Paint().apply {
+                            color = draw.color.argb.toInt(); style = Paint.Style.FILL
+                        })
                         is Draw.Line -> canvas.drawLine(draw.x1, draw.y1, draw.x2, draw.y2, Paint(Paint.ANTI_ALIAS_FLAG).apply {
                             color = draw.color.argb.toInt(); style = Paint.Style.STROKE; strokeWidth = draw.thickness
                         })
@@ -86,11 +90,11 @@ class PdfExport(private val context: Context) {
 
     companion object {
         /**
-         * The export's words from the app's resources, in the app's language ([context]
-         * carries it), with the locale's number and date formats. [version] is
-         * "0.4 (12) · 3f9c2e1", what Settings shows.
+         * The export's words from the app's resources (iOS's Export.xcstrings, through
+         * strings_export.xml), in the app's language ([context] carries it), with the locale's
+         * number and date formats. [build] is "0.4 (12) · 3f9c2e1".
          */
-        fun text(context: Context, version: String, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()): PdfText {
+        fun text(context: Context, build: String, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()): PdfText {
             val r = context.resources
             val locale: Locale = r.configuration.locales[0]
             val numbers = NumberFormat.getIntegerInstance(locale)
@@ -99,52 +103,38 @@ class PdfExport(private val context: Context) {
             val dateTime = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withLocale(locale)
             val day = DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEdMMMyyyy"), locale)
             val time = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale)
-            fun s(id: Int, vararg args: Any) = context.getString(id, *args)
-            fun p(id: Int, count: Int) = r.getQuantityString(id, count, n(count))
+            fun word(key: String): String = context.getString(ExportStrings.words[key] ?: error("no string for \"$key\""))
             return PdfText(
-                title = s(R.string.pdf_title),
-                meta = s(R.string.pdf_exported, dateTime.format(now.atZone(zone))) + " · " + s(R.string.pdf_build, version),
-                footer = s(R.string.pdf_footer),
-                page = { page, of -> s(R.string.pdf_page, n(page), n(of)) },
+                title = word("Duongöndro: your data"),
+                meta = context.getString(R.string.ex_exported, dateTime.format(now.atZone(zone)), build),
+                footer = context.getString(R.string.ex_footer_url),
+                page = { page, of -> context.getString(R.string.ex_page_n_of_n, n(page), n(of)) },
                 number = ::n,
-                date = { date.format(it.atZone(zone)) },
-                day = { day.format(it) },
+                date = { at, withTime -> at?.let { (if (withTime) dateTime else date).format(it.atZone(zone)) } ?: context.getString(R.string.ex_dash) },
+                day = { d, z -> day.format(d.atStartOfDay(z).plusHours(12)) },
                 time = { at, z -> time.format(at.atZone(z)) },
-                none = s(R.string.pdf_none), yes = s(R.string.pdf_yes), no = s(R.string.pdf_no),
-                accountTitle = s(R.string.pdf_account), displayName = s(R.string.pdf_display_name), username = s(R.string.pdf_username),
-                gender = s(R.string.pdf_gender), email = s(R.string.pdf_email), accountCreated = s(R.string.pdf_account_created),
-                passkeys = s(R.string.pdf_passkeys), devices = s(R.string.pdf_devices), notGiven = s(R.string.pdf_not_given),
-                localMode = s(R.string.pdf_local_mode), serverMissing = s(R.string.pdf_server_missing),
+                word = ::word,
+                plural = { key, count -> r.getQuantityString(ExportStrings.plurals[key] ?: error("no plural for \"$key\""), count, n(count)) },
                 genderName = { g ->
                     when (g) {
-                        "male" -> s(R.string.gender_male)
-                        "female" -> s(R.string.gender_female)
-                        "nonbinary" -> s(R.string.gender_nonbinary)
-                        else -> g
+                        "male" -> word("Male")
+                        "female" -> word("Female")
+                        "nonbinary" -> word("Non-binary")
+                        else -> word("Not given")
                     }
                 },
-                passkeyValue = { created, used -> if (used == null) s(R.string.pdf_passkey_added, created) else s(R.string.pdf_passkey_used, created, used) },
-                deviceValue = { tier, added ->
-                    val name = when (tier) {
-                        "hardware" -> s(R.string.pdf_tier_hardware)
-                        "tee" -> s(R.string.pdf_tier_tee)
-                        "software" -> s(R.string.pdf_tier_software)
+                tierName = { tier ->
+                    when (tier) {
+                        "hardware" -> word("Hardware key")
+                        "tee" -> word("Trusted execution environment key")
+                        "software" -> word("Software key")
                         else -> tier
                     }
-                    s(R.string.pdf_device, name, added)
                 },
-                practicesTitle = s(R.string.pdf_practices), practicesCount = { p(R.plurals.pdf_practices_count, it) },
-                practiceColumn = s(R.string.pdf_practice), totalColumn = s(R.string.pdf_total), targetColumn = s(R.string.pdf_target),
-                roundColumn = s(R.string.pdf_round), streakColumn = s(R.string.pdf_streak), publicColumn = s(R.string.pdf_public),
-                archived = s(R.string.pdf_archived),
-                streakValue = { current, longest -> r.getQuantityString(R.plurals.pdf_streak_value, current, n(current), n(longest)) },
-                sessionsTitle = s(R.string.pdf_sessions), sessionsCount = { p(R.plurals.pdf_sessions_count, it) },
-                dayColumn = s(R.string.pdf_day), startedColumn = s(R.string.pdf_started), countColumn = s(R.string.pdf_count),
-                countedForColumn = s(R.string.pdf_counted_for), done = s(R.string.pdf_done), noSessions = s(R.string.pdf_no_sessions),
-                friendsTitle = s(R.string.pdf_friends), friendsCount = { p(R.plurals.pdf_friends_count, it) },
-                friendColumn = s(R.string.pdf_friend), sinceColumn = s(R.string.pdf_since), noFriends = s(R.string.pdf_no_friends),
-                serverTitle = s(R.string.pdf_server),
-                serverParagraphs = listOf(s(R.string.pdf_server_sealed), s(R.string.pdf_server_encrypted), s(R.string.pdf_server_plain)),
+                added = { created, used ->
+                    if (used == null) context.getString(R.string.ex_added_x, created) else context.getString(R.string.ex_added_last_used, created, used)
+                },
+                continued = { context.getString(R.string.ex_continued, it) },
             )
         }
     }

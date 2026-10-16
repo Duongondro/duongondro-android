@@ -201,8 +201,6 @@
     <!-- Your data -->
     <string name="section_your_data">Tes données</string>
     <string name="export_and_delete">Exporter et supprimer</string>
-    <string name="export_all">Exporter toutes mes données</string>
-    <string name="export_footer">Un seul ZIP avec chaque pratique, séance et série, lisible sans cette app.</string>
     <string name="export_failed">L\'export a échoué</string>
     <string name="export_server_missing">Les données de ton compte n\'ont pas pu être récupérées sur le serveur ; l\'export ne contient donc que ce qui se trouve sur ce téléphone.</string>
     <string name="delete_everything">Tout supprimer</string>
