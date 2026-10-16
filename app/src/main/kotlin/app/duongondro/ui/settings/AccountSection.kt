@@ -47,8 +47,10 @@ fun AccountSection(
     openNewAccount: () -> Unit,
     openRecoveryCode: () -> Unit,
     openInvite: () -> Unit,
+    openPasskeys: () -> Unit = {},
 ) {
     val state by accounts.state.collectAsStateWithLifecycle()
+    val passkeys by accounts.passkeys.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var naming by remember { mutableStateOf(false) }
     var replacing by remember { mutableStateOf(false) }
@@ -82,6 +84,8 @@ fun AccountSection(
                 state.offline -> stringResource(R.string.sync_offline)
                 else -> null
             }
+            // The retrofit card: a calm moment, never over a count.
+            if (passkeys.offerUnlock) UnlockCard(accounts)
             CardSection(stringResource(R.string.section_account), footer) {
                 (state.email ?: state.username)?.let {
                     ListRow(stringResource(R.string.account_signed_in_as), detail = it)
@@ -90,6 +94,8 @@ fun AccountSection(
                 ListRow(stringResource(R.string.invite_someone), titleColor = Theme.colors.accent, semibold = true, chevron = true, onClick = openInvite)
                 RowDivider()
                 ListRow(stringResource(R.string.account_name), detail = state.displayName, chevron = true, onClick = { naming = true })
+                RowDivider()
+                ListRow(stringResource(R.string.passkeys_title), chevron = true, onClick = openPasskeys)
                 RowDivider()
                 ListRow(stringResource(R.string.recovery_code),
                     detail = stringResource(if (state.recoveryUnconfirmed) R.string.recovery_not_confirmed else R.string.recovery_make_new),

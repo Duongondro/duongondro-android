@@ -383,4 +383,31 @@
     <string name="usual_body">Zwykle siadasz do praktyki %s mniej więcej o tej porze.</string>
     <string name="usual_body_discreet">Zwykle siadasz do praktyki mniej więcej o tej porze.</string>
     <string name="server">Serwer</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Klucze dostępu</string>
+    <string name="passkeys_detail">Każdy klucz dostępu loguje Cię do tego konta. Nazwy są tylko dla Ciebie.</string>
+    <string name="passkey_default_name">Klucz dostępu</string>
+    <string name="passkey_added">Dodany %1$s</string>
+    <string name="passkey_added_used">Dodany %1$s · ostatnio użyty %2$s</string>
+    <string name="passkey_today">dziś</string>
+    <string name="passkey_unlocks">Odblokowuje Twoje liczniki na nowym telefonie</string>
+    <string name="passkey_add">Dodaj klucz dostępu</string>
+    <string name="passkey_unavailable_add">Ten telefon nie może utworzyć klucza dostępu.</string>
+    <string name="passkey_rename_title">Nazwij ten klucz dostępu</string>
+    <string name="passkey_rename_named">Zmień nazwę: %1$s</string>
+    <string name="passkey_remove_named">Usuń: %1$s</string>
+    <string name="passkey_remove_title">Usunąć „%1$s”?</string>
+    <string name="passkey_remove_detail">Nie będzie już logować, a wszędzie, gdzie jest nim teraz zalogowany, nastąpi wylogowanie. Sam klucz zostaje w menedżerze haseł, dopóki go tam nie usuniesz.</string>
+    <string name="passkey_remove_current">Ten telefon zalogował się nim, więc tutaj też nastąpi wylogowanie. Twoje liczniki na nim zostaną.</string>
+    <string name="passkey_remove">Usuń</string>
+    <string name="passkey_last_way">To Twój jedyny sposób logowania. Najpierw dodaj inny klucz dostępu lub adres e-mail.</string>
+    <string name="passkey_other_account">Ten klucz dostępu należy do innego konta.</string>
+    <string name="unlock_card_title">Pozwól kluczowi dostępu odblokować Twoje liczniki na nowym telefonie</string>
+    <string name="unlock_card_detail">Zaloguj się kluczem dostępu na nowym telefonie, a Twoje liczniki wrócą bez kodu odzyskiwania. Wystarczy raz odcisk palca albo blokada ekranu.</string>
+    <string name="unlock_card_action">Użyj mojego klucza</string>
+    <string name="unlock_card_later">Nie teraz</string>
+    <string name="unlock_card_no_output">Ten klucz dostępu nie może odblokować Twoich liczników. Nowy klucz może; stary nadal Cię loguje.</string>
+    <string name="unlock_card_new_passkey">Zapisz nowy klucz dostępu</string>
+    <string name="recovery_detail_passkey">Twój klucz dostępu może przenieść liczniki na nowy telefon. Ten kod to droga z powrotem bez niego, gdyby menedżer haseł przepadł. Nikt inny go nie ma, nawet my.</string>
 </resources>

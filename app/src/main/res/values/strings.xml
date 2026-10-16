@@ -373,4 +373,31 @@
     <string name="usual_body">You usually sit down for %s around now.</string>
     <string name="usual_body_discreet">You usually sit down around now.</string>
     <string name="server">Server</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Passkeys</string>
+    <string name="passkeys_detail">Each passkey signs you in to this account. Names are only for you.</string>
+    <string name="passkey_default_name">Passkey</string>
+    <string name="passkey_added">Added %1$s</string>
+    <string name="passkey_added_used">Added %1$s · last used %2$s</string>
+    <string name="passkey_today">today</string>
+    <string name="passkey_unlocks">Unlocks your counts on a new phone</string>
+    <string name="passkey_add">Add a passkey</string>
+    <string name="passkey_unavailable_add">This phone can\'t make a passkey.</string>
+    <string name="passkey_rename_title">Name this passkey</string>
+    <string name="passkey_rename_named">Rename %1$s</string>
+    <string name="passkey_remove_named">Remove %1$s</string>
+    <string name="passkey_remove_title">Remove “%1$s”?</string>
+    <string name="passkey_remove_detail">It can no longer sign you in, and anywhere it is signed in now is signed out. The passkey itself stays in your password manager until you delete it there.</string>
+    <string name="passkey_remove_current">This phone signed in with it, so it is signed out here too. Your counts stay on it.</string>
+    <string name="passkey_remove">Remove</string>
+    <string name="passkey_last_way">This is your only way to sign in. Add another passkey or an email address first.</string>
+    <string name="passkey_other_account">That passkey belongs to another account.</string>
+    <string name="unlock_card_title">Let your passkey unlock your counts on a new phone</string>
+    <string name="unlock_card_detail">Sign in with your passkey on a new phone and your counts come back without the recovery code. It takes one fingerprint or screen lock.</string>
+    <string name="unlock_card_action">Use my passkey</string>
+    <string name="unlock_card_later">Not now</string>
+    <string name="unlock_card_no_output">This passkey can\'t unlock your counts. A new passkey can; the old one keeps signing you in.</string>
+    <string name="unlock_card_new_passkey">Save a new passkey</string>
+    <string name="recovery_detail_passkey">Your passkey can bring your counts to a new phone. This code is the way back without it, if you lose your password manager. Nobody else has it, not even us.</string>
 </resources>

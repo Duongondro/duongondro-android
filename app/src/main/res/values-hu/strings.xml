@@ -354,4 +354,31 @@
     <string name="usual_body">Ilyenkor szoktál leülni ehhez: %s.</string>
     <string name="usual_body_discreet">Ilyenkor szoktál leülni gyakorolni.</string>
     <string name="server">Szerver</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Hozzáférési kulcsok</string>
+    <string name="passkeys_detail">Mindegyik hozzáférési kulcs ebbe a fiókba jelentkeztet be. A neveket csak te látod.</string>
+    <string name="passkey_default_name">Hozzáférési kulcs</string>
+    <string name="passkey_added">Hozzáadva: %1$s</string>
+    <string name="passkey_added_used">Hozzáadva: %1$s · utoljára használva: %2$s</string>
+    <string name="passkey_today">ma</string>
+    <string name="passkey_unlocks">Új telefonon is feloldja a számlálóidat</string>
+    <string name="passkey_add">Hozzáférési kulcs hozzáadása</string>
+    <string name="passkey_unavailable_add">Ez a telefon nem tud hozzáférési kulcsot létrehozni.</string>
+    <string name="passkey_rename_title">Nevezd el ezt a hozzáférési kulcsot</string>
+    <string name="passkey_rename_named">%1$s átnevezése</string>
+    <string name="passkey_remove_named">%1$s eltávolítása</string>
+    <string name="passkey_remove_title">Eltávolítod: „%1$s”?</string>
+    <string name="passkey_remove_detail">Többé nem tud bejelentkeztetni, és ahol most be vagy vele jelentkezve, onnan kijelentkezel. Maga a kulcs a jelszókezelődben marad, amíg ott nem törlöd.</string>
+    <string name="passkey_remove_current">Ez a telefon ezzel jelentkezett be, ezért itt is kijelentkezel. A számlálóid rajta maradnak.</string>
+    <string name="passkey_remove">Eltávolítás</string>
+    <string name="passkey_last_way">Ez az egyetlen módod a bejelentkezésre. Előbb adj hozzá egy másik hozzáférési kulcsot vagy e-mail-címet.</string>
+    <string name="passkey_other_account">Ez a hozzáférési kulcs egy másik fiókhoz tartozik.</string>
+    <string name="unlock_card_title">Hadd oldja fel a hozzáférési kulcsod a számlálóidat új telefonon</string>
+    <string name="unlock_card_detail">Jelentkezz be új telefonon a hozzáférési kulcsoddal, és a számlálóid helyreállítási kód nélkül visszajönnek. Ehhez egyetlen ujjlenyomat vagy képernyőzár elég.</string>
+    <string name="unlock_card_action">A kulcsom használata</string>
+    <string name="unlock_card_later">Most nem</string>
+    <string name="unlock_card_no_output">Ez a hozzáférési kulcs nem tudja feloldani a számlálóidat. Egy új kulcs igen; a régivel továbbra is bejelentkezhetsz.</string>
+    <string name="unlock_card_new_passkey">Új hozzáférési kulcs mentése</string>
+    <string name="recovery_detail_passkey">A hozzáférési kulcsod új telefonra is átviszi a számlálóidat. Ez a kód nélküle az út vissza, ha elveszítenéd a jelszókezelődet. Senki másnak nincs meg, még nekünk sem.</string>
 </resources>

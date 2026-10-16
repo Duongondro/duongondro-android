@@ -56,6 +56,7 @@ import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
 import app.duongondro.ui.settings.AboutScreen
+import app.duongondro.ui.settings.PasskeysScreen
 import app.duongondro.ui.settings.PracticeListScreen
 import app.duongondro.ui.settings.DeleteEverythingScreen
 import app.duongondro.ui.settings.AcceptInviteDialog
@@ -167,6 +168,7 @@ private object Routes {
     const val NEW_ACCOUNT = "settings/account/new"
     const val RECOVERY_CODE = "settings/account/recovery-code"
     const val INVITE = "settings/invite"
+    const val PASSKEYS = "settings/passkeys"
     const val FRIENDS = "friends"
     const val FRIEND = "friends/friend/{id}"
     const val FRIENDS_INVITE = "friends/invite"
@@ -211,7 +213,8 @@ private fun Home(model: AppModel) {
                 SettingsScreen(model, openPractices = { nav.navigate(Routes.PRACTICES) },
                     openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
                     openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
-                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) })
+                    openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
+                    openPasskeys = { nav.navigate(Routes.PASSKEYS) })
             }
             composable(Routes.FRIENDS) {
                 FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
@@ -236,6 +239,7 @@ private fun Home(model: AppModel) {
             composable(Routes.SIGN_IN) { OnboardingScreen(model, start = Step.SignIn) { nav.popBackStack() } }
             composable(Routes.NEW_ACCOUNT) { OnboardingScreen(model, start = Step.Consent) { nav.popBackStack() } }
             composable(Routes.INVITE) { model.accounts?.let { InviteScreen(it) { nav.popBackStack() } } }
+            composable(Routes.PASSKEYS) { model.accounts?.let { PasskeysScreen(it) { nav.popBackStack() } } }
             composable(Routes.RECOVERY_CODE) { model.accounts?.let { RecoveryCodeScreen(it) { nav.popBackStack() } } }
             composable(Routes.ARCHIVED) {
                 ArchivedScreen(model, openPractice = { nav.navigate(Routes.practiceSettings(it)) }) { nav.popBackStack() }

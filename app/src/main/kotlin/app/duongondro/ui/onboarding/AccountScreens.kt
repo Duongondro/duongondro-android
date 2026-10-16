@@ -202,7 +202,11 @@ private fun ErrorLine(text: String) {
     Text(text, style = Theme.type.footnote, color = Theme.colors.destructive)
 }
 
-/** After any sign-in or sign-up: a new account gets its keys and then its optional profile; an existing one sets up, restores, or is done. */
+/**
+ * After any sign-in or sign-up: a new account gets its keys and then its
+ * optional profile; an existing one sets up, unlocks with the passkey it signed
+ * in with, restores with the recovery code, or is done.
+ */
 private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, created: Boolean, finish: () -> Unit) {
     if (created) {
         accountMade(flow, accounts)
@@ -211,7 +215,8 @@ private suspend fun route(flow: OnboardingFlow, accounts: AccountManager, create
     when (accounts.standing()) {
         Account.Standing.READY -> finish()
         Account.Standing.SET_UP -> flow.go(Step.Recovery)
-        Account.Standing.RESTORE -> flow.go(Step.Restore)
+        // A passkey with a box brings the keys without the recovery code; otherwise the code.
+        Account.Standing.RESTORE -> if (accounts.unlockWithPasskey()) finish() else flow.go(Step.Restore)
     }
 }
 
@@ -673,7 +678,7 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
     LaunchedEffect(Unit) { makeKeys() }
     val code by accounts.shownCode.collectAsState()
     Page(
-        stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
+        stringResource(R.string.recovery_title), plain(stringResource(recoveryDetail(accounts))),
         actions = {
             CallError(call)
             CallError(setUp)
@@ -693,6 +698,14 @@ internal fun ColumnScope.RecoveryStep(flow: OnboardingFlow, accounts: AccountMan
         if (flow.newRecoveryCode) Text(stringResource(R.string.recovery_replaced), style = Theme.type.secondary, color = Theme.colors.muted)
     }
 }
+
+/**
+ * The recovery step's explanation: with a passkey that can unlock the counts
+ * (a box of U), the code is the way back without it; otherwise the only way.
+ */
+@Composable
+private fun recoveryDetail(accounts: AccountManager): Int =
+    if (accounts.passkeys.collectAsState().value.unlocks) R.string.recovery_detail_passkey else R.string.recovery_detail
 
 /** The code in groups of four, three to a row. */
 @Composable
@@ -825,7 +838,7 @@ fun RecoveryCodeScreen(accounts: AccountManager, back: () -> Unit) {
             RecoveryCheckStep(code!!, back = { m.checking = false }) { accounts.confirmRecoveryCode(); back() }
         } else {
             Page(
-                stringResource(R.string.recovery_title), plain(stringResource(R.string.recovery_detail)),
+                stringResource(R.string.recovery_title), plain(stringResource(recoveryDetail(accounts))),
                 actions = {
                     CallError(call)
                     CallError(save)

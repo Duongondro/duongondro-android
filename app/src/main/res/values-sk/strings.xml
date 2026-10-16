@@ -370,4 +370,31 @@
     <string name="usual_body">Na %s si zvyčajne sadáš okolo tejto doby.</string>
     <string name="usual_body_discreet">Okolo tejto doby si zvyčajne sadáš k meditácii.</string>
     <string name="server">Server</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Prístupové kľúče</string>
+    <string name="passkeys_detail">Každý prístupový kľúč ťa prihlási do tohto účtu. Názvy sú len pre teba.</string>
+    <string name="passkey_default_name">Prístupový kľúč</string>
+    <string name="passkey_added">Pridaný %1$s</string>
+    <string name="passkey_added_used">Pridaný %1$s · naposledy použitý %2$s</string>
+    <string name="passkey_today">dnes</string>
+    <string name="passkey_unlocks">Odomkne tvoje počty v novom telefóne</string>
+    <string name="passkey_add">Pridať prístupový kľúč</string>
+    <string name="passkey_unavailable_add">Tento telefón nevie vytvoriť prístupový kľúč.</string>
+    <string name="passkey_rename_title">Pomenuj tento prístupový kľúč</string>
+    <string name="passkey_rename_named">Premenovať %1$s</string>
+    <string name="passkey_remove_named">Odobrať %1$s</string>
+    <string name="passkey_remove_title">Odobrať „%1$s“?</string>
+    <string name="passkey_remove_detail">Už ťa neprihlási a všade, kde je ním teraz niekto prihlásený, dôjde k odhláseniu. Samotný kľúč zostane v správcovi hesiel, kým ho tam nezmažeš.</string>
+    <string name="passkey_remove_current">Tento telefón sa ním prihlásil, takže bude odhlásený aj tu. Tvoje počty v ňom zostanú.</string>
+    <string name="passkey_remove">Odobrať</string>
+    <string name="passkey_last_way">Toto je tvoj jediný spôsob prihlásenia. Najprv pridaj ďalší prístupový kľúč alebo e-mail.</string>
+    <string name="passkey_other_account">Tento prístupový kľúč patrí inému účtu.</string>
+    <string name="unlock_card_title">Nech tvoj prístupový kľúč odomkne tvoje počty v novom telefóne</string>
+    <string name="unlock_card_detail">Prihlás sa prístupovým kľúčom v novom telefóne a tvoje počty sa vrátia bez obnovovacieho kódu. Stačí raz odtlačok prsta alebo zámka obrazovky.</string>
+    <string name="unlock_card_action">Použiť môj prístupový kľúč</string>
+    <string name="unlock_card_later">Teraz nie</string>
+    <string name="unlock_card_no_output">Tento prístupový kľúč nevie odomknúť tvoje počty. Nový kľúč to vie; ten starý ťa ďalej prihlasuje.</string>
+    <string name="unlock_card_new_passkey">Uložiť nový prístupový kľúč</string>
+    <string name="recovery_detail_passkey">Tvoj prístupový kľúč vie preniesť tvoje počty do nového telefónu. Tento kód je cesta späť bez neho, keby sa správca hesiel stratil. Nikto iný ho nemá, ani my.</string>
 </resources>

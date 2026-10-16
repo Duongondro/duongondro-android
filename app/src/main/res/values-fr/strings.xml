@@ -376,4 +376,31 @@
     <string name="usual_body">D\'habitude, tu t\'installes pour %s à peu près à cette heure-ci.</string>
     <string name="usual_body_discreet">D\'habitude, tu t\'installes à peu près à cette heure-ci.</string>
     <string name="server">Serveur</string>
+
+    <!-- Passkeys in Settings and passkey unlock (design decisions 23 and 25) -->
+    <string name="passkeys_title">Clés d\'accès</string>
+    <string name="passkeys_detail">Chaque clé d\'accès te connecte à ce compte. Les noms ne sont que pour toi.</string>
+    <string name="passkey_default_name">Clé d\'accès</string>
+    <string name="passkey_added">Ajoutée le %1$s</string>
+    <string name="passkey_added_used">Ajoutée le %1$s · utilisée %2$s</string>
+    <string name="passkey_today">aujourd\'hui</string>
+    <string name="passkey_unlocks">Déverrouille tes décomptes sur un nouveau téléphone</string>
+    <string name="passkey_add">Ajouter une clé d\'accès</string>
+    <string name="passkey_unavailable_add">Ce téléphone ne peut pas créer de clé d\'accès.</string>
+    <string name="passkey_rename_title">Nomme cette clé d\'accès</string>
+    <string name="passkey_rename_named">Renommer %1$s</string>
+    <string name="passkey_remove_named">Retirer %1$s</string>
+    <string name="passkey_remove_title">Retirer « %1$s » ?</string>
+    <string name="passkey_remove_detail">Elle ne pourra plus te connecter, et partout où elle est connectée maintenant, la session se ferme. La clé elle-même reste dans ton gestionnaire de mots de passe jusqu\'à ce que tu l\'y supprimes.</string>
+    <string name="passkey_remove_current">Ce téléphone s\'est connecté avec elle, il sera donc déconnecté ici aussi. Tes décomptes y restent.</string>
+    <string name="passkey_remove">Retirer</string>
+    <string name="passkey_last_way">C\'est ta seule façon de te connecter. Ajoute d\'abord une autre clé d\'accès ou une adresse e-mail.</string>
+    <string name="passkey_other_account">Cette clé d\'accès appartient à un autre compte.</string>
+    <string name="unlock_card_title">Laisse ta clé d\'accès déverrouiller tes décomptes sur un nouveau téléphone</string>
+    <string name="unlock_card_detail">Connecte-toi avec ta clé d\'accès sur un nouveau téléphone et tes décomptes reviennent sans le code de récupération. Il suffit d\'une empreinte ou du verrouillage de l\'écran.</string>
+    <string name="unlock_card_action">Utiliser ma clé d\'accès</string>
+    <string name="unlock_card_later">Pas maintenant</string>
+    <string name="unlock_card_no_output">Cette clé d\'accès ne peut pas déverrouiller tes décomptes. Une nouvelle clé le peut ; l\'ancienne continue de te connecter.</string>
+    <string name="unlock_card_new_passkey">Enregistrer une nouvelle clé</string>
+    <string name="recovery_detail_passkey">Ta clé d\'accès peut ramener tes décomptes sur un nouveau téléphone. Ce code est le moyen de les retrouver sans elle, si tu perds ton gestionnaire de mots de passe. Personne d\'autre ne l\'a, pas même nous.</string>
 </resources>
