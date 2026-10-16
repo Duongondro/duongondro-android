@@ -131,7 +131,7 @@
     <string name="name_random_detail">Losowe imię, żeby przyjaciele mogli cię rozpoznać. Zostaw je albo zmień.</string>
     <string name="name_label">Imię</string>
     <string name="gender_title">Twoja płeć</string>
-    <string name="gender_detail">Niektóre języki, w tym polski, mają różne końcówki czasowników dla mężczyzn i kobiet. Jeśli pominiesz ten krok albo wybierzesz „Osoba niebinarna”, aplikacja będzie w miarę możliwości używać form neutralnych płciowo.</string>
+    <string name="gender_detail">Opcjonalnie. Niektóre języki mają różne formy dla mężczyzn i kobiet.</string>
     <string name="gender_male">Mężczyzna</string>
     <string name="gender_female">Kobieta</string>
     <string name="gender_nonbinary">Osoba niebinarna</string>

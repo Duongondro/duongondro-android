@@ -125,7 +125,7 @@
     <string name="name_random_detail">Случайное имя, чтобы друзья могли вас различать. Оставьте его или измените.</string>
     <string name="name_label">Имя</string>
     <string name="gender_title">Ваш пол</string>
-    <string name="gender_detail">В некоторых языках, включая русский, глаголы имеют разные окончания для мужчин и женщин. Если вы пропустите этот шаг или выберете «Небинарный», приложение будет по возможности использовать гендерно-нейтральные формы.</string>
+    <string name="gender_detail">Необязательно. В некоторых языках есть разные формы для мужчин и женщин.</string>
     <string name="gender_male">Мужской</string>
     <string name="gender_female">Женский</string>
     <string name="gender_nonbinary">Небинарный</string>

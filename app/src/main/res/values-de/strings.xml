@@ -127,7 +127,7 @@
     <string name="name_random_detail">Ein zufälliger Name, damit Freunde dich unterscheiden können. Behalte ihn oder ändere ihn.</string>
     <string name="name_label">Name</string>
     <string name="gender_title">Dein Geschlecht</string>
-    <string name="gender_detail">Manche Sprachen haben für Männer und Frauen unterschiedliche Verbendungen. Wenn du diesen Schritt überspringst oder „Nicht-binär“ wählst, verwendet die App, wo immer möglich, geschlechtsneutrale Formen.</string>
+    <string name="gender_detail">Optional. Manche Sprachen haben unterschiedliche Formen für Männer und Frauen.</string>
     <string name="gender_male">Männlich</string>
     <string name="gender_female">Weiblich</string>
     <string name="gender_nonbinary">Nicht-binär</string>
