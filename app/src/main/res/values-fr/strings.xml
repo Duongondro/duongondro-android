@@ -169,9 +169,6 @@
     <string name="discreet">Notifications discrètes</string>
     <string name="discreet_detail">L\'écran de verrouillage affiche « Un(e) ami(e) a pratiqué » au lieu de la pratique.</string>
     <string name="target_per_round">Objectif par tour</string>
-    <string name="mala_default">Par défaut (%1$d)</string>
-    <string name="mala_custom">Personnalisé…</string>
-    <string name="mala_custom_label">Taille du mala</string>
     <string name="cover_title">Couverture</string>
     <string name="cover_choose">Choisir une photo</string>
     <string name="cover_use_default">Utiliser celle par défaut</string>
@@ -407,4 +404,26 @@
     <string name="unlock_replace_detail">Les autres téléphones sont déconnectés, et cette clé d\'accès ne peut plus déverrouiller tes décomptes sur un nouveau téléphone. Un téléphone qu\'elle a déjà déverrouillé garde ce qu\'il a.</string>
     <string name="unlock_replace_action">Remplacer la clé de déverrouillage</string>
     <string name="unlock_replace_skip">La retirer seulement</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Correction</string>
+    <string name="count_section">Décompte</string>
+    <string name="count_of_round">sur %1$s · tour %2$d</string>
+    <string name="correct_the_count">Corriger le décompte</string>
+    <string name="correction_footer">Enregistrée dans l’historique comme correction.</string>
+    <string name="round_label">Tour</string>
+    <string name="count_in_round">Décompte du tour</string>
+    <string name="count_now">Décompte actuel</string>
+    <string name="correction_was">Avant</string>
+    <string name="correction_change">Écart</string>
+    <string name="save_count">Enregistrer %1$s</string>
+    <string name="mala_reset">Revenir à %1$d</string>
+    <string name="phone_language">Langue du téléphone : %1$s</string>
+    <string name="machine_translated">Traduction automatique</string>
+    <string name="translation_help">Une phrase maladroite dans ta langue ? Écris à Karol :</string>
+    <string name="feedback">Avis</string>
+    <string name="write_an_email">Écrire un e-mail</string>
+    <string name="report_on_github">Signaler un bug sur GitHub</string>
+    <string name="github_needs_account">Public, nécessite un compte GitHub</string>
+    <string name="email_starts_with">L’e-mail commence par</string>
+    <string name="email_starts_with_footer">Tu peux l’effacer avant l’envoi. Aucun décompte ni pratique n’est ajouté.</string>
 </resources>

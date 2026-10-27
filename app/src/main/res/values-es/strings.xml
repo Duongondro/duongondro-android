@@ -169,9 +169,6 @@
     <string name="discreet">Notificaciones discretas</string>
     <string name="discreet_detail">La pantalla de bloqueo dice “Un amigo practicó” en lugar de nombrar la práctica.</string>
     <string name="target_per_round">Objetivo por ronda</string>
-    <string name="mala_default">Predeterminado (%1$d)</string>
-    <string name="mala_custom">Personalizada…</string>
-    <string name="mala_custom_label">Tamaño de la mala</string>
     <string name="cover_title">Portada</string>
     <string name="cover_choose">Elegir una foto</string>
     <string name="cover_use_default">Usar el valor predeterminado</string>
@@ -408,4 +405,26 @@
     <string name="unlock_replace_detail">Los demás teléfonos cierran sesión y esta clave de acceso ya no puede desbloquear tus recuentos en un teléfono nuevo. Un teléfono que ya haya desbloqueado conserva lo que tiene.</string>
     <string name="unlock_replace_action">Sustituir la clave de desbloqueo</string>
     <string name="unlock_replace_skip">Solo quitarla</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Corrección</string>
+    <string name="count_section">Cuenta</string>
+    <string name="count_of_round">de %1$s · ronda %2$d</string>
+    <string name="correct_the_count">Corregir la cuenta</string>
+    <string name="correction_footer">Guardada en el historial como corrección.</string>
+    <string name="round_label">Ronda</string>
+    <string name="count_in_round">Cuenta en la ronda</string>
+    <string name="count_now">Cuenta ahora</string>
+    <string name="correction_was">Antes</string>
+    <string name="correction_change">Cambio</string>
+    <string name="save_count">Guardar %1$s</string>
+    <string name="mala_reset">Restablecer a %1$d</string>
+    <string name="phone_language">Idioma del teléfono: %1$s</string>
+    <string name="machine_translated">Traducción automática</string>
+    <string name="translation_help">¿Una frase torpe en tu idioma? Escribe a Karol:</string>
+    <string name="feedback">Comentarios</string>
+    <string name="write_an_email">Escribir un correo</string>
+    <string name="report_on_github">Informar de un error en GitHub</string>
+    <string name="github_needs_account">Público, requiere una cuenta de GitHub</string>
+    <string name="email_starts_with">El correo empieza con</string>
+    <string name="email_starts_with_footer">Puedes borrarlo antes de enviarlo. No se añaden cuentas ni prácticas.</string>
 </resources>

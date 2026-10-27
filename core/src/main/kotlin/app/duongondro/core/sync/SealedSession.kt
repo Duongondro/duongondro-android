@@ -21,6 +21,7 @@ data class SyncRecord(val session: Session, val updatedAt: Instant, val deletedA
 @Serializable
 data class SealedSession(
     val chosenDay: String? = null,
+    val correction: Boolean? = null,
     val count: Long? = null,
     val day: String? = null,
     val deletedAt: Long? = null,
@@ -37,7 +38,9 @@ data class SealedSession(
     /** The whole session, or null when the content is missing (a bare tombstone). */
     fun record(id: UUID): SyncRecord? {
         if (practice == null || count == null || start == null || tz == null) return null
-        if (count !in 0..Int.MAX_VALUE.toLong()) return null
+        // Only a correction may be negative (its count is a change).
+        val lowest = if (correction == true) Int.MIN_VALUE.toLong() else 0L
+        if (count !in lowest..Int.MAX_VALUE.toLong()) return null
         val session = Session(
             id = id,
             practiceId = practice,
@@ -47,6 +50,7 @@ data class SealedSession(
             zoneId = tz,
             chosenDay = chosenDay?.let(::parseCivilDate),
             loggedAt = syncInstant(loggedAt ?: start),
+            correction = correction == true,
         )
         return SyncRecord(session, syncInstant(updatedAt), deletedAt?.let(::syncInstant))
     }
@@ -62,6 +66,7 @@ data class SealedSession(
             val s = record.session
             return SealedSession(
                 chosenDay = s.chosenDay?.toString(),
+                correction = if (s.correction) true else null,
                 count = s.amount.toLong(),
                 day = s.day.toString(),
                 deletedAt = record.deletedAt?.syncMillis(),

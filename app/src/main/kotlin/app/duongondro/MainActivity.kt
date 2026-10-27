@@ -57,6 +57,9 @@ import app.duongondro.ui.practice.AfterMidnightDialog
 import app.duongondro.ui.practice.PracticeScreen
 import app.duongondro.ui.settings.ArchivedScreen
 import app.duongondro.ui.settings.PracticeSettingsScreen
+import app.duongondro.ui.settings.CorrectCountScreen
+import app.duongondro.ui.settings.LanguageScreen
+import app.duongondro.ui.settings.FeedbackScreen
 import app.duongondro.ui.settings.AboutScreen
 import app.duongondro.ui.settings.PasskeysScreen
 import app.duongondro.ui.settings.PracticeListScreen
@@ -171,13 +174,16 @@ private object Routes {
     const val RECOVERY_CODE = "settings/account/recovery-code"
     const val INVITE = "settings/invite"
     const val PASSKEYS = "settings/passkeys"
+    const val CORRECT_COUNT = "settings/practice/{id}/correct"
+    const val LANGUAGE = "settings/language"
+    const val FEEDBACK = "settings/feedback"
     const val FRIENDS = "friends"
     const val FRIEND = "friends/friend/{id}"
     const val FRIENDS_INVITE = "friends/invite"
     /** The bottom bar's tabs: switching between them never slides. */
     val TABS = setOf(TODAY, FRIENDS, SETTINGS)
     /** What iOS presents as a sheet or full-screen cover: rises from the bottom instead. */
-    val MODALS = setOf(SIGN_IN, NEW_ACCOUNT, RECOVERY_CODE, LICENCES)
+    val MODALS = setOf(SIGN_IN, NEW_ACCOUNT, RECOVERY_CODE, LICENCES, CORRECT_COUNT)
     /**
      * Full-screen routes without the bottom bar: the practice screen (the +mala button owns
      * the bottom edge), the account steps, and whatever iOS presents as a sheet or cover.
@@ -186,6 +192,7 @@ private object Routes {
     fun friend(id: java.util.UUID) = "friends/friend/$id"
     fun practice(id: String) = "practice/$id"
     fun practiceSettings(id: String) = "settings/practice/$id"
+    fun correctCount(id: String) = "settings/practice/$id/correct"
 }
 
 @Composable
@@ -218,7 +225,8 @@ private fun Home(model: AppModel) {
                 openYourData = { nav.navigate(Routes.YOUR_DATA) }, openAbout = { nav.navigate(Routes.ABOUT) },
                 openSignIn = { nav.navigate(Routes.SIGN_IN) }, openNewAccount = { nav.navigate(Routes.NEW_ACCOUNT) },
                 openRecoveryCode = { nav.navigate(Routes.RECOVERY_CODE) }, openInvite = { nav.navigate(Routes.INVITE) },
-                openPasskeys = { nav.navigate(Routes.PASSKEYS) })
+                openPasskeys = { nav.navigate(Routes.PASSKEYS) }, openLanguage = { nav.navigate(Routes.LANGUAGE) },
+                openFeedback = { nav.navigate(Routes.FEEDBACK) })
         }
         screen(Routes.FRIENDS) {
             FriendsScreen(model, openFriend = { nav.navigate(Routes.friend(it)) }, openInvite = { nav.navigate(Routes.FRIENDS_INVITE) },
@@ -234,8 +242,14 @@ private fun Home(model: AppModel) {
                 openArchived = { nav.navigate(Routes.ARCHIVED) }) { nav.popBackStack() }
         }
         screen(Routes.PRACTICE_SETTINGS) { entry ->
-            PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+            PracticeSettingsScreen(model, entry.arguments?.getString("id").orEmpty(),
+                openCorrect = { nav.navigate(Routes.correctCount(it)) }) { nav.popBackStack() }
         }
+        screen(Routes.CORRECT_COUNT) { entry ->
+            CorrectCountScreen(model, entry.arguments?.getString("id").orEmpty()) { nav.popBackStack() }
+        }
+        screen(Routes.LANGUAGE) { LanguageScreen { nav.popBackStack() } }
+        screen(Routes.FEEDBACK) { FeedbackScreen { nav.popBackStack() } }
         screen(Routes.YOUR_DATA) { YourDataScreen(model, openDelete = { nav.navigate(Routes.DELETE) }) { nav.popBackStack() } }
         screen(Routes.DELETE) { DeleteEverythingScreen(model) { nav.popBackStack() } }
         screen(Routes.ABOUT) { AboutScreen(openLicences = { nav.navigate(Routes.LICENCES) }) { nav.popBackStack() } }

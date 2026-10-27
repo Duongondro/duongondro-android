@@ -83,6 +83,7 @@ import app.duongondro.ui.OutlinedAction
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.SoftAction
 import app.duongondro.ui.grouped
+import app.duongondro.ui.signed
 import app.duongondro.ui.stringResource
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
@@ -207,7 +208,7 @@ private fun CountBlock(p: TrackedPractice, sessions: List<Session>, mala: Int, s
     val target = p.practice.target
     val shown = rounds?.inRound ?: p.lifetime(sessions)
     val today = civilDate(now, ZoneId.systemDefault())
-    val todayTotal = sessions.filter { it.day == today }.sumOf { it.amount }
+    val todayTotal = sessions.filter { it.day == today && !it.correction }.sumOf { it.amount }
     Column(verticalArrangement = Arrangement.spacedBy(Space.m - Space.xxs)) {
         Row(horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.Bottom) {
             Text(shown.grouped(), style = Theme.type.count, color = Theme.colors.accent, maxLines = 1, modifier = Modifier.weight(1f, fill = false))
@@ -353,15 +354,17 @@ private fun HistorySheet(p: TrackedPractice, sessions: List<Session>, dismiss: (
                     val ordered = list.sortedByDescending { it.startedAt }
                     ordered.forEachIndexed { i, s ->
                         if (i > 0) RowDivider()
-                        ListRow(s.startedAt.shortTime(s.zone), trailing = {
-                            Text(if (p.streakOnly) stringResource(R.string.done_session) else s.amount.grouped(),
+                        // A correction shows its change, signed, and stays out of the day's total.
+                        ListRow(if (s.correction) stringResource(R.string.correction) else s.startedAt.shortTime(s.zone), trailing = {
+                            Text(if (s.correction) s.amount.signed() else if (p.streakOnly) stringResource(R.string.done_session) else s.amount.grouped(),
                                 style = Theme.type.body.copy(fontWeight = FontWeight.SemiBold), color = Theme.colors.ink)
                         }, titleColor = Theme.colors.muted)
                     }
-                    if (!p.streakOnly && list.size > 1) {
+                    val logged = list.filter { !it.correction }
+                    if (!p.streakOnly && logged.size > 1) {
                         RowDivider()
                         ListRow(stringResource(R.string.total), titleColor = Theme.colors.ink, trailing = {
-                            Text(list.sumOf { it.amount }.grouped(), style = Theme.type.body.copy(fontWeight = FontWeight.Bold), color = Theme.colors.ink)
+                            Text(logged.sumOf { it.amount }.grouped(), style = Theme.type.body.copy(fontWeight = FontWeight.Bold), color = Theme.colors.ink)
                         })
                     }
                 }

@@ -75,6 +75,7 @@ class SqliteStore(
             put("time_zone", session.zoneId)
             put("chosen_day", session.chosenDay?.toString())
             put("logged_at", session.loggedAt.toEpochMilli())
+            put("correction", session.correction.bit)
         })
     }
 
@@ -435,6 +436,7 @@ class SqliteStore(
             put("time_zone", s.zoneId)
             put("chosen_day", s.chosenDay?.toString())
             put("logged_at", s.loggedAt.toEpochMilli())
+            put("correction", s.correction.bit)
             put("updated_at", record.updatedAt.syncMillis())
             put("deleted_at", record.deletedAt?.syncMillis())
             put("dirty", 0)
@@ -474,6 +476,7 @@ class SqliteStore(
         startedAt = Instant.ofEpochMilli(c.long("started_at")), startExact = c.int("start_exact") == 1,
         zoneId = c.str("time_zone")!!, chosenDay = c.str("chosen_day")?.let(::parseCivilDate),
         loggedAt = Instant.ofEpochMilli(c.long("logged_at")),
+        correction = c.int("correction") == 1,
     )
 
     /**
@@ -680,10 +683,40 @@ class SqliteStore(
             // until the window closes (Unix milliseconds); NULL is final, as every
             // row from before. Pending rows are never pushed, and Undo deletes them.
             if (oldVersion < 6) db.execSQL("ALTER TABLE sessions ADD COLUMN pending_until INTEGER")
+            // Version 7, corrections (design decision 34): a correction's amount is the
+            // change to the count and may be negative, so the table is rebuilt without
+            // the old CHECK (SQLite cannot drop one), with a `correction` flag.
+            if (oldVersion < 7) listOf(
+                """
+                CREATE TABLE sessions_v7 (
+                    id            TEXT PRIMARY KEY NOT NULL,
+                    practice_id   TEXT NOT NULL REFERENCES practices (id) ON DELETE CASCADE,
+                    amount        INTEGER NOT NULL,
+                    started_at    INTEGER NOT NULL,
+                    start_exact   INTEGER NOT NULL,
+                    time_zone     TEXT NOT NULL,
+                    chosen_day    TEXT,
+                    logged_at     INTEGER NOT NULL,
+                    dirty         INTEGER NOT NULL DEFAULT 1,
+                    updated_at    INTEGER,
+                    deleted_at    INTEGER,
+                    pending_until INTEGER,
+                    correction    INTEGER NOT NULL DEFAULT 0,
+                    CHECK (amount >= 0 OR correction = 1)
+                )""",
+                """
+                INSERT INTO sessions_v7 (id, practice_id, amount, started_at, start_exact, time_zone, chosen_day,
+                    logged_at, dirty, updated_at, deleted_at, pending_until)
+                SELECT id, practice_id, amount, started_at, start_exact, time_zone, chosen_day,
+                    logged_at, dirty, updated_at, deleted_at, pending_until FROM sessions""",
+                "DROP TABLE sessions",
+                "ALTER TABLE sessions_v7 RENAME TO sessions",
+                "CREATE INDEX sessions_practice ON sessions (practice_id, started_at)",
+            ).forEach { db.execSQL(it.trimIndent()) }
         }
 
         companion object {
-            const val VERSION = 6
+            const val VERSION = 7
         }
     }
 }

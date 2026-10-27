@@ -171,9 +171,6 @@
     <string name="discreet">Discreet notifications</string>
     <string name="discreet_detail">Lock screens say “A friend practised” instead of the practice.</string>
     <string name="target_per_round">Target per round</string>
-    <string name="mala_default">Default (%1$d)</string>
-    <string name="mala_custom">Custom…</string>
-    <string name="mala_custom_label">Mala size</string>
     <string name="cover_title">Cover</string>
     <string name="cover_choose">Choose a photo</string>
     <string name="cover_use_default">Use the default</string>
@@ -404,4 +401,26 @@
     <string name="unlock_replace_detail">Other phones are signed out, and this passkey can no longer unlock your counts on a new phone. A phone it already unlocked keeps what it has.</string>
     <string name="unlock_replace_action">Replace the unlock key</string>
     <string name="unlock_replace_skip">Only remove it</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Correction</string>
+    <string name="count_section">Count</string>
+    <string name="count_of_round">of %1$s · round %2$d</string>
+    <string name="correct_the_count">Correct the count</string>
+    <string name="correction_footer">Saved in History as a correction.</string>
+    <string name="round_label">Round</string>
+    <string name="count_in_round">Count in the round</string>
+    <string name="count_now">Count now</string>
+    <string name="correction_was">Was</string>
+    <string name="correction_change">Change</string>
+    <string name="save_count">Save %1$s</string>
+    <string name="mala_reset">Reset to %1$d</string>
+    <string name="phone_language">The phone’s language: %1$s</string>
+    <string name="machine_translated">Machine-translated</string>
+    <string name="translation_help">A clumsy sentence in your language? Tell Karol:</string>
+    <string name="feedback">Feedback</string>
+    <string name="write_an_email">Write an email</string>
+    <string name="report_on_github">Report a bug on GitHub</string>
+    <string name="github_needs_account">Public, needs a GitHub account</string>
+    <string name="email_starts_with">The email starts with</string>
+    <string name="email_starts_with_footer">You can delete it before sending. No counts or practices are added.</string>
 </resources>

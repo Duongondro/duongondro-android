@@ -162,9 +162,6 @@
     <string name="discreet">Nenápadné oznámenia</string>
     <string name="discreet_detail">Zamknutá obrazovka namiesto cvičenia ukáže „Priateľ cvičil“.</string>
     <string name="target_per_round">Cieľ na kolo</string>
-    <string name="mala_default">Predvolené (%1$d)</string>
-    <string name="mala_custom">Vlastná…</string>
-    <string name="mala_custom_label">Veľkosť maly</string>
     <string name="cover_title">Titulná fotka</string>
     <string name="cover_choose">Vybrať fotku</string>
     <string name="cover_use_default">Použiť predvolené</string>
@@ -401,4 +398,26 @@
     <string name="unlock_replace_detail">Ostatné telefóny sa odhlásia a tento prístupový kľúč už neodomkne tvoje počty v novom telefóne. Telefón, ktorý ním už bol odomknutý, si ponechá, čo má.</string>
     <string name="unlock_replace_action">Nahradiť odomykací kľúč</string>
     <string name="unlock_replace_skip">Len odobrať</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Oprava</string>
+    <string name="count_section">Počet</string>
+    <string name="count_of_round">z %1$s · kolo %2$d</string>
+    <string name="correct_the_count">Opraviť počet</string>
+    <string name="correction_footer">Uložené v histórii ako oprava.</string>
+    <string name="round_label">Kolo</string>
+    <string name="count_in_round">Počet v kole</string>
+    <string name="count_now">Počet teraz</string>
+    <string name="correction_was">Bolo</string>
+    <string name="correction_change">Zmena</string>
+    <string name="save_count">Uložiť %1$s</string>
+    <string name="mala_reset">Vrátiť na %1$d</string>
+    <string name="phone_language">Jazyk telefónu: %1$s</string>
+    <string name="machine_translated">Strojový preklad</string>
+    <string name="translation_help">Nemotorná veta vo vašom jazyku? Napíšte Karolovi:</string>
+    <string name="feedback">Spätná väzba</string>
+    <string name="write_an_email">Napísať e-mail</string>
+    <string name="report_on_github">Nahlásiť chybu na GitHube</string>
+    <string name="github_needs_account">Verejné, vyžaduje účet na GitHube</string>
+    <string name="email_starts_with">E-mail začína</string>
+    <string name="email_starts_with_footer">Pred odoslaním to môžete zmazať. Počty ani praxe sa nepridávajú.</string>
 </resources>

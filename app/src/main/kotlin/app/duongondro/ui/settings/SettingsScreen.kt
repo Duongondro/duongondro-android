@@ -33,10 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -76,7 +72,6 @@ import app.duongondro.ui.RowDivider
 import app.duongondro.ui.timePickerColors
 import app.duongondro.ui.theme.Size
 import androidx.core.net.toUri
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.duongondro.BuildConfig
 import app.duongondro.R
@@ -104,13 +99,13 @@ import app.duongondro.reminders.rememberNotificationPermission
 private const val SHOW_LANGUAGE = true
 
 /** The ten languages (design: Localisation). */
-private val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es", "fr")
+internal val LANGUAGES = listOf("en", "de", "ru", "uk", "pl", "cs", "sk", "hu", "es", "fr")
 
 @Composable
 fun SettingsScreen(
     model: AppModel, openPractices: () -> Unit, openYourData: () -> Unit, openAbout: () -> Unit,
     openSignIn: () -> Unit, openNewAccount: () -> Unit, openRecoveryCode: () -> Unit, openInvite: () -> Unit,
-    openPasskeys: () -> Unit = {},
+    openPasskeys: () -> Unit = {}, openLanguage: () -> Unit = {}, openFeedback: () -> Unit = {},
 ) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     var adding by remember { mutableStateOf(false) }
@@ -129,12 +124,12 @@ fun SettingsScreen(
         CardSection(stringResource(R.string.section_general)) {
             // Hidden until the translations exist: only English works so far.
             if (SHOW_LANGUAGE) {
-                LanguageRow()
+                LanguageRow(openLanguage)
                 RowDivider()
             }
-            Column(Modifier.fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                Text(stringResource(R.string.mala_counts_as), style = Theme.type.body, color = Theme.colors.ink)
-                MalaPicker(snapshot.preferences.malaSize, null) { v -> model.updatePreferences { it.copy(malaSize = v ?: 108) } }
+            Column(Modifier.fillMaxWidth().padding(horizontal = Space.l, vertical = Space.s)) {
+                val size = snapshot.preferences.malaSize
+                MalaField(size, resetTo = DEFAULT_MALA.takeIf { size != DEFAULT_MALA }) { v -> model.updatePreferences { it.copy(malaSize = v) } }
             }
             RowDivider()
             ReminderRows(model, snapshot.preferences.reminderMinutes)
@@ -153,7 +148,7 @@ fun SettingsScreen(
             ListRow(stringResource(R.string.export_and_delete), chevron = true, onClick = openYourData)
         }
 
-        AboutSection(model.accounts, openAbout)
+        AboutSection(model.accounts, openAbout, openFeedback)
     }
     if (adding) AddPracticeDialog(model) { adding = false }
 }
@@ -300,101 +295,41 @@ private fun UsualTimeRow(model: AppModel, on: Boolean) {
 private const val MALA_MIN = 1
 private const val MALA_MAX = 10_000
 
+private const val DEFAULT_MALA = 108
+
 /**
- * 108 or a custom number the person types; with `default`, a first choice
- * "Default (n)" that stores null. Anything but 108 (a 100 chosen earlier
- * included) shows as a custom value.
+ * "A mala counts as": one number field (1–10,000). Only a number in range is
+ * taken, so no hint is needed; emptied, it keeps the last value until retyped.
+ * "Reset to n" shows while the value isn't the default it would return to:
+ * 108 in General, the general size on a practice (whose reset clears its own).
  */
 @Composable
-private fun MalaPicker(selected: Int?, default: Int?, pick: (Int?) -> Unit) {
-    var custom by rememberSaveable { mutableStateOf(selected != null && selected != 108) }
-    val isCustom = custom || (selected != null && selected != 108)
-    val defaultLabel = default?.let { stringResource(R.string.mala_default, it) }
-    val customLabel = stringResource(R.string.mala_custom)
-    val options = buildList {
-        defaultLabel?.let { add(0 to it) }
-        add(1 to "108")
-        add(2 to customLabel)
-    }
-    val current = when {
-        isCustom -> 2
-        selected == null && default != null -> 0
-        else -> 1
-    }
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-        options.forEachIndexed { i, (key, label) ->
-            SegmentedButton(selected = current == key, onClick = {
-                custom = key == 2
-                when (key) {
-                    0 -> pick(null)
-                    1 -> pick(108)
-                }
-            },
-                shape = SegmentedButtonDefaults.itemShape(i, options.size, MaterialTheme.shapes.small),
-                colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = Theme.colors.accent, activeContentColor = Theme.colors.onAccent, activeBorderColor = Theme.colors.accent,
-                    inactiveContainerColor = Theme.colors.softFill, inactiveContentColor = Theme.colors.soft, inactiveBorderColor = Theme.colors.softFill),
-                icon = {}) { Text(label, style = Theme.type.secondary.copy(fontWeight = FontWeight.SemiBold), maxLines = 1) }
-        }
-    }
-    if (isCustom) {
-        var text by rememberSaveable { mutableStateOf(selected?.takeIf { it != 108 }?.toString().orEmpty()) }
-        // Digits only, and only a number in range is taken: anything else leaves the
-        // field as it was, so no hint is needed. Emptied, it picks nothing until retyped.
-        OutlinedTextField(
-            text, { t ->
-                val digits = t.filter { c -> c in '0'..'9' }
-                val n = digits.toIntOrNull()
-                when {
-                    digits.isEmpty() -> text = ""
-                    n != null && n in MALA_MIN..MALA_MAX -> { text = n.toString(); pick(n) }
-                }
-            },
-            label = { Text(stringResource(R.string.mala_custom_label)) }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
+private fun MalaField(value: Int, resetTo: Int?, reset: (() -> Unit)? = null, pick: (Int) -> Unit) {
+    var text by remember(value) { mutableStateOf(value.toString()) }
+    OutlinedTextField(
+        text, { t ->
+            val digits = t.filter { c -> c in '0'..'9' }.take(5)
+            text = digits
+            digits.toIntOrNull()?.takeIf { it in MALA_MIN..MALA_MAX }?.let(pick)
+        },
+        label = { Text(stringResource(R.string.mala_counts_as)) }, singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth(),
+    )
+    if (resetTo != null) {
+        TextButton(onClick = { reset?.invoke() ?: pick(resetTo) }) { Text(stringResource(R.string.mala_reset, resetTo)) }
     }
 }
 
-/**
- * In-app language picker: AppCompat per-app locales, stored by AppCompat on
- * API 28–32 and matching the system's per-app setting on 33+. Each language
- * appears in its own name from CLDR, never a hard-coded list of names.
- */
+/** Settings › General › Language: the current choice; the page is [LanguageScreen]. */
 @Composable
-private fun LanguageRow() {
-    var open by remember { mutableStateOf(false) }
+private fun LanguageRow(open: () -> Unit) {
     val current = AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)?.language
-    ListRow(stringResource(R.string.language), detail = current?.let(::nativeName) ?: stringResource(R.string.system_default), chevron = true, onClick = { open = true })
-    if (open) {
-        AlertDialog(
-            onDismissRequest = { open = false },
-            title = { Text(stringResource(R.string.language)) },
-            text = {
-                Column {
-                    (listOf<String?>(null) + LANGUAGES).forEach { code ->
-                        Row(
-                            Modifier.fillMaxWidth().clickable(role = Role.RadioButton) {
-                                open = false
-                                AppCompatDelegate.setApplicationLocales(
-                                    code?.let { LocaleListCompat.forLanguageTags(it) } ?: LocaleListCompat.getEmptyLocaleList())
-                            },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = current == code, onClick = null)
-                            Text(code?.let(::nativeName) ?: stringResource(R.string.system_default), Modifier.padding(start = Space.s))
-                        }
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.cancel)) } },
-        )
-    }
+    ListRow(stringResource(R.string.language), detail = current?.let(::nativeName) ?: stringResource(R.string.system_default), chevron = true, onClick = open)
 }
 
 /** The language's own name as CLDR writes it, never capitalised: "polski", "čeština", "Deutsch". */
-private fun nativeName(code: String): String {
+internal fun nativeName(code: String): String {
     val locale = ULocale.forLanguageTag(code)
     return LocaleDisplayNames.getInstance(locale, DisplayContext.CAPITALIZATION_NONE).languageDisplayName(locale.language)
 }
@@ -435,7 +370,7 @@ private fun AddPracticeDialog(model: AppModel, close: () -> Unit) {
 
 /** One practice's own settings: name (custom), streak-only, target, mala override, archive. */
 @Composable
-fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit) {
+fun PracticeSettingsScreen(model: AppModel, practiceId: String, openCorrect: (String) -> Unit = {}, back: () -> Unit) {
     val snapshot by model.snapshot.collectAsStateWithLifecycle()
     val p = snapshot.practices.firstOrNull { it.id == practiceId } ?: return
     val save = { q: TrackedPractice -> model.save(q) }
@@ -447,6 +382,7 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
         } else {
             PracticeName(p.practice, modifier = Modifier.fillMaxWidth().card())
         }
+        if (!p.streakOnly) CountSection(p, snapshot.sessions) { openCorrect(p.id) }
         model.accounts?.let { PublicStreakRow(it, p.id, p.id in snapshot.publicPractices) }
         if (p.practice.streakOnlyAllowed) {
             Column(Modifier.fillMaxWidth().card()) {
@@ -461,8 +397,11 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, back: () -> Unit
                 DebouncedField(p.practice.target?.toString().orEmpty(), stringResource(R.string.target_per_round), numeric = true) { v ->
                     save(p.copy(practice = p.practice.copy(target = v.filter { it in '0'..'9' }.take(9).toIntOrNull()?.takeIf { it > 0 })))
                 }
-                Text(stringResource(R.string.mala_counts_as))
-                MalaPicker(p.practice.malaSize, snapshot.preferences.malaSize) { v -> save(p.copy(practice = p.practice.copy(malaSize = v))) }
+                val default = snapshot.preferences.malaSize
+                MalaField(p.practice.malaSize ?: default, resetTo = default.takeIf { p.practice.malaSize != null },
+                    reset = { save(p.copy(practice = p.practice.copy(malaSize = null))) }) { v ->
+                    save(p.copy(practice = p.practice.copy(malaSize = v)))
+                }
             }
         }
         Column(Modifier.fillMaxWidth().card(), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
@@ -560,7 +499,7 @@ private const val SERVER_REPOSITORY = "https://github.com/Duongondro/duongondro-
  * GitHub, a long press copies the full hash.
  */
 @Composable
-private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openAbout: () -> Unit) {
+private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openAbout: () -> Unit, openFeedback: () -> Unit) {
     val revision = BuildConfig.GIT_REVISION
     val account = accounts?.state?.collectAsStateWithLifecycle()?.value?.status
     val server = accounts?.serverVersion?.collectAsStateWithLifecycle()?.value
@@ -576,6 +515,8 @@ private fun AboutSection(accounts: app.duongondro.account.AccountManager?, openA
             CommitRow(stringResource(R.string.server), short,
                 s.revision.takeIf { it.isNotEmpty() && it != "unknown" }?.let { "$SERVER_REPOSITORY/commit/$it" }, s.revision, Theme.colors.muted)
         }
+        RowDivider()
+        ListRow(stringResource(R.string.feedback), chevron = true, onClick = openFeedback)
         RowDivider()
         ListRow(stringResource(R.string.about_and_contributors), chevron = true, onClick = openAbout)
     }
@@ -671,6 +612,6 @@ fun LicencesScreen(back: () -> Unit) {
 
 
 /** Opens a link; a phone with no browser shows nothing rather than crashing. */
-private fun android.content.Context.openUrl(intent: Intent) {
+internal fun android.content.Context.openUrl(intent: Intent) {
     runCatching { startActivity(intent) }
 }

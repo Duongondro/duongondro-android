@@ -122,6 +122,8 @@ object DataExport {
     private data class SessionOut(
         val id: String, val practiceId: String, val amount: Int, val startedAt: String, val startExact: Boolean,
         val timeZone: String, val day: String, val dayChosenByUser: Boolean, val loggedAt: String,
+        /** A correction of the count: [amount] is the change (design decision 34). */
+        val correction: Boolean,
     )
 
     @Serializable
@@ -144,7 +146,7 @@ object DataExport {
             },
             sessions = s.sessions.map { x ->
                 SessionOut(x.id.toString(), x.practiceId, x.amount, x.startedAt.iso(), x.startExact, x.zoneId,
-                    x.day.toString(), x.chosenDay != null, x.loggedAt.iso())
+                    x.day.toString(), x.chosenDay != null, x.loggedAt.iso(), x.correction)
             },
             streakSeeds = s.seeds.map { SeedOut(it.practiceId, it.days, it.longest, it.lastDay.toString(), it.zoneId) },
         )

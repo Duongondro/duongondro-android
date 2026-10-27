@@ -60,7 +60,7 @@ object Reminders {
         days.forEach { alarms.cancel(intent(context, it, null)) }
         val minutes = snapshot.preferences.reminderMinutes ?: return
         if (snapshot.activePractices.isEmpty()) return
-        val practisedToday = snapshot.sessions.any { it.day == today }
+        val practisedToday = snapshot.sessions.any { it.day == today && !it.correction }
         for (day in days) {
             if (day == today && practisedToday) continue
             // Built from wall-clock components, so a DST change that day does not shift it.
@@ -98,7 +98,7 @@ object Reminders {
                 val usual = UsualTime.minutes(sessions, now) ?: continue
                 val minutes = (usual - 60 + 1440) % 1440
                 for (day in listOf(today, today.plusDays(1))) {
-                    if (sessions.any { it.day == day }) continue
+                    if (sessions.any { it.day == day && !it.correction }) continue
                     val fire = day.atTime(minutes / 60, minutes % 60).atZone(zone).toInstant()
                     if (!fire.isAfter(now)) continue
                     val body = if (snapshot.preferences.discreetNotifications) res.getString(R.string.usual_body_discreet)
