@@ -107,7 +107,7 @@ object SessionStart {
 
     /** Lengths of the sessions the user timed with Start. */
     fun timedLengths(sessions: List<Session>): List<Duration> =
-        sessions.filter { it.startExact }.map { Duration.between(it.startedAt, it.loggedAt) }.filter { !it.isNegative && !it.isZero }
+        sessions.filter { it.startExact && !it.correction }.map { Duration.between(it.startedAt, it.loggedAt) }.filter { !it.isNegative && !it.isZero }
 
     internal fun median(xs: List<Duration>): Duration? {
         if (xs.isEmpty()) return null
