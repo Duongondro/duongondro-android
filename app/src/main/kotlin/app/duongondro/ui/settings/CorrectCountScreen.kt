@@ -85,7 +85,7 @@ fun CorrectCountScreen(model: AppModel, practiceId: String, back: () -> Unit) {
         r == null -> null
         else -> ((r - 1).toLong() * target + c).takeIf { it <= Int.MAX_VALUE }?.toInt()
     }
-    val change = now?.let { it - was }
+    val change = now?.let { it - p.unclampedLifetime(sessions) }
     Page(stringResource(R.string.correct_the_count), back) {
         Text(p.practice.shownName(), style = Theme.type.body, color = Theme.colors.soft, modifier = Modifier.padding(horizontal = Space.xs))
         CardSection(footer = stringResource(R.string.correction_footer)) {

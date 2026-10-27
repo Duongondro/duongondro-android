@@ -314,7 +314,7 @@ class AppModel(
         val p = s.practices.firstOrNull { it.id == practiceId } ?: return
         val now = clock()
         // Against the unclamped total, so the shown total ends up exactly at [lifetime].
-        val change = lifetime - (maxOf(0, p.openingCount) + s.sessionsOf(practiceId).sumOf { it.amount })
+        val change = lifetime - p.unclampedLifetime(s.sessions)
         if (change == 0) return
         finalisePending()
         val session = Session(id = uuidV7(now), practiceId = practiceId, amount = change, startedAt = now, startExact = true,

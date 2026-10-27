@@ -162,6 +162,8 @@ object DataExport {
         appendLine("  your phone. Times are ISO 8601 in UTC; each session also has the time zone")
         appendLine("  it started in and the day it counts for (YYYY-MM-DD). openingCount is what")
         appendLine("  you entered at onboarding; lifetime adds every session to it.")
+        appendLine("  A session with correction true is a correction of the count: its amount is")
+        appendLine("  the change, possibly negative, and it counts for no day or streak.")
         if (hasServer) {
             appendLine("  Sessions that came from your other phones through sync are included once.")
             appendLine()

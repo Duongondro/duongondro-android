@@ -130,8 +130,11 @@ data class TrackedPractice(
     /** A "done today" check with no count (never for ngöndro). */
     val streakOnly: Boolean get() = practice.streakOnlyAllowed && wantsStreakOnly
 
-    fun lifetime(sessions: List<Session>): Int =
-        maxOf(0, maxOf(0, openingCount) + sessions.filter { it.practiceId == id }.sumOf { it.amount })
+    fun lifetime(sessions: List<Session>): Int = maxOf(0, unclampedLifetime(sessions))
+
+    /** The total before clamping at zero: what a correction is measured against, so the total ends exactly where typed. */
+    fun unclampedLifetime(sessions: List<Session>): Int =
+        maxOf(0, openingCount) + sessions.filter { it.practiceId == id }.sumOf { it.amount }
 
     /** Round progress, or null for open-ended or streak-only practices. */
     fun rounds(sessions: List<Session>): RoundProgress? {

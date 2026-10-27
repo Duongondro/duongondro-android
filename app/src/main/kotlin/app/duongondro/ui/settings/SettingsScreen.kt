@@ -305,7 +305,8 @@ private const val DEFAULT_MALA = 108
  */
 @Composable
 private fun MalaField(value: Int, resetTo: Int?, reset: (() -> Unit)? = null, pick: (Int) -> Unit) {
-    var text by remember(value) { mutableStateOf(value.toString()) }
+    // Not keyed on [value]: each keystroke saves, and a save landing late must not undo the next one.
+    var text by remember { mutableStateOf(value.toString()) }
     OutlinedTextField(
         text, { t ->
             val digits = t.filter { c -> c in '0'..'9' }.take(5)
@@ -317,7 +318,10 @@ private fun MalaField(value: Int, resetTo: Int?, reset: (() -> Unit)? = null, pi
         modifier = Modifier.fillMaxWidth(),
     )
     if (resetTo != null) {
-        TextButton(onClick = { reset?.invoke() ?: pick(resetTo) }) { Text(stringResource(R.string.mala_reset, resetTo)) }
+        TextButton(onClick = {
+            text = resetTo.toString()
+            reset?.invoke() ?: pick(resetTo)
+        }) { Text(stringResource(R.string.mala_reset, resetTo)) }
     }
 }
 

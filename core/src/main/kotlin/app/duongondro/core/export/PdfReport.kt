@@ -106,9 +106,14 @@ object PdfReport {
                     rows += Row(listOf(
                         Cell(if (k == 0) t.day(day, x.zone) else ""),
                         Cell(t.time(x.startedAt, x.zone)),
-                        Cell(if (p.streakOnly || x.count == 0) l("Done") else t.number(x.count)),
+                        Cell(when {
+                            x.correction -> (if (x.count > 0) "+" else "") + t.number(x.count)
+                            p.streakOnly || x.count == 0 -> l("Done")
+                            else -> t.number(x.count)
+                        }),
                         Cell(x.round?.let(t.number) ?: DASH),
-                        Cell(if (x.day != x.startDay) t.day(x.day, x.zone) else ""),
+                        // A correction counts for no day: the column says what it is instead.
+                        Cell(if (x.correction) l("Correction") else if (x.day != x.startDay) t.day(x.day, x.zone) else ""),
                     ), group)
                 }
             }

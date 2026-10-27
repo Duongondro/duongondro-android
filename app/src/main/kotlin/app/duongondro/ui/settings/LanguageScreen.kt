@@ -1,5 +1,6 @@
 package app.duongondro.ui.settings
 
+import android.content.Intent
 import android.content.res.Resources
 import android.icu.text.Collator
 import android.icu.util.ULocale
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.LinkAnnotation
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withLink
+import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import app.duongondro.R
 import app.duongondro.ui.CardSection
@@ -54,6 +57,7 @@ private val READ_BY_A_NATIVE_SPEAKER = setOf("en", "pl")
  */
 @Composable
 fun LanguageScreen(back: () -> Unit) {
+    val context = LocalContext.current
     val appLocale = LocalConfiguration.current.locales[0]
     var current by remember { mutableStateOf(AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)?.language) }
     val collator = remember { Collator.getInstance(ULocale.ROOT) }
@@ -91,8 +95,10 @@ fun LanguageScreen(back: () -> Unit) {
             buildAnnotatedString {
                 append(prefix)
                 append(" ")
-                withLink(LinkAnnotation.Url("mailto:$FEEDBACK_ADDRESS",
-                    TextLinkStyles(SpanStyle(color = Theme.colors.accent, fontWeight = FontWeight.SemiBold)))) { append(FEEDBACK_ADDRESS) }
+                // Clickable rather than Url: a phone without a mail app shows nothing instead of crashing.
+                withLink(LinkAnnotation.Clickable("feedback", TextLinkStyles(SpanStyle(color = Theme.colors.accent, fontWeight = FontWeight.SemiBold))) {
+                    context.openUrl(Intent(Intent.ACTION_SENDTO, "mailto:$FEEDBACK_ADDRESS".toUri()))
+                }) { append(FEEDBACK_ADDRESS) }
             },
             style = Theme.type.footnote, color = Theme.colors.muted, modifier = Modifier.padding(horizontal = Space.l),
         )

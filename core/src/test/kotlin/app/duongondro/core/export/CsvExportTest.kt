@@ -49,10 +49,10 @@ class CsvExportTest {
 
     @Test fun sessionsLocalToWhereTheyStarted() {
         val lines = lines("sessions")
-        assertEquals("practice,day_counted,start,time_zone,count,round,chosen_day", lines[0])
-        assertEquals("Dorje Sempa,2026-10-13,2026-10-13 06:40:00,Europe/Warsaw,1000,1,", lines[1])
-        assertEquals("Dorje Sempa,2026-10-13,2026-10-14 00:20:00,Europe/Warsaw,108,2,2026-10-13", lines[3])
-        assertEquals("Chenrezig,2026-10-14,2026-10-14 19:30:00,Europe/Warsaw,0,,", lines[4])
+        assertEquals("practice,day_counted,start,time_zone,count,round,chosen_day,correction", lines[0])
+        assertEquals("Dorje Sempa,2026-10-13,2026-10-13 06:40:00,Europe/Warsaw,1000,1,,false", lines[1])
+        assertEquals("Dorje Sempa,2026-10-13,2026-10-14 00:20:00,Europe/Warsaw,108,2,2026-10-13,false", lines[3])
+        assertEquals("Chenrezig,2026-10-14,2026-10-14 19:30:00,Europe/Warsaw,0,,,false", lines[4])
     }
 
     @Test fun serverTablesInThePhonesZone() {

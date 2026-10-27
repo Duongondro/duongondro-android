@@ -23,7 +23,7 @@ object CsvExport {
         PRACTICE("Practice"), SECOND_NAME("Second name"), TARGET("Target"), MALA_SIZE("Mala size"), STREAK_ONLY("Streak only"),
         ARCHIVED("Archived"),
         DAY_COUNTED("Day counted"), START("Start"), TIME_ZONE("Time zone"), COUNT("Count"), ROUND("Round"),
-        CHOSEN_DAY("Day chosen after midnight"),
+        CHOSEN_DAY("Day chosen after midnight"), CORRECTION("Correction"),
         DISPLAY_NAME("Display name"), FRIENDS_SINCE("Friends since"),
         CODE("Friendship code"), KIND("Made or redeemed"), CREATED("Created"), EXPIRES("Expires"), REVOKED("Revoked"),
         REDEMPTIONS("Redeemed"),
@@ -43,10 +43,10 @@ object CsvExport {
         val out = mutableListOf(
             Table("practices", listOf(Column.PRACTICE, Column.SECOND_NAME, Column.TARGET, Column.MALA_SIZE, Column.STREAK_ONLY, Column.ARCHIVED),
                 content.practices.map { listOf(it.name, it.secondName, it.target, it.malaSize, it.streakOnly, it.archived) }),
-            Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY),
+            Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY, Column.CORRECTION),
                 content.sessions.map {
                     listOf(names[it.practiceId] ?: it.practiceId, it.day.toString(), stamp(it.startedAt, it.zone), it.zone.id, it.count, it.round,
-                        it.chosenDay?.let { _ -> it.day.toString() })
+                        it.chosenDay?.let { _ -> it.day.toString() }, it.correction)
                 }),
         )
         if (content.account != null) {
