@@ -255,7 +255,7 @@
     <string name="not_yet">Jeszcze nie</string>
     <string name="sync_offline">Ostatnia synchronizacja się nie zakończyła. Twoje liczby są bezpieczne na tym telefonie i zsynchronizują się, gdy serwer będzie dostępny.</string>
     <string name="sign_out">Wyloguj się</string>
-    <string name="sign_out_title">Wylogować się?</string>
+    <string name="sign_out_title">Czy na pewno chcesz się wylogować?</string>
     <string name="sign_out_detail">Twoje liczby zostaną na tym telefonie, ale przestaną się synchronizować. Aby znowu je synchronizować, zaloguj się i wpisz kod odzyskiwania.</string>
     <string name="sign_out_detail_passkey">Twoje dane zostaną na tym telefonie, ale przestaną się synchronizować. Aby znowu je synchronizować, zaloguj się kluczem dostępu.</string>
     <string name="signed_out">Wylogowano. Zaloguj się ponownie, aby dalej synchronizować.</string>
