@@ -37,7 +37,7 @@
         <item quantity="other">Dziś %1$s · %2$d mali</item>
     </plurals>
     <string name="longest_n">Najdłuższa %1$d</string>
-    <string name="custom">+ Własna</string>
+    <string name="custom">+ Inna liczba</string>
     <string name="history">Historia</string>
     <string name="history_empty">Nic jeszcze nie zapisano.</string>
     <string name="total">Razem</string>

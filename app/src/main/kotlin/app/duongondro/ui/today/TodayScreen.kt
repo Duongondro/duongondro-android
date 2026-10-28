@@ -2,7 +2,6 @@ package app.duongondro.ui.today
 
 import android.text.format.DateFormat
 import app.duongondro.ui.shownName
-import app.duongondro.ui.shownSecondName
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -160,14 +159,13 @@ private fun PracticeCard(
     }
 }
 
-/** "Diamond Mind · 43,308 of 111,111", "12,960 of 111,111 · not yet today", "Loving Eyes · done today". */
+/** "43,308 of 111,111", "12,960 of 111,111 · not yet today", "done today": no second name on Today. */
 @Composable
 private fun statusLine(p: TrackedPractice, snapshot: Snapshot, done: Boolean): String {
     val sessions = snapshot.sessionsOf(p.id)
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val target = p.practice.target
     val parts = buildList {
-        p.practice.shownSecondName()?.let(::add)
         if (rounds != null && target != null) {
             add(
                 if (rounds.round > 1) stringResource(R.string.status_round, rounds.round, rounds.inRound.grouped(), target.grouped())

@@ -2,7 +2,6 @@ package app.duongondro.ui.practice
 
 import android.text.format.DateFormat
 import app.duongondro.ui.shownName
-import app.duongondro.ui.shownSecondName
 import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
@@ -184,15 +183,15 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
 }
 
 /**
- * "Dorje Sempa", and below it "Diamond Mind · round 2" for a practice with rounds, or
- * "Diamond Mind · 43,308 lifetime" for one without: with rounds, only the one under
- * way matters here, and the lifetime total is the app's own bookkeeping.
+ * "Dorje Sempa", and below it "round 2" for a practice with rounds, or "43,308
+ * lifetime" for one without: with rounds, only the one under way matters here, and
+ * the lifetime total is the app's own bookkeeping. The second name is left to
+ * Settings and onboarding, where a practice is chosen.
  */
 @Composable
 private fun Header(p: TrackedPractice, sessions: List<Session>, extra: @Composable () -> Unit = {}) {
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val parts = buildList {
-        p.practice.shownSecondName()?.let(::add)
         if (p.streakOnly) add(stringResource(R.string.header_streak_only))
         else {
             if (rounds != null) add(stringResource(R.string.header_round, rounds.round))
