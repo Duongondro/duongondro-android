@@ -151,7 +151,6 @@ object SessionSync {
             return Opened.Refused
         }
         if (session.updatedAt != outerUpdatedAt.syncMillis()) return Opened.Refused
-        if (session.count != null && session.count !in 0..Int.MAX_VALUE.toLong()) return Opened.Refused
         session.record(id)?.let { return Opened.Record(it, session.practiceName) }
         session.deletedAt?.let { return Opened.Deletion(id, syncInstant(session.updatedAt), syncInstant(it)) }
         return Opened.Refused
