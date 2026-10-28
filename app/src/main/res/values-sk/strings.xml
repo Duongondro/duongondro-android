@@ -412,11 +412,11 @@
     <string name="mala_reset">Vrátiť na %1$s</string>
     <string name="phone_language">Jazyk telefónu: %1$s</string>
     <string name="machine_translated">Strojový preklad</string>
-    <string name="translation_help">Nemotorná veta vo vašom jazyku? Napíšte Karolovi:</string>
+    <string name="translation_help">Nemotorná veta v tvojom jazyku? Napíš Karolovi:</string>
     <string name="feedback">Spätná väzba</string>
     <string name="write_an_email">Napísať e-mail</string>
     <string name="report_on_github">Nahlásiť chybu na GitHube</string>
     <string name="github_needs_account">Verejné, vyžaduje účet na GitHube</string>
     <string name="email_starts_with">E-mail začína</string>
-    <string name="email_starts_with_footer">Pred odoslaním to môžete zmazať. Počty ani praxe sa nepridávajú.</string>
+    <string name="email_starts_with_footer">Pred odoslaním to môžeš zmazať. Počty ani cvičenia sa nepridávajú.</string>
 </resources>
