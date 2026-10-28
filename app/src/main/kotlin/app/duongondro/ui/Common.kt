@@ -12,11 +12,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import app.duongondro.core.Practice
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
@@ -109,8 +111,15 @@ fun OutlinedAction(
         border = BorderStroke(borderWidth, border),
         contentPadding = PaddingValues(horizontal = Space.s),
         modifier = (if (fillWidth) modifier.fillMaxWidth() else modifier).heightIn(min = height),
-    ) { Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1) }
+    ) {
+        // One line, shrinking rather than overflowing where a translation runs long ("+ Inna liczba").
+        Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
+            autoSize = TextAutoSize.StepBased(minFontSize = ACTION_MIN, maxFontSize = Theme.type.body.fontSize))
+    }
 }
+
+/** The smallest an outlined action's label shrinks to. */
+private val ACTION_MIN = 12.sp
 
 /** The least action on a screen: text only, 48 dp tall, wrapping rather than truncating long translations. */
 @Composable
