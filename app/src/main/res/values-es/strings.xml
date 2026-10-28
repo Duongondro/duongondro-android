@@ -34,7 +34,6 @@
         <item quantity="many">Hoy %1$s · %2$d malas</item>
         <item quantity="other">Hoy %1$s · %2$d malas</item>
     </plurals>
-    <string name="longest_n">Máxima %1$d</string>
     <string name="custom">+ Otra</string>
     <string name="history">Historial</string>
     <string name="history_empty">Aún no hay nada registrado.</string>

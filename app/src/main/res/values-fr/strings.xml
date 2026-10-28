@@ -34,7 +34,6 @@
         <item quantity="many">Aujourd\'hui %1$s · %2$d malas</item>
         <item quantity="other">Aujourd\'hui %1$s · %2$d malas</item>
     </plurals>
-    <string name="longest_n">Record %1$d</string>
     <string name="custom">+ Autre</string>
     <string name="history">Historique</string>
     <string name="history_empty">Rien d\'enregistré pour l\'instant.</string>

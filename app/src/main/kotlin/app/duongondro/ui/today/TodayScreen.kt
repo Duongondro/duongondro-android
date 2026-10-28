@@ -1,7 +1,6 @@
 package app.duongondro.ui.today
 
 import android.text.format.DateFormat
-import app.duongondro.ui.shownName
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +40,9 @@ import app.duongondro.core.civilDate
 import app.duongondro.model.AppModel
 import app.duongondro.model.Snapshot
 import app.duongondro.ui.Bar
+import app.duongondro.ui.capitalisedFirst
 import app.duongondro.ui.grouped
+import app.duongondro.ui.shownName
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
@@ -176,5 +177,5 @@ private fun statusLine(p: TrackedPractice, snapshot: Snapshot, done: Boolean): S
         }
         if (p.streakOnly || !done) add(stringResource(if (done) R.string.status_done else R.string.status_not_yet))
     }
-    return parts.joinToString(" · ")
+    return parts.joinToString(" · ").capitalisedFirst()
 }

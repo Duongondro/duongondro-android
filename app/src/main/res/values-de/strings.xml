@@ -30,7 +30,6 @@
         <item quantity="one">Heute %1$s · %2$d Mala</item>
         <item quantity="other">Heute %1$s · %2$d Malas</item>
     </plurals>
-    <string name="longest_n">Längste %1$d</string>
     <string name="custom">+ Eigene</string>
     <string name="history">Verlauf</string>
     <string name="history_empty">Noch nichts erfasst.</string>

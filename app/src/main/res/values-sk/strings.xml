@@ -35,7 +35,6 @@
         <item quantity="many">Dnes %1$s · %2$d mál</item>
         <item quantity="other">Dnes %1$s · %2$d mál</item>
     </plurals>
-    <string name="longest_n">Najdlhšia %1$d</string>
     <string name="custom">+ Vlastné</string>
     <string name="history">História</string>
     <string name="history_empty">Zatiaľ nič nezaznamenané.</string>

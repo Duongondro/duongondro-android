@@ -29,7 +29,6 @@
         <item quantity="one">Ma %1$s · %2$d mala</item>
         <item quantity="other">Ma %1$s · %2$d mala</item>
     </plurals>
-    <string name="longest_n">Leghosszabb: %1$d</string>
     <string name="custom">+ Egyéni</string>
     <string name="history">Előzmények</string>
     <string name="history_empty">Még nincs semmi rögzítve.</string>

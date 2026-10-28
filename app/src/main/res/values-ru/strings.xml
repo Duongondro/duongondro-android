@@ -35,7 +35,6 @@
         <item quantity="many">Сегодня %1$s · %2$d мал</item>
         <item quantity="other">Сегодня %1$s · %2$d мал</item>
     </plurals>
-    <string name="longest_n">Рекорд %1$d</string>
     <string name="custom">+ Своё</string>
     <string name="history">История</string>
     <string name="history_empty">Пока ничего не записано.</string>

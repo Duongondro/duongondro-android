@@ -34,7 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import app.duongondro.core.Practice
@@ -76,6 +78,16 @@ fun PracticeName(practice: Practice, large: Boolean = false, modifier: Modifier 
 /** Locale grouping: 43,308 · 43.308 · 43 308. */
 fun Int.grouped(): String = NumberFormat.getIntegerInstance().format(this)
 
+/**
+ * A line of parts joined by " · " starts with a capital, in the app's language: its parts
+ * ("round 2", "done today") are written to follow a dot, and now often lead the line.
+ */
+@Composable
+fun String.capitalisedFirst(): String {
+    val locale = LocalConfiguration.current.locales[0]
+    return replaceFirstChar { it.titlecase(locale) }
+}
+
 /** A change, signed: "+1,200", "−300" (a true minus sign), "0". */
 fun Int.signed(): String = when {
     this > 0 -> "+" + grouped()
@@ -114,7 +126,7 @@ fun OutlinedAction(
     ) {
         // One line, shrinking rather than overflowing where a translation runs long ("+ Inna liczba").
         Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
-            autoSize = TextAutoSize.StepBased(minFontSize = ACTION_MIN, maxFontSize = Theme.type.body.fontSize))
+            overflow = TextOverflow.Ellipsis, autoSize = TextAutoSize.StepBased(minFontSize = ACTION_MIN, maxFontSize = Theme.type.body.fontSize))
     }
 }
 

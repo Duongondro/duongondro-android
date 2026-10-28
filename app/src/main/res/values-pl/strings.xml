@@ -36,7 +36,6 @@
         <item quantity="many">Dziś %1$s · %2$d mal</item>
         <item quantity="other">Dziś %1$s · %2$d mali</item>
     </plurals>
-    <string name="longest_n">Najdłuższa %1$d</string>
     <string name="custom">+ Inna liczba</string>
     <string name="history">Historia</string>
     <string name="history_empty">Nic jeszcze nie zapisano.</string>
@@ -220,7 +219,7 @@
     <string name="about_and_contributors">O aplikacji i autorach</string>
     <string name="about_tagline">Szyfrowanie end-to-end i w pełni otwarty kod źródłowy.</string>
     <string name="your_practices">Twoje praktyki</string>
-    <string name="source_footer">Dotknij Kod źródłowy, aby otworzyć dokładnie ten commit na GitHubie.</string>
+    <string name="source_footer">Dotknij „Kod źródłowy”, aby otworzyć dokładnie ten commit na GitHubie.</string>
     <string name="licences">Licencje</string>
     <string name="storage_error">Czegoś nie udało się zapisać</string>
     <string name="previous_round">Poprzednia runda</string>

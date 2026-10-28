@@ -1,19 +1,11 @@
 package app.duongondro.ui.practice
 
 import android.text.format.DateFormat
-import app.duongondro.ui.shownName
-import androidx.compose.ui.platform.LocalConfiguration
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import app.duongondro.data.Covers
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -42,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -50,7 +45,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size as GeoSize
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -70,25 +68,27 @@ import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
 import app.duongondro.core.TrackedPractice
 import app.duongondro.core.civilDate
+import app.duongondro.data.Covers
 import app.duongondro.model.AfterMidnightPrompt
 import app.duongondro.model.AppModel
 import app.duongondro.ui.Bar
 import app.duongondro.ui.CardSection
 import app.duongondro.ui.FilledAction
 import app.duongondro.ui.GenderedString
-import app.duongondro.ui.ownGender
 import app.duongondro.ui.ListRow
 import app.duongondro.ui.OutlinedAction
 import app.duongondro.ui.RowDivider
 import app.duongondro.ui.SoftAction
+import app.duongondro.ui.capitalisedFirst
 import app.duongondro.ui.grouped
+import app.duongondro.ui.ownGender
+import app.duongondro.ui.shownName
 import app.duongondro.ui.signed
 import app.duongondro.ui.stringResource
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
 import app.duongondro.ui.theme.Theme
-import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -96,6 +96,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 /**
  * A practice's own screen: the only place counts are logged. Each +mala opens
@@ -200,7 +201,7 @@ private fun Header(p: TrackedPractice, sessions: List<Session>, extra: @Composab
     }
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         Text(p.practice.shownName(), style = Theme.type.pageTitle)
-        Text(parts.joinToString(" · "), style = Theme.type.subtitle, color = Theme.colors.muted)
+        Text(parts.joinToString(" · ").capitalisedFirst(), style = Theme.type.subtitle, color = Theme.colors.muted)
         extra()
     }
 }
@@ -249,7 +250,7 @@ private fun StreakOnlyStatus(current: Int, longest: Int, done: Boolean) {
             Text(pluralStringResource(R.plurals.days, current, current), style = Theme.type.count, color = Theme.colors.accent, maxLines = 1)
         }
         Text(stringResource(if (done) R.string.done_today else R.string.not_yet_today), style = Theme.type.secondary, color = Theme.colors.muted)
-        if (longest > current) Text(stringResource(R.string.longest_n, longest), style = Theme.type.secondary, color = Theme.colors.muted)
+        if (longest > current) Text(pluralStringResource(R.plurals.streak_record, longest, longest), style = Theme.type.secondary, color = Theme.colors.muted)
     }
 }
 

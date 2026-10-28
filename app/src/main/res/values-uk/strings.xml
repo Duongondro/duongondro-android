@@ -37,7 +37,6 @@
         <item quantity="many">Сьогодні %1$s · %2$d мал</item>
         <item quantity="other">Сьогодні %1$s · %2$d мали</item>
     </plurals>
-    <string name="longest_n">Найдовша %1$d</string>
     <string name="custom">+ Інше</string>
     <string name="history">Історія</string>
     <string name="history_empty">Поки нічого не записано.</string>
