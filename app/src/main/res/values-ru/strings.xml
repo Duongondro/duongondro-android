@@ -409,7 +409,7 @@
     <string name="correction_was">Было</string>
     <string name="correction_change">Изменение</string>
     <string name="save_count">Сохранить %1$s</string>
-    <string name="mala_reset">Вернуть %1$d</string>
+    <string name="mala_reset">Вернуть %1$s</string>
     <string name="phone_language">Язык телефона: %1$s</string>
     <string name="machine_translated">Машинный перевод</string>
     <string name="translation_help">Неуклюжая фраза на вашем языке? Напишите Каролю:</string>

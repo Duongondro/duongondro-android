@@ -412,7 +412,7 @@
     <string name="correction_was">Was</string>
     <string name="correction_change">Change</string>
     <string name="save_count">Save %1$s</string>
-    <string name="mala_reset">Reset to %1$d</string>
+    <string name="mala_reset">Reset to %1$s</string>
     <string name="phone_language">The phone’s language: %1$s</string>
     <string name="machine_translated">Machine-translated</string>
     <string name="translation_help">A clumsy sentence in your language? Tell Karol:</string>

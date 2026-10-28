@@ -409,7 +409,7 @@
     <string name="correction_was">Bolo</string>
     <string name="correction_change">Zmena</string>
     <string name="save_count">Uložiť %1$s</string>
-    <string name="mala_reset">Vrátiť na %1$d</string>
+    <string name="mala_reset">Vrátiť na %1$s</string>
     <string name="phone_language">Jazyk telefónu: %1$s</string>
     <string name="machine_translated">Strojový preklad</string>
     <string name="translation_help">Nemotorná veta vo vašom jazyku? Napíšte Karolovi:</string>

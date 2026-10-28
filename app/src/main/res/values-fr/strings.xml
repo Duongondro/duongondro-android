@@ -415,7 +415,7 @@
     <string name="correction_was">Avant</string>
     <string name="correction_change">Écart</string>
     <string name="save_count">Enregistrer %1$s</string>
-    <string name="mala_reset">Revenir à %1$d</string>
+    <string name="mala_reset">Revenir à %1$s</string>
     <string name="phone_language">Langue du téléphone : %1$s</string>
     <string name="machine_translated">Traduction automatique</string>
     <string name="translation_help">Une phrase maladroite dans ta langue ? Écris à Karol :</string>

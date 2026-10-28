@@ -393,7 +393,7 @@
     <string name="correction_was">Előtte</string>
     <string name="correction_change">Változás</string>
     <string name="save_count">%1$s mentése</string>
-    <string name="mala_reset">Vissza: %1$d</string>
+    <string name="mala_reset">Vissza: %1$s</string>
     <string name="phone_language">A telefon nyelve: %1$s</string>
     <string name="machine_translated">Gépi fordítás</string>
     <string name="translation_help">Döcögős mondat a nyelveden? Írj Karolnak:</string>

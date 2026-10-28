@@ -422,7 +422,7 @@
     <string name="correction_was">Było</string>
     <string name="correction_change">Zmiana</string>
     <string name="save_count">Zapisz %1$s</string>
-    <string name="mala_reset">Przywróć %1$d</string>
+    <string name="mala_reset">Przywróć %1$s</string>
     <string name="phone_language">Język telefonu: %1$s</string>
     <string name="machine_translated">Tłumaczenie maszynowe</string>
     <string name="translation_help">Niezgrabne zdanie w Twoim języku? Napisz do Karola:</string>

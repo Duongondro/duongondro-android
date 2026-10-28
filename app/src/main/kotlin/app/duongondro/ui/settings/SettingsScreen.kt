@@ -62,7 +62,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import app.duongondro.ui.CardSection
@@ -95,7 +94,7 @@ import java.util.Locale
 import app.duongondro.reminders.Reminders
 import app.duongondro.reminders.rememberNotificationPermission
 
-/** The language picker waits for the translations; only English exists yet. */
+/** Settings › General › Language; off hides the row. */
 private const val SHOW_LANGUAGE = true
 
 /** The ten languages (design: Localisation). */
@@ -321,7 +320,7 @@ private fun MalaField(value: Int, resetTo: Int?, reset: (() -> Unit)? = null, pi
         TextButton(onClick = {
             text = resetTo.toString()
             reset?.invoke() ?: pick(resetTo)
-        }) { Text(stringResource(R.string.mala_reset, resetTo)) }
+        }) { Text(stringResource(R.string.mala_reset, resetTo.grouped())) }
     }
 }
 
@@ -402,7 +401,7 @@ fun PracticeSettingsScreen(model: AppModel, practiceId: String, openCorrect: (St
                     save(p.copy(practice = p.practice.copy(target = v.filter { it in '0'..'9' }.take(9).toIntOrNull()?.takeIf { it > 0 })))
                 }
                 val default = snapshot.preferences.malaSize
-                MalaField(p.practice.malaSize ?: default, resetTo = default.takeIf { p.practice.malaSize != null },
+                MalaField(p.practice.malaSize ?: default, resetTo = default.takeIf { p.practice.malaSize.let { it != null && it != default } },
                     reset = { save(p.copy(practice = p.practice.copy(malaSize = null))) }) { v ->
                     save(p.copy(practice = p.practice.copy(malaSize = v)))
                 }

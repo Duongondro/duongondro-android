@@ -406,7 +406,7 @@
     <string name="correction_was">Vorher</string>
     <string name="correction_change">Änderung</string>
     <string name="save_count">%1$s sichern</string>
-    <string name="mala_reset">Auf %1$d zurücksetzen</string>
+    <string name="mala_reset">Auf %1$s zurücksetzen</string>
     <string name="phone_language">Sprache des Telefons: %1$s</string>
     <string name="machine_translated">Maschinell übersetzt</string>
     <string name="translation_help">Ein holpriger Satz in deiner Sprache? Schreib Karol:</string>
