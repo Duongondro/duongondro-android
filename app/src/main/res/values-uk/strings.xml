@@ -86,7 +86,6 @@
     <string name="count_so_far">Досі</string>
     <string name="later_round">Я на одному з наступних кіл</string>
     <string name="round_n">Коло %1$d</string>
-    <string name="count_footer">З паперу чи таблиці; приблизно — теж добре.</string>
     <string name="current_streak_days">Серія, днів</string>
     <string name="last_practised">Остання практика</string>
     <string name="today">Сьогодні</string>
@@ -171,9 +170,6 @@
     <string name="discreet">Непомітні сповіщення</string>
     <string name="discreet_detail">На екрані блокування буде «Друг виконав практику» замість назви практики.</string>
     <string name="target_per_round">Ціль на коло</string>
-    <string name="mala_default">Типово (%1$d)</string>
-    <string name="mala_custom">Власне…</string>
-    <string name="mala_custom_label">Розмір мали</string>
     <string name="cover_title">Обкладинка</string>
     <string name="cover_choose">Обрати фото</string>
     <string name="cover_use_default">Використати типове</string>
@@ -415,4 +411,26 @@
     <string name="unlock_replace_detail">На інших телефонах відбудеться вихід, і цей ключ доступу більше не відкриє ваші лічильники на новому телефоні. Телефон, який він уже відкрив, збереже те, що на ньому є.</string>
     <string name="unlock_replace_action">Замінити ключ розблокування</string>
     <string name="unlock_replace_skip">Лише вилучити</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Виправлення</string>
+    <string name="count_section">Рахунок</string>
+    <string name="count_of_round">з %1$s · коло %2$d</string>
+    <string name="correct_the_count">Виправити рахунок</string>
+    <string name="correction_footer">Збережено в історії як виправлення.</string>
+    <string name="round_label">Коло</string>
+    <string name="count_in_round">Кількість у колі</string>
+    <string name="count_now">Кількість зараз</string>
+    <string name="correction_was">Було</string>
+    <string name="correction_change">Зміна</string>
+    <string name="save_count">Зберегти %1$s</string>
+    <string name="mala_reset">Повернути %1$s</string>
+    <string name="phone_language">Мова телефону: %1$s</string>
+    <string name="machine_translated">Машинний переклад</string>
+    <string name="translation_help">Незграбне речення вашою мовою? Напишіть Каролю:</string>
+    <string name="feedback">Відгук</string>
+    <string name="write_an_email">Написати листа</string>
+    <string name="report_on_github">Повідомити про помилку на GitHub</string>
+    <string name="github_needs_account">Публічно, потрібен обліковий запис GitHub</string>
+    <string name="email_starts_with">Лист починається з</string>
+    <string name="email_starts_with_footer">Це можна видалити перед надсиланням. Рахунок і практики не додаються.</string>
 </resources>

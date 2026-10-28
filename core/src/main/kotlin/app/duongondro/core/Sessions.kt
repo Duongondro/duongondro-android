@@ -13,6 +13,8 @@ import java.util.UUID
  * @property amount count added; 0 for a streak-only "done today".
  * @property startExact true when the user tapped Start, otherwise estimated.
  * @property chosenDay the user's choice in the after-midnight sheet; null means the start's own date.
+ * @property correction a correction of the practice's count (design decision 34): [amount] is the
+ *   change, possibly negative; it counts toward the total and rounds, never a day, malas or the streak.
  */
 data class Session(
     val id: UUID = UUID.randomUUID(),
@@ -23,6 +25,7 @@ data class Session(
     val zoneId: String,
     val chosenDay: LocalDate? = null,
     val loggedAt: Instant,
+    val correction: Boolean = false,
 ) {
     val zone: ZoneId get() = runCatching { ZoneId.of(zoneId) }.getOrDefault(ZoneId.of("UTC"))
 
@@ -104,7 +107,7 @@ object SessionStart {
 
     /** Lengths of the sessions the user timed with Start. */
     fun timedLengths(sessions: List<Session>): List<Duration> =
-        sessions.filter { it.startExact }.map { Duration.between(it.startedAt, it.loggedAt) }.filter { !it.isNegative && !it.isZero }
+        sessions.filter { it.startExact && !it.correction }.map { Duration.between(it.startedAt, it.loggedAt) }.filter { !it.isNegative && !it.isZero }
 
     internal fun median(xs: List<Duration>): Duration? {
         if (xs.isEmpty()) return null
@@ -127,7 +130,10 @@ data class TrackedPractice(
     /** A "done today" check with no count (never for ngöndro). */
     val streakOnly: Boolean get() = practice.streakOnlyAllowed && wantsStreakOnly
 
-    fun lifetime(sessions: List<Session>): Int =
+    fun lifetime(sessions: List<Session>): Int = maxOf(0, unclampedLifetime(sessions))
+
+    /** The total before clamping at zero: what a correction is measured against, so the total ends exactly where typed. */
+    fun unclampedLifetime(sessions: List<Session>): Int =
         maxOf(0, openingCount) + sessions.filter { it.practiceId == id }.sumOf { it.amount }
 
     /** Round progress, or null for open-ended or streak-only practices. */
@@ -163,7 +169,7 @@ data class StreakSeed(val practiceId: String, val days: Int, val longest: Int? =
 /** One practice's streak from its sessions and optional seed. */
 fun Streak.of(practiceId: String, sessions: List<Session>, seed: StreakSeed?, now: Instant, zone: ZoneId): Streak.Result {
     val r = compute(
-        events = sessions.filter { it.practiceId == practiceId }.map { it.streakEvent },
+        events = sessions.filter { it.practiceId == practiceId && !it.correction }.map { it.streakEvent },
         seed = seed?.takeIf { it.practiceId == practiceId }?.streakSeed,
         now = now, nowZone = zone,
     )
@@ -176,7 +182,7 @@ fun Streak.of(practiceId: String, sessions: List<Session>, seed: StreakSeed?, no
  * the one that gives the longest current streak wins.
  */
 fun Streak.headline(sessions: List<Session>, seeds: List<StreakSeed>, now: Instant, zone: ZoneId): Streak.Result {
-    val events = sessions.map { it.streakEvent }
+    val events = sessions.filter { !it.correction }.map { it.streakEvent }
     return (listOf<Streak.Seed?>(null) + seeds.map { it.streakSeed })
         .map { compute(events, it, now, zone) }
         .maxWith(compareBy<Streak.Result> { it.current }.thenBy { it.longest })

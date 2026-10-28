@@ -87,6 +87,8 @@ data class ExportContent(
         val count: Int,
         /** The round its last count fell in; null for open-ended and streak-only practices. */
         val round: Int?,
+        /** A correction of the count: [count] is the change, and it counts for no day (design decision 34). */
+        val correction: Boolean = false,
     )
 
     data class FriendRow(val id: UUID, val displayName: String, val gender: String?, val since: Instant?)
@@ -136,7 +138,7 @@ data class ExportContent(
                 sessions.filter { it.practiceId == t.id }.sortedWith(compareBy({ it.startedAt }, { it.id.toString() })).map { s ->
                     running += s.amount
                     SessionRow(s.id, s.practiceId, s.startedAt, s.zone, civilDate(s.startedAt, s.zone), s.day, s.chosenDay, s.amount,
-                        target?.let { maxOf(0, running - 1) / it + 1 })
+                        target?.let { maxOf(0, running - 1) / it + 1 }, s.correction)
                 }
             }
             val names = (cachedFriends + server?.friends.orEmpty()).associate { it.id to it.displayName }

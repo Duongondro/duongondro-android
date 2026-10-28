@@ -62,6 +62,17 @@ class SealedSessionTest {
         assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, sealJson(json, id), 1, syncInstant(t + 60_000), user, keys))
     }
 
+    /** A downward correction opens from the server; a negative count without the flag never does. */
+    @Test fun onlyACorrectionOpensWithANegativeCount() {
+        val id = UUID.randomUUID()
+        val correction = """{"correction":true,"count":-300,"practice":"dorje-sempa","start":1791176400000,"tz":"Europe/Amsterdam","updatedAt":1791180000000}"""
+        val opened = SessionSync.open(id, sealJson(correction, id), 1, syncInstant(t), user, keys) as SessionSync.Opened.Record
+        assertEquals(-300, opened.record.session.amount)
+        assertTrue(opened.record.session.correction)
+        val negative = """{"count":-5,"practice":"dorje-sempa","start":1791176400000,"tz":"Europe/Amsterdam","updatedAt":1791180000000}"""
+        assertEquals(SessionSync.Opened.Refused, SessionSync.open(id, sealJson(negative, id), 1, syncInstant(t), user, keys))
+    }
+
     @Test fun aMissingKeyVersionIsUnreadable() {
         val id = UUID.randomUUID()
         val json = """{"count":1,"practice":"dorje-sempa","start":1791176400000,"tz":"Europe/Amsterdam","updatedAt":1791180000000}"""

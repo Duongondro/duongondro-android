@@ -11,6 +11,7 @@ import app.duongondro.core.AfterMidnight
 import app.duongondro.core.PendingLog
 import app.duongondro.core.Session
 import app.duongondro.core.SessionStart
+import app.duongondro.core.uuidV7
 import app.duongondro.core.Streak
 import app.duongondro.core.TrackedPractice
 import app.duongondro.core.civilDate
@@ -195,7 +196,7 @@ class AppModel(
 
     fun practisedToday(practiceId: String, at: Instant = clock()): Boolean {
         val today = civilDate(at, zone)
-        return snapshot.value.sessionsOf(practiceId).any { it.day == today }
+        return snapshot.value.sessionsOf(practiceId).any { it.day == today && !it.correction }
     }
 
     fun malaSize(p: TrackedPractice): Int = p.practice.effectiveMalaSize(snapshot.value.preferences.malaSize)
@@ -300,6 +301,27 @@ class AppModel(
             val wait = Duration.between(clock(), deadline)
             if (!wait.isNegative) delay(wait.toMillis())
             finalisePending()
+        }
+    }
+
+    /**
+     * Corrects a practice's count to [lifetime] (design decision 34): the change is
+     * saved as a correction session, final at once, and syncs like any session. It
+     * counts toward the total and rounds, never a day or the streak. No lower limit.
+     */
+    fun correctCount(practiceId: String, lifetime: Int) {
+        val s = snapshot.value
+        val p = s.practices.firstOrNull { it.id == practiceId } ?: return
+        val now = clock()
+        // Against the unclamped total, so the shown total ends up exactly at [lifetime].
+        val change = lifetime - p.unclampedLifetime(s.sessions)
+        if (change == 0) return
+        finalisePending()
+        val session = Session(id = uuidV7(now), practiceId = practiceId, amount = change, startedAt = now, startExact = true,
+            zoneId = zone.id, loggedAt = now, correction = true)
+        perform {
+            store.insert(session)
+            accounts?.scheduleSync()
         }
     }
 

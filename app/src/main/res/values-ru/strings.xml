@@ -79,7 +79,6 @@
     <string name="count_so_far">Пока что</string>
     <string name="later_round">Я на более позднем круге</string>
     <string name="round_n">Круг %1$d</string>
-    <string name="count_footer">Из бумажных записей или таблицы; примерно — тоже подойдёт.</string>
     <string name="current_streak_days">Серия, дней</string>
     <string name="last_practised">Последняя практика</string>
     <string name="today">Сегодня</string>
@@ -162,9 +161,6 @@
     <string name="discreet">Неприметные уведомления</string>
     <string name="discreet_detail">На экране блокировки будет «Друг практиковал» вместо названия практики.</string>
     <string name="target_per_round">Цель на круг</string>
-    <string name="mala_default">По умолчанию (%1$d)</string>
-    <string name="mala_custom">Своё…</string>
-    <string name="mala_custom_label">Размер малы</string>
     <string name="cover_title">Обложка</string>
     <string name="cover_choose">Выбрать фото</string>
     <string name="cover_use_default">Использовать по умолчанию</string>
@@ -401,4 +397,26 @@
     <string name="unlock_replace_detail">На других телефонах произойдёт выход, и этот ключ доступа больше не откроет ваши счётчики на новом телефоне. Телефон, который он уже открыл, сохранит то, что на нём есть.</string>
     <string name="unlock_replace_action">Заменить ключ разблокировки</string>
     <string name="unlock_replace_skip">Только удалить</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Исправление</string>
+    <string name="count_section">Счёт</string>
+    <string name="count_of_round">из %1$s · круг %2$d</string>
+    <string name="correct_the_count">Исправить счёт</string>
+    <string name="correction_footer">Сохранено в истории как исправление.</string>
+    <string name="round_label">Круг</string>
+    <string name="count_in_round">Количество в круге</string>
+    <string name="count_now">Количество сейчас</string>
+    <string name="correction_was">Было</string>
+    <string name="correction_change">Изменение</string>
+    <string name="save_count">Сохранить %1$s</string>
+    <string name="mala_reset">Вернуть %1$s</string>
+    <string name="phone_language">Язык телефона: %1$s</string>
+    <string name="machine_translated">Машинный перевод</string>
+    <string name="translation_help">Неуклюжая фраза на вашем языке? Напишите Каролю:</string>
+    <string name="feedback">Отзыв</string>
+    <string name="write_an_email">Написать письмо</string>
+    <string name="report_on_github">Сообщить об ошибке на GitHub</string>
+    <string name="github_needs_account">Публично, нужен аккаунт GitHub</string>
+    <string name="email_starts_with">Письмо начинается с</string>
+    <string name="email_starts_with_footer">Это можно удалить перед отправкой. Счёт и практики не добавляются.</string>
 </resources>

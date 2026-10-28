@@ -74,6 +74,13 @@ fun PracticeName(practice: Practice, large: Boolean = false, modifier: Modifier 
 /** Locale grouping: 43,308 · 43.308 · 43 308. */
 fun Int.grouped(): String = NumberFormat.getIntegerInstance().format(this)
 
+/** A change, signed: "+1,200", "−300" (a true minus sign), "0". */
+fun Int.signed(): String = when {
+    this > 0 -> "+" + grouped()
+    this < 0 -> "\u2212" + (-this.toLong()).let { NumberFormat.getIntegerInstance().format(it) }
+    else -> grouped()
+}
+
 /** The mockups' flat buttons: filled for the main action, outlined beside it, soft-filled for the least. */
 @Composable
 fun FilledAction(

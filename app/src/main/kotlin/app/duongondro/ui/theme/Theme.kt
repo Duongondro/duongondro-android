@@ -134,6 +134,8 @@ object Size {
     /** Onboarding answers (Yes / Not yet). */
     val answer = 60.dp
     val field = 48.dp
+    /** The Round field beside the count when correcting it. */
+    val roundField = 104.dp
     val secondary = 52.dp
     val aboutButton = 48.dp
     /** Progress bars: on Today's cards, and on the practice screen. */

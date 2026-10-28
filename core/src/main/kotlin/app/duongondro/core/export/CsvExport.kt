@@ -23,7 +23,7 @@ object CsvExport {
         PRACTICE("Practice"), SECOND_NAME("Second name"), TARGET("Target"), MALA_SIZE("Mala size"), STREAK_ONLY("Streak only"),
         ARCHIVED("Archived"),
         DAY_COUNTED("Day counted"), START("Start"), TIME_ZONE("Time zone"), COUNT("Count"), ROUND("Round"),
-        CHOSEN_DAY("Day chosen after midnight"),
+        CHOSEN_DAY("Day chosen after midnight"), CORRECTION("Correction"),
         DISPLAY_NAME("Display name"), FRIENDS_SINCE("Friends since"),
         CODE("Friendship code"), KIND("Made or redeemed"), CREATED("Created"), EXPIRES("Expires"), REVOKED("Revoked"),
         REDEMPTIONS("Redeemed"),
@@ -43,10 +43,11 @@ object CsvExport {
         val out = mutableListOf(
             Table("practices", listOf(Column.PRACTICE, Column.SECOND_NAME, Column.TARGET, Column.MALA_SIZE, Column.STREAK_ONLY, Column.ARCHIVED),
                 content.practices.map { listOf(it.name, it.secondName, it.target, it.malaSize, it.streakOnly, it.archived) }),
-            Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY),
+            Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY, Column.CORRECTION),
                 content.sessions.map {
-                    listOf(names[it.practiceId] ?: it.practiceId, it.day.toString(), stamp(it.startedAt, it.zone), it.zone.id, it.count, it.round,
-                        it.chosenDay?.let { _ -> it.day.toString() })
+                    // A correction counts for no day, so its day_counted is empty.
+                    listOf(names[it.practiceId] ?: it.practiceId, it.day.toString().takeUnless { _ -> it.correction }, stamp(it.startedAt, it.zone), it.zone.id, it.count, it.round,
+                        it.chosenDay?.let { _ -> it.day.toString() }, it.correction)
                 }),
         )
         if (content.account != null) {
@@ -100,6 +101,10 @@ object CsvExport {
             "made and redeemed (friendship codes); hardware, tee and software (where a",
             "device keeps its key). Session starts are local to the session's time",
             "zone, given beside them; other times are ISO 8601 with their UTC offset.",
+            "",
+            "A session with correction true is a correction of the count: its count is",
+            "the change, possibly negative, and it counts for no day or streak, so its",
+            "day_counted is empty.",
         )
         when {
             content.account == null -> lines += listOf("", "This phone has no online account, so there are only practices and sessions.")

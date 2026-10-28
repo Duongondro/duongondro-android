@@ -85,7 +85,6 @@
     <string name="count_so_far">Dotychczas</string>
     <string name="later_round">Robię późniejszą rundę</string>
     <string name="round_n">Runda %1$d</string>
-    <string name="count_footer">Z papieru lub arkusza; wystarczy w przybliżeniu.</string>
     <string name="current_streak_days">Seria, dni</string>
     <string name="last_practised">Ostatnia praktyka</string>
     <string name="today">Dziś</string>
@@ -170,9 +169,6 @@
     <string name="discreet">Dyskretne powiadomienia</string>
     <string name="discreet_detail">Ekran blokady pokazuje „Przyjaciel praktykował” zamiast nazwy praktyki.</string>
     <string name="target_per_round">Cel na rundę</string>
-    <string name="mala_default">Domyślnie (%1$d)</string>
-    <string name="mala_custom">Własna…</string>
-    <string name="mala_custom_label">Rozmiar mali</string>
     <string name="cover_title">Okładka</string>
     <string name="cover_choose">Wybierz zdjęcie</string>
     <string name="cover_use_default">Użyj domyślnej</string>
@@ -414,4 +410,26 @@
     <string name="unlock_replace_detail">Inne telefony zostaną wylogowane, a ten klucz dostępu nie odblokuje już Twoich danych na nowym telefonie. Telefon, który został już nim odblokowany, zachowa to, co ma.</string>
     <string name="unlock_replace_action">Zastąp klucz odblokowania</string>
     <string name="unlock_replace_skip">Tylko usuń</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Korekta</string>
+    <string name="count_section">Licznik</string>
+    <string name="count_of_round">z %1$s · runda %2$d</string>
+    <string name="correct_the_count">Popraw licznik</string>
+    <string name="correction_footer">Zapisana w historii jako korekta.</string>
+    <string name="round_label">Runda</string>
+    <string name="count_in_round">Liczba w rundzie</string>
+    <string name="count_now">Liczba teraz</string>
+    <string name="correction_was">Było</string>
+    <string name="correction_change">Zmiana</string>
+    <string name="save_count">Zapisz %1$s</string>
+    <string name="mala_reset">Przywróć %1$s</string>
+    <string name="phone_language">Język telefonu: %1$s</string>
+    <string name="machine_translated">Tłumaczenie maszynowe</string>
+    <string name="translation_help">Niezgrabne zdanie w Twoim języku? Napisz do Karola:</string>
+    <string name="feedback">Opinie</string>
+    <string name="write_an_email">Napisz e-mail</string>
+    <string name="report_on_github">Zgłoś błąd na GitHubie</string>
+    <string name="github_needs_account">Publicznie, wymaga konta na GitHubie</string>
+    <string name="email_starts_with">E-mail zaczyna się od</string>
+    <string name="email_starts_with_footer">Możesz to usunąć przed wysłaniem. Nie dodajemy żadnych liczb ani praktyk.</string>
 </resources>

@@ -79,7 +79,6 @@
     <string name="count_so_far">Dosud</string>
     <string name="later_round">Dělám už další kolo</string>
     <string name="round_n">Kolo %1$d</string>
-    <string name="count_footer">Z papíru nebo z tabulky; stačí přibližně.</string>
     <string name="current_streak_days">Série, dny</string>
     <string name="last_practised">Naposledy praktikováno</string>
     <string name="today">Dnes</string>
@@ -162,9 +161,6 @@
     <string name="discreet">Nenápadná oznámení</string>
     <string name="discreet_detail">Zamčená obrazovka ukáže „Přítel praktikoval“ místo názvu praktiky.</string>
     <string name="target_per_round">Cíl na kolo</string>
-    <string name="mala_default">Výchozí (%1$d)</string>
-    <string name="mala_custom">Vlastní…</string>
-    <string name="mala_custom_label">Velikost maly</string>
     <string name="cover_title">Úvodní fotka</string>
     <string name="cover_choose">Vybrat fotku</string>
     <string name="cover_use_default">Použít výchozí</string>
@@ -401,4 +397,26 @@
     <string name="unlock_replace_detail">Ostatní telefony se odhlásí a tento přístupový klíč už neodemkne tvé počty v novém telefonu. Telefon, který jím už byl odemčen, si ponechá, co má.</string>
     <string name="unlock_replace_action">Nahradit odemykací klíč</string>
     <string name="unlock_replace_skip">Jen odebrat</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Oprava</string>
+    <string name="count_section">Počet</string>
+    <string name="count_of_round">z %1$s · kolo %2$d</string>
+    <string name="correct_the_count">Opravit počet</string>
+    <string name="correction_footer">Uloženo v historii jako oprava.</string>
+    <string name="round_label">Kolo</string>
+    <string name="count_in_round">Počet v kole</string>
+    <string name="count_now">Počet teď</string>
+    <string name="correction_was">Bylo</string>
+    <string name="correction_change">Změna</string>
+    <string name="save_count">Uložit %1$s</string>
+    <string name="mala_reset">Vrátit na %1$s</string>
+    <string name="phone_language">Jazyk telefonu: %1$s</string>
+    <string name="machine_translated">Strojový překlad</string>
+    <string name="translation_help">Neobratná věta ve tvém jazyce? Napiš Karolovi:</string>
+    <string name="feedback">Zpětná vazba</string>
+    <string name="write_an_email">Napsat e-mail</string>
+    <string name="report_on_github">Nahlásit chybu na GitHubu</string>
+    <string name="github_needs_account">Veřejné, vyžaduje účet na GitHubu</string>
+    <string name="email_starts_with">E-mail začíná</string>
+    <string name="email_starts_with_footer">Před odesláním to můžeš smazat. Počty ani praktiky se nepřidávají.</string>
 </resources>

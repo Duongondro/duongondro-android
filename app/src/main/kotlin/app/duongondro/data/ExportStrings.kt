@@ -26,6 +26,7 @@ object ExportStrings {
         "Devices" to R.string.ex_devices,
         "Display name" to R.string.ex_display_name,
         "Done" to R.string.ex_done,
+        "Correction" to R.string.correction,
         "Duongöndro: your data" to R.string.ex_title,
         "E-mail" to R.string.ex_e_mail,
         "Every practice, session and streak, and everything the server keeps about your account. Your counts are decrypted on this phone and are readable in the file; the server never sees them. PDF to read and print, JSON for everything machine-readable, CSV as a ZIP with one table per kind of data." to R.string.ex_footer,

@@ -23,7 +23,8 @@ object UsualTime {
      */
     fun minutes(sessions: List<Session>, now: Instant): Int? {
         val cutoff = now.minus(Duration.ofDays(14))
-        val times = sessions.filter { it.loggedAt.isAfter(cutoff) && !it.loggedAt.isAfter(now) }.map { s ->
+        // A correction is not a sitting: it says nothing about the practice time.
+        val times = sessions.filter { !it.correction && it.loggedAt.isAfter(cutoff) && !it.loggedAt.isAfter(now) }.map { s ->
             val t = s.loggedAt.atZone(s.zone)
             t.hour * 60 + t.minute
         }

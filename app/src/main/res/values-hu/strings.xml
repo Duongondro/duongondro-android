@@ -75,7 +75,6 @@
     <string name="count_so_far">Eddig</string>
     <string name="later_round">Egy későbbi körben tartok</string>
     <string name="round_n">%1$d. kör</string>
-    <string name="count_footer">Papírról vagy táblázatból; a hozzávetőleges érték is jó.</string>
     <string name="current_streak_days">Sorozat, napok</string>
     <string name="last_practised">Utoljára gyakorolt</string>
     <string name="today">Ma</string>
@@ -158,9 +157,6 @@
     <string name="discreet">Diszkrét értesítések</string>
     <string name="discreet_detail">A zárolt képernyőn a gyakorlat helyett az áll: „Egy barát gyakorolt”.</string>
     <string name="target_per_round">Cél körönként</string>
-    <string name="mala_default">Alapértelmezett (%1$d)</string>
-    <string name="mala_custom">Egyéni…</string>
-    <string name="mala_custom_label">A mala értéke</string>
     <string name="cover_title">Borító</string>
     <string name="cover_choose">Fotó kiválasztása</string>
     <string name="cover_use_default">Alapértelmezett használata</string>
@@ -385,4 +381,26 @@
     <string name="unlock_replace_detail">A többi telefon kijelentkezik, és ez a hozzáférési kulcs már nem tudja feloldani a számlálóidat új telefonon. Egy telefon, amelyen már feloldotta őket, megtartja, ami rajta van.</string>
     <string name="unlock_replace_action">Feloldókulcs cseréje</string>
     <string name="unlock_replace_skip">Csak eltávolítás</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Javítás</string>
+    <string name="count_section">Számláló</string>
+    <string name="count_of_round">/ %1$s · %2$d. kör</string>
+    <string name="correct_the_count">Számláló javítása</string>
+    <string name="correction_footer">Javításként mentve az előzményekben.</string>
+    <string name="round_label">Kör</string>
+    <string name="count_in_round">Szám a körben</string>
+    <string name="count_now">Szám most</string>
+    <string name="correction_was">Előtte</string>
+    <string name="correction_change">Változás</string>
+    <string name="save_count">%1$s mentése</string>
+    <string name="mala_reset">Vissza: %1$s</string>
+    <string name="phone_language">A telefon nyelve: %1$s</string>
+    <string name="machine_translated">Gépi fordítás</string>
+    <string name="translation_help">Döcögős mondat a nyelveden? Írj Karolnak:</string>
+    <string name="feedback">Visszajelzés</string>
+    <string name="write_an_email">E-mail írása</string>
+    <string name="report_on_github">Hiba jelentése a GitHubon</string>
+    <string name="github_needs_account">Nyilvános, GitHub-fiók kell hozzá</string>
+    <string name="email_starts_with">Az e-mail így kezdődik</string>
+    <string name="email_starts_with_footer">Küldés előtt törölheted. Számok és gyakorlatok nem kerülnek bele.</string>
 </resources>

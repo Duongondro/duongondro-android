@@ -81,7 +81,6 @@
     <string name="count_so_far">Bisher</string>
     <string name="later_round">Ich bin in einer späteren Runde</string>
     <string name="round_n">Runde %1$d</string>
-    <string name="count_footer">Von Papier oder aus einer Tabelle; ungefähr reicht.</string>
     <string name="current_streak_days">Serie, Tage</string>
     <string name="last_practised">Zuletzt geübt</string>
     <string name="today">Heute</string>
@@ -166,9 +165,6 @@
     <string name="discreet">Diskrete Mitteilungen</string>
     <string name="discreet_detail">Auf dem Sperrbildschirm steht „Ein Freund hat geübt“ statt der Übung.</string>
     <string name="target_per_round">Ziel pro Runde</string>
-    <string name="mala_default">Standard (%1$d)</string>
-    <string name="mala_custom">Eigene…</string>
-    <string name="mala_custom_label">Größe der Mala</string>
     <string name="cover_title">Titelbild</string>
     <string name="cover_choose">Foto auswählen</string>
     <string name="cover_use_default">Standard verwenden</string>
@@ -398,4 +394,26 @@
     <string name="unlock_replace_detail">Andere Handys werden abgemeldet, und dieser Passkey kann deine Zähler auf einem neuen Handy nicht mehr entsperren. Ein Handy, das er schon entsperrt hat, behält, was es hat.</string>
     <string name="unlock_replace_action">Entsperrschlüssel ersetzen</string>
     <string name="unlock_replace_skip">Nur entfernen</string>
+    <!-- 0.5: correcting a count, the Language page, Feedback -->
+    <string name="correction">Korrektur</string>
+    <string name="count_section">Zählung</string>
+    <string name="count_of_round">von %1$s · Runde %2$d</string>
+    <string name="correct_the_count">Zählung korrigieren</string>
+    <string name="correction_footer">Im Verlauf als Korrektur gespeichert.</string>
+    <string name="round_label">Runde</string>
+    <string name="count_in_round">Anzahl in der Runde</string>
+    <string name="count_now">Anzahl jetzt</string>
+    <string name="correction_was">Vorher</string>
+    <string name="correction_change">Änderung</string>
+    <string name="save_count">%1$s sichern</string>
+    <string name="mala_reset">Auf %1$s zurücksetzen</string>
+    <string name="phone_language">Sprache des Telefons: %1$s</string>
+    <string name="machine_translated">Maschinell übersetzt</string>
+    <string name="translation_help">Ein holpriger Satz in deiner Sprache? Schreib Karol:</string>
+    <string name="feedback">Feedback</string>
+    <string name="write_an_email">E-Mail schreiben</string>
+    <string name="report_on_github">Fehler auf GitHub melden</string>
+    <string name="github_needs_account">Öffentlich, braucht ein GitHub-Konto</string>
+    <string name="email_starts_with">Die E-Mail beginnt mit</string>
+    <string name="email_starts_with_footer">Du kannst das vor dem Senden löschen. Zählungen und Übungen werden nicht angehängt.</string>
 </resources>
