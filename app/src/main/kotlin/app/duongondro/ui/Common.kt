@@ -185,14 +185,18 @@ fun RowDivider() {
 fun ListRow(
     title: String, modifier: Modifier = Modifier, detail: String? = null, chevron: Boolean = false,
     titleColor: Color = Theme.colors.ink, detailColor: Color = Theme.colors.muted, semibold: Boolean = false, onClick: (() -> Unit)? = null,
-    trailing: @Composable (() -> Unit)? = null,
+    subtitle: String? = null, trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(
         modifier.fillMaxWidth().let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .heightIn(min = Size.minTap).padding(horizontal = Space.l),
         horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, Modifier.weight(1f).padding(vertical = Space.s), style = if (semibold) Theme.type.body.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold) else Theme.type.body, color = titleColor)
+        // A subtitle is part of the row, set as a switch row's explanation is: just under the title.
+        Column(Modifier.weight(1f).padding(vertical = if (subtitle != null) Space.m else Space.s), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Text(title, style = if (semibold) Theme.type.body.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold) else Theme.type.body, color = titleColor)
+            subtitle?.let { Text(it, style = Theme.type.rowDetail, color = Theme.colors.muted) }
+        }
         detail?.let { Text(it, style = Theme.type.body, color = detailColor) }
         trailing?.invoke()
         if (chevron) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)
