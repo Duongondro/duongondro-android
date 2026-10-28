@@ -1,7 +1,6 @@
 package app.duongondro.ui.settings
 
 import android.content.Intent
-import android.content.res.Resources
 import android.icu.text.Collator
 import android.icu.util.ULocale
 import androidx.appcompat.app.AppCompatDelegate
@@ -34,6 +33,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withLink
+import androidx.core.app.LocaleManagerCompat
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import app.duongondro.R
@@ -67,9 +67,10 @@ fun LanguageScreen(back: () -> Unit) {
     }
     val machine = stringResource(R.string.machine_translated)
     // The language the phone would give the app: its first preference we have, else English.
+    // Not Resources.getSystem(): from Android 13 it reports the app's own locale once one is chosen.
     val phone = remember {
-        val system = Resources.getSystem().configuration.locales
-        (0 until system.size()).map { system[it].language }.firstOrNull { it in LANGUAGES } ?: "en"
+        val system = LocaleManagerCompat.getSystemLocales(context)
+        (0 until system.size()).mapNotNull { system[it]?.language }.firstOrNull { it in LANGUAGES } ?: "en"
     }
     fun choose(code: String?) {
         current = code
