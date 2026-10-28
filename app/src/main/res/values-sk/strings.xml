@@ -9,7 +9,12 @@
         <item quantity="many">%d dní</item>
         <item quantity="other">%d dní</item>
     </plurals>
-    <string name="streak_longest">Séria dní · najdlhšia %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d deň</item>
+        <item quantity="few">Rekord: %d dni</item>
+        <item quantity="many">Rekord: %d dní</item>
+        <item quantity="other">Rekord: %d dní</item>
+    </plurals>
     <string name="any_practice_starts">Akékoľvek cvičenie dnes založí sériu.</string>
     <string name="done_today">Dnes hotovo</string>
     <string name="not_yet_today">Dnes zatiaľ nie</string>

@@ -96,7 +96,7 @@ fun FriendDetailScreen(model: AppModel, friendId: String, back: () -> Unit) {
             }
         }
         CardSection(stringResource(R.string.notifications)) {
-            SwitchRow(stringResource(R.string.tell_me_when), null, f.notifyDone, Modifier.padding(horizontal = Space.l, vertical = Space.s)) { on ->
+            SwitchRow(stringResource(R.string.tell_me_when), null, f.notifyDone, Modifier.padding(horizontal = Space.l)) { on ->
                 run { accounts.setNotifyDone(f.user, on) }
                 if (on) askPush()
             }

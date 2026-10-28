@@ -103,7 +103,7 @@ private fun HeadlineCard(result: Streak.Result, modifier: Modifier = Modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
             Text(pluralStringResource(R.plurals.days, result.current, result.current), style = Theme.type.hero, color = Theme.colors.heroInk)
             Text(
-                if (result.current > 0) stringResource(R.string.streak_longest, result.longest)
+                if (result.current > 0) pluralStringResource(R.plurals.streak_record, result.longest, result.longest)
                 else stringResource(R.string.any_practice_starts),
                 style = Theme.type.secondary.copy(fontWeight = FontWeight.Medium),
                 color = Theme.colors.heroInk.copy(alpha = 0.9f),

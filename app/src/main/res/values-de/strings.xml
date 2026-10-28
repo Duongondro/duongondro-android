@@ -8,7 +8,10 @@
         <item quantity="one">%d Tag</item>
         <item quantity="other">%d Tage</item>
     </plurals>
-    <string name="streak_longest">Übungsserie · längste %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d Tag</item>
+        <item quantity="other">Rekord: %d Tage</item>
+    </plurals>
     <string name="any_practice_starts">Jede Übung heute startet eine Serie.</string>
     <string name="done_today">Heute erledigt</string>
     <string name="not_yet_today">Heute noch nicht</string>

@@ -6,16 +6,16 @@
     <string name="POKE">%1$s cię szturcha. Czas usiąść do praktyki?</string>
     <string name="POKE_MALE">%1$s cię szturchnął. Czas usiąść do praktyki?</string>
     <string name="POKE_FEMALE">%1$s cię szturchnęła. Czas usiąść do praktyki?</string>
-    <string name="FRIEND_DONE_UNNAMED">Przyjaciel właśnie praktykował</string>
-    <string name="FRIEND_DONE_UNNAMED_MALE">Przyjaciel właśnie praktykował</string>
-    <string name="FRIEND_DONE_UNNAMED_FEMALE">Przyjaciółka właśnie praktykowała</string>
-    <string name="POKE_UNNAMED">Przyjaciel Cię szturchnął</string>
-    <string name="POKE_UNNAMED_MALE">Przyjaciel Cię szturchnął</string>
-    <string name="POKE_UNNAMED_FEMALE">Przyjaciółka Cię szturchnęła</string>
+    <string name="FRIEND_DONE_UNNAMED">Znajomy właśnie praktykował</string>
+    <string name="FRIEND_DONE_UNNAMED_MALE">Znajomy właśnie praktykował</string>
+    <string name="FRIEND_DONE_UNNAMED_FEMALE">Znajoma właśnie praktykowała</string>
+    <string name="POKE_UNNAMED">Znajomy Cię szturchnął</string>
+    <string name="POKE_UNNAMED_MALE">Znajomy Cię szturchnął</string>
+    <string name="POKE_UNNAMED_FEMALE">Znajoma Cię szturchnęła</string>
     <string name="STREAK_AT_RISK">Jedna z twoich serii kończy się za mniej niż dwie godziny</string>
-    <string name="push_generic">Wieści od przyjaciół</string>
-    <string name="push_ask_title">Pozwól przyjaciołom cię popędzać</string>
-    <string name="push_ask_detail">Wtedy %1$s może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
-    <string name="push_ask_detail_unnamed">Wtedy przyjaciel może cię popędzać, a ty dowiesz się, kiedy przyjaciele praktykują.</string>
+    <string name="push_generic">Wieści od znajomych</string>
+    <string name="push_ask_title">Pozwól znajomym cię popędzać</string>
+    <string name="push_ask_detail">Wtedy %1$s może cię popędzać, a ty dowiesz się, kiedy znajomi praktykują.</string>
+    <string name="push_ask_detail_unnamed">Wtedy znajomy może cię popędzać, a ty dowiesz się, kiedy znajomi praktykują.</string>
     <string name="push_ask_turn_on">Włącz powiadomienia</string>
 </resources>

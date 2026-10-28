@@ -9,7 +9,12 @@
         <item quantity="many">%d dne</item>
         <item quantity="other">%d dní</item>
     </plurals>
-    <string name="streak_longest">Série praxe · nejdelší %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d den</item>
+        <item quantity="few">Rekord: %d dny</item>
+        <item quantity="many">Rekord: %d dne</item>
+        <item quantity="other">Rekord: %d dní</item>
+    </plurals>
     <string name="any_practice_starts">Jakákoli praxe dnes začne sérii.</string>
     <string name="done_today">Dnes hotovo</string>
     <string name="not_yet_today">Dnes ještě ne</string>

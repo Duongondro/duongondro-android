@@ -157,7 +157,8 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
             mine?.let { UndoStrip(it, practice.streakOnly) { model.undo() } }
             if (practice.streakOnly) {
                 val done = model.practisedToday(practice.id, now)
-                BigButton(stringResource(if (done) R.string.done_today else R.string.mark_today_done), Theme.type.bigButtonLabel,
+                val gender = model.ownGender()
+                BigButton(if (done) stringResource(R.string.done_today) else stringResource(GenderedString.MarkTodayDone, gender), Theme.type.bigButtonLabel,
                     icon = true, enabled = !done && mine == null) { tap(0) }
             } else {
                 val mala = model.malaSize(practice)
@@ -182,7 +183,11 @@ fun PracticeScreen(model: AppModel, practiceId: String, back: () -> Unit) {
     }
 }
 
-/** "Dorje Sempa", and below it "Diamond Mind · round 1 · 43,308 lifetime". */
+/**
+ * "Dorje Sempa", and below it "Diamond Mind · round 2" for a practice with rounds, or
+ * "Diamond Mind · 43,308 lifetime" for one without: with rounds, only the one under
+ * way matters here, and the lifetime total is the app's own bookkeeping.
+ */
 @Composable
 private fun Header(p: TrackedPractice, sessions: List<Session>, extra: @Composable () -> Unit = {}) {
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
@@ -190,8 +195,8 @@ private fun Header(p: TrackedPractice, sessions: List<Session>, extra: @Composab
         p.practice.shownSecondName()?.let(::add)
         if (p.streakOnly) add(stringResource(R.string.header_streak_only))
         else {
-            rounds?.let { add(stringResource(R.string.header_round, it.round)) }
-            add(stringResource(R.string.header_lifetime, p.lifetime(sessions).grouped()))
+            if (rounds != null) add(stringResource(R.string.header_round, rounds.round))
+            else add(stringResource(R.string.header_lifetime, p.lifetime(sessions).grouped()))
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {

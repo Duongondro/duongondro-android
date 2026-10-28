@@ -7,7 +7,10 @@
         <item quantity="one">%d nap</item>
         <item quantity="other">%d nap</item>
     </plurals>
-    <string name="streak_longest">Gyakorlási sorozat · leghosszabb: %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d nap</item>
+        <item quantity="other">Rekord: %d nap</item>
+    </plurals>
     <string name="any_practice_starts">Bármelyik gyakorlat ma új sorozatot indít.</string>
     <string name="done_today">Ma kész</string>
     <string name="not_yet_today">Ma még nem</string>

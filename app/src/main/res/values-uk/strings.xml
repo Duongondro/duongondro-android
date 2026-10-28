@@ -11,7 +11,12 @@
         <item quantity="many">%d днів</item>
         <item quantity="other">%d дня</item>
     </plurals>
-    <string name="streak_longest">Серія практики · найдовша %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Рекорд: %d день</item>
+        <item quantity="few">Рекорд: %d дні</item>
+        <item quantity="many">Рекорд: %d днів</item>
+        <item quantity="other">Рекорд: %d дня</item>
+    </plurals>
     <string name="any_practice_starts">Будь-яка практика сьогодні розпочинає серію.</string>
     <string name="done_today">Виконано сьогодні</string>
     <string name="not_yet_today">Сьогодні ще ні</string>

@@ -10,7 +10,11 @@
         <item quantity="many">%d días</item>
         <item quantity="other">%d días</item>
     </plurals>
-    <string name="streak_longest">Racha de práctica · máxima %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Récord: %d día</item>
+        <item quantity="many">Récord: %d días</item>
+        <item quantity="other">Récord: %d días</item>
+    </plurals>
     <string name="any_practice_starts">Cualquier práctica hoy inicia una racha.</string>
     <string name="done_today">Hecho hoy</string>
     <string name="not_yet_today">Aún no hoy</string>

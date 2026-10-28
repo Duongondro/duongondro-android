@@ -10,7 +10,12 @@
         <item quantity="many">%d dni</item>
         <item quantity="other">%d dnia</item>
     </plurals>
-    <string name="streak_longest">Seria praktyki · najdłuższa %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d dzień</item>
+        <item quantity="few">Rekord: %d dni</item>
+        <item quantity="many">Rekord: %d dni</item>
+        <item quantity="other">Rekord: %d dnia</item>
+    </plurals>
     <string name="any_practice_starts">Każda dzisiejsza praktyka rozpoczyna serię.</string>
     <string name="done_today">Zrobione dziś</string>
     <string name="not_yet_today">Dziś jeszcze nie</string>
@@ -45,7 +50,7 @@
     <string name="added">Dodano %1$s</string>
     <string name="marked_done">Oznaczono jako zrobione</string>
     <string name="undo">Cofnij</string>
-    <string name="mark_today_done">Oznacz dziś jako zrobione</string>
+    <string name="mark_today_done">Wykonałem/wykonałam praktykę</string>
     <string name="add_one_mala">Dodaj jedną malę, %1$d</string>
     <string name="announce_added">Dodano %1$s. Można cofnąć.</string>
     <string name="announce_done">Oznaczono jako zrobione. Można cofnąć.</string>
@@ -60,12 +65,12 @@
     <string name="mala_counts_as">Jedna mala to</string>
     <string name="section_about">O aplikacji</string>
     <string name="version">Wersja</string>
-    <string name="source">Źródło</string>
+    <string name="source">Kod źródłowy</string>
     <string name="copied">Skopiowano</string>
     <string name="source_code">Kod źródłowy</string>
 
     <!-- Onboarding -->
-    <string name="welcome_tagline">Śledź swoją praktykę medytacji razem z przyjaciółmi.</string>
+    <string name="welcome_tagline">Śledź swoją praktykę medytacji razem ze znajomymi.</string>
     <string name="welcome_encrypted">Szyfrowanie end-to-end i w pełni otwarty kod źródłowy.</string>
     <string name="have_account">Mam już konto</string>
     <string name="q_finished_ngondro">Czy ukończyłeś/aś nyndro?</string>
@@ -90,28 +95,28 @@
     <string name="today">Dziś</string>
     <string name="yesterday">Wczoraj</string>
     <string name="longest_optional">Najdłuższa seria (opcjonalnie)</string>
-    <string name="seed_footer">Dotychczasowa seria liczy się na Twoim ekranie Dziś. Przyjaciele widzą wyłącznie dni śledzone w aplikacji.</string>
+    <string name="seed_footer">Dotychczasowa seria liczy się na Twoim ekranie Dziś. Znajomi widzą wyłącznie dni śledzone w aplikacji.</string>
     <string name="q_reminder">Kiedy mamy Ci przypominać?</string>
     <string name="q_reminder_detail">Wieczorne przypomnienie, gdy seria jest zagrożona. Jest ustawiane na tym telefonie i nic go nie opuszcza.</string>
     <string name="remind_at_time">Przypomnij mi o %1$s</string>
     <string name="no_reminders">Bez przypomnień</string>
     <string name="get_started">Zaczynamy</string>
     <string name="where_title">Tylko na tym telefonie czy online?</string>
-    <string name="where_detail">Konto dodaje przyjaciół, publiczne serie i synchronizację między telefonami. Liczniki są szyfrowane end-to-end w obu przypadkach: serwer nigdy ich nie widzi.</string>
-    <string name="where_friends">Przyjaciele widzą Twoje serie, nigdy liczniki</string>
+    <string name="where_detail">Konto dodaje znajomych, publiczne serie i synchronizację między telefonami. Liczniki są szyfrowane end-to-end w obu przypadkach: serwer nigdy ich nie widzi.</string>
+    <string name="where_friends">Znajomi widzą Twoje serie, nigdy liczniki</string>
     <string name="where_sync">Nowy telefon zaczyna tam, gdzie skończył ten</string>
     <string name="where_later">Konto możesz założyć później w Ustawieniach</string>
     <string name="where_online">Załóż konto online</string>
     <string name="where_local">Tylko na tym telefonie</string>
     <string name="invite_label">Kod przyjaźni</string>
     <string name="invite_needed">Nowych kont nie można teraz zakładać. Spróbuj później albo ćwicz dalej na tym telefonie.</string>
-    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo otwórz link z kodem przyjaźni od przyjaciela.</string>
+    <string name="signup_too_many">Z tej sieci było w ostatniej godzinie zbyt wiele rejestracji. Spróbuj później albo otwórz link z kodem przyjaźni od znajomego.</string>
     <string name="signup_link_gone">Ten link z kodem przyjaźni już nie działa. Kontynuuj, aby założyć konto bez niego.</string>
     <string name="link_check_failed">Nie udało się sprawdzić linku z kodem przyjaźni. Spróbuj ponownie albo kontynuuj bez niego.</string>
     <string name="link_skip">Kontynuuj bez linku</string>
     <string name="passkey_unavailable">Ten telefon nie może utworzyć klucza dostępu. Użyj adresu e-mail.</string>
     <string name="consent_title">Zanim cokolwiek zapiszemy</string>
-    <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Serwer przechowuje Twoje konto: Twoje klucze dostępu oraz e-mail, jeśli go dodasz; imię widoczne dla przyjaciół; nazwę użytkownika i płeć, jeśli je podasz; Twoich przyjaciół; oraz publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
+    <string name="consent_detail">Konto w aplikacji do praktyki buddyjskiej coś mówi o Twoich przekonaniach, które RODO traktuje jako szczególne. Serwer przechowuje Twoje konto: Twoje klucze dostępu oraz e-mail, jeśli go dodasz; imię widoczne dla znajomych; nazwę użytkownika i płeć, jeśli je podasz; Twoich znajomych; oraz publiczne serie. Liczniki pozostają zaszyfrowane na Twoich telefonach.</string>
     <string name="consent_check">Zgadzam się, aby Duongöndro przechowywało te dane na potrzeby mojego konta. Wszystko mogę wyeksportować lub usunąć w Ustawieniach.</string>
     <string name="privacy_policy">Polityka prywatności</string>
     <string name="email_title">Jaki masz adres e-mail?</string>
@@ -126,8 +131,8 @@
     <string name="sent_again">Wysłano ponownie</string>
     <string name="skip">Pomiń</string>
     <string name="name_title">Jak mamy Cię nazywać?</string>
-    <string name="name_detail">Przyjaciele widzą to imię obok Twoich serii.</string>
-    <string name="name_random_detail">Losowe imię, żeby przyjaciele mogli cię rozpoznać. Zostaw je albo zmień.</string>
+    <string name="name_detail">Znajomi widzą to imię obok Twoich serii.</string>
+    <string name="name_random_detail">Losowe imię, żeby znajomi mogli cię rozpoznać. Zostaw je albo zmień.</string>
     <string name="name_label">Imię</string>
     <string name="gender_title">Twoja płeć</string>
     <string name="gender_detail">Opcjonalnie. Niektóre języki mają różne formy dla mężczyzn i kobiet.</string>
@@ -167,7 +172,7 @@
     <string name="language">Język</string>
     <string name="system_default">Domyślny systemowy</string>
     <string name="discreet">Dyskretne powiadomienia</string>
-    <string name="discreet_detail">Ekran blokady pokazuje „Przyjaciel praktykował” zamiast nazwy praktyki.</string>
+    <string name="discreet_detail">Ekran blokady pokazuje „Znajomy praktykował” zamiast nazwy praktyki.</string>
     <string name="target_per_round">Cel na rundę</string>
     <string name="cover_title">Okładka</string>
     <string name="cover_choose">Wybierz zdjęcie</string>
@@ -191,7 +196,7 @@
         <item quantity="other">Twoja seria %d dnia kończy się o północy.</item>
     </plurals>
     <string name="reminder_short_session">Nawet krótka sesja się liczy.</string>
-    <string name="evening_reminder">Wieczorne przypomnienie</string>
+    <string name="evening_reminder">Przypomnij mi wieczorem</string>
     <string name="time">Godzina</string>
     <string name="ok">OK</string>
     <string name="notifications_off">Powiadomienia są wyłączone dla tej aplikacji, więc przypomnienie nie może się pokazać.</string>
@@ -212,10 +217,10 @@
     <string name="contributors">Autorzy</string>
     <string name="contributors_footer">Wszyscy, którzy wnieśli zmiany do repozytoriów aplikacji, serwera, projektu lub Androida, od największej liczby commitów. Generowane z historii git podczas budowania aplikacji.</string>
     <string name="made_by">Autorzy</string>
-    <string name="about_and_contributors">O aplikacji i autorzy</string>
+    <string name="about_and_contributors">O aplikacji i autorach</string>
     <string name="about_tagline">Szyfrowanie end-to-end i w pełni otwarty kod źródłowy.</string>
     <string name="your_practices">Twoje praktyki</string>
-    <string name="source_footer">Dotknij Źródło, aby otworzyć dokładnie ten commit na GitHubie.</string>
+    <string name="source_footer">Dotknij Kod źródłowy, aby otworzyć dokładnie ten commit na GitHubie.</string>
     <string name="licences">Licencje</string>
     <string name="storage_error">Czegoś nie udało się zapisać</string>
     <string name="previous_round">Poprzednia runda</string>
@@ -238,10 +243,10 @@
     <string name="section_account">Konto</string>
     <string name="account_signed_in_as">Zalogowano jako</string>
     <string name="account_name">Twoje imię</string>
-    <string name="account_name_detail">Przyjaciele widzą to imię obok Twoich serii.</string>
+    <string name="account_name_detail">Znajomi widzą to imię obok Twoich serii.</string>
     <string name="save">Zapisz</string>
     <string name="recovery_code">Kod odzyskiwania</string>
-    <string name="recovery_not_confirmed">Niepotwierdzone</string>
+    <string name="recovery_not_confirmed">Niepotwierdzony</string>
     <string name="recovery_make_new">Utwórz nowy</string>
     <string name="recovery_new_title">Utworzyć nowy kod odzyskiwania?</string>
     <string name="recovery_new_detail">Zapisany wcześniej kod przestanie działać.</string>
@@ -258,7 +263,7 @@
     <string name="make_account">Załóż konto online</string>
     <string name="sign_in_existing">Mam już konto</string>
     <string name="finish_set_up">Dokończ konfigurację</string>
-    <string name="account_footer_local">Tylko na tym telefonie. Konto daje przyjaciół, publiczne serie i synchronizację między telefonami; Twoje liczby pozostają zaszyfrowane end-to-end.</string>
+    <string name="account_footer_local">Tylko na tym telefonie. Konto daje znajomych, publiczne serie i synchronizację między telefonami; Twoje liczby pozostają zaszyfrowane end-to-end.</string>
     <string name="sign_out_needs_recovery">Zanim się tu wylogujesz, dokończ kod odzyskiwania: bez niego Twoje liczby nie mogłyby wrócić.</string>
     <string name="other_account_title">Ten telefon ma praktykę z innego konta</string>
     <string name="other_account_detail">Usunąć ją tutaj i kontynuować? To, co zostało zsynchronizowane, zostaje w tamtym koncie.</string>
@@ -295,10 +300,10 @@
     <string name="invite_revoke_detail">Kod i jego link od razu przestaną działać. Przyjaźnie, które już z niego powstały, zostaną.</string>
     <string name="invite_qr_description">Kod QR linku z kodem przyjaźni</string>
     <plurals name="invite_works_for">
-        <item quantity="one">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dzień</item>
-        <item quantity="few">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dni</item>
-        <item quantity="many">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dni</item>
-        <item quantity="other">Każdy z tym kodem zostaje Twoim przyjacielem · ważny przez %d dnia</item>
+        <item quantity="one">Każdy z tym kodem zostaje Twoim znajomym · ważny przez %d dzień</item>
+        <item quantity="few">Każdy z tym kodem zostaje Twoim znajomym · ważny przez %d dni</item>
+        <item quantity="many">Każdy z tym kodem zostaje Twoim znajomym · ważny przez %d dni</item>
+        <item quantity="other">Każdy z tym kodem zostaje Twoim znajomym · ważny przez %d dnia</item>
     </plurals>
 
     <!-- Accepting a friendship code while signed in -->
@@ -311,22 +316,22 @@
     <string name="accept_done_named">Ty i %s jesteście teraz znajomymi.</string>
     <string name="accept_already">Jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
     <string name="accept_already_named">Ty i %s jesteście już znajomymi: ten kod przyjaźni niczego nie zmieni.</string>
-    <string name="accept_own">To Twój własny kod przyjaźni. Wyślij go przyjacielowi.</string>
+    <string name="accept_own">To Twój własny kod przyjaźni. Wyślij go znajomemu.</string>
     <string name="accept_gone">Tego kodu przyjaźni nie da się użyć: mógł wygasnąć albo zostać wycofany.</string>
     <string name="counted_for">Zaliczone na dzień: %1$s</string>
     <string name="started_after_midnight">Zacząłem/zaczęłam po północy</string>
-    <string name="tab_friends">Przyjaciele</string>
+    <string name="tab_friends">Znajomi</string>
     <string name="friends_local_title">Na tym telefonie nie ma jeszcze konta</string>
-    <string name="friends_local_detail">Przyjaciele widzą tylko Twoje publiczne serie i nic więcej.</string>
+    <string name="friends_local_detail">Znajomi widzą tylko Twoje publiczne serie i nic więcej.</string>
     <string name="friends_leaderboard">Ranking · śledzony w aplikacji</string>
-    <string name="friends_yours">Twoi przyjaciele</string>
-    <string name="friends_none">Na razie bez przyjaciół. Kod przyjaźni sprawia, że zostajecie przyjaciółmi; widzą Twoje publiczne serie, nigdy liczby.</string>
-    <string name="a_friend">Przyjaciel</string>
+    <string name="friends_yours">Twoi znajomi</string>
+    <string name="friends_none">Na razie bez znajomych. Kod przyjaźni sprawia, że zostajecie znajomymi; widzą Twoje publiczne serie, nigdy liczby.</string>
+    <string name="a_friend">Znajomy</string>
     <string name="key_changed">Klucz się zmienił</string>
-    <string name="invite_short">Dodaj przyjaciela</string>
+    <string name="invite_short">Dodaj znajomego</string>
     <string name="paste_invite">Wklej link z kodem przyjaźni</string>
     <string name="paste_invite_title">Wklej link</string>
-    <string name="paste_invite_detail">Wklej link od przyjaciela.</string>
+    <string name="paste_invite_detail">Wklej link od znajomego.</string>
     <string name="friend_finished">%1$s ukończył(a) %2$s</string>
     <string name="friend_not_yet">%s jeszcze nie praktykował(a)</string>
     <string name="friend_day_n">Dzień %d</string>
@@ -342,10 +347,10 @@
     <string name="poked">Szturchnięto</string>
     <string name="poke_named">Szturchnij %s</string>
     <string name="poked_named">Szturchnięto: %s</string>
-    <string name="friend_finished_unnamed">Przyjaciel ukończył %1$s</string>
-    <string name="friend_not_yet_unnamed">Przyjaciel jeszcze nie praktykował</string>
-    <string name="poke_unnamed">Szturchnij przyjaciela</string>
-    <string name="poked_unnamed">Szturchnięto przyjaciela</string>
+    <string name="friend_finished_unnamed">Znajomy ukończył %1$s</string>
+    <string name="friend_not_yet_unnamed">Znajomy jeszcze nie praktykował</string>
+    <string name="poke_unnamed">Szturchnij znajomego</string>
+    <string name="poked_unnamed">Szturchnięto znajomego</string>
     <string name="their_own_practice">ich własna praktyka</string>
     <string name="public_streaks">Publiczne serie</string>
     <string name="public_streaks_footer">Dni praktyki w aplikacji, podpisane przez te osoby. Liczby pozostają prywatne.</string>
@@ -358,9 +363,9 @@
     </plurals>
     <string name="notifications">Powiadomienia</string>
     <string name="tell_me_when">Powiadom mnie, gdy praktykują</string>
-    <string name="unfriend">Usuń z przyjaciół</string>
-    <string name="unfriend_title">Usunąć z przyjaciół?</string>
-    <string name="unfriend_detail">Przestajecie widzieć swoje serie. Kod przyjaźni może ponownie uczynić was przyjaciółmi.</string>
+    <string name="unfriend">Usuń ze znajomych</string>
+    <string name="unfriend_title">Usunąć ze znajomych?</string>
+    <string name="unfriend_detail">Przestajecie widzieć swoje serie. Kod przyjaźni może ponownie uczynić was znajomymi.</string>
     <string name="report">Zgłoś</string>
     <string name="report_detail">Zgłoszenia trafiają do osób prowadzących Duongöndro.</string>
     <string name="report_hint">Co się stało?</string>
@@ -370,8 +375,8 @@
     <string name="block_title">Zablokować?</string>
     <string name="block_detail">Kończy przyjaźń po obu stronach i wstrzymuje kody przyjaźni oraz szturchnięcia między wami.</string>
     <string name="their_key_changed">Ich klucz się zmienił</string>
-    <string name="key_changed_detail">Serwer podaje teraz dla tego przyjaciela inny klucz niż ten, który telefon zobaczył jako pierwszy, dlatego jego serie są ukryte. Może to być nowy telefon bez przywracania albo ktoś pośrodku. Spotkajcie się lub poproś o nowy kod przyjaźni: jego przyjęcie sprawdzi klucz ponownie.</string>
-    <string name="friends_see_streak">Przyjaciele widzą tę serię</string>
+    <string name="key_changed_detail">Serwer podaje teraz dla tego znajomego inny klucz niż ten, który telefon zobaczył jako pierwszy, dlatego jego serie są ukryte. Może to być nowy telefon bez przywracania albo ktoś pośrodku. Spotkajcie się lub poproś o nowy kod przyjaźni: jego przyjęcie sprawdzi klucz ponownie.</string>
+    <string name="friends_see_streak">Znajomi widzą tę serię</string>
     <string name="friends_see_streak_footer">Tylko liczba dni praktyki w aplikacji, nigdy liczby ani sumy.</string>
     <string name="usual_time_nudge">Przypomnij o mojej zwykłej porze</string>
     <string name="usual_time_detail">Godzinę przed porą, o której zwykle praktykujesz. Telefon uczy się jej z ostatnich dwóch tygodni.</string>
@@ -426,7 +431,7 @@
     <string name="phone_language">Język telefonu: %1$s</string>
     <string name="machine_translated">Tłumaczenie maszynowe</string>
     <string name="translation_help">Niezgrabne zdanie w Twoim języku? Napisz do Karola:</string>
-    <string name="feedback">Opinie</string>
+    <string name="feedback">Zgłoś uwagi</string>
     <string name="write_an_email">Napisz e-mail</string>
     <string name="report_on_github">Zgłoś błąd na GitHubie</string>
     <string name="github_needs_account">Publicznie, wymaga konta na GitHubie</string>

@@ -10,7 +10,11 @@
         <item quantity="many">%d jours</item>
         <item quantity="other">%d jours</item>
     </plurals>
-    <string name="streak_longest">Série de pratique · record %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Record : %d jour</item>
+        <item quantity="many">Record : %d jours</item>
+        <item quantity="other">Record : %d jours</item>
+    </plurals>
     <string name="any_practice_starts">N\'importe quelle pratique aujourd\'hui lance une série.</string>
     <string name="done_today">Fait aujourd\'hui</string>
     <string name="not_yet_today">Pas encore aujourd\'hui</string>
