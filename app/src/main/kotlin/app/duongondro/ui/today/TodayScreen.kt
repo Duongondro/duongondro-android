@@ -1,8 +1,6 @@
 package app.duongondro.ui.today
 
 import android.text.format.DateFormat
-import app.duongondro.ui.shownName
-import app.duongondro.ui.shownSecondName
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +40,9 @@ import app.duongondro.core.civilDate
 import app.duongondro.model.AppModel
 import app.duongondro.model.Snapshot
 import app.duongondro.ui.Bar
+import app.duongondro.ui.capitalisedFirst
 import app.duongondro.ui.grouped
+import app.duongondro.ui.shownName
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
 import app.duongondro.ui.theme.Space
@@ -103,7 +103,7 @@ private fun HeadlineCard(result: Streak.Result, modifier: Modifier = Modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
             Text(pluralStringResource(R.plurals.days, result.current, result.current), style = Theme.type.hero, color = Theme.colors.heroInk)
             Text(
-                if (result.current > 0) stringResource(R.string.streak_longest, result.longest)
+                if (result.current > 0) pluralStringResource(R.plurals.streak_record, result.longest, result.longest)
                 else stringResource(R.string.any_practice_starts),
                 style = Theme.type.secondary.copy(fontWeight = FontWeight.Medium),
                 color = Theme.colors.heroInk.copy(alpha = 0.9f),
@@ -160,14 +160,13 @@ private fun PracticeCard(
     }
 }
 
-/** "Diamond Mind · 43,308 of 111,111", "12,960 of 111,111 · not yet today", "Loving Eyes · done today". */
+/** "43,308 of 111,111", "12,960 of 111,111 · not yet today", "done today": no second name on Today. */
 @Composable
 private fun statusLine(p: TrackedPractice, snapshot: Snapshot, done: Boolean): String {
     val sessions = snapshot.sessionsOf(p.id)
     val rounds = if (p.streakOnly) null else p.rounds(sessions)
     val target = p.practice.target
     val parts = buildList {
-        p.practice.shownSecondName()?.let(::add)
         if (rounds != null && target != null) {
             add(
                 if (rounds.round > 1) stringResource(R.string.status_round, rounds.round, rounds.inRound.grouped(), target.grouped())
@@ -178,5 +177,5 @@ private fun statusLine(p: TrackedPractice, snapshot: Snapshot, done: Boolean): S
         }
         if (p.streakOnly || !done) add(stringResource(if (done) R.string.status_done else R.string.status_not_yet))
     }
-    return parts.joinToString(" · ")
+    return parts.joinToString(" · ").capitalisedFirst()
 }

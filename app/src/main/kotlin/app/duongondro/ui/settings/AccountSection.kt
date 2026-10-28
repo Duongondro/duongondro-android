@@ -97,18 +97,23 @@ fun AccountSection(
                 RowDivider()
                 ListRow(stringResource(R.string.passkeys_title), chevron = true, onClick = openPasskeys)
                 RowDivider()
+                // An unconfirmed code is a warning only while it is the one way back: a
+                // passkey that unlocks the counts brings them to a new phone without it
+                // (decision 33).
+                val codeMissing = state.recoveryUnconfirmed && !passkeys.unlocks
                 ListRow(stringResource(R.string.recovery_code),
-                    detail = stringResource(if (state.recoveryUnconfirmed) R.string.recovery_not_confirmed else R.string.recovery_make_new),
-                    detailColor = if (state.recoveryUnconfirmed) Theme.colors.destructive else Theme.colors.muted,
+                    detail = stringResource(if (codeMissing) R.string.recovery_not_confirmed else R.string.recovery_make_new),
+                    detailColor = if (codeMissing) Theme.colors.destructive else Theme.colors.muted,
                     chevron = true, onClick = { replacing = true })
                 RowDivider()
                 ListRow(stringResource(R.string.sync), detail = syncDetail(state.syncing, state.lastSync),
                     onClick = { if (!state.syncing) run { accounts.syncNow() } })
                 RowDivider()
-                if (state.canSignOut) {
+                if (state.canSignOut(passkeys.unlocks)) {
                     ListRow(stringResource(R.string.sign_out), titleColor = Theme.colors.destructive, onClick = { signingOut = true })
                 } else {
-                    // Signing out forgets the keys: first the recovery code must be stored and confirmed.
+                    // Signing out forgets the keys: with no passkey to unlock them, first the
+                    // recovery code must be stored and confirmed.
                     Column(Modifier.clickable(onClick = openRecoveryCode).padding(horizontal = Space.l, vertical = Space.m),
                         verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                         Text(stringResource(R.string.sign_out), style = Theme.type.body, color = Theme.colors.muted)
@@ -158,7 +163,7 @@ fun AccountSection(
         AlertDialog(
             onDismissRequest = { signingOut = false },
             title = { Text(stringResource(R.string.sign_out_title)) },
-            text = { Text(stringResource(R.string.sign_out_detail)) },
+            text = { Text(stringResource(if (passkeys.unlocks) R.string.sign_out_detail_passkey else R.string.sign_out_detail)) },
             confirmButton = {
                 TextButton(onClick = { signingOut = false; run { accounts.signOut() } }) {
                     Text(stringResource(R.string.sign_out), color = Theme.colors.destructive)

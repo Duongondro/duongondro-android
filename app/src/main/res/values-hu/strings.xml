@@ -7,7 +7,10 @@
         <item quantity="one">%d nap</item>
         <item quantity="other">%d nap</item>
     </plurals>
-    <string name="streak_longest">Gyakorlási sorozat · leghosszabb: %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d nap</item>
+        <item quantity="other">Rekord: %d nap</item>
+    </plurals>
     <string name="any_practice_starts">Bármelyik gyakorlat ma új sorozatot indít.</string>
     <string name="done_today">Ma kész</string>
     <string name="not_yet_today">Ma még nem</string>
@@ -26,7 +29,6 @@
         <item quantity="one">Ma %1$s · %2$d mala</item>
         <item quantity="other">Ma %1$s · %2$d mala</item>
     </plurals>
-    <string name="longest_n">Leghosszabb: %1$d</string>
     <string name="custom">+ Egyéni</string>
     <string name="history">Előzmények</string>
     <string name="history_empty">Még nincs semmi rögzítve.</string>
@@ -234,6 +236,7 @@
     <string name="sign_out">Kijelentkezés ezen a telefonon</string>
     <string name="sign_out_title">Kijelentkezel ezen a telefonon?</string>
     <string name="sign_out_detail">A számaid ezen a telefonon maradnak, de nem szinkronizálódnak tovább. Az újbóli szinkronizáláshoz jelentkezz be, és add meg a helyreállítási kódot.</string>
+    <string name="sign_out_detail_passkey">A számaid ezen a telefonon maradnak, de nem szinkronizálódnak tovább. Az újbóli szinkronizáláshoz jelentkezz be a hozzáférési kulcsoddal.</string>
     <string name="signed_out">Kijelentkeztél. A szinkronizálás folytatásához jelentkezz be újra.</string>
     <string name="sign_in_again">Bejelentkezés újra</string>
     <string name="make_account">Online fiók létrehozása</string>

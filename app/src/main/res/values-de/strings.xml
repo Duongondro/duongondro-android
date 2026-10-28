@@ -8,7 +8,10 @@
         <item quantity="one">%d Tag</item>
         <item quantity="other">%d Tage</item>
     </plurals>
-    <string name="streak_longest">Übungsserie · längste %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d Tag</item>
+        <item quantity="other">Rekord: %d Tage</item>
+    </plurals>
     <string name="any_practice_starts">Jede Übung heute startet eine Serie.</string>
     <string name="done_today">Heute erledigt</string>
     <string name="not_yet_today">Heute noch nicht</string>
@@ -27,7 +30,6 @@
         <item quantity="one">Heute %1$s · %2$d Mala</item>
         <item quantity="other">Heute %1$s · %2$d Malas</item>
     </plurals>
-    <string name="longest_n">Längste %1$d</string>
     <string name="custom">+ Eigene</string>
     <string name="history">Verlauf</string>
     <string name="history_empty">Noch nichts erfasst.</string>
@@ -247,6 +249,7 @@
     <string name="sign_out">Auf diesem Handy abmelden</string>
     <string name="sign_out_title">Auf diesem Handy abmelden?</string>
     <string name="sign_out_detail">Deine Zählungen bleiben auf diesem Handy, werden aber nicht mehr synchronisiert. Um wieder zu synchronisieren, melde dich an und gib deinen Wiederherstellungscode ein.</string>
+    <string name="sign_out_detail_passkey">Deine Zählungen bleiben auf diesem Handy, werden aber nicht mehr synchronisiert. Um wieder zu synchronisieren, melde dich mit deinem Passkey an.</string>
     <string name="signed_out">Abgemeldet. Melde dich wieder an, um weiter zu synchronisieren.</string>
     <string name="sign_in_again">Wieder anmelden</string>
     <string name="make_account">Ein Online-Konto erstellen</string>

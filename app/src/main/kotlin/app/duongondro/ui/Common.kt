@@ -12,11 +12,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
@@ -33,8 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import app.duongondro.core.Practice
 import app.duongondro.ui.theme.Radius
 import app.duongondro.ui.theme.Size
@@ -74,6 +78,16 @@ fun PracticeName(practice: Practice, large: Boolean = false, modifier: Modifier 
 /** Locale grouping: 43,308 · 43.308 · 43 308. */
 fun Int.grouped(): String = NumberFormat.getIntegerInstance().format(this)
 
+/**
+ * A line of parts joined by " · " starts with a capital, in the app's language: its parts
+ * ("round 2", "done today") are written to follow a dot, and now often lead the line.
+ */
+@Composable
+fun String.capitalisedFirst(): String {
+    val locale = LocalConfiguration.current.locales[0]
+    return replaceFirstChar { it.titlecase(locale) }
+}
+
 /** A change, signed: "+1,200", "−300" (a true minus sign), "0". */
 fun Int.signed(): String = when {
     this > 0 -> "+" + grouped()
@@ -109,8 +123,15 @@ fun OutlinedAction(
         border = BorderStroke(borderWidth, border),
         contentPadding = PaddingValues(horizontal = Space.s),
         modifier = (if (fillWidth) modifier.fillMaxWidth() else modifier).heightIn(min = height),
-    ) { Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1) }
+    ) {
+        // One line, shrinking rather than overflowing where a translation runs long ("+ Inna liczba").
+        Text(text, style = Theme.type.button.copy(fontSize = Theme.type.body.fontSize), textAlign = TextAlign.Center, maxLines = 1, softWrap = false,
+            overflow = TextOverflow.Ellipsis, autoSize = TextAutoSize.StepBased(minFontSize = ACTION_MIN, maxFontSize = Theme.type.body.fontSize))
+    }
 }
+
+/** The smallest an outlined action's label shrinks to. */
+private val ACTION_MIN = 12.sp
 
 /** The least action on a screen: text only, 48 dp tall, wrapping rather than truncating long translations. */
 @Composable
@@ -164,14 +185,18 @@ fun RowDivider() {
 fun ListRow(
     title: String, modifier: Modifier = Modifier, detail: String? = null, chevron: Boolean = false,
     titleColor: Color = Theme.colors.ink, detailColor: Color = Theme.colors.muted, semibold: Boolean = false, onClick: (() -> Unit)? = null,
-    trailing: @Composable (() -> Unit)? = null,
+    subtitle: String? = null, trailing: @Composable (() -> Unit)? = null,
 ) {
     Row(
         modifier.fillMaxWidth().let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .heightIn(min = Size.minTap).padding(horizontal = Space.l),
         horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, Modifier.weight(1f).padding(vertical = Space.s), style = if (semibold) Theme.type.body.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold) else Theme.type.body, color = titleColor)
+        // A subtitle is part of the row, set as a switch row's explanation is: just under the title.
+        Column(Modifier.weight(1f).padding(vertical = if (subtitle != null) Space.m else Space.s), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+            Text(title, style = if (semibold) Theme.type.body.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold) else Theme.type.body, color = titleColor)
+            subtitle?.let { Text(it, style = Theme.type.rowDetail, color = Theme.colors.muted) }
+        }
         detail?.let { Text(it, style = Theme.type.body, color = detailColor) }
         trailing?.invoke()
         if (chevron) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Theme.colors.muted)

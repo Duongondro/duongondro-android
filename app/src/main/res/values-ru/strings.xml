@@ -9,7 +9,12 @@
         <item quantity="many">%d дней</item>
         <item quantity="other">%d дней</item>
     </plurals>
-    <string name="streak_longest">Серия практики · рекорд %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Рекорд: %d день</item>
+        <item quantity="few">Рекорд: %d дня</item>
+        <item quantity="many">Рекорд: %d дней</item>
+        <item quantity="other">Рекорд: %d дней</item>
+    </plurals>
     <string name="any_practice_starts">Любая практика сегодня начнёт серию.</string>
     <string name="done_today">Сделано сегодня</string>
     <string name="not_yet_today">Сегодня ещё нет</string>
@@ -30,7 +35,6 @@
         <item quantity="many">Сегодня %1$s · %2$d мал</item>
         <item quantity="other">Сегодня %1$s · %2$d мал</item>
     </plurals>
-    <string name="longest_n">Рекорд %1$d</string>
     <string name="custom">+ Своё</string>
     <string name="history">История</string>
     <string name="history_empty">Пока ничего не записано.</string>
@@ -240,6 +244,7 @@
     <string name="sign_out">Выйти на этом телефоне</string>
     <string name="sign_out_title">Выйти на этом телефоне?</string>
     <string name="sign_out_detail">Ваши счёты останутся на этом телефоне, но перестанут синхронизироваться. Чтобы снова синхронизировать их, войдите и введите код восстановления.</string>
+    <string name="sign_out_detail_passkey">Ваши счёты останутся на этом телефоне, но перестанут синхронизироваться. Чтобы снова синхронизировать их, войдите с помощью ключа доступа.</string>
     <string name="signed_out">Вы вышли из аккаунта. Войдите снова, чтобы синхронизация продолжилась.</string>
     <string name="sign_in_again">Войти снова</string>
     <string name="make_account">Создать онлайн-аккаунт</string>

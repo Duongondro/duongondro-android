@@ -82,9 +82,11 @@ data class AccountState(
 ) {
     /**
      * Signing out here forgets the keys, so it is allowed only when they can
-     * come back: keys set up, the recovery code stored on the server and confirmed.
+     * come back: keys set up, and either a passkey that unlocks the counts
+     * (decision 33) or the recovery code stored on the server and confirmed.
      */
-    val canSignOut: Boolean get() = status == AccountStatus.READY && !recoveryUnconfirmed && !recoveryPending
+    fun canSignOut(passkeyUnlocks: Boolean): Boolean =
+        status == AccountStatus.READY && (passkeyUnlocks || (!recoveryUnconfirmed && !recoveryPending))
 }
 
 sealed interface InviteCheck {
@@ -1225,7 +1227,7 @@ class AccountManager(
      * local mode. The device key goes too, so another account gets its own.
      */
     suspend fun signOut() = withContext(Dispatchers.IO) {
-        check(_state.value.canSignOut) { "the recovery code is not finished; signing out would lose the keys" }
+        check(_state.value.canSignOut(_passkeys.value.unlocks)) { "no passkey unlocks and the recovery code is not finished; signing out would lose the keys" }
         pendingSync?.cancel()
         // After any sync in flight, so it cannot write the account back.
         syncLock.withLock { signOutLocked() }

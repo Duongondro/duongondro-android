@@ -217,9 +217,9 @@ fun SwitchRow(title: String, detail: String?, checked: Boolean, modifier: Modifi
         modifier.fillMaxWidth().heightIn(min = Size.minTap).toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f).padding(end = Space.m)) {
+        Column(Modifier.weight(1f).padding(end = Space.m), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
             Text(title, style = Theme.type.body, color = Theme.colors.ink)
-            detail?.let { Text(it, style = Theme.type.footnote, color = Theme.colors.muted) }
+            detail?.let { Text(it, style = Theme.type.rowDetail, color = Theme.colors.muted) }
         }
         Switch(checked, onCheckedChange = null, colors = SwitchDefaults.colors(
             checkedTrackColor = Theme.colors.accent, checkedThumbColor = Theme.colors.onAccent, checkedBorderColor = Theme.colors.accent,
@@ -240,7 +240,7 @@ private fun ReminderRows(model: AppModel, minutes: Int?) {
     }
     val ask = rememberNotificationPermission { allowed = Reminders.canNotify(context) }
     var picking by remember { mutableStateOf(false) }
-    SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null, Modifier.padding(horizontal = Space.l, vertical = Space.s)) { on ->
+    SwitchRow(stringResource(R.string.evening_reminder), null, minutes != null, Modifier.padding(horizontal = Space.l)) { on ->
         model.updatePreferences { it.copy(reminderMinutes = if (on) 20 * 60 else null) }
         if (on && !allowed) ask()
     }

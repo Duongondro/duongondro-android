@@ -10,7 +10,11 @@
         <item quantity="many">%d días</item>
         <item quantity="other">%d días</item>
     </plurals>
-    <string name="streak_longest">Racha de práctica · máxima %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Récord: %d día</item>
+        <item quantity="many">Récord: %d días</item>
+        <item quantity="other">Récord: %d días</item>
+    </plurals>
     <string name="any_practice_starts">Cualquier práctica hoy inicia una racha.</string>
     <string name="done_today">Hecho hoy</string>
     <string name="not_yet_today">Aún no hoy</string>
@@ -30,7 +34,6 @@
         <item quantity="many">Hoy %1$s · %2$d malas</item>
         <item quantity="other">Hoy %1$s · %2$d malas</item>
     </plurals>
-    <string name="longest_n">Máxima %1$d</string>
     <string name="custom">+ Otra</string>
     <string name="history">Historial</string>
     <string name="history_empty">Aún no hay nada registrado.</string>
@@ -252,6 +255,7 @@
     <string name="sign_out">Cerrar sesión en este teléfono</string>
     <string name="sign_out_title">¿Cerrar sesión en este teléfono?</string>
     <string name="sign_out_detail">Tus cuentas se quedan en este teléfono, pero dejan de sincronizarse. Para volver a sincronizarlas, inicia sesión e introduce tu código de recuperación.</string>
+    <string name="sign_out_detail_passkey">Tus cuentas se quedan en este teléfono, pero dejan de sincronizarse. Para volver a sincronizarlas, inicia sesión con tu clave de acceso.</string>
     <string name="signed_out">Sesión cerrada. Inicia sesión de nuevo para seguir sincronizando.</string>
     <string name="sign_in_again">Iniciar sesión de nuevo</string>
     <string name="make_account">Crear una cuenta en línea</string>

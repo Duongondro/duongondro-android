@@ -9,7 +9,12 @@
         <item quantity="many">%d dní</item>
         <item quantity="other">%d dní</item>
     </plurals>
-    <string name="streak_longest">Séria dní · najdlhšia %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Rekord: %d deň</item>
+        <item quantity="few">Rekord: %d dni</item>
+        <item quantity="many">Rekord: %d dní</item>
+        <item quantity="other">Rekord: %d dní</item>
+    </plurals>
     <string name="any_practice_starts">Akékoľvek cvičenie dnes založí sériu.</string>
     <string name="done_today">Dnes hotovo</string>
     <string name="not_yet_today">Dnes zatiaľ nie</string>
@@ -30,7 +35,6 @@
         <item quantity="many">Dnes %1$s · %2$d mál</item>
         <item quantity="other">Dnes %1$s · %2$d mál</item>
     </plurals>
-    <string name="longest_n">Najdlhšia %1$d</string>
     <string name="custom">+ Vlastné</string>
     <string name="history">História</string>
     <string name="history_empty">Zatiaľ nič nezaznamenané.</string>
@@ -240,6 +244,7 @@
     <string name="sign_out">Odhlásiť sa v tomto telefóne</string>
     <string name="sign_out_title">Odhlásiť sa v tomto telefóne?</string>
     <string name="sign_out_detail">Tvoje počty zostanú v tomto telefóne, ale prestanú sa synchronizovať. Ak ich chceš znova synchronizovať, prihlás sa a zadaj obnovovací kód.</string>
+    <string name="sign_out_detail_passkey">Tvoje počty zostanú v tomto telefóne, ale prestanú sa synchronizovať. Ak ich chceš znova synchronizovať, prihlás sa prístupovým kľúčom.</string>
     <string name="signed_out">Odhlásené. Ak chceš ďalej synchronizovať, prihlás sa znova.</string>
     <string name="sign_in_again">Prihlásiť sa znova</string>
     <string name="make_account">Založiť online účet</string>

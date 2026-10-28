@@ -16,10 +16,10 @@
         <item quantity="other">%1$s urządzenia</item>
     </plurals>
     <plurals name="ex_n_friends">
-        <item quantity="one">%1$s przyjaciel</item>
-        <item quantity="few">%1$s przyjaciół</item>
-        <item quantity="many">%1$s przyjaciół</item>
-        <item quantity="other">%1$s przyjaciela</item>
+        <item quantity="one">%1$s znajomy</item>
+        <item quantity="few">%1$s znajomych</item>
+        <item quantity="many">%1$s znajomych</item>
+        <item quantity="other">%1$s znajomego</item>
     </plurals>
     <plurals name="ex_n_passkeys">
         <item quantity="one">%1$s klucz dostępu</item>
@@ -46,7 +46,7 @@
         <item quantity="other">%1$s sesji</item>
     </plurals>
     <string name="ex_continued">%1$s (ciąg dalszy)</string>
-    <string name="ex_a_friend">Przyjaciel</string>
+    <string name="ex_a_friend">Znajomy</string>
     <string name="ex_account">Konto</string>
     <string name="ex_account_created">Konto utworzone</string>
     <string name="ex_added_x">Dodano %1$s</string>
@@ -75,8 +75,8 @@
     <string name="ex_export_my_data_first">Najpierw wyeksportuj moje dane</string>
     <string name="ex_exported">Wyeksportowano %1$s · Android %2$s</string>
     <string name="ex_female">Kobieta</string>
-    <string name="ex_friends">Przyjaciele</string>
-    <string name="ex_friends_since">Przyjaciele od</string>
+    <string name="ex_friends">Znajomi</string>
+    <string name="ex_friends_since">Znajomi od</string>
     <string name="ex_friendship_code">Kod przyjaźni</string>
     <string name="ex_gender">Płeć</string>
     <string name="ex_hardware_key">Klucz sprzętowy</string>
@@ -87,7 +87,7 @@
     <string name="ex_male">Mężczyzna</string>
     <string name="ex_name">Imię</string>
     <string name="ex_no">Nie</string>
-    <string name="ex_no_friends_yet">Nie masz jeszcze przyjaciół.</string>
+    <string name="ex_no_friends_yet">Nie masz jeszcze znajomych.</string>
     <string name="ex_no_online_account">Brak konta online</string>
     <string name="ex_local_mode">Brak konta online: wszystko poniżej jest tylko na tym telefonie.</string>
     <string name="ex_no_sessions_yet">Brak sesji.</string>
@@ -117,7 +117,7 @@
     <string name="ex_privacy_encrypted_intro">Te dane serwer musi odczytywać, żeby działać, na przykład żeby pokazać Twoje imię znajomym albo wysłać powiadomienie. Przechowuje je w bazie danych zaszyfrowane, kluczem trzymanym poza bazą, więc kopia bazy ani kopia zapasowa ich nie ujawnia:</string>
     <string name="ex_share_failed">Nie udało się otworzyć menu udostępniania. Spróbuj ponownie.</string>
     <string name="ex_privacy_sealed_intro">Te dane są pieczętowane na Twoim urządzeniu przed wysłaniem. Serwer je przechowuje i nie może ich odczytać:</string>
-    <string name="ex_server_unreachable">Ten telefon ma konto, ale nie udało się połączyć z serwerem, więc ta sekcja i Przyjaciele zawierają tylko to, co wie telefon. Wyeksportuj ponownie, gdy będzie połączenie.</string>
+    <string name="ex_server_unreachable">Ten telefon ma konto, ale nie udało się połączyć z serwerem, więc ta sekcja i Znajomi zawierają tylko to, co wie telefon. Wyeksportuj ponownie, gdy będzie połączenie.</string>
     <string name="ex_time_zone">Strefa czasowa</string>
     <string name="ex_total">Razem</string>
     <string name="ex_trusted_execution_environment_key">Klucz w zaufanym środowisku (TEE)</string>

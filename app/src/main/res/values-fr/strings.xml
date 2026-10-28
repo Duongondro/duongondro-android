@@ -10,7 +10,11 @@
         <item quantity="many">%d jours</item>
         <item quantity="other">%d jours</item>
     </plurals>
-    <string name="streak_longest">Série de pratique · record %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">Record : %d jour</item>
+        <item quantity="many">Record : %d jours</item>
+        <item quantity="other">Record : %d jours</item>
+    </plurals>
     <string name="any_practice_starts">N\'importe quelle pratique aujourd\'hui lance une série.</string>
     <string name="done_today">Fait aujourd\'hui</string>
     <string name="not_yet_today">Pas encore aujourd\'hui</string>
@@ -30,7 +34,6 @@
         <item quantity="many">Aujourd\'hui %1$s · %2$d malas</item>
         <item quantity="other">Aujourd\'hui %1$s · %2$d malas</item>
     </plurals>
-    <string name="longest_n">Record %1$d</string>
     <string name="custom">+ Autre</string>
     <string name="history">Historique</string>
     <string name="history_empty">Rien d\'enregistré pour l\'instant.</string>
@@ -251,6 +254,7 @@
     <string name="sign_out">Se déconnecter sur ce téléphone</string>
     <string name="sign_out_title">Se déconnecter sur ce téléphone ?</string>
     <string name="sign_out_detail">Tes décomptes restent sur ce téléphone mais ne sont plus synchronisés. Pour les synchroniser à nouveau, connecte-toi et saisis ton code de récupération.</string>
+    <string name="sign_out_detail_passkey">Tes décomptes restent sur ce téléphone mais ne sont plus synchronisés. Pour les synchroniser à nouveau, connecte-toi avec ta clé d\'accès.</string>
     <string name="signed_out">Session fermée. Reconnecte-toi pour continuer à synchroniser.</string>
     <string name="sign_in_again">Se reconnecter</string>
     <string name="make_account">Créer un compte en ligne</string>

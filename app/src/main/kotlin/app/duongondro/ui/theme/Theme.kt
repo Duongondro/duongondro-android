@@ -228,6 +228,8 @@ data class DuongondroType(
     val subtitle: TextStyle,
     val secondary: TextStyle,
     val footnote: TextStyle,
+    /** The explanation under a switch's label: a footnote set tighter, as it is read with the label. */
+    val rowDetail: TextStyle,
     val mono: TextStyle,
     /** Titles of the account steps, a size under a question. */
     val screenTitle: TextStyle,
@@ -268,6 +270,7 @@ private val type = DuongondroType(
     subtitle = TextStyle(fontSize = 15.sp),
     secondary = TextStyle(fontSize = 14.sp),
     footnote = TextStyle(fontSize = 13.sp, lineHeight = 18.sp),
+    rowDetail = TextStyle(fontSize = 13.sp, lineHeight = 16.sp),
     mono = TextStyle(fontSize = 15.sp, fontFamily = FontFamily.Monospace),
     screenTitle = heading(34, lineHeight = 1.1),
     label = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium),

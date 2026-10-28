@@ -10,7 +10,10 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
-    <string name="streak_longest">Practice streak · longest %1$d</string>
+    <plurals name="streak_record">
+        <item quantity="one">High score: %d day</item>
+        <item quantity="other">High score: %d days</item>
+    </plurals>
     <string name="any_practice_starts">Any practice today starts a streak.</string>
     <string name="done_today">Done today</string>
     <string name="not_yet_today">Not yet today</string>
@@ -29,7 +32,6 @@
         <item quantity="one">Today %1$s · %2$d mala</item>
         <item quantity="other">Today %1$s · %2$d malas</item>
     </plurals>
-    <string name="longest_n">Longest %1$d</string>
     <string name="custom">+ Custom</string>
     <string name="history">History</string>
     <string name="history_empty">Nothing logged yet.</string>
@@ -252,6 +254,7 @@
     <string name="sign_out">Sign out on this phone</string>
     <string name="sign_out_title">Sign out on this phone?</string>
     <string name="sign_out_detail">Your counts stay on this phone but stop syncing. To sync them again, sign in and enter your recovery code.</string>
+    <string name="sign_out_detail_passkey">Your counts stay on this phone but stop syncing. To sync them again, sign in with your passkey.</string>
     <string name="signed_out">Signed out. Sign in again to keep syncing.</string>
     <string name="sign_in_again">Sign in again</string>
     <string name="make_account">Make an online account</string>

@@ -38,17 +38,14 @@ fun FeedbackScreen(back: () -> Unit) {
     ).joinToString("\n")
     Page(stringResource(R.string.feedback), back) {
         CardSection {
-            ListRow(stringResource(R.string.write_an_email), detail = null, chevron = true, onClick = {
+            ListRow(stringResource(R.string.write_an_email), subtitle = FEEDBACK_ADDRESS, chevron = true, onClick = {
                 val uri = ("mailto:$FEEDBACK_ADDRESS?subject=" + Uri.encode("Duongöndro") + "&body=" + Uri.encode(header + "\n\n")).toUri()
                 // Also as extras: some mail apps ignore subject and body in the mailto: link.
                 context.openUrl(Intent(Intent.ACTION_SENDTO, uri).putExtra(Intent.EXTRA_SUBJECT, "Duongöndro").putExtra(Intent.EXTRA_TEXT, header + "\n\n"))
             })
-            Text(FEEDBACK_ADDRESS, style = Theme.type.secondary, color = Theme.colors.muted,
-                modifier = Modifier.padding(start = Space.l, end = Space.l, bottom = Space.s))
             RowDivider()
-            ListRow(stringResource(R.string.report_on_github), chevron = true, onClick = { context.openUrl(Intent(Intent.ACTION_VIEW, ISSUES.toUri())) })
-            Text(stringResource(R.string.github_needs_account), style = Theme.type.secondary, color = Theme.colors.muted,
-                modifier = Modifier.padding(start = Space.l, end = Space.l, bottom = Space.s))
+            ListRow(stringResource(R.string.report_on_github), subtitle = stringResource(R.string.github_needs_account), chevron = true,
+                onClick = { context.openUrl(Intent(Intent.ACTION_VIEW, ISSUES.toUri())) })
         }
         CardSection(stringResource(R.string.email_starts_with), stringResource(R.string.email_starts_with_footer)) {
             Column(Modifier.fillMaxWidth().padding(Space.l)) {
