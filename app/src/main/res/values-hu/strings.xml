@@ -75,7 +75,6 @@
     <string name="count_so_far">Eddig</string>
     <string name="later_round">Egy későbbi körben tartok</string>
     <string name="round_n">%1$d. kör</string>
-    <string name="count_footer">Papírról vagy táblázatból; a hozzávetőleges érték is jó.</string>
     <string name="current_streak_days">Sorozat, napok</string>
     <string name="last_practised">Utoljára gyakorolt</string>
     <string name="today">Ma</string>

@@ -610,10 +610,7 @@ private fun ColumnScope.Counts(flow: OnboardingFlow, index: Int) {
         if (c.streak > 0) {
             NumberField(stringResource(R.string.longest_optional), c.longest ?: 0, Modifier.fillMaxWidth()) { v -> update { it.copy(longest = v.takeIf { it > 0 }) } }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-            if (!c.streakOnly) Text(stringResource(R.string.count_footer), style = Theme.type.footnote, color = Theme.colors.muted)
-            Text(stringResource(R.string.seed_footer), style = Theme.type.footnote, color = Theme.colors.muted)
-        }
+        Text(stringResource(R.string.seed_footer), style = Theme.type.footnote, color = Theme.colors.muted)
     }
     Column(Modifier.padding(vertical = Space.l)) {
         Primary(stringResource(R.string.continue_)) {

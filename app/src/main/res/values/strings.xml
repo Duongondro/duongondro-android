@@ -85,7 +85,6 @@
     <string name="count_so_far">So far</string>
     <string name="later_round">I\'m doing a later round</string>
     <string name="round_n">Round %1$d</string>
-    <string name="count_footer">From paper or a spreadsheet; rough is fine.</string>
     <string name="current_streak_days">Streak, days</string>
     <string name="last_practised">Last practised</string>
     <string name="today">Today</string>

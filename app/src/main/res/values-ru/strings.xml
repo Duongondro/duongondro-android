@@ -79,7 +79,6 @@
     <string name="count_so_far">Пока что</string>
     <string name="later_round">Я на более позднем круге</string>
     <string name="round_n">Круг %1$d</string>
-    <string name="count_footer">Из бумажных записей или таблицы; примерно — тоже подойдёт.</string>
     <string name="current_streak_days">Серия, дней</string>
     <string name="last_practised">Последняя практика</string>
     <string name="today">Сегодня</string>

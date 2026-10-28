@@ -81,7 +81,6 @@
     <string name="count_so_far">Bisher</string>
     <string name="later_round">Ich bin in einer späteren Runde</string>
     <string name="round_n">Runde %1$d</string>
-    <string name="count_footer">Von Papier oder aus einer Tabelle; ungefähr reicht.</string>
     <string name="current_streak_days">Serie, Tage</string>
     <string name="last_practised">Zuletzt geübt</string>
     <string name="today">Heute</string>

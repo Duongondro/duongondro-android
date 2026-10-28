@@ -84,7 +84,6 @@
     <string name="count_so_far">Jusqu\'ici</string>
     <string name="later_round">J\'en suis à un tour suivant</string>
     <string name="round_n">Tour %1$d</string>
-    <string name="count_footer">Depuis un carnet ou un tableur ; une estimation suffit.</string>
     <string name="current_streak_days">Série, en jours</string>
     <string name="last_practised">Dernière pratique</string>
     <string name="today">Aujourd\'hui</string>
