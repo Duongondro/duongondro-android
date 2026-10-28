@@ -2,14 +2,12 @@ package app.duongondro.ui.settings
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
@@ -31,7 +29,7 @@ private const val ISSUES = "https://github.com/Duongondro/duongondro-android/iss
 @Composable
 fun FeedbackScreen(back: () -> Unit) {
     val context = LocalContext.current
-    val language = (AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0) ?: LocalConfiguration.current.locales[0]).language
+    val language = appLanguage(context)
     val revision = BuildConfig.GIT_REVISION.let { if (it == "unknown") it else it.take(7) } + if (BuildConfig.GIT_DIRTY) "-dirty" else ""
     val header = listOf(
         "Duongöndro ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · $revision",

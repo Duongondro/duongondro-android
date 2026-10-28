@@ -1,5 +1,6 @@
 package app.duongondro.ui.settings
 
+import android.content.Context
 import android.content.Intent
 import android.icu.text.Collator
 import android.icu.util.ULocale
@@ -23,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -58,7 +58,6 @@ private val READ_BY_A_NATIVE_SPEAKER = setOf("en", "pl")
 @Composable
 fun LanguageScreen(back: () -> Unit) {
     val context = LocalContext.current
-    val appLocale = LocalConfiguration.current.locales[0]
     var current by remember { mutableStateOf(AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)?.language) }
     val collator = remember { Collator.getInstance(ULocale.ROOT) }
     val ordered = remember {
@@ -66,12 +65,8 @@ fun LanguageScreen(back: () -> Unit) {
             .thenComparator { a, b -> collator.compare(nativeName(a), nativeName(b)) })
     }
     val machine = stringResource(R.string.machine_translated)
-    // The language the phone would give the app: its first preference we have, else English.
-    // Not Resources.getSystem(): from Android 13 it reports the app's own locale once one is chosen.
-    val phone = remember {
-        val system = LocaleManagerCompat.getSystemLocales(context)
-        (0 until system.size()).mapNotNull { system[it]?.language }.firstOrNull { it in LANGUAGES } ?: "en"
-    }
+    val phone = remember { phoneLanguage(context) }
+    val appLocale = java.util.Locale.forLanguageTag(current ?: phone)
     fun choose(code: String?) {
         current = code
         AppCompatDelegate.setApplicationLocales(code?.let { LocaleListCompat.forLanguageTags(it) } ?: LocaleListCompat.getEmptyLocaleList())
@@ -105,6 +100,19 @@ fun LanguageScreen(back: () -> Unit) {
         )
     }
 }
+
+/**
+ * The language the phone would give the app: its first preference we have, else English.
+ * Not Resources.getSystem(): from Android 13 it reports the app's own locale once one is chosen.
+ */
+internal fun phoneLanguage(context: Context): String {
+    val system = LocaleManagerCompat.getSystemLocales(context)
+    return (0 until system.size()).mapNotNull { system[it]?.language }.firstOrNull { it in LANGUAGES } ?: "en"
+}
+
+/** The language the app is shown in: the one chosen, or for System the phone's that we have. */
+internal fun appLanguage(context: Context): String =
+    AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)?.language ?: phoneLanguage(context)
 
 @Composable
 private fun LanguageOption(title: String, second: String?, selected: Boolean, onClick: () -> Unit) {
