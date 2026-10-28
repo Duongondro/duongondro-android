@@ -254,6 +254,7 @@
     <string name="sign_out">Sign out on this phone</string>
     <string name="sign_out_title">Sign out on this phone?</string>
     <string name="sign_out_detail">Your counts stay on this phone but stop syncing. To sync them again, sign in and enter your recovery code.</string>
+    <string name="sign_out_detail_passkey">Your counts stay on this phone but stop syncing. To sync them again, sign in with your passkey.</string>
     <string name="signed_out">Signed out. Sign in again to keep syncing.</string>
     <string name="sign_in_again">Sign in again</string>
     <string name="make_account">Make an online account</string>

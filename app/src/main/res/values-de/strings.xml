@@ -249,6 +249,7 @@
     <string name="sign_out">Auf diesem Handy abmelden</string>
     <string name="sign_out_title">Auf diesem Handy abmelden?</string>
     <string name="sign_out_detail">Deine Zählungen bleiben auf diesem Handy, werden aber nicht mehr synchronisiert. Um wieder zu synchronisieren, melde dich an und gib deinen Wiederherstellungscode ein.</string>
+    <string name="sign_out_detail_passkey">Deine Zählungen bleiben auf diesem Handy, werden aber nicht mehr synchronisiert. Um wieder zu synchronisieren, melde dich mit deinem Passkey an.</string>
     <string name="signed_out">Abgemeldet. Melde dich wieder an, um weiter zu synchronisieren.</string>
     <string name="sign_in_again">Wieder anmelden</string>
     <string name="make_account">Ein Online-Konto erstellen</string>

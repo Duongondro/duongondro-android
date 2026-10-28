@@ -244,6 +244,7 @@
     <string name="sign_out">Odhlásit se v tomto telefonu</string>
     <string name="sign_out_title">Odhlásit se v tomto telefonu?</string>
     <string name="sign_out_detail">Tvé počty zůstanou v tomto telefonu, ale přestanou se synchronizovat. Pro další synchronizaci se přihlas a zadej obnovovací kód.</string>
+    <string name="sign_out_detail_passkey">Tvé počty zůstanou v tomto telefonu, ale přestanou se synchronizovat. Pro další synchronizaci se přihlas přístupovým klíčem.</string>
     <string name="signed_out">Odhlášeno. Pro další synchronizaci se přihlas znovu.</string>
     <string name="sign_in_again">Přihlásit se znovu</string>
     <string name="make_account">Založit online účet</string>

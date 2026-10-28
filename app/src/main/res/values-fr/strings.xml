@@ -254,6 +254,7 @@
     <string name="sign_out">Se déconnecter sur ce téléphone</string>
     <string name="sign_out_title">Se déconnecter sur ce téléphone ?</string>
     <string name="sign_out_detail">Tes décomptes restent sur ce téléphone mais ne sont plus synchronisés. Pour les synchroniser à nouveau, connecte-toi et saisis ton code de récupération.</string>
+    <string name="sign_out_detail_passkey">Tes décomptes restent sur ce téléphone mais ne sont plus synchronisés. Pour les synchroniser à nouveau, connecte-toi avec ta clé d\'accès.</string>
     <string name="signed_out">Session fermée. Reconnecte-toi pour continuer à synchroniser.</string>
     <string name="sign_in_again">Se reconnecter</string>
     <string name="make_account">Créer un compte en ligne</string>

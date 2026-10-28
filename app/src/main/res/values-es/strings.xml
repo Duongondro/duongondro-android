@@ -255,6 +255,7 @@
     <string name="sign_out">Cerrar sesión en este teléfono</string>
     <string name="sign_out_title">¿Cerrar sesión en este teléfono?</string>
     <string name="sign_out_detail">Tus cuentas se quedan en este teléfono, pero dejan de sincronizarse. Para volver a sincronizarlas, inicia sesión e introduce tu código de recuperación.</string>
+    <string name="sign_out_detail_passkey">Tus cuentas se quedan en este teléfono, pero dejan de sincronizarse. Para volver a sincronizarlas, inicia sesión con tu clave de acceso.</string>
     <string name="signed_out">Sesión cerrada. Inicia sesión de nuevo para seguir sincronizando.</string>
     <string name="sign_in_again">Iniciar sesión de nuevo</string>
     <string name="make_account">Crear una cuenta en línea</string>

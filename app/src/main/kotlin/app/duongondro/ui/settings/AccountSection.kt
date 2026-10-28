@@ -109,10 +109,11 @@ fun AccountSection(
                 ListRow(stringResource(R.string.sync), detail = syncDetail(state.syncing, state.lastSync),
                     onClick = { if (!state.syncing) run { accounts.syncNow() } })
                 RowDivider()
-                if (state.canSignOut) {
+                if (state.canSignOut(passkeys.unlocks)) {
                     ListRow(stringResource(R.string.sign_out), titleColor = Theme.colors.destructive, onClick = { signingOut = true })
                 } else {
-                    // Signing out forgets the keys: first the recovery code must be stored and confirmed.
+                    // Signing out forgets the keys: with no passkey to unlock them, first the
+                    // recovery code must be stored and confirmed.
                     Column(Modifier.clickable(onClick = openRecoveryCode).padding(horizontal = Space.l, vertical = Space.m),
                         verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                         Text(stringResource(R.string.sign_out), style = Theme.type.body, color = Theme.colors.muted)
@@ -162,7 +163,7 @@ fun AccountSection(
         AlertDialog(
             onDismissRequest = { signingOut = false },
             title = { Text(stringResource(R.string.sign_out_title)) },
-            text = { Text(stringResource(R.string.sign_out_detail)) },
+            text = { Text(stringResource(if (passkeys.unlocks) R.string.sign_out_detail_passkey else R.string.sign_out_detail)) },
             confirmButton = {
                 TextButton(onClick = { signingOut = false; run { accounts.signOut() } }) {
                     Text(stringResource(R.string.sign_out), color = Theme.colors.destructive)
