@@ -202,7 +202,7 @@
 
     <!-- Your data -->
     <string name="section_your_data">Twoje dane</string>
-    <string name="export_and_delete">Eksport i usuwanie</string>
+    <string name="export_and_delete">Wyeksportuj dane lub usuń konto</string>
     <string name="delete_everything">Usuń wszystko</string>
     <string name="delete_footer">Usuwa wszystkie Twoje dane z tego telefonu. Nie można tego cofnąć.</string>
     <string name="delete_explainer">Usunie to każdą praktykę, sesję i serię na tym telefonie, Twoje przypomnienia i wszystkie klucze przechowywane przez aplikację, a potem wróci do początku.</string>
