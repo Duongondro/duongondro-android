@@ -45,7 +45,8 @@ object CsvExport {
                 content.practices.map { listOf(it.name, it.secondName, it.target, it.malaSize, it.streakOnly, it.archived) }),
             Table("sessions", listOf(Column.PRACTICE, Column.DAY_COUNTED, Column.START, Column.TIME_ZONE, Column.COUNT, Column.ROUND, Column.CHOSEN_DAY, Column.CORRECTION),
                 content.sessions.map {
-                    listOf(names[it.practiceId] ?: it.practiceId, it.day.toString(), stamp(it.startedAt, it.zone), it.zone.id, it.count, it.round,
+                    // A correction counts for no day, so its day_counted is empty.
+                    listOf(names[it.practiceId] ?: it.practiceId, it.day.toString().takeUnless { _ -> it.correction }, stamp(it.startedAt, it.zone), it.zone.id, it.count, it.round,
                         it.chosenDay?.let { _ -> it.day.toString() }, it.correction)
                 }),
         )
@@ -100,6 +101,10 @@ object CsvExport {
             "made and redeemed (friendship codes); hardware, tee and software (where a",
             "device keeps its key). Session starts are local to the session's time",
             "zone, given beside them; other times are ISO 8601 with their UTC offset.",
+            "",
+            "A session with correction true is a correction of the count: its count is",
+            "the change, possibly negative, and it counts for no day or streak, so its",
+            "day_counted is empty.",
         )
         when {
             content.account == null -> lines += listOf("", "This phone has no online account, so there are only practices and sessions.")

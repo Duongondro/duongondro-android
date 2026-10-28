@@ -3,6 +3,7 @@ package app.duongondro.core.export
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlin.math.absoluteValue
 
 /**
  * The words and formats of the PDF export in the app's language (iOS's Export.xcstrings,
@@ -107,7 +108,8 @@ object PdfReport {
                         Cell(if (k == 0) t.day(day, x.zone) else ""),
                         Cell(t.time(x.startedAt, x.zone)),
                         Cell(when {
-                            x.correction -> (if (x.count > 0) "+" else "") + t.number(x.count)
+                            // A true minus sign, as History shows it, never the format's hyphen.
+                            x.correction -> (if (x.count > 0) "+" else if (x.count < 0) "\u2212" else "") + t.number(x.count.absoluteValue)
                             p.streakOnly || x.count == 0 -> l("Done")
                             else -> t.number(x.count)
                         }),
