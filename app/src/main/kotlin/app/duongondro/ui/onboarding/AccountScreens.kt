@@ -153,6 +153,9 @@ private fun LabelledField(
     hint: String? = null, error: String? = null, keyboard: KeyboardOptions = KeyboardOptions.Default,
     transformation: VisualTransformation = VisualTransformation.None, onDone: (() -> Unit)? = null,
 ) {
+    // onDone must not come and go while typing: a changed imeAction restarts the keyboard's
+    // input session, and Gboard then overwrites the letter just typed. Callers pass a lambda
+    // that checks its own condition.
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         Text(label, style = Theme.type.label, color = if (error != null) Theme.colors.destructive else Theme.colors.accent,
             modifier = Modifier.padding(start = Space.xs))
@@ -417,7 +420,7 @@ internal fun ColumnScope.EmailStep(flow: OnboardingFlow, model: AppModel, accoun
         LabelledField(stringResource(R.string.email_label), flow.email, { flow.email = it; problem = null },
             error = problem?.let { stringResource(it) },
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
-            onDone = if (valid) ({ send(false) }) else null)
+            onDone = { if (valid) send(false) })
     }
 }
 
@@ -464,7 +467,7 @@ internal fun ColumnScope.CheckEmailStep(flow: OnboardingFlow, model: AppModel, a
     ) {
         LabelledField(stringResource(R.string.code_label), code, { code = Crockford.normalise(it, Crockford.SIGN_IN_LENGTH); problem = null },
             hint = stringResource(R.string.code_hint), error = problem?.let { stringResource(it) },
-            keyboard = codeKeyboard, transformation = Grouped, onDone = if (code.length == Crockford.SIGN_IN_LENGTH) submit else null)
+            keyboard = codeKeyboard, transformation = Grouped, onDone = { if (code.length == Crockford.SIGN_IN_LENGTH) submit() })
     }
 }
 
@@ -502,7 +505,7 @@ internal fun ColumnScope.NameStep(flow: OnboardingFlow, accounts: AccountManager
     ) {
         LabelledField(stringResource(R.string.name_label), flow.displayName, { if (loaded) flow.displayName = it.take(64) },
             keyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
-            onDone = if (loaded) next else null)
+            onDone = { if (loaded) next() })
     }
 }
 
@@ -563,7 +566,7 @@ internal fun ColumnScope.AddEmailStep(flow: OnboardingFlow, accounts: AccountMan
         LabelledField(stringResource(R.string.email_label), flow.addedEmail, { flow.addedEmail = it; problem = null },
             error = problem?.let { stringResource(it) },
             keyboard = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
-            onDone = if (valid) send else null)
+            onDone = { if (valid) send() })
     }
 }
 
@@ -604,7 +607,7 @@ internal fun ColumnScope.CheckAddedEmailStep(flow: OnboardingFlow, accounts: Acc
     ) {
         LabelledField(stringResource(R.string.code_label), code, { code = Crockford.normalise(it, Crockford.SIGN_IN_LENGTH); problem = null },
             hint = stringResource(R.string.code_hint), error = problem?.let { stringResource(it) },
-            keyboard = codeKeyboard, transformation = Grouped, onDone = if (code.length == Crockford.SIGN_IN_LENGTH) submit else null)
+            keyboard = codeKeyboard, transformation = Grouped, onDone = { if (code.length == Crockford.SIGN_IN_LENGTH) submit() })
     }
 }
 
@@ -744,7 +747,7 @@ internal fun ColumnScope.RecoveryCheckStep(code: String, back: () -> Unit, done:
             LabelledField(stringResource(R.string.recovery_group_n, i + 1), answers[n],
                 { answers[n] = Crockford.normalise(it, groups[i].length); wrong = false },
                 error = if (wrong) "" else null, keyboard = codeKeyboard,
-                onDone = if (n == asked.lastIndex && answers.all { it.isNotBlank() }) check else null)
+                onDone = if (n == asked.lastIndex) ({ if (answers.all { it.isNotBlank() }) check() }) else null)
         }
         if (wrong) ErrorLine(stringResource(R.string.recovery_check_wrong))
     }
@@ -766,7 +769,7 @@ internal fun ColumnScope.RestoreStep(accounts: AccountManager, finish: () -> Uni
     ) {
         LabelledField(stringResource(R.string.restore_label), code, { code = Crockford.normalise(it, Crockford.RECOVERY_LENGTH); wrong = false },
             error = if (wrong) stringResource(R.string.restore_wrong) else null, keyboard = codeKeyboard, transformation = Grouped,
-            onDone = if (code.length == Crockford.RECOVERY_LENGTH) submit else null)
+            onDone = { if (code.length == Crockford.RECOVERY_LENGTH) submit() })
     }
 }
 
